@@ -1,44 +1,40 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Core;
-using Couchbase.Linq.Extensions;
-using Couchbase.Linq.QueryGeneration;
-using NUnit.Framework;
-using Couchbase.Linq;
+﻿using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
-using Remotion.Linq;
-using Remotion.Linq.Parsing.Structure;
+using NUnit.Framework;
+using System;
+using System.Linq;
 
 namespace Couchbase.Linq.Tests
 {
     [TestFixture]
-    public class BucketExtensionTests
+    public class BucketExtensionTests : N1QLTestBase
     {
+
         [Test]
         public void Test_AnonymousType_In_Projection()
         {
-
             using (var cluster = new CouchbaseCluster())
             {
                 using (var bucket = cluster.OpenBucket())
                 {
                     var query = from c in QueryFactory.Queryable<Contact>(bucket)
-                        select new 
+                        select new
                         {
-                            age = c.Age, 
+                            age = c.Age,
                             fname = c.FirstName
                         };
 
                     const string expected = "SELECT c.age, c.fname FROM default as c";
-                    Assert.AreEqual(expected, CreateN1QlQuery(bucket, query.Expression));
+
+                    var N1QLQuery = CreateN1QlQuery(bucket, query.Expression);
+
+                    Assert.AreEqual(expected, N1QLQuery);
                 }
             }
+
+
         }
+
 
         [Test]
         public void Test_POCO()
@@ -48,7 +44,7 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket())
                 {
                     var query = from c in bucket.Queryable<Contact>()
-                        select c;
+                                select c;
 
                     const string expected = "SELECT c.* FROM default as c";
                     Assert.AreEqual(expected, CreateN1QlQuery(bucket, query.Expression));
@@ -64,18 +60,12 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket())
                 {
                     var query = from c in bucket.Queryable<Contact>()
-                        select c.Children;
+                                select c.Children;
 
                     const string expected = "SELECT c.children FROM default as c";
                     Assert.AreEqual(expected, CreateN1QlQuery(bucket, query.Expression));
                 }
             }
-        }
-
-        private string CreateN1QlQuery(IBucket bucket, Expression expression)
-        {
-            var queryModel = QueryParser.CreateDefault().GetParsedQuery(expression);
-            return N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel, bucket.Name);
         }
 
         [Test]
@@ -86,7 +76,7 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket())
                 {
                     var query = from c in bucket.Queryable<Contact>()
-                        select c;
+                                select c;
 
                     foreach (var contact in query)
                     {

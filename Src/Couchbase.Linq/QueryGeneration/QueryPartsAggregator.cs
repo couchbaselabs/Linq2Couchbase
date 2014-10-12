@@ -5,6 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Common.Logging;
 using Remotion.Linq.Clauses;
+    using Remotion.Linq.Utilities;
+    using Remotion.Text;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -17,11 +19,15 @@ namespace Couchbase.Linq.QueryGeneration
             SelectParts = new List<string>();
             FromParts = new List<string>();
             WhereParts = new List<string>();
+            OrderByParts = new List<string>();
+
         }
 
         public List<string> SelectParts { get; set; }
         public List<string> FromParts { get; set; }
         public List<string> WhereParts { get; set; }
+        private List<string> OrderByParts { get; set; }
+
 
         public void AddSelectParts(string format, params object[] args)
         {
@@ -73,12 +79,21 @@ namespace Couchbase.Linq.QueryGeneration
             }
             if (WhereParts.Any())
             {
-                sb.AppendFormat(" WHERE {0}", WhereParts.First()); //TODO select multiple where parts
+                sb.AppendFormat(" WHERE {0}", SeparatedStringBuilder.Build(" AND ", WhereParts));
+            }
+            if (OrderByParts.Any())
+            {
+                sb.AppendFormat(" ORDER BY {0}", SeparatedStringBuilder.Build(", ", OrderByParts));
             }
 
             var query = sb.ToString();
             Log.Debug(query);
             return query;
+        }
+
+        public void AddOrderByPart(IEnumerable<string> orderings)
+        {
+            OrderByParts.Insert(0, SeparatedStringBuilder.Build(", ", orderings));
         }
     }
 }
