@@ -1,16 +1,12 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Remotion.Linq;
+using Remotion.Linq.Clauses;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Core;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Remotion.Linq;
-using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -102,9 +98,12 @@ namespace Couchbase.Linq.QueryGeneration
             base.VisitWhereClause(whereClause, queryModel, index);
         }
 
+
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {
-            _queryPartsAggregator.AddOrderByPart(orderByClause.Orderings.Select(o => GetN1QlExpression(o.Expression)));
+            var orderByParts = orderByClause.Orderings.Select(ordering => String.Concat(GetN1QlExpression(ordering.Expression), " ", ordering.OrderingDirection.ToString().ToUpper())).ToList();
+
+            _queryPartsAggregator.AddOrderByPart(orderByParts);
 
             base.VisitOrderByClause(orderByClause, queryModel, index);
         }

@@ -25,11 +25,34 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
 
-            const string expected = "SELECT e.age, e.name FROM default as e WHERE (((e.Age > 10) AND (e.FirstName = 'Sam')) ORDER BY e.Age";
+            const string expected = "SELECT e.age, e.name FROM default as e WHERE ((e.Age > 10) AND (e.FirstName = 'Sam')) ORDER BY e.Age ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public void Test_Where_With_Multiple_OrderBy()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .OrderBy(e => e.Age)
+                    .ThenByDescending(e => e.Email)
+                    .Select(e => new { age = e.Age });
+
+
+            const string expected = "SELECT age.* FROM default as e ORDER BY e.Age ASC, e.Email DESC";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+
+
     }
 }
