@@ -102,6 +102,18 @@ namespace Couchbase.Linq.QueryGeneration
             base.VisitWhereClause(whereClause, queryModel, index);
         }
 
+        public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
+        {
+            _queryPartsAggregator.AddOrderByPart(orderByClause.Orderings.Select(o => GetN1QlExpression(o.Expression)));
+
+            base.VisitOrderByClause(orderByClause, queryModel, index);
+        }
+
+        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
+        {
+            base.VisitJoinClause(joinClause, queryModel, groupJoinClause);
+        }
+
         private string GetN1QlExpression(Expression expression)
         {
             return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _parameterAggregator);
