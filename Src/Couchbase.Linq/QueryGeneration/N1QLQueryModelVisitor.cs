@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Couchbase.Linq.Extensions;
+using Newtonsoft.Json;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using System;
@@ -10,7 +11,7 @@ using System.Reflection;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public class N1QlQueryModelVisitor : QueryModelVisitorBase
+    public class N1QlQueryModelVisitor : QueryModelVisitorBase //: N1QlQueryModelVisitorBase
     {
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
         private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
@@ -98,6 +99,11 @@ namespace Couchbase.Linq.QueryGeneration
             base.VisitWhereClause(whereClause, queryModel, index);
         }
 
+        public void VisitWhereMissingClause(WhereMissingClause whereClause, QueryModel queryModel, int index)
+        {
+            var expression = GetN1QlExpression(whereClause.Predicate);
+            _queryPartsAggregator.AddWhereMissingPart(String.Concat(expression, " IS MISSING"));                        
+        }
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {

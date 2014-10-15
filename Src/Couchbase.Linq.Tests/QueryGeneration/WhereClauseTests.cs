@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Core;
+using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
 using Moq;
 using NUnit.Framework;
@@ -25,8 +26,29 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .OrderBy(e => e.Age)
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
+            const string expected = "SELECT e.age, e.name FROM default as e WHERE ((e.Age > 10) AND (e.FirstName = 'Sam')) ORDER BY e.Age ASC";
 
-            const string expected = "SELECT e.age, e.name FROM default as e WHERE (((e.Age > 10) AND (e.FirstName = Sam)) ORDER BY e.Age";
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+
+        [Test]
+        public void Test_Where_With_Missing()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Where(e => e.Email == "something@gmail.com")
+                    .WhereMissing(e => e.Age)
+                    .OrderBy(e => e.Age)
+                    .Select(e => new { age = e.Age, name = e.FirstName });
+
+
+            const string expected = "SELECT e.age, e.name FROM default as e WHERE (e.Email = 'something@gmail.com') AND e.Age IS MISSING ORDER BY e.Age ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -44,9 +66,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Where(e => e.Age > 10 && e.FirstName == "Sam" && e.LastName.Contains("a"))
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
-
-
-            const string expected = "SELECT e.age, e.name FROM default as e WHERE (((e.Age > 10) AND (e.FirstName = Sam)) AND (e.LastName LIKE '%a%'))";
+            const string expected = "SELECT e.age, e.name FROM default as e WHERE (((e.Age > 10) AND (e.FirstName = 'Sam')) AND (e.LastName LIKE '%a%'))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -110,8 +130,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Where(e => e.Email == "myemail@test.com")
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
-
-            const string expected = "SELECT e.age, e.name FROM default as e WHERE ((e.Age > 10) AND (e.FirstName = Sam))";
+            const string expected = "SELECT e.age, e.name FROM default as e WHERE ((e.Age > 10) AND (e.FirstName = 'Sam')) AND (e.Email = 'myemail@test.com')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

@@ -29,8 +29,9 @@ namespace Couchbase.Linq
         }
 
         public QueryClientQueryable(IQueryClient queryClient, string bucketName, Uri uri) 
-            : base(QueryParser.CreateDefault(), new QueryClientQueryExecuter(queryClient, bucketName, uri))
-        { 
+            : base(QueryParserHelper.CreateQueryParser(), new QueryClientQueryExecuter(queryClient, bucketName, uri))
+        {
+
         }  
     }
 }

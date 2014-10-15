@@ -58,6 +58,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\QueryExtensions.cs" />
+    <Compile Include="Extensions\WhereMissingClause.cs" />
+    <Compile Include="Extensions\WhereMissingExpressionNode.cs" />
     <Compile Include="QueryClientQueryable.cs" />
     <Compile Include="QueryClientQueryExecuter.cs" />
     <Compile Include="Extensions\QueryClientExtensions.cs" />
@@ -73,6 +76,7 @@
     <Compile Include="QueryGeneration\ParameterAggregator.cs" />
     <Compile Include="QueryGeneration\QueryPartsAggregator.cs" />
     <Compile Include="QueryGeneration\SelectMissingException.cs" />
+    <Compile Include="QueryParserHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

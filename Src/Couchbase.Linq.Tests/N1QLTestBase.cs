@@ -15,7 +15,7 @@ namespace Couchbase.Linq.Tests
     {
         protected string CreateN1QlQuery(IBucket bucket, Expression expression)
         {
-            var queryModel = QueryParser.CreateDefault().GetParsedQuery(expression);
+            var queryModel = QueryParserHelper.CreateQueryParser().GetParsedQuery(expression);
             return N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel, bucket.Name);
         }
 

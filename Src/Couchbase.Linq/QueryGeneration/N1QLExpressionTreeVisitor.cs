@@ -21,19 +21,31 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly Dictionary<MethodInfo, Func<MethodCallExpression, Expression>> _methodCallTranslators = new Dictionary<MethodInfo, Func<MethodCallExpression, Expression>>();
 
         private Expression ContainsMethodTranslator(MethodCallExpression methodCallExpression)
-        {  
-                _expression.Append("(");
-                VisitExpression(methodCallExpression.Object);
-                _expression.Append(" LIKE '%");
-                VisitExpression(methodCallExpression.Arguments[0]);
-                _expression.Append("%')");
-                return methodCallExpression;
-       
+        {
+            _expression.Append("(");
+            VisitExpression(methodCallExpression.Object);
+            _expression.Append(" LIKE '%");
+
+            var indexInsertStarted = _expression.Length;
+
+            VisitExpression(methodCallExpression.Arguments[0]);
+
+            var indexInsertEnded = _expression.Length;
+
+            _expression.Append("%')");
+
+            //Remove extra quote marks which have been added due to the string in the clause, these aren't needed as they have been added already in this case.
+
+            _expression.Remove(indexInsertStarted, 1);
+            _expression.Remove(indexInsertEnded - 2, 1);
+
+            return methodCallExpression;
+
         }
 
         private N1QlExpressionTreeVisitor(ParameterAggregator parameterAggregator)
         {
-            _parameterAggregator = parameterAggregator; 
+            _parameterAggregator = parameterAggregator;
             _methodCallTranslators.Add(typeof(string).GetMethod("Contains"), ContainsMethodTranslator);
         }
 
@@ -50,11 +62,11 @@ namespace Couchbase.Linq.QueryGeneration
             var text = expression != null
                 ? FormattingExpressionTreeVisitor.Format(expression)
                 : unhandledItem.ToString();
-           
+
             var message = string.Format(
                 "The expression '{0}' (type: {1}) is not supported by this LINQ provider."
                 , text
-                , typeof (T));
+                , typeof(T));
 
             return new NotSupportedException(message);
         }
@@ -128,7 +140,7 @@ namespace Couchbase.Linq.QueryGeneration
                     break;
                 case ExpressionType.NotEqual:
                     _expression.Append(" != "); //TODO: Change this to work for nulls. i.e. should be IS NOT NULL
-                    break;           
+                    break;
                 default:
                     base.VisitBinaryExpression(expression);
                     break;
@@ -149,10 +161,10 @@ namespace Couchbase.Linq.QueryGeneration
         {
             Func<MethodCallExpression, Expression> methodCallTranslator = null;
 
-            if(_methodCallTranslators.TryGetValue(expression.Method, out methodCallTranslator))
+            if (_methodCallTranslators.TryGetValue(expression.Method, out methodCallTranslator))
             {
-               return methodCallTranslator.Invoke(expression);
-            }     
+                return methodCallTranslator.Invoke(expression);
+            }
             else
             {
                 return base.VisitMethodCallExpression(expression);
