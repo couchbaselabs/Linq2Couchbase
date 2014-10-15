@@ -38,6 +38,11 @@ namespace Couchbase.Linq.QueryGeneration
             SelectParts.Add(string.Format(format, args));
         }
 
+        public void AddWhereMissingPart(string format, params object[] args)
+        {
+            WhereParts.Add(string.Format(format, args));
+        }
+
         public void AddWherePart(string format, params object[] args)
         {
             WhereParts.Add(string.Format(format, args));
