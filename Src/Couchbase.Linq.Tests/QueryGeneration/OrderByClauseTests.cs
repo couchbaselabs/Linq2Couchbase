@@ -10,6 +10,7 @@ using NUnit.Framework;
 
 namespace Couchbase.Linq.Tests.QueryGeneration
 {
+    [TestFixture]
     class OrderByClauseTests : N1QLTestBase
     {
         [Test]
@@ -52,7 +53,25 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             Assert.AreEqual(expected, n1QlQuery);
         }
 
+        [Test]
+        public void Test_Where_With_Descending_Then_Ascending()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
 
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .OrderByDescending(e => e.Age)
+                    .ThenBy(e => e.Email)
+                    .Select(e => new { age = e.Age });
+
+
+            const string expected = "SELECT age.* FROM default as e ORDER BY e.Age DESC, e.Email ASC";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
 
     }
 }

@@ -1,12 +1,9 @@
-﻿    using System;
+﻿using Common.Logging;
+using Remotion.Linq.Clauses;
+using Remotion.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Common.Logging;
-using Remotion.Linq.Clauses;
-    using Remotion.Linq.Utilities;
-    using Remotion.Text;
 
 namespace Couchbase.Linq.QueryGeneration
 {

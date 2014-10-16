@@ -114,6 +114,7 @@ namespace Couchbase.Linq.QueryGeneration
             base.VisitOrderByClause(orderByClause, queryModel, index);
         }
 
+        //TODO: Implement Joins
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
         {
             base.VisitJoinClause(joinClause, queryModel, groupJoinClause);

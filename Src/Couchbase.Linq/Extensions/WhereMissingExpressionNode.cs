@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Remotion.Linq;
+using Remotion.Linq.Parsing.Structure.IntermediateModel;
+using System;
 using System.Linq.Expressions;
 using System.Reflection;
-using Remotion.Linq;
-using Remotion.Linq.Clauses;
-using Remotion.Linq.Parsing.Structure.IntermediateModel;
-using Remotion.Utilities;
 
 namespace Couchbase.Linq.Extensions
 {
@@ -32,9 +30,7 @@ namespace Couchbase.Linq.Extensions
 
         public Expression GetResolvedPredicate(ClauseGenerationContext clauseGenerationContext)
         {
-            var expression = _cachedPredicate.GetOrCreate(r => r.GetResolvedExpression(Predicate.Body, Predicate.Parameters[0], clauseGenerationContext));
-
-            return expression;
+            return _cachedPredicate.GetOrCreate(r => r.GetResolvedExpression(Predicate.Body, Predicate.Parameters[0], clauseGenerationContext));
         }
 
         public override Expression Resolve(ParameterExpression inputParameter, Expression expressionToBeResolved, ClauseGenerationContext clauseGenerationContext)
