@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Core;
+﻿using Couchbase.Core;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
 using Moq;
 using NUnit.Framework;
+using System.Linq;
 
 namespace Couchbase.Linq.Tests.QueryGeneration
 {
@@ -43,7 +39,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             var query =
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Where(e => e.Email == "something@gmail.com")
-                    .WhereMissing(e => e.Age)
+                    .WhereMissing(g => g.Age)
                     .OrderBy(e => e.Age)
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
@@ -117,7 +113,6 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         }
 
 
-
         [Test]
         public void Test_Multiple_Where()
         {
@@ -135,8 +130,45 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             Assert.AreEqual(expected, n1QlQuery);
-
         }
+
+        [Test]
+        public void Test_Where_With_Or()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Where(e => e.Age > 10 || e.FirstName == "Sam")
+                    .Select(e => new { age = e.Age, name = e.FirstName });
+
+            const string expected = "SELECT e.age, e.name FROM default as e WHERE ((e.Age > 10) OR (e.FirstName = 'Sam'))";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+
+        [Test]
+        public void Test_Where_With_Math()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Where(e => e.Age < 10 + 30)
+                    .Select(e => new { age = e.Age, name = e.FirstName });
+
+            const string expected = "SELECT e.age, e.name FROM default as e WHERE (e.Age < 40)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
 
     }
 }

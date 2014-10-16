@@ -35,7 +35,6 @@ namespace Couchbase.Linq.QueryGeneration
             _expression.Append("%')");
 
             //Remove extra quote marks which have been added due to the string in the clause, these aren't needed as they have been added already in this case.
-
             _expression.Remove(indexInsertStarted, 1);
             _expression.Remove(indexInsertEnded - 2, 1);
 
@@ -93,13 +92,14 @@ namespace Couchbase.Linq.QueryGeneration
             return expression;
         }
 
+
         protected override Expression VisitBinaryExpression(BinaryExpression expression)
         {
             _expression.Append("(");
 
             VisitExpression(expression.Left);
 
-            // In production code, handle this via lookup tables.
+            //TODO: Refactor this to work in a nicer way. Maybe use lookup tables
             switch (expression.NodeType)
             {
                 case ExpressionType.Equal:
@@ -152,11 +152,11 @@ namespace Couchbase.Linq.QueryGeneration
             return expression;
         }
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
-        {
-            return base.VisitSubQueryExpression(expression);
-        }
-
+        /// <summary>
+        /// Tries to translate the Method-call to some N1QL expression. Currently only implemented for "Contains() - LIKE"
+        /// </summary>
+        /// <param name="expression"></param>
+        /// <returns></returns>
         protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
         {
             Func<MethodCallExpression, Expression> methodCallTranslator = null;

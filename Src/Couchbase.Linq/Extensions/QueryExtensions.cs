@@ -1,17 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Core;
-using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Couchbase.Linq.Extensions
 {
     public static class QueryExtensions
     {
+        /// <summary>
+        /// Where Missing Clause for N1QL. (.WhereMissing(e -> e.Age) translates to WHERE table/alias.Age IS MISSING)
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <typeparam name="T1"></typeparam>
+        /// <param name="source"></param>
+        /// <param name="predicate"></param>
+        /// <returns></returns>
         public static IQueryable<T> WhereMissing<T, T1>(this IQueryable<T> source, Expression<Func<T, T1>> predicate)
         {
             return source.Provider.CreateQuery<T>(
@@ -22,9 +25,6 @@ namespace Couchbase.Linq.Extensions
                     Expression.Quote(predicate)));
 
         }
-
-
-
     }
 }
 
