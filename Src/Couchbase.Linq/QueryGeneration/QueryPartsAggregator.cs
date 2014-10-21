@@ -1,10 +1,9 @@
-﻿    using System;
+﻿using System;
+using Common.Logging;
+using Remotion.Linq.Clauses;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using Common.Logging;
-using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -17,11 +16,16 @@ namespace Couchbase.Linq.QueryGeneration
             SelectParts = new List<string>();
             FromParts = new List<string>();
             WhereParts = new List<string>();
+            OrderByParts = new List<string>();
+
         }
 
         public List<string> SelectParts { get; set; }
         public List<string> FromParts { get; set; }
         public List<string> WhereParts { get; set; }
+        public List<string> OrderByParts { get; set; }
+        public string LimitPart { get; set; }
+        public string OffsetPart { get; set; }
 
         public void AddSelectParts(string format, params object[] args)
         {
@@ -30,6 +34,11 @@ namespace Couchbase.Linq.QueryGeneration
                 format = string.Concat(format, ".*");
             }
             SelectParts.Add(string.Format(format, args));
+        }
+
+        public void AddWhereMissingPart(string format, params object[] args)
+        {
+            WhereParts.Add(string.Format(format, args));
         }
 
         public void AddWherePart(string format, params object[] args)
@@ -73,12 +82,39 @@ namespace Couchbase.Linq.QueryGeneration
             }
             if (WhereParts.Any())
             {
-                sb.AppendFormat(" WHERE {0}", WhereParts.First()); //TODO select multiple where parts
+                sb.AppendFormat(" WHERE {0}", String.Join(" AND ", WhereParts));
             }
-
+            if (OrderByParts.Any())
+            {
+                sb.AppendFormat(" ORDER BY {0}",String.Join(", ", OrderByParts));
+            }
+            if (LimitPart != null)
+            {
+                sb.Append(LimitPart);
+            }
+            if (LimitPart != null && OffsetPart != null)
+            {
+                sb.Append(OffsetPart);
+            }
             var query = sb.ToString();
             Log.Debug(query);
             return query;
+        }
+
+        public void AddOffsetPart(string offsetPart, int count)
+        {
+            OffsetPart = String.Format(offsetPart, count);
+
+        }
+
+        public void AddLimitPart(string limitPart, int count)
+        {
+            LimitPart = String.Format(limitPart, count);
+        }
+
+        public void AddOrderByPart(IEnumerable<string> orderings)
+        {
+            OrderByParts.Insert(0, String.Join(", ", orderings));  
         }
     }
 }

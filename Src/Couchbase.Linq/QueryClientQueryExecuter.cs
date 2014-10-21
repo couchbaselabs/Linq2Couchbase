@@ -1,11 +1,9 @@
-﻿using System;
+﻿using Couchbase.Linq.QueryGeneration;
+using Couchbase.N1QL;
+using Remotion.Linq;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Linq.QueryGeneration;
-using Remotion.Linq;
-using Couchbase.N1QL;
 
 namespace Couchbase.Linq
 {

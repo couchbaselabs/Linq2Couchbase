@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
+using Couchbase;
 
 namespace Couchbase.Linq.Example
 {

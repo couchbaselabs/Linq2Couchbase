@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Couchbase.Configuration.Client;
+using Couchbase.Configuration.Client.Providers;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
 using NUnit.Framework;
@@ -12,9 +14,20 @@ namespace Couchbase.Linq.Tests
     [TestFixture]
     public class BeerSampleTests
     {
+
+
+
         [Test]
         public void Map2PocoTests()
         {
+            
+            ClientConfiguration clientConfiguration = new ClientConfiguration
+            {
+                Servers = new List<Uri>
+                {
+                    new Uri("http://localhost:8091"),
+                }
+            };
             using (var cluster = new CouchbaseCluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))

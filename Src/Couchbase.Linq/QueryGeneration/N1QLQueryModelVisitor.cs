@@ -1,20 +1,18 @@
-﻿using System;
+﻿using Couchbase.Linq.Extensions;
+using Newtonsoft.Json;
+using Remotion.Linq;
+using Remotion.Linq.Clauses;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Core;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
-using Remotion.Linq;
-using Remotion.Linq.Clauses;
+using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public class N1QlQueryModelVisitor : QueryModelVisitorBase
+    public class N1QlQueryModelVisitor : QueryModelVisitorBase //: N1QlQueryModelVisitorBase
     {
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
         private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
@@ -100,6 +98,45 @@ namespace Couchbase.Linq.QueryGeneration
         {
             _queryPartsAggregator.AddWherePart(GetN1QlExpression(whereClause.Predicate));
             base.VisitWhereClause(whereClause, queryModel, index);
+        }
+
+        public void VisitWhereMissingClause(WhereMissingClause whereClause, QueryModel queryModel, int index)
+        {
+            var expression = GetN1QlExpression(whereClause.Predicate);
+            _queryPartsAggregator.AddWhereMissingPart(String.Concat(expression, " IS MISSING"));                        
+        }
+
+        public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
+        {
+            if ((resultOperator is TakeResultOperator))
+            {
+                var takeResultOperator = resultOperator as TakeResultOperator;
+
+                _queryPartsAggregator.AddLimitPart(" LIMIT {0}", Convert.ToInt32(GetN1QlExpression(takeResultOperator.Count)));
+            }
+            else if (resultOperator is SkipResultOperator)
+            {
+                var skipResultOperator = resultOperator as SkipResultOperator;
+
+                _queryPartsAggregator.AddOffsetPart(" OFFSET {0}", Convert.ToInt32(GetN1QlExpression(skipResultOperator.Count)));
+            }
+
+            base.VisitResultOperator(resultOperator, queryModel, index);
+        }
+
+        public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
+        {
+            var orderByParts = orderByClause.Orderings.Select(ordering => String.Concat(GetN1QlExpression(ordering.Expression), " ", ordering.OrderingDirection.ToString().ToUpper())).ToList();
+
+            _queryPartsAggregator.AddOrderByPart(orderByParts);
+
+            base.VisitOrderByClause(orderByClause, queryModel, index);
+        }
+
+        //TODO: Implement Joins
+        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, GroupJoinClause groupJoinClause)
+        {
+            base.VisitJoinClause(joinClause, queryModel, groupJoinClause);
         }
 
         private string GetN1QlExpression(Expression expression)
