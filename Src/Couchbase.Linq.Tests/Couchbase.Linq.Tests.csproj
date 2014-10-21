@@ -76,6 +76,7 @@
     <Compile Include="QueryClientExtensionTests.cs" />
     <Compile Include="QueryGeneration\OrderByClauseTests.cs" />
     <Compile Include="QueryGeneration\SelectTests.cs" />
+    <Compile Include="QueryGeneration\TakeAndSkipTests.cs" />
     <Compile Include="QueryGeneration\WhereClauseTests.cs" />
   </ItemGroup>
   <ItemGroup>

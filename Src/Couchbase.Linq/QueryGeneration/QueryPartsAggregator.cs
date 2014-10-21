@@ -1,6 +1,6 @@
-﻿using Common.Logging;
+﻿using System;
+using Common.Logging;
 using Remotion.Linq.Clauses;
-using Remotion.Text;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,8 +23,9 @@ namespace Couchbase.Linq.QueryGeneration
         public List<string> SelectParts { get; set; }
         public List<string> FromParts { get; set; }
         public List<string> WhereParts { get; set; }
-        private List<string> OrderByParts { get; set; }
-
+        public List<string> OrderByParts { get; set; }
+        public string LimitPart { get; set; }
+        public string OffsetPart { get; set; }
 
         public void AddSelectParts(string format, params object[] args)
         {
@@ -81,21 +82,39 @@ namespace Couchbase.Linq.QueryGeneration
             }
             if (WhereParts.Any())
             {
-                sb.AppendFormat(" WHERE {0}", SeparatedStringBuilder.Build(" AND ", WhereParts));
+                sb.AppendFormat(" WHERE {0}", String.Join(" AND ", WhereParts));
             }
             if (OrderByParts.Any())
             {
-                sb.AppendFormat(" ORDER BY {0}", SeparatedStringBuilder.Build(", ", OrderByParts));
+                sb.AppendFormat(" ORDER BY {0}",String.Join(", ", OrderByParts));
             }
-
+            if (LimitPart != null)
+            {
+                sb.Append(LimitPart);
+            }
+            if (LimitPart != null && OffsetPart != null)
+            {
+                sb.Append(OffsetPart);
+            }
             var query = sb.ToString();
             Log.Debug(query);
             return query;
         }
 
+        public void AddOffsetPart(string offsetPart, int count)
+        {
+            OffsetPart = String.Format(offsetPart, count);
+
+        }
+
+        public void AddLimitPart(string limitPart, int count)
+        {
+            LimitPart = String.Format(limitPart, count);
+        }
+
         public void AddOrderByPart(IEnumerable<string> orderings)
         {
-            OrderByParts.Insert(0, SeparatedStringBuilder.Build(", ", orderings));
+            OrderByParts.Insert(0, String.Join(", ", orderings));
         }
     }
 }
