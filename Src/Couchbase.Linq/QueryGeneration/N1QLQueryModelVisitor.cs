@@ -8,6 +8,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -103,6 +104,24 @@ namespace Couchbase.Linq.QueryGeneration
         {
             var expression = GetN1QlExpression(whereClause.Predicate);
             _queryPartsAggregator.AddWhereMissingPart(String.Concat(expression, " IS MISSING"));                        
+        }
+
+        public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
+        {
+            if ((resultOperator is TakeResultOperator))
+            {
+                var takeResultOperator = resultOperator as TakeResultOperator;
+
+                _queryPartsAggregator.AddLimitPart(" LIMIT {0}", Convert.ToInt32(GetN1QlExpression(takeResultOperator.Count)));
+            }
+            else if (resultOperator is SkipResultOperator)
+            {
+                var skipResultOperator = resultOperator as SkipResultOperator;
+
+                _queryPartsAggregator.AddOffsetPart(" OFFSET {0}", Convert.ToInt32(GetN1QlExpression(skipResultOperator.Count)));
+            }
+
+            base.VisitResultOperator(resultOperator, queryModel, index);
         }
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
