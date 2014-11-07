@@ -15,7 +15,7 @@ namespace Couchbase.Linq.Example
     {
         static void Main(string[] args)
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("tutorial"))
                 {

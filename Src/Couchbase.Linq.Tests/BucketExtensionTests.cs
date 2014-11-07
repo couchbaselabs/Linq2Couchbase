@@ -9,11 +9,10 @@ namespace Couchbase.Linq.Tests
     [TestFixture]
     public class BucketExtensionTests : N1QLTestBase
     {
-
         [Test]
         public void Test_AnonymousType_In_Projection()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -35,11 +34,10 @@ namespace Couchbase.Linq.Tests
 
         }
 
-
         [Test]
         public void Test_POCO()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -55,7 +53,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_Select_Children()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -71,7 +69,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -93,7 +91,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_POCO_Basic()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
