@@ -28,7 +28,7 @@ namespace Couchbase.Linq.Tests
                     new Uri("http://localhost:8091"),
                 }
             };
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -46,7 +46,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -65,7 +65,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections_Where()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -84,7 +84,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections_Limit()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
