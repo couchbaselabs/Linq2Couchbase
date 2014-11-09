@@ -72,23 +72,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
             else
             {
-                var selectType = selectClause.Selector.GetType();
-                var property = TypeDescriptor.GetProperties(selectType)["Member"];
-                if (property != null)
-                {
-                    var fieldName = (PropertyInfo)property.GetValue(selectClause.Selector);
-                    var attribute = fieldName.GetCustomAttributes().FirstOrDefault(x => x is JsonPropertyAttribute);
-                    if (attribute != null)
-                    {
-                        var temp = (JsonPropertyAttribute)attribute;
-                        expression = temp.PropertyName;
-
-                        if (!string.IsNullOrEmpty(prefix))
-                        {
-                            expression = string.Format("{0}.{1}", prefix, expression);
-                        }
-                    }
-                }
+                expression = string.Format("{0}.{1}", prefix, expression);
                 expressions.Add(expression);
             }
             return expressions;
