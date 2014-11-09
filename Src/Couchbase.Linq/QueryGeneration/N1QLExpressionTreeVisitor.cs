@@ -19,6 +19,7 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly StringBuilder _expression = new StringBuilder();
         private readonly ParameterAggregator _parameterAggregator;
         private readonly Dictionary<MethodInfo, Func<MethodCallExpression, Expression>> _methodCallTranslators = new Dictionary<MethodInfo, Func<MethodCallExpression, Expression>>();
+        private readonly IMemberNameResolver _nameResolver = new JsonNetMemberNameResolver();
 
         private Expression ContainsMethodTranslator(MethodCallExpression methodCallExpression)
         {
@@ -82,11 +83,11 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 if (i == members.Count - 1)
                 {
-                    _expression.Append(members[i].Name);
+                    _expression.Append(_nameResolver.ResolveMemberName(members[i]));
                 }
                 else
                 {   //add a delimiter to split on later
-                    _expression.AppendFormat("{0},", members[i].Name);
+                    _expression.AppendFormat("{0},", _nameResolver.ResolveMemberName(members[i]));
                 }
             }
             return expression;
@@ -196,7 +197,7 @@ namespace Couchbase.Linq.QueryGeneration
         protected override Expression VisitMemberExpression(MemberExpression expression)
         {
             VisitExpression(expression.Expression);
-            _expression.AppendFormat(".{0}", expression.Member.Name);
+            _expression.AppendFormat(".{0}", _nameResolver.ResolveMemberName(expression.Member));
             return expression;
         }
     }
