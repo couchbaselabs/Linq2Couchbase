@@ -66,6 +66,8 @@
     <Compile Include="QueryFactory.cs" />
     <Compile Include="Extensions\BucketExtensions.cs" />
     <Compile Include="QueryGeneration\CommandData.cs" />
+    <Compile Include="QueryGeneration\IMemberNameResolver.cs" />
+    <Compile Include="QueryGeneration\JsonNetMemberNameResolver.cs" />
     <Compile Include="QueryGeneration\N1QLExpressionTreeVisitor.cs" />
     <Compile Include="QueryGeneration\N1QLQueryModelVisitor.cs" />
     <Compile Include="QueryGeneration\NamedParameter.cs" />
