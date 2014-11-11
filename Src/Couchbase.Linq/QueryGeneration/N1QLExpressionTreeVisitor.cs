@@ -78,18 +78,20 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitNewExpression(NewExpression expression)
         {
-            var members = expression.Members;
-            for (var i = 0; i < members.Count; i++)
+            var arguments = expression.Arguments;
+            var count = 0;
+
+            foreach (var argument in arguments)
             {
-                if (i == members.Count - 1)
+                if (count > 0)
                 {
-                    _expression.Append(_nameResolver.ResolveMemberName(members[i]));
+                    _expression.Append(",");
                 }
-                else
-                {   //add a delimiter to split on later
-                    _expression.AppendFormat("{0},", _nameResolver.ResolveMemberName(members[i]));
-                }
+
+                VisitExpression(argument);
+                count++;
             }
+
             return expression;
         }
 
