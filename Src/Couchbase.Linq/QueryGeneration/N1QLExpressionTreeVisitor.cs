@@ -79,17 +79,17 @@ namespace Couchbase.Linq.QueryGeneration
         protected override Expression VisitNewExpression(NewExpression expression)
         {
             var arguments = expression.Arguments;
-            var count = 0;
-
-            foreach (var argument in arguments)
+            var members = expression.Members;
+           
+            for (var i = 0; i < members.Count; i++)
             {
-                if (count > 0)
+                if (i > 0)
                 {
                     _expression.Append(",");
                 }
 
-                VisitExpression(argument);
-                count++;
+                VisitExpression(arguments[i]);
+                _expression.AppendFormat(" as {0}", members[i].Name);
             }
 
             return expression;
