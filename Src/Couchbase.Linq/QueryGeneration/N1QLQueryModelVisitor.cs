@@ -61,21 +61,10 @@ namespace Couchbase.Linq.QueryGeneration
 
         private IEnumerable<string> GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
         {
-            var expressions = new List<string>();
             var prefix = queryModel.MainFromClause.ItemName;
             var expression = GetN1QlExpression(selectClause.Selector);
-            if (expression.Contains(','))
-            {
-                expressions.
-                    AddRange(expression.Split(',').
-                    Select(value => string.Format("{0}.{1}", prefix, value)));
-            }
-            else
-            {
-                expression = string.Format("{0}.{1}", prefix, expression);
-                expressions.Add(expression);
-            }
-            return expressions;
+
+            return expression.Split(',').ToList();
         }
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
