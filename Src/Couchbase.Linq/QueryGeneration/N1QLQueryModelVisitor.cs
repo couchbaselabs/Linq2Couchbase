@@ -1,5 +1,4 @@
 ﻿using Couchbase.Linq.Extensions;
-using Newtonsoft.Json;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using System;
