@@ -202,5 +202,11 @@ namespace Couchbase.Linq.QueryGeneration
             _expression.AppendFormat(".{0}", _nameResolver.ResolveMemberName(expression.Member));
             return expression;
         }
+
+        protected override Expression VisitUnaryExpression(UnaryExpression expression)
+        {
+            VisitExpression(expression.Operand);
+            return expression;
+        }
     }
 }
