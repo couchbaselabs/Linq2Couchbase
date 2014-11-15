@@ -9,6 +9,11 @@ namespace Couchbase.Linq.Tests.QueryGeneration
     [TestFixture]
     public class TakeAndSkipTests : N1QLTestBase
     {
+        public TakeAndSkipTests()
+        {
+            InitializeCluster();
+        }
+
         [Test]
         public void Test_Take()
         {
@@ -20,7 +25,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new { age = e.Age, name = e.FirstName })
                     .Take(30);
 
-            const string expected = "SELECT e.age, e.name FROM default as e LIMIT 30";
+            const string expected = "SELECT e.age as age, e.fname as name FROM default as e LIMIT 30";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

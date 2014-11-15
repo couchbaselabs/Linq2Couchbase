@@ -83,13 +83,20 @@ namespace Couchbase.Linq.QueryGeneration
 
             for (var i = 0; i < members.Count; i++)
             {
-                if (i > 0)
-                {
-                    _expression.Append(",");
-                }
+                    if (i > 0)
+                    {
+                        _expression.Append(",");
+                    }
 
-                VisitExpression(arguments[i]);
-                _expression.AppendFormat(" as {0}", members[i].Name);
+                    int expressionLength = _expression.Length;
+
+                    VisitExpression(arguments[i]);
+
+                    //only add 'as' part if the  previous visitexpression has generated something.
+                    if (_expression.Length > expressionLength)
+                    {
+                        _expression.AppendFormat(" as {0}", members[i].Name);
+                    }
             }
 
             return expression;
@@ -198,8 +205,14 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitMemberExpression(MemberExpression expression)
         {
-            VisitExpression(expression.Expression);
-            _expression.AppendFormat(".{0}", _nameResolver.ResolveMemberName(expression.Member));
+            string memberName;
+
+            if (_nameResolver.TryResolveMemberName(expression.Member,out memberName))
+            {
+                VisitExpression(expression.Expression);
+                _expression.AppendFormat(".{0}", memberName);
+            }
+
             return expression;
         }
 
