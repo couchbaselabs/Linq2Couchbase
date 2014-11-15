@@ -9,9 +9,16 @@ namespace Couchbase.Linq.Tests.QueryGeneration
     [TestFixture]
     public class SelectTests : N1QLTestBase
     {
+        public SelectTests()
+        {
+            InitializeCluster();
+        }
+
         [Test]
         public void Test_Select_With_Projection()
         {
+            InitializeCluster();
+
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
@@ -19,7 +26,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
-            const string expected = "SELECT e.age, e.name FROM default as e";
+            const string expected = "SELECT e.age as age, e.fname as name FROM default as e";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

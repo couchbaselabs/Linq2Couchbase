@@ -9,6 +9,6 @@ namespace Couchbase.Linq.QueryGeneration
 {
     public interface IMemberNameResolver
     {
-        string ResolveMemberName(MemberInfo member);
+        bool TryResolveMemberName(MemberInfo member, out string memberName);
     }
 }

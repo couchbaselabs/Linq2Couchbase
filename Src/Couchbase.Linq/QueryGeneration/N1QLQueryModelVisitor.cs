@@ -63,7 +63,7 @@ namespace Couchbase.Linq.QueryGeneration
             var prefix = queryModel.MainFromClause.ItemName;
             var expression = GetN1QlExpression(selectClause.Selector);
 
-            return expression.Split(',').ToList();
+            return expression.Split(new char[]{','}, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
