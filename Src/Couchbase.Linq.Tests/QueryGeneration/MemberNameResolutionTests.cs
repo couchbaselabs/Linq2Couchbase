@@ -14,11 +14,10 @@ namespace Couchbase.Linq.Tests.QueryGeneration
     [TestFixture]
     public class MemberNameResolutionTests : N1QLTestBase
     {
-
         [Test]
         public void Test_Default_JsonProp_Att()
         {
-            InitializeCluster();
+            SetContractResolver(new DefaultContractResolver());
 
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
@@ -38,7 +37,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         [Test]
         public void Test_Default_No_Att()
         {
-            InitializeCluster();
+            SetContractResolver(new DefaultContractResolver());
 
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
@@ -58,7 +57,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         [Test]
         public void Test_Camel_No_Att()
         {
-            InitializeCluster(new CamelCasePropertyNamesContractResolver());
+            SetContractResolver(new CamelCasePropertyNamesContractResolver());
 
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
@@ -79,7 +78,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         [Test]
         public void Test_Default_DataContract_With_Excluded_Member()
         {
-            InitializeCluster();
+            SetContractResolver(new DefaultContractResolver());
 
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");

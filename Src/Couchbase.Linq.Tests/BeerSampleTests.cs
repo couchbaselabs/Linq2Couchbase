@@ -12,11 +12,8 @@ using NUnit.Framework;
 namespace Couchbase.Linq.Tests
 {
     [TestFixture]
-    public class BeerSampleTests
+    public class BeerSampleTests : N1QLTestBase
     {
-
-
-
         [Test]
         public void Map2PocoTests()
         {

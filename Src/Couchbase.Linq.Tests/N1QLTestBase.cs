@@ -14,6 +14,10 @@ namespace Couchbase.Linq.Tests
 // ReSharper disable once InconsistentNaming
     public class N1QLTestBase
     {
+        public N1QLTestBase()
+        {
+            InitializeCluster();
+        }
 
         protected string CreateN1QlQuery(IBucket bucket, Expression expression)
         {
@@ -33,6 +37,13 @@ namespace Couchbase.Linq.Tests
             config.DeserializationSettings.ContractResolver = contractResolver;
             config.SerializationSettings.ContractResolver = contractResolver;
             ClusterHelper.Initialize(config);
+        }
+
+        protected void SetContractResolver(IContractResolver contractResolver)
+        {
+            var cluster = ClusterHelper.Get();
+            cluster.Configuration.DeserializationSettings.ContractResolver = contractResolver;
+            cluster.Configuration.SerializationSettings.ContractResolver = contractResolver;
         }
 
     }

@@ -23,7 +23,7 @@ namespace Couchbase.Linq.Tests
                             fname = c.FirstName
                         };
 
-                    const string expected = "SELECT c.age, c.fname FROM default as c";
+                    const string expected = "SELECT c.age as age, c.fname as fname FROM default as c";
 
                     var N1QLQuery = CreateN1QlQuery(bucket, query.Expression);
 
