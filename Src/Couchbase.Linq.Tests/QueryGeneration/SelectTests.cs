@@ -9,16 +9,9 @@ namespace Couchbase.Linq.Tests.QueryGeneration
     [TestFixture]
     public class SelectTests : N1QLTestBase
     {
-        public SelectTests()
-        {
-            InitializeCluster();
-        }
-
         [Test]
         public void Test_Select_With_Projection()
         {
-            InitializeCluster();
-
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
 

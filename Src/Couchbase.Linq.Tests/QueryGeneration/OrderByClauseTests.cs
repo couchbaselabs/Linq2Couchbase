@@ -13,11 +13,6 @@ namespace Couchbase.Linq.Tests.QueryGeneration
     [TestFixture]
     class OrderByClauseTests : N1QLTestBase
     {
-        public OrderByClauseTests()
-        {
-            InitializeCluster();
-        }
-
         [Test]
         public void Test_Where_With_OrderBy()
         {

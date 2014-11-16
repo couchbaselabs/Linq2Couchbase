@@ -9,11 +9,6 @@ namespace Couchbase.Linq.Tests.QueryGeneration
     [TestFixture]
     public class TakeAndSkipTests : N1QLTestBase
     {
-        public TakeAndSkipTests()
-        {
-            InitializeCluster();
-        }
-
         [Test]
         public void Test_Take()
         {

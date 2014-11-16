@@ -13,7 +13,7 @@ using NUnit.Framework;
 namespace Couchbase.Linq.Tests
 {
     [TestFixture]
-    public sealed class QueryClientExtensionTests
+    public sealed class QueryClientExtensionTests : N1QLTestBase
     {
         [Test]
         public void Test_POCO_Projection()
