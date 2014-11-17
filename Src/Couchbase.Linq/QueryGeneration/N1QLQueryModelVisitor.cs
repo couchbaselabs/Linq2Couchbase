@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Clauses.Expressions;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -62,6 +63,11 @@ namespace Couchbase.Linq.QueryGeneration
         {
             var prefix = queryModel.MainFromClause.ItemName;
             var expression = GetN1QlExpression(selectClause.Selector);
+
+            if (selectClause.Selector.GetType() == typeof(QuerySourceReferenceExpression))
+            {
+                expression = string.Concat(expression, ".*");
+            }
 
             return expression.Split(new char[]{','}, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
