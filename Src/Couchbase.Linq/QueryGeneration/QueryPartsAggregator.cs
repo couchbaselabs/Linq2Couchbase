@@ -29,10 +29,6 @@ namespace Couchbase.Linq.QueryGeneration
 
         public void AddSelectParts(string format, params object[] args)
         {
-            if (!format.Contains(".")) 
-            {
-                format = string.Concat(format, ".*");
-            }
             SelectParts.Add(string.Format(format, args));
         }
 
