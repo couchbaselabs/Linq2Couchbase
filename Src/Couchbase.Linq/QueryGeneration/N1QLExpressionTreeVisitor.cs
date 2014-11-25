@@ -19,6 +19,7 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly StringBuilder _expression = new StringBuilder();
         private readonly ParameterAggregator _parameterAggregator;
         private readonly Dictionary<MethodInfo, Func<MethodCallExpression, Expression>> _methodCallTranslators = new Dictionary<MethodInfo, Func<MethodCallExpression, Expression>>();
+        private readonly IMemberNameResolver _nameResolver = new JsonNetMemberNameResolver();
 
         private Expression ContainsMethodTranslator(MethodCallExpression methodCallExpression)
         {
@@ -77,18 +78,27 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitNewExpression(NewExpression expression)
         {
+            var arguments = expression.Arguments;
             var members = expression.Members;
+           
             for (var i = 0; i < members.Count; i++)
             {
-                if (i == members.Count - 1)
-                {
-                    _expression.Append(members[i].Name);
-                }
-                else
-                {   //add a delimiter to split on later
-                    _expression.AppendFormat("{0},", members[i].Name);
-                }
+                    if (i > 0)
+                    {
+                        _expression.Append(",");
+                    }
+
+                    int expressionLength = _expression.Length;
+
+                    VisitExpression(arguments[i]);
+
+                    //only add 'as' part if the  previous visitexpression has generated something.
+                    if (_expression.Length > expressionLength)
+                    {
+                        _expression.AppendFormat(" as {0}", members[i].Name);
+                    }
             }
+
             return expression;
         }
 
@@ -195,8 +205,20 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitMemberExpression(MemberExpression expression)
         {
-            VisitExpression(expression.Expression);
-            _expression.AppendFormat(".{0}", expression.Member.Name);
+            string memberName;
+
+            if (_nameResolver.TryResolveMemberName(expression.Member,out memberName))
+            {
+                VisitExpression(expression.Expression);
+                _expression.AppendFormat(".{0}", memberName);
+            }
+
+            return expression;
+        }
+
+        protected override Expression VisitUnaryExpression(UnaryExpression expression)
+        {
+            VisitExpression(expression.Operand);
             return expression;
         }
     }

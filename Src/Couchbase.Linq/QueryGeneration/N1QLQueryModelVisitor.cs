@@ -1,5 +1,4 @@
 ﻿using Couchbase.Linq.Extensions;
-using Newtonsoft.Json;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using System;
@@ -9,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Clauses.Expressions;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -61,37 +61,15 @@ namespace Couchbase.Linq.QueryGeneration
 
         private IEnumerable<string> GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
         {
-            var expressions = new List<string>();
             var prefix = queryModel.MainFromClause.ItemName;
             var expression = GetN1QlExpression(selectClause.Selector);
-            if (expression.Contains(','))
-            {
-                expressions.
-                    AddRange(expression.Split(',').
-                    Select(value => string.Format("{0}.{1}", prefix, value)));
-            }
-            else
-            {
-                var selectType = selectClause.Selector.GetType();
-                var property = TypeDescriptor.GetProperties(selectType)["Member"];
-                if (property != null)
-                {
-                    var fieldName = (PropertyInfo)property.GetValue(selectClause.Selector);
-                    var attribute = fieldName.GetCustomAttributes().FirstOrDefault(x => x is JsonPropertyAttribute);
-                    if (attribute != null)
-                    {
-                        var temp = (JsonPropertyAttribute)attribute;
-                        expression = temp.PropertyName;
 
-                        if (!string.IsNullOrEmpty(prefix))
-                        {
-                            expression = string.Format("{0}.{1}", prefix, expression);
-                        }
-                    }
-                }
-                expressions.Add(expression);
+            if (selectClause.Selector.GetType() == typeof(QuerySourceReferenceExpression))
+            {
+                expression = string.Concat(expression, ".*");
             }
-            return expressions;
+
+            return expression.Split(new char[]{','}, StringSplitOptions.RemoveEmptyEntries).ToList();
         }
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
