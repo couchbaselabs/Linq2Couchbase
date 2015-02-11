@@ -7,6 +7,6 @@ namespace Couchbase.Linq
         public static BucketQueryable<T> Queryable<T>(IBucket bucket)
         {
             return new BucketQueryable<T>(bucket);
-        } 
+        }
     }
 }

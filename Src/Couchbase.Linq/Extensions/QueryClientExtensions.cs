@@ -1,5 +1,5 @@
-﻿using Couchbase.N1QL;
-using System;
+﻿using System;
+using Couchbase.N1QL;
 
 namespace Couchbase.Linq.Extensions
 {

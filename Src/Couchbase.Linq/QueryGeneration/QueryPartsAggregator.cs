@@ -1,15 +1,15 @@
 ﻿using System;
-using Common.Logging;
-using Remotion.Linq.Clauses;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Common.Logging;
+using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration
 {
     public class QueryPartsAggregator
     {
-        private readonly static ILog Log = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Log = LogManager.GetCurrentClassLogger();
 
         public QueryPartsAggregator()
         {
@@ -17,7 +17,6 @@ namespace Couchbase.Linq.QueryGeneration
             FromParts = new List<string>();
             WhereParts = new List<string>();
             OrderByParts = new List<string>();
-
         }
 
         public List<string> SelectParts { get; set; }
@@ -71,7 +70,8 @@ namespace Couchbase.Linq.QueryGeneration
                     selectParts.AppendFormat("{0}, ", SelectParts[i]);
                 }
             }
-            sb.AppendFormat("SELECT {0}", selectParts); //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5
+            sb.AppendFormat("SELECT {0}", selectParts);
+                //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5
             if (FromParts.Any())
             {
                 sb.AppendFormat(" FROM {0}", FromParts.First()); //TODO support multiple from parts
@@ -82,7 +82,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
             if (OrderByParts.Any())
             {
-                sb.AppendFormat(" ORDER BY {0}",String.Join(", ", OrderByParts));
+                sb.AppendFormat(" ORDER BY {0}", String.Join(", ", OrderByParts));
             }
             if (LimitPart != null)
             {
@@ -100,7 +100,6 @@ namespace Couchbase.Linq.QueryGeneration
         public void AddOffsetPart(string offsetPart, int count)
         {
             OffsetPart = String.Format(offsetPart, count);
-
         }
 
         public void AddLimitPart(string limitPart, int count)
