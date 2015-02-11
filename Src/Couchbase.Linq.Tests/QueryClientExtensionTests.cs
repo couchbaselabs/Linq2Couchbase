@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using Couchbase.Configuration.Client;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
 using Couchbase.N1QL;
@@ -18,7 +19,8 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_POCO_Projection()
         {
-            var client = new QueryClient(new HttpClient(), new JsonDataMapper());
+            var config = new ClientConfiguration();
+            var client = new QueryClient(new HttpClient(), new JsonDataMapper(config), config);
             var uri = new Uri("http://localhost:8093/query");
             const string bucket = "tutorial";
 
@@ -34,7 +36,8 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_AnonymousType_Projection()
         {
-            var client = new QueryClient(new HttpClient(), new JsonDataMapper());
+            var config = new ClientConfiguration();
+            var client = new QueryClient(new HttpClient(), new JsonDataMapper(config), config);
             var uri = new Uri("http://localhost:8093/query");
             const string bucket = "tutorial";
 
@@ -54,7 +57,8 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_Select_Children()
         {
-            var client = new QueryClient(new HttpClient(), new JsonDataMapper());
+            var config = new ClientConfiguration();
+            var client = new QueryClient(new HttpClient(), new JsonDataMapper(config), config);
             var uri = new Uri("http://localhost:8093/query");
             const string bucket = "tutorial";
 

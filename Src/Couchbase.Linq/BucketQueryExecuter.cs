@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Core;
 using Couchbase.Linq.QueryGeneration;
+using Newtonsoft.Json;
 using Remotion.Linq;
 
 namespace Couchbase.Linq
@@ -28,9 +29,14 @@ namespace Couchbase.Linq
                 {
                     throw result.Exception;
                 }
-                if (result.Error != null)
+                if (result.Errors != null)
                 {
-                    throw new Exception(result.Error.Message);
+                    var sb = new StringBuilder();
+                    foreach (var error in result.Errors)
+                    {
+                        sb.AppendLine(JsonConvert.SerializeObject(error));
+                    }
+                    throw new Exception(sb.ToString());
                 }
             }
 
