@@ -48,15 +48,18 @@
     <Reference Include="Common.Logging.Core">
       <HintPath>..\packages\Common.Logging.Core.3.0.0\lib\net40\Common.Logging.Core.dll</HintPath>
     </Reference>
-    <Reference Include="Couchbase.NetClient">
-      <HintPath>..\packages\CouchbaseNetClient.2.0.2\lib\net45\Couchbase.NetClient.dll</HintPath>
+    <Reference Include="Common.Logging.Log4Net1213">
+      <HintPath>..\packages\Common.Logging.Log4Net1213.3.0.0\lib\net40\Common.Logging.Log4Net1213.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Moq">
       <HintPath>..\packages\Moq.4.2.1409.1722\lib\net40\Moq.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.5\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.8\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="nunit.framework">
       <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
@@ -94,6 +97,10 @@
     <Compile Include="QueryGeneration\WhereClauseTests.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\..\couchbase-net-client\Src\Couchbase\Couchbase.csproj">
+      <Project>{244eb9c8-8bcb-421d-a6dc-d54dceb206e8}</Project>
+      <Name>Couchbase</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Couchbase.Linq\Couchbase.Linq.csproj">
       <Project>{c0254649-0162-47a4-b3d3-354e0b3ff7d0}</Project>
       <Name>Couchbase.Linq</Name>
