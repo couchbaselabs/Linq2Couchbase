@@ -12,7 +12,8 @@ To build the project, create a directory on your drive and clone both this proje
 5. git clone git@github.com:couchbaselabs/Linq2Couchbase.git
 6. Your directory structure should look like this:
 * C:\working
-              *couchbase-net-client
-              *Linq2Couchbase
+ * couchbase-net-client
+ * Linq2Couchbase
+
 
 Once that is done, the paths should sync-up and the Linq2Couchbase project should have the the couchbase-net-client\Couchbase project referenced.
