@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Couchbase.Configuration.Client;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
@@ -42,11 +39,11 @@ namespace Couchbase.Linq.Tests
             const string bucket = "tutorial";
 
             var query = from c in client.Queryable<Contact>(bucket, uri)
-                        select new
-                        {
-                            age = c.Age, 
-                            fname = c.FirstName
-                        };
+                select new
+                {
+                    age = c.Age,
+                    fname = c.FirstName
+                };
 
             foreach (var contact in query)
             {
@@ -67,8 +64,7 @@ namespace Couchbase.Linq.Tests
 
             foreach (var child in query)
             {
-
-                    Console.WriteLine("{0}, {1}", child, child);
+                Console.WriteLine("{0}, {1}", child, child);
             }
         }
     }

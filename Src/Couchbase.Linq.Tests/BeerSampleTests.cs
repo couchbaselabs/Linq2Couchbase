@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Couchbase.Configuration.Client;
-using Couchbase.Configuration.Client.Providers;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
 using NUnit.Framework;
@@ -17,12 +14,11 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests()
         {
-            
-            ClientConfiguration clientConfiguration = new ClientConfiguration
+            var clientConfiguration = new ClientConfiguration
             {
                 Servers = new List<Uri>
                 {
-                    new Uri("http://localhost:8091"),
+                    new Uri("http://localhost:8091")
                 }
             };
             using (var cluster = new Cluster())
@@ -39,7 +35,7 @@ namespace Couchbase.Linq.Tests
                 }
             }
         }
-        
+
         [Test]
         public void Map2PocoTests_Simple_Projections()
         {
@@ -48,7 +44,7 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = from b in bucket.Queryable<Beer>()
-                                select new {name = b.Name, abv = b.Abv};
+                        select new {name = b.Name, abv = b.Abv};
 
                     foreach (var b in beers)
                     {
@@ -58,7 +54,6 @@ namespace Couchbase.Linq.Tests
             }
         }
 
-
         [Test]
         public void Map2PocoTests_Simple_Projections_Where()
         {
@@ -67,8 +62,8 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = from b in bucket.Queryable<Beer>()
-                                where b.Type == "beer"
-                                select new { name = b.Name, abv = b.Abv };
+                        where b.Type == "beer"
+                        select new {name = b.Name, abv = b.Abv};
 
                     foreach (var b in beers)
                     {
@@ -86,10 +81,10 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = (from b in bucket.Queryable<Beer>()
-                                where b.Type == "beer"
-                                select new { name = b.Name, abv = b.Abv }).
-                                Take(10).
-                                Skip(5);
+                        where b.Type == "beer"
+                        select new {name = b.Name, abv = b.Abv}).
+                        Take(10).
+                        Skip(5);
 
                     foreach (var b in beers)
                     {

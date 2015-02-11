@@ -1,8 +1,8 @@
-﻿using Couchbase.Linq.Extensions;
+﻿using System;
+using System.Linq;
+using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
 using NUnit.Framework;
-using System;
-using System.Linq;
 
 namespace Couchbase.Linq.Tests
 {
@@ -30,8 +30,6 @@ namespace Couchbase.Linq.Tests
                     Assert.AreEqual(expected, N1QLQuery);
                 }
             }
-
-
         }
 
         [Test]
@@ -42,7 +40,7 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket())
                 {
                     var query = from c in bucket.Queryable<Contact>()
-                                select c;
+                        select c;
 
                     const string expected = "SELECT c.* FROM default as c";
                     Assert.AreEqual(expected, CreateN1QlQuery(bucket, query.Expression));
@@ -58,7 +56,7 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket())
                 {
                     var query = from c in bucket.Queryable<Contact>()
-                                select c.Children;
+                        select c.Children;
 
                     const string expected = "SELECT c.children FROM default as c";
                     Assert.AreEqual(expected, CreateN1QlQuery(bucket, query.Expression));
@@ -74,7 +72,7 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket())
                 {
                     var query = from c in bucket.Queryable<Contact>()
-                                select c;
+                        select c;
 
                     foreach (var contact in query)
                     {

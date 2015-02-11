@@ -1,12 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
+using Couchbase.Configuration.Client;
 using Couchbase.Core;
 using Couchbase.Linq.QueryGeneration;
-using Remotion.Linq.Parsing.Structure;
 using Newtonsoft.Json.Serialization;
 
 namespace Couchbase.Linq.Tests
@@ -32,7 +28,7 @@ namespace Couchbase.Linq.Tests
                 contractResolver = new DefaultContractResolver();
             }
 
-            var config = new Couchbase.Configuration.Client.ClientConfiguration();
+            var config = new ClientConfiguration();
             config.Servers.Add(new Uri("http://127.0.0.1:8091"));
             config.DeserializationSettings.ContractResolver = contractResolver;
             config.SerializationSettings.ContractResolver = contractResolver;
@@ -45,6 +41,5 @@ namespace Couchbase.Linq.Tests
             cluster.Configuration.DeserializationSettings.ContractResolver = contractResolver;
             cluster.Configuration.SerializationSettings.ContractResolver = contractResolver;
         }
-
     }
 }
