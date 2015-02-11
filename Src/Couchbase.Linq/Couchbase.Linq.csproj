@@ -33,7 +33,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>Couchbase.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>
+    </AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Common.Logging, Version=3.0.0.0, Culture=neutral, PublicKeyToken=af08829b84f0328e, processorArchitecture=MSIL">
@@ -84,7 +85,6 @@
     <Compile Include="QueryParserHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Couchbase.snk" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
