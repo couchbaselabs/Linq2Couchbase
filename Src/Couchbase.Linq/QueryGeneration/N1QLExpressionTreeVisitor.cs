@@ -1,13 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.Remoting.Messaging;
 using System.Text;
-using System.Threading.Tasks;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionTreeVisitors;
 using Remotion.Linq.Parsing;
@@ -17,9 +12,18 @@ namespace Couchbase.Linq.QueryGeneration
     public class N1QlExpressionTreeVisitor : ThrowingExpressionTreeVisitor
     {
         private readonly StringBuilder _expression = new StringBuilder();
-        private readonly ParameterAggregator _parameterAggregator;
-        private readonly Dictionary<MethodInfo, Func<MethodCallExpression, Expression>> _methodCallTranslators = new Dictionary<MethodInfo, Func<MethodCallExpression, Expression>>();
+
+        private readonly Dictionary<MethodInfo, Func<MethodCallExpression, Expression>> _methodCallTranslators =
+            new Dictionary<MethodInfo, Func<MethodCallExpression, Expression>>();
+
         private readonly IMemberNameResolver _nameResolver = new JsonNetMemberNameResolver();
+        private readonly ParameterAggregator _parameterAggregator;
+
+        private N1QlExpressionTreeVisitor(ParameterAggregator parameterAggregator)
+        {
+            _parameterAggregator = parameterAggregator;
+            _methodCallTranslators.Add(typeof (string).GetMethod("Contains"), ContainsMethodTranslator);
+        }
 
         private Expression ContainsMethodTranslator(MethodCallExpression methodCallExpression)
         {
@@ -40,13 +44,6 @@ namespace Couchbase.Linq.QueryGeneration
             _expression.Remove(indexInsertEnded - 2, 1);
 
             return methodCallExpression;
-
-        }
-
-        private N1QlExpressionTreeVisitor(ParameterAggregator parameterAggregator)
-        {
-            _parameterAggregator = parameterAggregator;
-            _methodCallTranslators.Add(typeof(string).GetMethod("Contains"), ContainsMethodTranslator);
         }
 
         public static string GetN1QlExpression(Expression expression, ParameterAggregator aggregator)
@@ -66,7 +63,7 @@ namespace Couchbase.Linq.QueryGeneration
             var message = string.Format(
                 "The expression '{0}' (type: {1}) is not supported by this LINQ provider."
                 , text
-                , typeof(T));
+                , typeof (T));
 
             return new NotSupportedException(message);
         }
@@ -80,28 +77,27 @@ namespace Couchbase.Linq.QueryGeneration
         {
             var arguments = expression.Arguments;
             var members = expression.Members;
-           
+
             for (var i = 0; i < members.Count; i++)
             {
-                    if (i > 0)
-                    {
-                        _expression.Append(",");
-                    }
+                if (i > 0)
+                {
+                    _expression.Append(",");
+                }
 
-                    int expressionLength = _expression.Length;
+                var expressionLength = _expression.Length;
 
-                    VisitExpression(arguments[i]);
+                VisitExpression(arguments[i]);
 
-                    //only add 'as' part if the  previous visitexpression has generated something.
-                    if (_expression.Length > expressionLength)
-                    {
-                        _expression.AppendFormat(" as {0}", members[i].Name);
-                    }
+                //only add 'as' part if the  previous visitexpression has generated something.
+                if (_expression.Length > expressionLength)
+                {
+                    _expression.AppendFormat(" as {0}", members[i].Name);
+                }
             }
 
             return expression;
         }
-
 
         protected override Expression VisitBinaryExpression(BinaryExpression expression)
         {
@@ -163,7 +159,7 @@ namespace Couchbase.Linq.QueryGeneration
         }
 
         /// <summary>
-        /// Tries to translate the Method-call to some N1QL expression. Currently only implemented for "Contains() - LIKE"
+        ///     Tries to translate the Method-call to some N1QL expression. Currently only implemented for "Contains() - LIKE"
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
@@ -175,10 +171,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 return methodCallTranslator.Invoke(expression);
             }
-            else
-            {
-                return base.VisitMethodCallExpression(expression);
-            }
+            return base.VisitMethodCallExpression(expression);
         }
 
         protected override Expression VisitConstantExpression(ConstantExpression expression)
@@ -207,7 +200,7 @@ namespace Couchbase.Linq.QueryGeneration
         {
             string memberName;
 
-            if (_nameResolver.TryResolveMemberName(expression.Member,out memberName))
+            if (_nameResolver.TryResolveMemberName(expression.Member, out memberName))
             {
                 VisitExpression(expression.Expression);
                 _expression.AppendFormat(".{0}", memberName);

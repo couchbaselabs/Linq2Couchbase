@@ -8,7 +8,7 @@ namespace Couchbase.Linq.Extensions
     public static class QueryExtensions
     {
         /// <summary>
-        /// Where Missing Clause for N1QL. (.WhereMissing(e -> e.Age) translates to WHERE table/alias.Age IS MISSING)
+        ///     Where Missing Clause for N1QL. (.WhereMissing(e -> e.Age) translates to WHERE table/alias.Age IS MISSING)
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <typeparam name="T1"></typeparam>
@@ -19,12 +19,10 @@ namespace Couchbase.Linq.Extensions
         {
             return source.Provider.CreateQuery<T>(
                 Expression.Call(
-                    ((MethodInfo)MethodBase.GetCurrentMethod())
-                        .MakeGenericMethod(typeof(T), typeof(T1)),
+                    ((MethodInfo) MethodBase.GetCurrentMethod())
+                        .MakeGenericMethod(typeof (T), typeof (T1)),
                     source.Expression,
                     Expression.Quote(predicate)));
-
         }
     }
 }
-

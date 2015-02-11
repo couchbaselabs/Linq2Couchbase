@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Couchbase.Core;
 using Couchbase.Linq.QueryGeneration;
 using Newtonsoft.Json;
@@ -40,7 +39,7 @@ namespace Couchbase.Linq
                 }
             }
 
-            return result.Rows ?? new List<T>();//need to figure out how to return more data
+            return result.Rows ?? new List<T>(); //need to figure out how to return more data
         }
 
         public T ExecuteScalar<T>(QueryModel queryModel)

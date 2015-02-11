@@ -1,16 +1,11 @@
-﻿using Newtonsoft.Json.Serialization;
-using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Newtonsoft.Json.Serialization;
 
 namespace Couchbase.Linq.QueryGeneration
 {
     public class JsonNetMemberNameResolver : IMemberNameResolver
     {
-
         public bool TryResolveMemberName(MemberInfo member, out string memberName)
         {
             memberName = null;
@@ -21,14 +16,15 @@ namespace Couchbase.Linq.QueryGeneration
             var contractResolver = ClusterHelper.Get().Configuration.SerializationSettings.ContractResolver;
             var contract = contractResolver.ResolveContract(member.DeclaringType);
 
-            if (contract.GetType() == typeof(JsonObjectContract) && ((JsonObjectContract)contract).Properties.Any(p => p.UnderlyingName == member.Name && !p.Ignored))
+            if (contract.GetType() == typeof (JsonObjectContract) &&
+                ((JsonObjectContract) contract).Properties.Any(p => p.UnderlyingName == member.Name && !p.Ignored))
             {
-                memberName = ((JsonObjectContract)contract).Properties.First(p => p.UnderlyingName == member.Name).PropertyName;
+                memberName =
+                    ((JsonObjectContract) contract).Properties.First(p => p.UnderlyingName == member.Name).PropertyName;
                 return true;
             }
 
             return false;
         }
-
     }
 }
