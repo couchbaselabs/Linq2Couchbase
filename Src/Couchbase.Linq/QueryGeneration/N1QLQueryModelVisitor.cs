@@ -46,7 +46,7 @@ namespace Couchbase.Linq.QueryGeneration
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
         {
             //In N1QL, the source is the bucket, not the document
-            _queryPartsAggregator.AddFromPart(string.Format("{0} as {1}", _bucketName, fromClause.ItemName)); 
+            _queryPartsAggregator.AddFromPart(string.Format("{0} as {1}", FormatBucketName(_bucketName), fromClause.ItemName)); 
             base.VisitMainFromClause(fromClause, queryModel);
         }
 
@@ -54,7 +54,7 @@ namespace Couchbase.Linq.QueryGeneration
         {
             foreach (var parameter in GetSelectParameters(selectClause, queryModel))
             {
-                _queryPartsAggregator.AddSelectParts(parameter); 
+                _queryPartsAggregator.AddSelectParts(parameter);
             }
             base.VisitSelectClause(selectClause, queryModel);
         }
@@ -120,6 +120,29 @@ namespace Couchbase.Linq.QueryGeneration
         private string GetN1QlExpression(Expression expression)
         {
             return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _parameterAggregator);
+        }
+
+        /// <summary>
+        ///  Ensures that if the bucket name contains a hyphen that it will be escaped by tick (`) characters.
+        /// </summary>
+        /// <param name="bucketName">The bucket name to format</param>
+        /// <returns>A bucket formatted bucket name.</returns>
+        string FormatBucketName(string bucketName)
+        {
+            const char tick = '`';
+            var newBucketName = bucketName;
+            if (bucketName.Contains('-'))
+            {
+                if (!bucketName.StartsWith("`"))
+                {
+                    newBucketName = string.Concat(tick, bucketName);
+                }
+                if (!bucketName.EndsWith("`"))
+                {
+                    newBucketName = string.Concat(bucketName, tick);
+                }
+            }
+            return newBucketName;
         }
     }
 }
