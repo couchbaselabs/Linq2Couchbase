@@ -1,8 +1,8 @@
-﻿using Couchbase.Core;
+﻿using System.Linq;
+using Couchbase.Core;
 using Couchbase.Linq.Tests.Documents;
 using Moq;
 using NUnit.Framework;
-using System.Linq;
 
 namespace Couchbase.Linq.Tests.QueryGeneration
 {
@@ -17,7 +17,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
             var query =
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
-                    .Select(e => new { age = e.Age, name = e.FirstName });
+                    .Select(e => new {age = e.Age, name = e.FirstName});
 
             const string expected = "SELECT e.age as age, e.fname as name FROM default as e";
 
