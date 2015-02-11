@@ -135,11 +135,11 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 if (!bucketName.StartsWith("`"))
                 {
-                    newBucketName = string.Concat(tick, bucketName);
+                    newBucketName = string.Concat(tick, newBucketName);
                 }
                 if (!bucketName.EndsWith("`"))
                 {
-                    newBucketName = string.Concat(bucketName, tick);
+                    newBucketName = string.Concat(newBucketName, tick);
                 }
             }
             return newBucketName;
