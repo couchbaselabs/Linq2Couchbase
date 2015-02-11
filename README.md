@@ -5,12 +5,12 @@ A Language Integrated Query (LINQ) provider for querying Couchbase Server with N
 
 To build the project, create a directory on your drive and clone both this project and couchbase-net-client in it. For example:
 
-1 - cd C:\
-2 - mkdir working
-3 - cd working
-4 - git clone git@github.com:couchbase/couchbase-net-client.git
-5 - git clone git@github.com:couchbaselabs/Linq2Couchbase.git
-6 - Your directory structure should look like this:
+1. cd C:\
+2. mkdir working
+3. cd working
+4. git clone git@github.com:couchbase/couchbase-net-client.git
+5. git clone git@github.com:couchbaselabs/Linq2Couchbase.git
+6. Your directory structure should look like this:
     C:\working
       - couchbase-net-client
       - Linq2Couchbase
