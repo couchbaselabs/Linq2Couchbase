@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Couchbase.Core;
 using Couchbase.Linq.QueryGeneration;
+using Couchbase.N1QL;
 using Newtonsoft.Json;
 using Remotion.Linq;
 
@@ -21,10 +22,10 @@ namespace Couchbase.Linq
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
             var commandData = ExecuteCollection(queryModel);
-            var result = _bucket.Query<T>(commandData);
+            var result = _bucket.Query<T>(new QueryRequest(commandData));
             if (!result.Success)
             {
-                if (result.Exception != null)
+                if (result.Exception != null && result.Errors == null)
                 {
                     throw result.Exception;
                 }

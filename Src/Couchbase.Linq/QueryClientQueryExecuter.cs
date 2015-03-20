@@ -13,7 +13,7 @@ namespace Couchbase.Linq
         private readonly IQueryClient _queryClient;
         private readonly Uri _uri;
 
-        public QueryClientQueryExecuter(IQueryClient queryClient, string bucketName, Uri uri)
+        internal QueryClientQueryExecuter(IQueryClient queryClient, string bucketName, Uri uri)
         {
             _queryClient = queryClient;
             _bucketName = bucketName;
