@@ -1,20 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Couchbase.Linq.QueryGeneration;
-using Remotion.Linq;
 using Couchbase.N1QL;
+using Remotion.Linq;
 
 namespace Couchbase.Linq
 {
     public sealed class QueryClientQueryExecuter : IQueryExecutor
     {
-        private readonly Uri _uri;
         private readonly string _bucketName;
         private readonly IQueryClient _queryClient;
-        public QueryClientQueryExecuter(IQueryClient queryClient, string bucketName, Uri uri)
+        private readonly Uri _uri;
+
+        internal QueryClientQueryExecuter(IQueryClient queryClient, string bucketName, Uri uri)
         {
             _queryClient = queryClient;
             _bucketName = bucketName;

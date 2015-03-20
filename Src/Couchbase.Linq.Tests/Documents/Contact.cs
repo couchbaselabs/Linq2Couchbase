@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using Newtonsoft.Json;
 
 namespace Couchbase.Linq.Tests.Documents
@@ -22,7 +18,7 @@ namespace Couchbase.Linq.Tests.Documents
         public string Email { get; set; }
 
         [JsonProperty("hobbies")]
-        public List<string> Hobbies{ get; set; }
+        public List<string> Hobbies { get; set; }
 
         [JsonProperty("relation")]
         public string Relation { get; set; }

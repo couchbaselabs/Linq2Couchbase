@@ -1,9 +1,4 @@
-﻿    using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Core;
+﻿using Couchbase.Core;
 
 namespace Couchbase.Linq
 {
@@ -12,6 +7,6 @@ namespace Couchbase.Linq
         public static BucketQueryable<T> Queryable<T>(IBucket bucket)
         {
             return new BucketQueryable<T>(bucket);
-        } 
+        }
     }
 }

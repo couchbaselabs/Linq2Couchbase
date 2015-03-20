@@ -1,8 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Couchbase.Configuration.Client;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
 using NUnit.Framework;
@@ -10,12 +9,19 @@ using NUnit.Framework;
 namespace Couchbase.Linq.Tests
 {
     [TestFixture]
-    public class BeerSampleTests
+    public class BeerSampleTests : N1QLTestBase
     {
         [Test]
         public void Map2PocoTests()
         {
-            using (var cluster = new CouchbaseCluster())
+            var clientConfiguration = new ClientConfiguration
+            {
+                Servers = new List<Uri>
+                {
+                    new Uri("http://localhost:8091")
+                }
+            };
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -29,16 +35,16 @@ namespace Couchbase.Linq.Tests
                 }
             }
         }
-        
+
         [Test]
         public void Map2PocoTests_Simple_Projections()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = from b in bucket.Queryable<Beer>()
-                                select new {name = b.Name, abv = b.Abv};
+                        select new {name = b.Name, abv = b.Abv};
 
                     foreach (var b in beers)
                     {
@@ -48,17 +54,16 @@ namespace Couchbase.Linq.Tests
             }
         }
 
-
         [Test]
         public void Map2PocoTests_Simple_Projections_Where()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = from b in bucket.Queryable<Beer>()
-                                where b.Type == "beer"
-                                select new { name = b.Name, abv = b.Abv };
+                        where b.Type == "beer"
+                        select new {name = b.Name, abv = b.Abv};
 
                     foreach (var b in beers)
                     {
@@ -71,15 +76,15 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections_Limit()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = (from b in bucket.Queryable<Beer>()
-                                where b.Type == "beer"
-                                select new { name = b.Name, abv = b.Abv }).
-                                Take(10).
-                                Skip(5);
+                        where b.Type == "beer"
+                        select new {name = b.Name, abv = b.Abv}).
+                        Take(10).
+                        Skip(5);
 
                     foreach (var b in beers)
                     {

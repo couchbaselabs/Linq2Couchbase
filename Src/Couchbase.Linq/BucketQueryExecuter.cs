@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using Couchbase.Core;
 using Couchbase.Linq.QueryGeneration;
+using Couchbase.N1QL;
+using Newtonsoft.Json;
 using Remotion.Linq;
 
 namespace Couchbase.Linq
@@ -21,20 +22,25 @@ namespace Couchbase.Linq
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
             var commandData = ExecuteCollection(queryModel);
-            var result = _bucket.Query<T>(commandData);
+            var result = _bucket.Query<T>(new QueryRequest(commandData));
             if (!result.Success)
             {
-                if (result.Exception != null)
+                if (result.Exception != null && result.Errors == null)
                 {
                     throw result.Exception;
                 }
-                if (result.Error != null)
+                if (result.Errors != null)
                 {
-                    throw new Exception(result.Error.Message);
+                    var sb = new StringBuilder();
+                    foreach (var error in result.Errors)
+                    {
+                        sb.AppendLine(JsonConvert.SerializeObject(error));
+                    }
+                    throw new Exception(sb.ToString());
                 }
             }
 
-            return result.Rows ?? new List<T>();//need to figure out how to return more data
+            return result.Rows ?? new List<T>(); //need to figure out how to return more data
         }
 
         public T ExecuteScalar<T>(QueryModel queryModel)

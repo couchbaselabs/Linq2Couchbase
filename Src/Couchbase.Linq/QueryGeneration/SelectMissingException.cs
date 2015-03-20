@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.Serialization;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -13,12 +9,12 @@ namespace Couchbase.Linq.QueryGeneration
         {
         }
 
-        public SelectMissingException(string message) 
+        public SelectMissingException(string message)
             : base(message)
         {
         }
 
-        public SelectMissingException(string message, Exception innerException) 
+        public SelectMissingException(string message, Exception innerException)
             : base(message, innerException)
         {
         }

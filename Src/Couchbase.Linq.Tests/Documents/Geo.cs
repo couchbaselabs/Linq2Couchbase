@@ -11,11 +11,5 @@ namespace Couchbase.Linq.Tests.Documents
 
         [JsonProperty("lon")]
         public string Longitude { get; set; }
-        /*
-         * "geo": {
-            "accuracy": "ROOFTOP",
-            "lat": 37.7825,
-            "lon": -122.393
-         * */
     }
 }

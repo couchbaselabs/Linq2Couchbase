@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
+using Couchbase;
 
 namespace Couchbase.Linq.Example
 {
@@ -14,7 +15,7 @@ namespace Couchbase.Linq.Example
     {
         static void Main(string[] args)
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("tutorial"))
                 {

@@ -1,41 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
-using System.Security.Cryptography;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Core;
 using Couchbase.Linq.Extensions;
-using Couchbase.Linq.QueryGeneration;
-using NUnit.Framework;
-using Couchbase.Linq;
 using Couchbase.Linq.Tests.Documents;
-using Remotion.Linq;
-using Remotion.Linq.Parsing.Structure;
+using NUnit.Framework;
 
 namespace Couchbase.Linq.Tests
 {
     [TestFixture]
-    public class BucketExtensionTests
+    public class BucketExtensionTests : N1QLTestBase
     {
         [Test]
         public void Test_AnonymousType_In_Projection()
         {
-
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket())
                 {
                     var query = from c in QueryFactory.Queryable<Contact>(bucket)
-                        select new 
+                        select new
                         {
-                            age = c.Age, 
+                            age = c.Age,
                             fname = c.FirstName
                         };
 
-                    const string expected = "SELECT c.age, c.fname FROM default as c";
-                    Assert.AreEqual(expected, CreateN1QlQuery(bucket, query.Expression));
+                    const string expected = "SELECT c.age as age, c.fname as fname FROM default as c";
+
+                    var N1QLQuery = CreateN1QlQuery(bucket, query.Expression);
+
+                    Assert.AreEqual(expected, N1QLQuery);
                 }
             }
         }
@@ -43,7 +35,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_POCO()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -59,7 +51,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_Select_Children()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -72,16 +64,10 @@ namespace Couchbase.Linq.Tests
             }
         }
 
-        private string CreateN1QlQuery(IBucket bucket, Expression expression)
-        {
-            var queryModel = QueryParser.CreateDefault().GetParsedQuery(expression);
-            return N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel, bucket.Name);
-        }
-
         [Test]
         public void Test()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -103,7 +89,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_POCO_Basic()
         {
-            using (var cluster = new CouchbaseCluster())
+            using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
