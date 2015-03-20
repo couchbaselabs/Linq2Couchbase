@@ -10,6 +10,7 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq.Views", "Couchbase.Linq.Views\Couchbase.Linq.Views.csproj", "{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase", "..\..\couchbase-net-client\Src\Couchbase\Couchbase.csproj", "{244EB9C8-8BCB-421D-A6DC-D54DCEB206E8}"
+<<<<<<< HEAD
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A7E95B2F-7D09-4DBA-A877-EBDB026776CC}"
 	ProjectSection(SolutionItems) = preProject
@@ -17,6 +18,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A7E95B
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
+=======
+>>>>>>> 4c2d3092979e899c241c9339c06144b8fb2f5a5d
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
