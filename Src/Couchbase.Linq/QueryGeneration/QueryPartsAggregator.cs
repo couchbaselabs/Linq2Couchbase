@@ -25,6 +25,7 @@ namespace Couchbase.Linq.QueryGeneration
         public List<string> OrderByParts { get; set; }
         public string LimitPart { get; set; }
         public string OffsetPart { get; set; }
+        public string DistinctPart { get; set; }
 
         public void AddSelectParts(string format, params object[] args)
         {
@@ -51,6 +52,11 @@ namespace Couchbase.Linq.QueryGeneration
             FromParts.Add(string.Format("{0} as {1}", source.ItemType.Name.ToLower(), source.ItemName));
         }
 
+        public void AddDistinctPart(string value)
+        {
+            DistinctPart = value;
+        }
+
         public string BuildN1QlQuery()
         {
             if (SelectParts.Count == 0)
@@ -70,7 +76,7 @@ namespace Couchbase.Linq.QueryGeneration
                     selectParts.AppendFormat("{0}, ", SelectParts[i]);
                 }
             }
-            sb.AppendFormat("SELECT {0}", selectParts);
+            sb.AppendFormat("SELECT {0}{1}", string.IsNullOrWhiteSpace(DistinctPart) ? string.Empty : DistinctPart,  selectParts);
                 //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5
             if (FromParts.Any())
             {

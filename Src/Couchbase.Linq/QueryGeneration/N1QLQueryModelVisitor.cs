@@ -99,6 +99,11 @@ namespace Couchbase.Linq.QueryGeneration
                 _queryPartsAggregator.AddOffsetPart(" OFFSET {0}",
                     Convert.ToInt32(GetN1QlExpression(skipResultOperator.Count)));
             }
+            else if (resultOperator is DistinctResultOperator)
+            {
+                var distinctResultOperator = resultOperator as DistinctResultOperator;
+                _queryPartsAggregator.AddDistinctPart("DISTINCT ");
+            }
 
             base.VisitResultOperator(resultOperator, queryModel, index);
         }
