@@ -16,6 +16,10 @@ namespace Couchbase.Linq
             customNodeTypeRegistry.Register(WhereMissingExpressionNode.SupportedMethods,
                 typeof (WhereMissingExpressionNode));
 
+            //register the "Explain" expression node parser
+            customNodeTypeRegistry.Register(ExplainExpressionNode.SupportedMethods,
+                typeof(ExplainExpressionNode));
+
             //This creates all the default node types
             var nodeTypeProvider = ExpressionTreeParser.CreateDefaultNodeTypeProvider();
 

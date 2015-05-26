@@ -11,7 +11,7 @@ using NUnit.Framework;
 namespace Couchbase.Linq.Tests.QueryGeneration
 {
     [TestFixture]
-    public class DistinctTest : N1QLTestBase
+    public class DistinctTests : N1QLTestBase
     {
         [Test]
         public void Test_Distinct_Keyword()

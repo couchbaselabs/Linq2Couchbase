@@ -26,6 +26,7 @@ namespace Couchbase.Linq.QueryGeneration
         public string LimitPart { get; set; }
         public string OffsetPart { get; set; }
         public string DistinctPart { get; set; }
+        public string ExplainPart { get; set; }
 
         public void AddSelectParts(string format, params object[] args)
         {
@@ -75,6 +76,11 @@ namespace Couchbase.Linq.QueryGeneration
                 {
                     selectParts.AppendFormat("{0}, ", SelectParts[i]);
                 }
+            }
+
+            if (!string.IsNullOrWhiteSpace(ExplainPart))
+            {
+                sb.Append(ExplainPart);
             }
             sb.AppendFormat("SELECT {0}{1}", string.IsNullOrWhiteSpace(DistinctPart) ? string.Empty : DistinctPart,  selectParts);
                 //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5

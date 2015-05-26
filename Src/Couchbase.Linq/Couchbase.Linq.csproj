@@ -64,6 +64,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\ExplainExpressionNode.cs" />
+    <Compile Include="Extensions\ExplainResultOperator.cs" />
     <Compile Include="Extensions\QueryExtensions.cs" />
     <Compile Include="Extensions\WhereMissingClause.cs" />
     <Compile Include="Extensions\WhereMissingExpressionNode.cs" />

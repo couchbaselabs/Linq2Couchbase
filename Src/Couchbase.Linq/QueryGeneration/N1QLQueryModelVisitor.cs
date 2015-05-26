@@ -104,6 +104,10 @@ namespace Couchbase.Linq.QueryGeneration
                 var distinctResultOperator = resultOperator as DistinctResultOperator;
                 _queryPartsAggregator.AddDistinctPart("DISTINCT ");
             }
+            else if (resultOperator is ExplainResultOperator)
+            {
+                _queryPartsAggregator.ExplainPart = "EXPLAIN ";
+            }
 
             base.VisitResultOperator(resultOperator, queryModel, index);
         }
