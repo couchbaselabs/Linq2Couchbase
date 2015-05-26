@@ -61,6 +61,10 @@ namespace Couchbase.Linq.QueryGeneration
         private IEnumerable<string> GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
         {
             var prefix = queryModel.MainFromClause.ItemName;
+            if (prefix.Contains("<generated>"))
+            {
+                return new List<string>();
+            }
             var expression = GetN1QlExpression(selectClause.Selector);
 
             if (selectClause.Selector.GetType() == typeof (QuerySourceReferenceExpression))
@@ -107,6 +111,10 @@ namespace Couchbase.Linq.QueryGeneration
             else if (resultOperator is ExplainResultOperator)
             {
                 _queryPartsAggregator.ExplainPart = "EXPLAIN ";
+            }
+            else if (resultOperator is MetaResultOperator)
+            {
+                _queryPartsAggregator.MetaPart = string.Format("META({0})", FormatBucketName(_bucketName));
             }
 
             base.VisitResultOperator(resultOperator, queryModel, index);

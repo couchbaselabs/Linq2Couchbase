@@ -27,6 +27,7 @@ namespace Couchbase.Linq.QueryGeneration
         public string OffsetPart { get; set; }
         public string DistinctPart { get; set; }
         public string ExplainPart { get; set; }
+        public string MetaPart { get; set; }
 
         public void AddSelectParts(string format, params object[] args)
         {
@@ -60,10 +61,6 @@ namespace Couchbase.Linq.QueryGeneration
 
         public string BuildN1QlQuery()
         {
-            if (SelectParts.Count == 0)
-            {
-                throw new SelectMissingException("A SELECT clause is required for a N1QL query");
-            }
             var sb = new StringBuilder();
             var selectParts = new StringBuilder();
             for (var i = 0; i < SelectParts.Count; i++)
@@ -84,9 +81,15 @@ namespace Couchbase.Linq.QueryGeneration
             }
             sb.AppendFormat("SELECT {0}{1}", string.IsNullOrWhiteSpace(DistinctPart) ? string.Empty : DistinctPart,  selectParts);
                 //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5
+
+            if (!string.IsNullOrWhiteSpace(MetaPart))
+            {
+                sb.AppendFormat(SelectParts.Count > 0 ? ", {0}" : "{0}", MetaPart);
+            }
             if (FromParts.Any())
             {
-                sb.AppendFormat(" FROM {0}", FromParts.First()); //TODO support multiple from parts
+                var mainFrom = FromParts.First();
+                sb.AppendFormat(" FROM {0}", mainFrom.Replace(" as <generated>_1", "")); //TODO support multiple from parts
             }
             if (WhereParts.Any())
             {

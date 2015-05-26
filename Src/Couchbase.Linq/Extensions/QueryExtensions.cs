@@ -38,6 +38,11 @@ namespace Couchbase.Linq.Extensions
             return CreateQuery(source, queryable => queryable.Explain());
         }
 
+        public static IQueryable<T> Meta<T>(this IQueryable<T> source)
+        {
+            return CreateQuery(source, queryable => queryable.Meta());
+        }
+
         /// <summary>
         /// An expression generation helper for adding additional methods to a Linq provider.
         /// </summary>
@@ -45,6 +50,7 @@ namespace Couchbase.Linq.Extensions
         /// <typeparam name="TR">The type of the return value.</typeparam>
         /// <param name="source">The <see cref="IQueryable"/> source.</param>
         /// <param name="expression">The expression.</param>
+        /// <remarks>Original work from: https://www.re-motion.org/blogs/mix/2010/10/28/re-linq-extensibility-custom-query-operators.</remarks>
         /// <returns></returns>
         private static IQueryable<T> CreateQuery<T, TR>(
             this IQueryable<T> source, Expression<Func<IQueryable<T>, TR> > expression)

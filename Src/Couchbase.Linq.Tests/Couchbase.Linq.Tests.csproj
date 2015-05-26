@@ -93,6 +93,7 @@
     <Compile Include="N1QLTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryClientExtensionTests.cs" />
+    <Compile Include="QueryGeneration\MetaTests.cs" />
     <Compile Include="QueryGeneration\ExplainTests.cs" />
     <Compile Include="QueryGeneration\DistinctTests.cs" />
     <Compile Include="QueryGeneration\MemberNameResolutionTests.cs" />
