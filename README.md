@@ -3,6 +3,8 @@ Linq2Couchbase
 
 A Language Integrated Query (LINQ) provider for querying Couchbase Server with N1QL using the Couchbase .NET SDK
 
+List of supported and proposed N1QL features can be found [here](https://docs.google.com/document/d/1hPNZ-qTKpVzQsFwg_1uUueltzNL1wA75L5F-hYF92Cw/edit?usp=sharing). In some cases only partial support (e.g. generating the N1QL statement) is supported, the "context" may not know how to handle the output for example. 
+
 To build the project, create a directory on your drive and clone both this project and couchbase-net-client in it. For example:
 
 1. cd C:\
