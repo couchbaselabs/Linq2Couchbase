@@ -1,14 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using Couchbase.Linq.Extensions;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
-namespace Couchbase.Linq.Extensions
+namespace Couchbase.Linq.Operators
 {
     /// <summary>
     /// An expresssion parser for the "META" function.

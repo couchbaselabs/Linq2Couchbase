@@ -64,13 +64,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Extensions\ExplainExpressionNode.cs" />
-    <Compile Include="Extensions\ExplainResultOperator.cs" />
-    <Compile Include="Extensions\MetaExpressionNode.cs" />
-    <Compile Include="Extensions\MetaResultOperator.cs" />
+    <Compile Include="Clauses\WhereMissingClause.cs" />
+    <Compile Include="Clauses\WhereMissingExpressionNode.cs" />
     <Compile Include="Extensions\QueryExtensions.cs" />
-    <Compile Include="Extensions\WhereMissingClause.cs" />
-    <Compile Include="Extensions\WhereMissingExpressionNode.cs" />
+    <Compile Include="Operators\ExplainExpressionNode.cs" />
+    <Compile Include="Operators\ExplainResultOperator.cs" />
+    <Compile Include="Operators\MetaExpressionNode.cs" />
+    <Compile Include="Operators\MetaResultOperator.cs" />
     <Compile Include="QueryClientQueryable.cs" />
     <Compile Include="QueryClientQueryExecuter.cs" />
     <Compile Include="Extensions\QueryClientExtensions.cs" />
@@ -99,6 +99,7 @@
       <Name>Couchbase</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

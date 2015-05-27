@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Extensions;
+using Couchbase.Linq.Operators;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;

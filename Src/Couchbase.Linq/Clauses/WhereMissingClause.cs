@@ -5,7 +5,7 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.ExpressionTreeVisitors;
 
-namespace Couchbase.Linq.Extensions
+namespace Couchbase.Linq.Clauses
 {
     public class WhereMissingClause : IBodyClause
     {

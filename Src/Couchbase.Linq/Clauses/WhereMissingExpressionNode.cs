@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Couchbase.Linq.Extensions;
 using Remotion.Linq;
 using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
-namespace Couchbase.Linq.Extensions
+namespace Couchbase.Linq.Clauses
 {
     public class WhereMissingExpressionNode : MethodCallExpressionNodeBase
     {

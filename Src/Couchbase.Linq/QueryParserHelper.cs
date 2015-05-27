@@ -1,4 +1,6 @@
-﻿using Couchbase.Linq.Extensions;
+﻿using Couchbase.Linq.Clauses;
+using Couchbase.Linq.Extensions;
+using Couchbase.Linq.Operators;
 using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
 using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
