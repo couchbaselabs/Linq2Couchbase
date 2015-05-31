@@ -142,6 +142,17 @@ namespace Couchbase.Linq.QueryGeneration
             base.VisitJoinClause(joinClause, queryModel, groupJoinClause);
         }
 
+        public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
+        {
+            _queryPartsAggregator.AddFromPart(joinClause);
+            _queryPartsAggregator.AddWherePart("ON KEYS ARRAY {0} FOR {1} IN {2} END",
+                joinClause.OuterKeySelector,
+                joinClause.InnerKeySelector,
+                joinClause.ItemName);
+
+            base.VisitJoinClause(joinClause, queryModel, index);
+        }
+
         private string GetN1QlExpression(Expression expression)
         {
             return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _parameterAggregator);

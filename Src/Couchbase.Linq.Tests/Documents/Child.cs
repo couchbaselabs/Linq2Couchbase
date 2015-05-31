@@ -12,5 +12,8 @@ namespace Couchbase.Linq.Tests.Documents
 
         [JsonProperty("gender")]
         public string Gender { get; set; }
+
+        [JsonProperty("contactId")]
+        public string ContactId { get; set; }
     }
 }
