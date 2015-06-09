@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Couchbase.Linq.Tests.Documents
 {
@@ -12,7 +13,10 @@ namespace Couchbase.Linq.Tests.Documents
         public string Country { get; set; }
         public string Phone { get; set; }
         public string Website { get; set; }
+
+        [JsonProperty("type")]
         public string Type { get; set; }
+
         public DateTime Updated { get; set; }
         public string Description { get; set; }
         public List<string> Address { get; set; }

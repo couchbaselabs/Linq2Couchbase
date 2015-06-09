@@ -84,8 +84,10 @@
   <ItemGroup>
     <Compile Include="BeerSampleTests.cs" />
     <Compile Include="BucketExtensionTests.cs" />
+    <Compile Include="Documents\BeerFiltered.cs" />
     <Compile Include="Documents\Beer.cs" />
     <Compile Include="Documents\Brewery.cs" />
+    <Compile Include="Documents\BreweryFilter.cs" />
     <Compile Include="Documents\ChildWithContract.cs" />
     <Compile Include="Documents\Child.cs" />
     <Compile Include="Documents\Contact.cs" />
