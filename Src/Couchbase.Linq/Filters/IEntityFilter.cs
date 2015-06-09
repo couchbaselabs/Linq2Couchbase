@@ -5,7 +5,7 @@ namespace Couchbase.Linq.Filters
     /// <summary>
     /// Filter designed to be applied to a LINQ query automatically
     /// </summary>
-    interface IEntityFilter
+    public interface IEntityFilter<T>
     {
         /// <summary>
         /// Priority of this filter compared to other filters against the same type.  Lower priorities execute first.
@@ -15,6 +15,6 @@ namespace Couchbase.Linq.Filters
         /// <summary>
         /// Apply the filter to a LINQ query
         /// </summary>
-        IQueryable<T> ApplyFilter<T>(IQueryable<T> source);
+        IQueryable<T> ApplyFilter(IQueryable<T> source);
     }
 }
