@@ -130,5 +130,47 @@ namespace Couchbase.Linq.Tests
             }
         }
 
+        [Test]
+        public void AnyAllTests_AllNestedArray()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries = (from b in bucket.Queryable<Brewery>()
+                                     where b.Type == "brewery" && b.Address.All(p => p == "563 Second Street")
+                                     select new { name = b.Name, address = b.Address }).
+                        ToList();
+
+                    Assert.IsNotEmpty(breweries);
+                    Assert.True(breweries.SelectMany(p => p.address).All(p => p == "563 Second Street"));
+                }
+            }
+        }
+
+        [Test]
+        public void AnyAllTests_AllNestedArrayPrefiltered()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    // Note: This query isn't very useful in the real world
+                    // However, it does demonstrate how to prefilter the collection before all is run
+                    // Which is behaviorly different then adding the Where predicate inside the All predicate
+                    // In this example, all breweries which have NO address 563 Second Street will be returned
+
+                    var breweries = (from b in bucket.Queryable<Brewery>()
+                                     where b.Type == "brewery" && b.Address.Where(p => p == "563 Second Street").All(p => p == "101 Fake Street")
+                                     orderby b.Name
+                                     select new { name = b.Name, address = b.Address }).
+                        ToList();
+
+                    Assert.IsNotEmpty(breweries);
+                    Assert.False(breweries.SelectMany(p => p.address).Any(p => p == "563 Second Street"));
+                }
+            }
+        }
+
     }
 }
