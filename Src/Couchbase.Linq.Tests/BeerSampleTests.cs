@@ -93,5 +93,42 @@ namespace Couchbase.Linq.Tests
                 }
             }
         }
+
+        [Test]
+        public void AnyAllTests_AnyNestedArray()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries = (from b in bucket.Queryable<Brewery>()
+                        where b.Type == "brewery" && b.Address.Any()
+                        select new {name = b.Name, address = b.Address}).
+                        ToList();
+
+                    Assert.IsNotEmpty(breweries);
+                    Assert.True(breweries.All(p => p.address.Any()));
+                }
+            }
+        }
+
+        [Test]
+        public void AnyAllTests_AnyNestedArrayWithFilter()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries = (from b in bucket.Queryable<Brewery>()
+                                     where b.Type == "brewery" && b.Address.Any(p => p == "563 Second Street")
+                                     select new { name = b.Name, address = b.Address }).
+                        ToList();
+
+                    Assert.IsNotEmpty(breweries);
+                    Assert.True(breweries.All(p => p.address.Contains("563 Second Street")));
+                }
+            }
+        }
+
     }
 }
