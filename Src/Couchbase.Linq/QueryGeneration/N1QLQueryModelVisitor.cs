@@ -43,9 +43,19 @@ namespace Couchbase.Linq.QueryGeneration
             if ((bucketConstantExpression != null) &&
                 typeof(IBucketQueryable).IsAssignableFrom(bucketConstantExpression.Type))
             {
-                _queryPartsAggregator.AddFromPart(string.Format("{0} as {1}",
-                    EscapeIdentifier(((IBucketQueryable) bucketConstantExpression.Value).BucketName),
-                    EscapeIdentifier(fromClause.ItemName)));
+                _queryPartsAggregator.AddFromPart(new N1QlFromQueryPart()
+                {
+                    Source = EscapeIdentifier(((IBucketQueryable) bucketConstantExpression.Value).BucketName),
+                    ItemName = EscapeIdentifier(fromClause.ItemName)
+                });
+            }
+            else if (fromClause.FromExpression.NodeType == ExpressionType.MemberAccess)
+            {
+                _queryPartsAggregator.AddFromPart(new N1QlFromQueryPart()
+                {
+                    Source = GetN1QlExpression((MemberExpression) fromClause.FromExpression),
+                    ItemName = EscapeIdentifier(fromClause.ItemName)
+                });
             }
 
             base.VisitMainFromClause(fromClause, queryModel);
@@ -115,6 +125,10 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _queryPartsAggregator.MetaPart = string.Format("META({0})", EscapeIdentifier(queryModel.MainFromClause.ItemName));
             }
+            else if (resultOperator is AnyResultOperator)
+            {
+                _queryPartsAggregator.QueryType = N1QlQueryType.Any;
+            }
 
             base.VisitResultOperator(resultOperator, queryModel, index);
         }
@@ -141,7 +155,12 @@ namespace Couchbase.Linq.QueryGeneration
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
-            _queryPartsAggregator.AddFromPart(joinClause);
+            _queryPartsAggregator.AddFromPart(new N1QlFromQueryPart()
+            {
+                Source = joinClause.ItemType.Name.ToLower(),
+                ItemName = joinClause.ItemName
+            });
+
             _queryPartsAggregator.AddWherePart("ON KEYS ARRAY {0} FOR {1} IN {2} END",
                 joinClause.OuterKeySelector,
                 joinClause.InnerKeySelector,

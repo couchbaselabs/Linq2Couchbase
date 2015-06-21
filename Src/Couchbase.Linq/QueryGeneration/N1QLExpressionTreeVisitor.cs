@@ -215,5 +215,14 @@ namespace Couchbase.Linq.QueryGeneration
             return expression;
         }
 
+        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+        {
+            var modelVisitor = new N1QlQueryModelVisitor();
+
+            modelVisitor.VisitQueryModel(expression.QueryModel);
+            _expression.Append(modelVisitor.GetQuery());
+
+            return expression;
+        }
     }
 }

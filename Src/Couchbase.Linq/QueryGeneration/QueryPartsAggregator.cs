@@ -14,13 +14,13 @@ namespace Couchbase.Linq.QueryGeneration
         public QueryPartsAggregator()
         {
             SelectParts = new List<string>();
-            FromParts = new List<string>();
+            FromParts = new List<N1QlFromQueryPart>();
             WhereParts = new List<string>();
             OrderByParts = new List<string>();
         }
 
         public List<string> SelectParts { get; set; }
-        public List<string> FromParts { get; set; }
+        public List<N1QlFromQueryPart> FromParts { get; set; }
         public List<string> WhereParts { get; set; }
         public List<string> OrderByParts { get; set; }
         public string LimitPart { get; set; }
@@ -28,6 +28,14 @@ namespace Couchbase.Linq.QueryGeneration
         public string DistinctPart { get; set; }
         public string ExplainPart { get; set; }
         public string MetaPart { get; set; }
+
+        /// <summary>
+        /// Indicates the type of query or subquery being generated
+        /// </summary>
+        /// <remarks>
+        /// Defaults to building a SELECT query
+        /// </remarks>
+        public N1QlQueryType QueryType { get; set; }
 
         public void AddSelectParts(string format, params object[] args)
         {
@@ -44,14 +52,9 @@ namespace Couchbase.Linq.QueryGeneration
             WhereParts.Add(string.Format(format, args));
         }
 
-        public void AddFromPart(string source)
+        public void AddFromPart(N1QlFromQueryPart fromPart)
         {
-            FromParts.Add(source);
-        }
-
-        public void AddFromPart(IQuerySource source)
-        {
-            FromParts.Add(string.Format("{0} as {1}", source.ItemType.Name.ToLower(), source.ItemName));
+            FromParts.Add(fromPart);
         }
 
         public void AddDistinctPart(string value)
@@ -59,7 +62,11 @@ namespace Couchbase.Linq.QueryGeneration
             DistinctPart = value;
         }
 
-        public string BuildN1QlQuery()
+        /// <summary>
+        /// Builds a primary select query
+        /// </summary>
+        /// <returns>Query string</returns>
+        private string BuildSelectQuery()
         {
             var sb = new StringBuilder();
             var selectParts = new StringBuilder();
@@ -89,7 +96,9 @@ namespace Couchbase.Linq.QueryGeneration
             if (FromParts.Any())
             {
                 var mainFrom = FromParts.First();
-                sb.AppendFormat(" FROM {0}", mainFrom); //TODO support multiple from parts
+                sb.AppendFormat(" FROM {0} as {1}",
+                    mainFrom.Source,
+                    mainFrom.ItemName); //TODO support multiple from parts
             }
             if (WhereParts.Any())
             {
@@ -107,7 +116,60 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 sb.Append(OffsetPart);
             }
-            var query = sb.ToString();
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Builds a subquery using the ANY expression to test a nested array
+        /// </summary>
+        /// <returns>Query string</returns>
+        private string BuildAnyQuery()
+        {
+            var sb = new StringBuilder();
+
+            var mainFrom = FromParts.FirstOrDefault();
+            if (mainFrom == null)
+            {
+                throw new InvalidOperationException("N1QL Any Subquery Missing From Part");
+            }
+
+            sb.AppendFormat("ANY {0} IN {1} ",
+                mainFrom.ItemName,
+                mainFrom.Source);
+
+            if (WhereParts.Any())
+            {
+                sb.AppendFormat("SATISFIES {0}", String.Join(" AND ", WhereParts));
+            }
+            else
+            {
+                sb.Append("SATISFIES true");
+            }
+
+            sb.Append(" END");
+
+            return sb.ToString();
+        }
+
+        public string BuildN1QlQuery()
+        {
+            string query;
+
+            switch (QueryType)
+            {
+                case N1QlQueryType.Select:
+                    query = BuildSelectQuery();
+                    break;
+
+                case N1QlQueryType.Any:
+                    query = BuildAnyQuery();
+                    break;
+
+                default:
+                    throw new InvalidOperationException(string.Format("Unsupported N1QlQueryType: {0}", QueryType));
+            }
+
             Log.Debug(query);
             return query;
         }

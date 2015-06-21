@@ -82,7 +82,9 @@
     <Compile Include="QueryGeneration\IMemberNameResolver.cs" />
     <Compile Include="QueryGeneration\JsonNetMemberNameResolver.cs" />
     <Compile Include="QueryGeneration\N1QLExpressionTreeVisitor.cs" />
+    <Compile Include="QueryGeneration\N1QLFromQueryPart.cs" />
     <Compile Include="QueryGeneration\N1QLQueryModelVisitor.cs" />
+    <Compile Include="QueryGeneration\N1QLQueryType.cs" />
     <Compile Include="QueryGeneration\NamedParameter.cs" />
     <Compile Include="QueryGeneration\ParameterAggregator.cs" />
     <Compile Include="QueryGeneration\QueryPartsAggregator.cs" />
