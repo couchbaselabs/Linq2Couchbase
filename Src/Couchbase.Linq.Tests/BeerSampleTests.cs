@@ -74,6 +74,25 @@ namespace Couchbase.Linq.Tests
         }
 
         [Test]
+        public void Map2PocoTests_Simple_Projections_WhereNot()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from b in bucket.Queryable<Beer>()
+                                where b.Type == "beer" && !(b.Abv < 4)
+                                select new { name = b.Name, abv = b.Abv };
+
+                    foreach (var b in beers)
+                    {
+                        Console.WriteLine("{0} has {1} ABV", b.name, b.abv);
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void Map2PocoTests_Simple_Projections_Limit()
         {
             using (var cluster = new Cluster())
