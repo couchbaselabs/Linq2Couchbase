@@ -28,6 +28,7 @@ namespace Couchbase.Linq.QueryGeneration
         public string DistinctPart { get; set; }
         public string ExplainPart { get; set; }
         public string MetaPart { get; set; }
+        public string WhereAllPart { get; set; }
 
         /// <summary>
         /// Indicates the type of query or subquery being generated
@@ -124,7 +125,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// Builds a subquery using the ANY expression to test a nested array
         /// </summary>
         /// <returns>Query string</returns>
-        private string BuildAnyQuery()
+        private string BuildAnyAllQuery()
         {
             var sb = new StringBuilder();
 
@@ -134,17 +135,42 @@ namespace Couchbase.Linq.QueryGeneration
                 throw new InvalidOperationException("N1QL Any Subquery Missing From Part");
             }
 
-            sb.AppendFormat("ANY {0} IN {1} ",
-                mainFrom.ItemName,
-                mainFrom.Source);
+            var source = mainFrom.Source;
+            if ((QueryType == N1QlQueryType.All) && WhereParts.Any())
+            {
+                // WhereParts should be used to filter the source before the EVERY query
+                // This is done using the ARRAY operator with a WHEN clause
 
-            if (WhereParts.Any())
-            {
-                sb.AppendFormat("SATISFIES {0}", String.Join(" AND ", WhereParts));
+                source = String.Format("(ARRAY {1} FOR {1} IN {0} WHEN {2} END)",
+                    source,
+                    mainFrom.ItemName,
+                    String.Join(" AND ", WhereParts));
             }
-            else
+
+            sb.AppendFormat("{0} {1} IN {2} ",
+                QueryType == N1QlQueryType.Any ? "ANY" : "EVERY",
+                mainFrom.ItemName,
+                source);
+
+            if (QueryType == N1QlQueryType.Any)
             {
-                sb.Append("SATISFIES true");
+                // WhereParts should be applied to the SATISFIES portion of the query
+
+                if (WhereParts.Any())
+                {
+                    sb.AppendFormat("SATISFIES {0}", String.Join(" AND ", WhereParts));
+                }
+                else
+                {
+                    sb.Append("SATISFIES true");
+                }
+            }
+            else // N1QlQueryType.All
+            {
+                // WhereAllPart is applied as the SATISFIES portion of the query
+
+                sb.Append("SATISFIES ");
+                sb.Append(WhereAllPart);
             }
 
             sb.Append(" END");
@@ -163,7 +189,8 @@ namespace Couchbase.Linq.QueryGeneration
                     break;
 
                 case N1QlQueryType.Any:
-                    query = BuildAnyQuery();
+                case N1QlQueryType.All:
+                    query = BuildAnyAllQuery();
                     break;
 
                 default:

@@ -6,6 +6,7 @@
     public enum N1QlQueryType
     {
         Select = 0,
-        Any
+        Any,
+        All
     }
 }

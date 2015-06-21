@@ -129,6 +129,13 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _queryPartsAggregator.QueryType = N1QlQueryType.Any;
             }
+            else if (resultOperator is AllResultOperator)
+            {
+                var allResultOperator = (AllResultOperator) resultOperator;
+                _queryPartsAggregator.WhereAllPart = GetN1QlExpression(allResultOperator.Predicate);
+
+                _queryPartsAggregator.QueryType = N1QlQueryType.All;
+            }
 
             base.VisitResultOperator(resultOperator, queryModel, index);
         }
