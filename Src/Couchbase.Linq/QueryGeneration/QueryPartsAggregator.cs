@@ -89,7 +89,7 @@ namespace Couchbase.Linq.QueryGeneration
             if (FromParts.Any())
             {
                 var mainFrom = FromParts.First();
-                sb.AppendFormat(" FROM {0}", mainFrom.Replace(" as <generated>_1", "")); //TODO support multiple from parts
+                sb.AppendFormat(" FROM {0}", mainFrom); //TODO support multiple from parts
             }
             if (WhereParts.Any())
             {

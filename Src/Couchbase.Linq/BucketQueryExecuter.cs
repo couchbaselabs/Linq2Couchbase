@@ -14,6 +14,11 @@ namespace Couchbase.Linq
     {
         private readonly IBucket _bucket;
 
+        public string BucketName
+        {
+            get { return _bucket.Name; }
+        }
+
         public BucketQueryExecuter(IBucket bucket)
         {
             _bucket = bucket;
@@ -57,7 +62,7 @@ namespace Couchbase.Linq
 
         public string ExecuteCollection(QueryModel queryModel)
         {
-            return N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel, _bucket.Name);
+            return N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel);
         }
     }
 }

@@ -67,6 +67,7 @@
     <Compile Include="Clauses\WhereMissingClause.cs" />
     <Compile Include="Clauses\WhereMissingExpressionNode.cs" />
     <Compile Include="Extensions\QueryExtensions.cs" />
+    <Compile Include="IBucketQueryable.cs" />
     <Compile Include="Operators\ExplainExpressionNode.cs" />
     <Compile Include="Operators\ExplainResultOperator.cs" />
     <Compile Include="Operators\MetaExpressionNode.cs" />
