@@ -122,6 +122,45 @@ namespace Couchbase.Linq.QueryGeneration
         }
 
         /// <summary>
+        /// Builds a main query to return an Any or All result
+        /// </summary>
+        /// <returns>Query string</returns>
+        private string BuildMainAnyAllQuery()
+        {
+            var sb = new StringBuilder();
+
+            sb.AppendFormat("SELECT {0} as result",
+                QueryType == N1QlQueryType.AnyMainQuery ? "true" : "false");
+
+            if (FromParts.Any())
+            {
+                var mainFrom = FromParts.First();
+                sb.AppendFormat(" FROM {0} as {1}",
+                    mainFrom.Source,
+                    mainFrom.ItemName); //TODO support multiple from parts
+            }
+
+            bool hasWhereClause = false;
+            if (WhereParts.Any())
+            {
+                sb.AppendFormat(" WHERE {0}", String.Join(" AND ", WhereParts));
+                
+                hasWhereClause = true;
+            } 
+            
+            if (QueryType == N1QlQueryType.AllMainQuery) 
+            {
+                sb.AppendFormat(" {0} NOT ({1})", 
+                    hasWhereClause ? "AND" : "WHERE",
+                    WhereAllPart);
+            }
+
+            sb.Append(" LIMIT 1");
+
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// Builds a subquery using the ANY expression to test a nested array
         /// </summary>
         /// <returns>Query string</returns>
@@ -191,6 +230,11 @@ namespace Couchbase.Linq.QueryGeneration
                 case N1QlQueryType.Any:
                 case N1QlQueryType.All:
                     query = BuildAnyAllQuery();
+                    break;
+
+                case N1QlQueryType.AnyMainQuery:
+                case N1QlQueryType.AllMainQuery:
+                    query = BuildMainAnyAllQuery();
                     break;
 
                 default:

@@ -17,6 +17,8 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
 
+        private bool _isSubQuery = false;
+
         public static string GenerateN1QlQuery(QueryModel queryModel)
         {
             var visitor = new N1QlQueryModelVisitor();
@@ -56,6 +58,8 @@ namespace Couchbase.Linq.QueryGeneration
                     Source = GetN1QlExpression((MemberExpression) fromClause.FromExpression),
                     ItemName = EscapeIdentifier(fromClause.ItemName)
                 });
+
+                _isSubQuery = true;
             }
 
             base.VisitMainFromClause(fromClause, queryModel);
@@ -127,14 +131,14 @@ namespace Couchbase.Linq.QueryGeneration
             }
             else if (resultOperator is AnyResultOperator)
             {
-                _queryPartsAggregator.QueryType = N1QlQueryType.Any;
+                _queryPartsAggregator.QueryType = _isSubQuery ? N1QlQueryType.Any : N1QlQueryType.AnyMainQuery;
             }
             else if (resultOperator is AllResultOperator)
             {
                 var allResultOperator = (AllResultOperator) resultOperator;
                 _queryPartsAggregator.WhereAllPart = GetN1QlExpression(allResultOperator.Predicate);
 
-                _queryPartsAggregator.QueryType = N1QlQueryType.All;
+                _queryPartsAggregator.QueryType = _isSubQuery ? N1QlQueryType.All : N1QlQueryType.AllMainQuery;
             }
 
             base.VisitResultOperator(resultOperator, queryModel, index);

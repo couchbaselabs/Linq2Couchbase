@@ -4,6 +4,7 @@ using System.Linq;
 using Couchbase.Configuration.Client;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
+using Couchbase.N1QL;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.Tests
@@ -131,6 +132,40 @@ namespace Couchbase.Linq.Tests
         }
 
         [Test]
+        public void AnyAllTests_AnyOnMainDocument_ReturnsTrue()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var hasBreweries = (from b in bucket.Queryable<Brewery>()
+                                        where b.Type == "brewery"
+                                        select new { name = b.Name, address = b.Address }).
+                        Any();
+
+                    Assert.True(hasBreweries);
+                }
+            }
+        }
+
+        [Test]
+        public void AnyAllTests_AnyOnMainDocument_ReturnsFalse()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var hasFaketype = (from b in bucket.Queryable<Brewery>()
+                                       where b.Type == "faketype"
+                                       select new { name = b.Name, address = b.Address }).
+                        Any();
+
+                    Assert.False(hasFaketype);
+                }
+            }
+        }
+
+        [Test]
         public void AnyAllTests_AllNestedArray()
         {
             using (var cluster = new Cluster())
@@ -168,6 +203,37 @@ namespace Couchbase.Linq.Tests
 
                     Assert.IsNotEmpty(breweries);
                     Assert.False(breweries.SelectMany(p => p.address).Any(p => p == "563 Second Street"));
+                }
+            }
+        }
+
+        [Test]
+        public void AnyAllTests_AllOnMainDocument_ReturnsFalse()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var isAllBreweries = bucket.Queryable<Brewery>().All(p => p.Type == "brewery");
+
+                    Assert.False(isAllBreweries);
+                }
+            }
+        }
+
+        [Test]
+        public void AnyAllTests_AllOnMainDocument_ReturnsTrue()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var allBreweriesHaveAddress = (from b in bucket.Queryable<Brewery>()
+                                                   where b.Type == "brewery"
+                                                   select new { b.Name })
+                        .All(p => p.Name != "");
+
+                    Assert.True(allBreweriesHaveAddress);
                 }
             }
         }
