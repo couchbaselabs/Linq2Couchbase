@@ -7,6 +7,7 @@ using Couchbase.Linq.QueryGeneration;
 using Couchbase.N1QL;
 using Newtonsoft.Json;
 using Remotion.Linq;
+using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Couchbase.Linq
 {
@@ -50,6 +51,23 @@ namespace Couchbase.Linq
 
         public T ExecuteScalar<T>(QueryModel queryModel)
         {
+            if (queryModel.ResultOperators.Any(p => p is AnyResultOperator))
+            {
+                // Need to extract the value from an object
+                var result = ExecuteSingle<AnyAllResult>(queryModel, true);
+
+                // For an Any operation, no result row means that the Any should return false
+                return (T)(object)(result != null ? result.result : false);
+            }
+            else if (queryModel.ResultOperators.Any(p => p is AllResultOperator))
+            {
+                // Need to extract the value from an object
+                var result = ExecuteSingle<AnyAllResult>(queryModel, true);
+
+                // For an All operation, no result row means that the All should return true
+                return (T)(object)(result != null ? result.result : true);
+            }
+
             return ExecuteCollection<T>(queryModel).Single();
         }
 
@@ -64,5 +82,14 @@ namespace Couchbase.Linq
         {
             return N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel);
         }
+
+        /// <summary>
+        /// Used to extract the result row from an Any or All operation
+        /// </summary>
+        private class AnyAllResult
+        {
+            public bool result { get; set; }
+        }
+
     }
 }
