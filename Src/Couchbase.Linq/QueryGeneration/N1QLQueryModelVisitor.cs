@@ -14,18 +14,12 @@ namespace Couchbase.Linq.QueryGeneration
 {
     public class N1QlQueryModelVisitor : QueryModelVisitorBase //: N1QlQueryModelVisitorBase
     {
-        private readonly string _bucketName;
         private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
 
-        public N1QlQueryModelVisitor(string bucketName)
+        public static string GenerateN1QlQuery(QueryModel queryModel)
         {
-            _bucketName = bucketName;
-        }
-
-        public static string GenerateN1QlQuery(QueryModel queryModel, string bucketName)
-        {
-            var visitor = new N1QlQueryModelVisitor(bucketName);
+            var visitor = new N1QlQueryModelVisitor();
             visitor.VisitQueryModel(queryModel);
             return visitor.GetQuery();
         }
@@ -45,9 +39,15 @@ namespace Couchbase.Linq.QueryGeneration
 
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
         {
-            //In N1QL, the source is the bucket, not the document
-            _queryPartsAggregator.AddFromPart(string.Format("{0} as {1}", FormatBucketName(_bucketName),
-                fromClause.ItemName));
+            var bucketConstantExpression = fromClause.FromExpression as ConstantExpression;
+            if ((bucketConstantExpression != null) &&
+                typeof(IBucketQueryable).IsAssignableFrom(bucketConstantExpression.Type))
+            {
+                _queryPartsAggregator.AddFromPart(string.Format("{0} as {1}",
+                    EscapeIdentifier(((IBucketQueryable) bucketConstantExpression.Value).BucketName),
+                    EscapeIdentifier(fromClause.ItemName)));
+            }
+
             base.VisitMainFromClause(fromClause, queryModel);
         }
 
@@ -62,11 +62,8 @@ namespace Couchbase.Linq.QueryGeneration
 
         private IEnumerable<string> GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
         {
-            var prefix = queryModel.MainFromClause.ItemName;
-            if (prefix.Contains("<generated>"))
-            {
-                return new List<string>();
-            }
+            var prefix = EscapeIdentifier(queryModel.MainFromClause.ItemName);
+
             var expression = GetN1QlExpression(selectClause.Selector);
 
             if (selectClause.Selector.GetType() == typeof (QuerySourceReferenceExpression))
@@ -116,7 +113,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
             else if (resultOperator is MetaResultOperator)
             {
-                _queryPartsAggregator.MetaPart = string.Format("META({0})", FormatBucketName(_bucketName));
+                _queryPartsAggregator.MetaPart = string.Format("META({0})", EscapeIdentifier(queryModel.MainFromClause.ItemName));
             }
 
             base.VisitResultOperator(resultOperator, queryModel, index);
@@ -159,26 +156,40 @@ namespace Couchbase.Linq.QueryGeneration
         }
 
         /// <summary>
-        ///     Ensures that if the bucket name contains a hyphen that it will be escaped by tick (`) characters.
+        ///     Ensures that if the identifier contains a hyphen or other special characters that it will be escaped by tick (`) characters.
         /// </summary>
-        /// <param name="bucketName">The bucket name to format</param>
-        /// <returns>A bucket formatted bucket name.</returns>
-        private string FormatBucketName(string bucketName)
+        /// <param name="identifier">The identifier to format</param>
+        /// <returns>An escaped identifier, if escaping was required.  Otherwise the original identifier.</returns>
+        public static string EscapeIdentifier(string identifier)
         {
-            const char tick = '`';
-            var newBucketName = bucketName;
-            if (bucketName.Contains('-'))
+            if (identifier == null)
             {
-                if (!bucketName.StartsWith("`"))
+                throw new ArgumentNullException("identifier");
+            }
+
+            bool containsSpecialChar = false;
+            for (var i = 0; i < identifier.Length; i++)
+            {
+                if (!Char.IsLetterOrDigit(identifier[i]))
                 {
-                    newBucketName = string.Concat(tick, newBucketName);
-                }
-                if (!bucketName.EndsWith("`"))
-                {
-                    newBucketName = string.Concat(newBucketName, tick);
+                    containsSpecialChar = true;
+                    break;
                 }
             }
-            return newBucketName;
+
+            if (!containsSpecialChar)
+            {
+                return identifier;
+            }
+            else
+            {
+                var sb = new System.Text.StringBuilder(identifier.Length + 2);
+
+                sb.Append('`');
+                sb.Append(identifier.Replace("`", "``"));
+                sb.Append('`');
+                return sb.ToString();
+            }
         }
     }
 }
