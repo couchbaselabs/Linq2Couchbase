@@ -84,6 +84,7 @@
   <ItemGroup>
     <Compile Include="BeerSampleTests.cs" />
     <Compile Include="BucketExtensionTests.cs" />
+    <Compile Include="Documents\Airline.cs" />
     <Compile Include="Documents\BeerFiltered.cs" />
     <Compile Include="Documents\Beer.cs" />
     <Compile Include="Documents\Brewery.cs" />
@@ -92,6 +93,8 @@
     <Compile Include="Documents\Child.cs" />
     <Compile Include="Documents\Contact.cs" />
     <Compile Include="Documents\Geo.cs" />
+    <Compile Include="Documents\Route.cs" />
+    <Compile Include="Documents\Schedule.cs" />
     <Compile Include="N1QLTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryClientExtensionTests.cs" />
