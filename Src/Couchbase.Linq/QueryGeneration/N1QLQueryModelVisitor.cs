@@ -114,10 +114,6 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _queryPartsAggregator.ExplainPart = "EXPLAIN ";
             }
-            else if (resultOperator is MetaResultOperator)
-            {
-                _queryPartsAggregator.MetaPart = string.Format("META({0})", FormatBucketName(_bucketName));
-            }
 
             base.VisitResultOperator(resultOperator, queryModel, index);
         }

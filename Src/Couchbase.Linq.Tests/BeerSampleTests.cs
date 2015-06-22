@@ -93,5 +93,66 @@ namespace Couchbase.Linq.Tests
                 }
             }
         }
+
+        [Test]
+        public void Map2PocoTests_Simple_Projections_Meta()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = (from b in bucket.Queryable<Beer>()
+                                 where b.Type == "beer"
+                                 select new { name = b.Name, meta = N1Ql.Meta(b) }).
+                        Take(10);
+
+                    foreach (var b in beers)
+                    {
+                        Console.WriteLine("{0} has metadata {1}", b.name, b.meta);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Map2PocoTests_Simple_Projections_MetaId()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = (from b in bucket.Queryable<Beer>()
+                                 where b.Type == "beer"
+                                 select new { name = b.Name, id = N1Ql.Meta(b).Id }).
+                        Take(10);
+
+                    foreach (var b in beers)
+                    {
+                        Console.WriteLine("{0} has id {1}", b.name, b.id);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void Map2PocoTests_Simple_Projections_MetaWhere()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = (from b in bucket.Queryable<Beer>()
+                                 where b.Type == "beer" && N1Ql.Meta(b).Type == "json"
+                                 select new { name = b.Name}).
+                        Take(10);
+
+                    foreach (var b in beers)
+                    {
+                        Console.WriteLine("{0} is a JSON document", b.name);
+                    }
+                }
+            }
+        }
+
     }
 }

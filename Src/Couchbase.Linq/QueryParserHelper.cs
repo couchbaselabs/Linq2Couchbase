@@ -22,10 +22,6 @@ namespace Couchbase.Linq
             customNodeTypeRegistry.Register(ExplainExpressionNode.SupportedMethods,
                 typeof(ExplainExpressionNode));
 
-            //register the "Meta" expression node parser
-            customNodeTypeRegistry.Register(MetaExpressionNode.SupportedMethods,
-                typeof(MetaExpressionNode));
-
             //This creates all the default node types
             var nodeTypeProvider = ExpressionTreeParser.CreateDefaultNodeTypeProvider();
 

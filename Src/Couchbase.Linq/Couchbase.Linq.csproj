@@ -67,10 +67,9 @@
     <Compile Include="Clauses\WhereMissingClause.cs" />
     <Compile Include="Clauses\WhereMissingExpressionNode.cs" />
     <Compile Include="Extensions\QueryExtensions.cs" />
+    <Compile Include="Metadata\IDocumentMetadataProvider.cs" />
     <Compile Include="Operators\ExplainExpressionNode.cs" />
     <Compile Include="Operators\ExplainResultOperator.cs" />
-    <Compile Include="Operators\MetaExpressionNode.cs" />
-    <Compile Include="Operators\MetaResultOperator.cs" />
     <Compile Include="QueryClientQueryable.cs" />
     <Compile Include="QueryClientQueryExecuter.cs" />
     <Compile Include="Extensions\QueryClientExtensions.cs" />
@@ -88,6 +87,8 @@
     <Compile Include="QueryGeneration\ParameterAggregator.cs" />
     <Compile Include="QueryGeneration\QueryPartsAggregator.cs" />
     <Compile Include="QueryGeneration\SelectMissingException.cs" />
+    <Compile Include="Metadata\DocumentMetadata.cs" />
+    <Compile Include="N1QL.cs" />
     <Compile Include="QueryParserHelper.cs" />
   </ItemGroup>
   <ItemGroup>

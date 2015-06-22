@@ -38,11 +38,6 @@ namespace Couchbase.Linq.Extensions
             return CreateQuery(source, queryable => queryable.Explain());
         }
 
-        public static IQueryable<T> Meta<T>(this IQueryable<T> source)
-        {
-            return CreateQuery(source, queryable => queryable.Meta());
-        }
-
         /// <summary>
         /// An expression generation helper for adding additional methods to a Linq provider.
         /// </summary>
