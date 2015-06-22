@@ -101,6 +101,8 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitBinaryExpression(BinaryExpression expression)
         {
+            ConstantExpression constantExpression;
+
             _expression.Append("(");
 
             VisitExpression(expression.Left);
@@ -109,7 +111,17 @@ namespace Couchbase.Linq.QueryGeneration
             switch (expression.NodeType)
             {
                 case ExpressionType.Equal:
-                    _expression.Append(" = ");
+                    constantExpression = expression.Right as ConstantExpression;
+                    if ((constantExpression != null) && (constantExpression.Value == null))
+                    {
+                        // short circuit normal path to use IS NULL operator
+                        _expression.Append(" IS NULL)");
+                        return expression;
+                    }
+                    else
+                    {
+                        _expression.Append(" = ");
+                    }
                     break;
 
                 case ExpressionType.AndAlso:
@@ -145,7 +157,17 @@ namespace Couchbase.Linq.QueryGeneration
                     _expression.Append(" < ");
                     break;
                 case ExpressionType.NotEqual:
-                    _expression.Append(" != "); //TODO: Change this to work for nulls. i.e. should be IS NOT NULL
+                    constantExpression = expression.Right as ConstantExpression;
+                    if ((constantExpression != null) && (constantExpression.Value == null))
+                    {
+                        // short circuit normal path to use IS NOT NULL operator
+                        _expression.Append(" IS NOT NULL)");
+                        return expression;
+                    }
+                    else
+                    {
+                        _expression.Append(" != ");
+                    }
                     break;
                 default:
                     base.VisitBinaryExpression(expression);
