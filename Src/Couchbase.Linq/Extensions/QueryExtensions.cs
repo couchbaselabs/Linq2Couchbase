@@ -32,10 +32,19 @@ namespace Couchbase.Linq.Extensions
         /// </summary>
         /// <typeparam name="T">The target type.</typeparam>
         /// <param name="source">The source.</param>
-        /// <returns></returns>
-        public static IQueryable<T> Explain<T>(this IQueryable<T> source)
+        /// <returns>Explanation of the query</returns>
+        public static dynamic Explain<T>(this IQueryable<T> source)
         {
-            return CreateQuery(source, queryable => queryable.Explain());
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            var newExpression = Expression.Call(null,
+                ((MethodInfo) MethodBase.GetCurrentMethod()).MakeGenericMethod(typeof (T)),
+                source.Expression);
+
+            return source.Provider.Execute<dynamic>(newExpression);
         }
 
         /// <summary>

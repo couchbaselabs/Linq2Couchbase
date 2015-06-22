@@ -128,7 +128,6 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-
                     var beers = (from b in bucket.Queryable<Beer>()
                                  where b.Type == "beer"
                                  select new { name = b.Name, meta = N1Ql.Meta(b) }).
@@ -138,6 +137,23 @@ namespace Couchbase.Linq.Tests
                     {
                         Console.WriteLine("{0} has metadata {1}", b.name, b.meta);
                     }
+                }
+            }
+        }
+
+        [Test]
+        public void Map2PocoTests_Explain()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var explanation = (from b in bucket.Queryable<Beer>()
+                                       where b.Type == "beer"
+                                       select b).
+                        Explain();
+
+                    Console.WriteLine(explanation);
                 }
             }
         }
