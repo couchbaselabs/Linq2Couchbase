@@ -97,6 +97,7 @@
     <Compile Include="QueryGeneration\SelectMissingException.cs" />
     <Compile Include="Metadata\DocumentMetadata.cs" />
     <Compile Include="N1QL.cs" />
+    <Compile Include="QueryGeneration\UnclaimedGroupJoin.cs" />
     <Compile Include="QueryParserHelper.cs" />
   </ItemGroup>
   <ItemGroup>

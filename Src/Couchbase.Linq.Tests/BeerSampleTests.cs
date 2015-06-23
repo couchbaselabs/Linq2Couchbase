@@ -268,7 +268,6 @@ namespace Couchbase.Linq.Tests
             }
         }
 
-
         [Test]
         public void Map2PocoTests_Simple_Projections_TypeFilterAttribute()
         {
@@ -322,7 +321,6 @@ namespace Couchbase.Linq.Tests
             }
         }
 
-
         public void Map2PocoTests_Simple_Projections_MetaId()
         {
             using (var cluster = new Cluster())
@@ -355,6 +353,176 @@ namespace Couchbase.Linq.Tests
 
                     Assert.IsNotEmpty(breweries);
                     Assert.True(breweries.All(p => p.address.Any()));
+                }
+            }
+        }
+
+        [Test]
+        public void JoinTests_InnerJoin_Simple()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                        join brewery in bucket.Queryable<Brewery>()
+                            on beer.BreweryId equals N1Ql.Key(brewery)
+                        select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("Beer {0} with ABV {1} is from {2}", b.Name, b.Abv, b.BreweryName);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void JoinTests_InnerJoin_SortAndFilter()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                join brewery in bucket.Queryable<Brewery>()
+                                on beer.BreweryId equals N1Ql.Key(brewery)
+                                where brewery.Geo.Longitude > -80
+                                orderby beer.Name
+                                select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("Beer {0} with ABV {1} is from {2}", b.Name, b.Abv, b.BreweryName);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void JoinTests_InnerJoin_Prefiltered()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>().Where(p => p.Type == "beer")
+                                join brewery in bucket.Queryable<Brewery>().Where(p => p.Type == "brewery")
+                                on beer.BreweryId equals N1Ql.Key(brewery)
+                                where brewery.Geo.Longitude > -80
+                                orderby beer.Name
+                                select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("Beer {0} with ABV {1} is from {2}", b.Name, b.Abv, b.BreweryName);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void JoinTests_LeftJoin_Simple()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                join breweryGroup in bucket.Queryable<Brewery>()
+                                on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                                from brewery in bg.DefaultIfEmpty()
+                                select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("Beer {0} with ABV {1} is from {2}", b.Name, b.Abv, b.BreweryName);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void JoinTests_LeftJoin_SortAndFilter()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                join breweryGroup in bucket.Queryable<Brewery>()
+                                on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                                from brewery in bg.DefaultIfEmpty()
+                                where beer.Abv > 4
+                                orderby brewery.Name, beer.Name
+                                select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("Beer {0} with ABV {1} is from {2}", b.Name, b.Abv, b.BreweryName);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void JoinTests_LeftJoin_Prefiltered()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>().Where(p => p.Type == "beer")
+                                join breweryGroup in bucket.Queryable<Brewery>().Where(p => p.Type == "brewery")
+                                on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                                from brewery in bg.DefaultIfEmpty()
+                                where beer.Abv > 4
+                                orderby brewery.Name, beer.Name
+                                select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("Beer {0} with ABV {1} is from {2}", b.Name, b.Abv, b.BreweryName);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void NestTests_Unnest_Simple()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                                    from address in brewery.Address
+                                    select new { name = brewery.Name, address };
+
+                    foreach (var b in breweries.Take(10))
+                    {
+                        Console.WriteLine("Brewery {0} has address line {1}", b.name, b.address);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void NestTests_Unnest_Sort()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                                    from address in brewery.Address
+                                    orderby address
+                                    select new { name = brewery.Name, address };
+
+                    foreach (var b in breweries.Take(10))
+                    {
+                        Console.WriteLine("Brewery {0} has address line {1}", b.name, b.address);
+                    }
                 }
             }
         }

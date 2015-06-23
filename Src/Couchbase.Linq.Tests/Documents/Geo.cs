@@ -8,9 +8,9 @@ namespace Couchbase.Linq.Tests.Documents
         public string Accuracy { get; set; }
 
         [JsonProperty("lat")]
-        public string Latitude { get; set; }
+        public decimal Latitude { get; set; }
 
         [JsonProperty("lon")]
-        public string Longitude { get; set; }
+        public decimal Longitude { get; set; }
     }
 }
