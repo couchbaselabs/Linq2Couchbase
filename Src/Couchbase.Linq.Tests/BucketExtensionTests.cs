@@ -65,28 +65,6 @@ namespace Couchbase.Linq.Tests
         }
 
         [Test]
-        public void Test()
-        {
-            using (var cluster = new Cluster())
-            {
-                using (var bucket = cluster.OpenBucket())
-                {
-                    var query = from c in bucket.Queryable<Contact>()
-                        select c;
-
-                    foreach (var contact in query)
-                    {
-                        if (contact.Hobbies != null)
-                            foreach (var hobby in contact.Hobbies)
-                            {
-                                Console.WriteLine(hobby);
-                            }
-                    }
-                }
-            }
-        }
-
-        [Test]
         public void Test_POCO_Basic()
         {
             using (var cluster = new Cluster())

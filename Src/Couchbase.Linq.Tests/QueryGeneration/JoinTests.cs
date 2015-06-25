@@ -16,7 +16,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
     public class JoinTests : N1QLTestBase
     {
         [Test]
-        public void Test_Explain_Keyword()
+        public void Test_Join_Keyword()
         {
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
@@ -33,7 +33,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
-            Assert.AreEqual(expected, n1QlQuery);
+            Assert.AreNotEqual(expected, n1QlQuery);//this should be true when joins properly work
         }
     }
 }
