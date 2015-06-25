@@ -23,7 +23,10 @@ namespace Couchbase.Linq.QueryGeneration
         {
             _parameterAggregator = parameterAggregator;
             _methodCallTranslators.Add(typeof (string).GetMethod("Contains"), ContainsMethodTranslator);
+            _methodCallTranslators.Add(typeof (N1Ql).GetMethod("Meta"), MetaMethodTranslator);
         }
+
+        #region Method Translators
 
         private Expression ContainsMethodTranslator(MethodCallExpression methodCallExpression)
         {
@@ -45,6 +48,17 @@ namespace Couchbase.Linq.QueryGeneration
 
             return methodCallExpression;
         }
+
+        private Expression MetaMethodTranslator(MethodCallExpression methodCallExpression)
+        {
+            _expression.Append("META(");
+            VisitExpression(methodCallExpression.Arguments[0]);
+            _expression.Append(')');
+
+            return methodCallExpression;
+        }
+
+        #endregion
 
         public static string GetN1QlExpression(Expression expression, ParameterAggregator aggregator)
         {

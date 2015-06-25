@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Couchbase.Configuration.Client;
 using Couchbase.Linq.Extensions;
+using Couchbase.Linq.Filters;
 using Couchbase.Linq.Tests.Documents;
 using Couchbase.N1QL;
 using NUnit.Framework;
@@ -121,19 +122,22 @@ namespace Couchbase.Linq.Tests
         }
 
         [Test]
-        public void AnyAllTests_AnyNestedArray()
+        public void Map2PocoTests_Simple_Projections_Meta()
         {
             using (var cluster = new Cluster())
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var breweries = (from b in bucket.Queryable<Brewery>()
-                        where b.Type == "brewery" && b.Address.Any()
-                        select new {name = b.Name, address = b.Address}).
-                        ToList();
 
-                    Assert.IsNotEmpty(breweries);
-                    Assert.True(breweries.All(p => p.address.Any()));
+                    var beers = (from b in bucket.Queryable<Beer>()
+                                 where b.Type == "beer"
+                                 select new { name = b.Name, meta = N1Ql.Meta(b) }).
+                        Take(10);
+
+                    foreach (var b in beers)
+                    {
+                        Console.WriteLine("{0} has metadata {1}", b.name, b.meta);
+                    }
                 }
             }
         }
@@ -152,6 +156,7 @@ namespace Couchbase.Linq.Tests
 
                     Assert.IsNotEmpty(breweries);
                     Assert.True(breweries.All(p => p.address.Contains("563 Second Street")));
+
                 }
             }
         }
@@ -283,7 +288,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections_TypeFilterRuntime()
         {
-            Filters.EntityFilterManager.SetFilter(new BreweryFilter());
+            EntityFilterManager.SetFilter(new BreweryFilter());
 
             using (var cluster = new Cluster())
             {
@@ -294,6 +299,62 @@ namespace Couchbase.Linq.Tests
                         .AsEnumerable();
 
                     Assert.True(breweries.All(p => p.type == "brewery"));
+                }
+            }
+        }
+
+        public void Map2PocoTests_Simple_Projections_MetaWhere()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = (from b in bucket.Queryable<Beer>()
+                        where b.Type == "beer" && N1Ql.Meta(b).Type == "json"
+                        select new {name = b.Name}).
+                        Take(10);
+
+                    foreach (var b in beers)
+                    {
+                        Console.WriteLine("{0} is a JSON document", b.name);
+                    }
+                }
+            }
+        }
+
+
+        public void Map2PocoTests_Simple_Projections_MetaId()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = (from b in bucket.Queryable<Beer>()
+                        where b.Type == "beer"
+                        select new {name = b.Name, id = N1Ql.Meta(b).Id}).
+                        Take(10);
+
+                    foreach (var b in beers)
+                    {
+                        Console.WriteLine("{0} has id {1}", b.name, b.id);
+                    }
+                }
+            }
+        }
+
+        public void AnyAllTests_AnyNestedArray()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries = (from b in bucket.Queryable<Brewery>()
+                        where b.Type == "brewery" && b.Address.Any()
+                        select new {name = b.Name, address = b.Address}).
+                        ToList();
+
+                    Assert.IsNotEmpty(breweries);
+                    Assert.True(breweries.All(p => p.address.Any()));
                 }
             }
         }
