@@ -23,7 +23,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Meta();
 
-            const string expected = "SELECT META(default) FROM default";
+            const string expected = "SELECT `<generated>_1`.*, META(`<generated>_1`) FROM default as `<generated>_1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -40,7 +40,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                 .Select(c=>c.Age)
                 .Meta();
 
-            const string expected = "SELECT c.age, META(default) FROM default as c";
+            const string expected = "SELECT c.age, META(c) FROM default as c";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
