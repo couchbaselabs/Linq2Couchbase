@@ -211,7 +211,18 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitUnaryExpression(UnaryExpression expression)
         {
-            VisitExpression(expression.Operand);
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Not:
+                    _expression.Append("NOT ");
+                    VisitExpression(expression.Operand);
+                    break;
+
+                default:
+                    VisitExpression(expression.Operand);
+                    break;
+            }
+            
             return expression;
         }
 
