@@ -72,6 +72,7 @@
     <Compile Include="Clauses\WhereMissingExpressionNode.cs" />
     <Compile Include="Extensions\QueryExtensions.cs" />
     <Compile Include="Filters\IEntityFilterSetGenerator.cs" />
+    <Compile Include="IBucketQueryable.cs" />
     <Compile Include="Operators\ExplainExpressionNode.cs" />
     <Compile Include="Operators\ExplainResultOperator.cs" />
     <Compile Include="Operators\MetaExpressionNode.cs" />
@@ -88,7 +89,9 @@
     <Compile Include="QueryGeneration\IMemberNameResolver.cs" />
     <Compile Include="QueryGeneration\JsonNetMemberNameResolver.cs" />
     <Compile Include="QueryGeneration\N1QLExpressionTreeVisitor.cs" />
+    <Compile Include="QueryGeneration\N1QLFromQueryPart.cs" />
     <Compile Include="QueryGeneration\N1QLQueryModelVisitor.cs" />
+    <Compile Include="QueryGeneration\N1QLQueryType.cs" />
     <Compile Include="QueryGeneration\NamedParameter.cs" />
     <Compile Include="QueryGeneration\ParameterAggregator.cs" />
     <Compile Include="QueryGeneration\QueryPartsAggregator.cs" />

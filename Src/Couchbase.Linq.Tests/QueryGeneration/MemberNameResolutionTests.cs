@@ -46,7 +46,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new {brewName = e.Name, brewCity = e.City});
 
             const string expected =
-                "SELECT e.Name as brewName, e.City as brewCity FROM default as e WHERE (e.Country LIKE '%a%')";
+                "SELECT e.name as brewName, e.city as brewCity FROM default as e WHERE (e.country LIKE '%a%')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

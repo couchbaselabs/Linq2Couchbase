@@ -7,11 +7,16 @@ using Remotion.Linq;
 
 namespace Couchbase.Linq
 {
-    public sealed class QueryClientQueryExecuter : IQueryExecutor
+    public sealed class QueryClientQueryExecuter : IQueryExecutor, IBucketQueryable
     {
         private readonly string _bucketName;
         private readonly IQueryClient _queryClient;
         private readonly Uri _uri;
+
+        public string BucketName
+        {
+            get { return _bucketName; }
+        }
 
         internal QueryClientQueryExecuter(IQueryClient queryClient, string bucketName, Uri uri)
         {
@@ -41,7 +46,7 @@ namespace Couchbase.Linq
 
         public string ExecuteCollection(QueryModel queryModel)
         {
-            return N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel, _bucketName);
+            return N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel);
         }
     }
 }
