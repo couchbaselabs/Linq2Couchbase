@@ -62,9 +62,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Filters\AttributeEntityFilterSetGenerator.cs" />
+    <Compile Include="Filters\EntityFilterAttribute.cs" />
+    <Compile Include="Filters\EntityFilterManager.cs" />
+    <Compile Include="Filters\EntityFilterSet.cs" />
+    <Compile Include="Filters\IEntityFilter.cs" />
+    <Compile Include="Filters\EntityTypeFilterAttribute.cs" />
     <Compile Include="Clauses\WhereMissingClause.cs" />
     <Compile Include="Clauses\WhereMissingExpressionNode.cs" />
     <Compile Include="Extensions\QueryExtensions.cs" />
+    <Compile Include="Filters\IEntityFilterSetGenerator.cs" />
     <Compile Include="Operators\ExplainExpressionNode.cs" />
     <Compile Include="Operators\ExplainResultOperator.cs" />
     <Compile Include="Operators\MetaExpressionNode.cs" />

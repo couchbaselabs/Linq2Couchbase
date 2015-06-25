@@ -1,12 +1,14 @@
-﻿using Couchbase.Core;
+﻿using System.Linq;
+using Couchbase.Core;
+using Couchbase.Linq.Filters;
 
 namespace Couchbase.Linq.Extensions
 {
     public static class BucketExtensions
     {
-        public static BucketQueryable<T> Queryable<T>(this IBucket bucket)
+        public static IQueryable<T> Queryable<T>(this IBucket bucket)
         {
-            return new BucketQueryable<T>(bucket);
+            return EntityFilterManager.ApplyFilters(new BucketQueryable<T>(bucket));
         }
     }
 }
