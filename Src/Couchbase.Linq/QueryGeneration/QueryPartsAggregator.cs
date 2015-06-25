@@ -90,10 +90,6 @@ namespace Couchbase.Linq.QueryGeneration
             sb.AppendFormat("SELECT {0}{1}", string.IsNullOrWhiteSpace(DistinctPart) ? string.Empty : DistinctPart,  selectParts);
                 //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5
 
-            if (!string.IsNullOrWhiteSpace(MetaPart))
-            {
-                sb.AppendFormat(SelectParts.Count > 0 ? ", {0}" : "{0}", MetaPart);
-            }
             if (FromParts.Any())
             {
                 var mainFrom = FromParts.First();

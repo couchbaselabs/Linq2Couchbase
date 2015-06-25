@@ -125,10 +125,6 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _queryPartsAggregator.ExplainPart = "EXPLAIN ";
             }
-            else if (resultOperator is MetaResultOperator)
-            {
-                _queryPartsAggregator.MetaPart = string.Format("META({0})", EscapeIdentifier(queryModel.MainFromClause.ItemName));
-            }
             else if (resultOperator is AnyResultOperator)
             {
                 _queryPartsAggregator.QueryType = _isSubQuery ? N1QlQueryType.Any : N1QlQueryType.AnyMainQuery;
@@ -140,6 +136,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 _queryPartsAggregator.QueryType = _isSubQuery ? N1QlQueryType.All : N1QlQueryType.AllMainQuery;
             }
+
 
             base.VisitResultOperator(resultOperator, queryModel, index);
         }
