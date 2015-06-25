@@ -169,5 +169,45 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public void Test_Where_With_IsNull()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Where(e => e.FirstName == null)
+                    .Select(e => new { age = e.Age, name = e.FirstName });
+
+
+            const string expected =
+                "SELECT e.age as age, e.fname as name FROM default as e WHERE (e.fname IS NULL)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Where_With_IsNotNull()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Where(e => e.FirstName != null)
+                    .Select(e => new { age = e.Age, name = e.FirstName });
+
+
+            const string expected =
+                "SELECT e.age as age, e.fname as name FROM default as e WHERE (e.fname IS NOT NULL)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
     }
 }
