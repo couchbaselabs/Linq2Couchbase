@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Core;
@@ -21,12 +22,13 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Select(c => new {age = c.Age})
-                .Explain();
+                .Select(c => new {age = c.Age});
+
+            var explainQuery = Expression.Call(null, typeof(QueryExtensions).GetMethod("Explain").MakeGenericMethod(query.ElementType), query.Expression);
 
             const string expected = "EXPLAIN SELECT c.age as age FROM default as c";
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, explainQuery);
 
             Assert.AreEqual(expected, n1QlQuery);
         }
