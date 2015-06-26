@@ -31,7 +31,7 @@ namespace Couchbase.Linq
             var result = _bucket.Query<T>(new QueryRequest(commandData));
             if (!result.Success)
             {
-                if (result.Exception != null && result.Errors == null)
+                if (result.Exception != null && result.Errors == null || result.Errors.Count == 0)
                 {
                     throw result.Exception;
                 }
