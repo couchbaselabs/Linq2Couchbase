@@ -12,7 +12,7 @@ using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public class N1QlQueryModelVisitor : QueryModelVisitorBase //: N1QlQueryModelVisitorBase
+    public class N1QlQueryModelVisitor : QueryModelVisitorBase, IN1QlQueryModelVisitor
     {
         private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
@@ -20,6 +20,7 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly List<UnclaimedGroupJoin> _unclaimedGroupJoins = new List<UnclaimedGroupJoin>(); 
 
         private bool _isSubQuery = false;
+        private int _generatedItemNameIndex = 0;
 
         public N1QlQueryModelVisitor()
         {
@@ -423,9 +424,121 @@ namespace Couchbase.Linq.QueryGeneration
 
         #endregion
 
+        #region Nest Clause
+
+        public void VisitNestClause(NestClause nestClause, QueryModel queryModel, int index)
+        {
+            _queryPartsAggregator.AddFromPart(ParseNestClause(nestClause, nestClause.ItemName));
+        }
+
+        /// <summary>
+        /// Visits a nest against either a constant expression of IBucketQueryable, or a subquery based on an IBucketQueryable
+        /// </summary>
+        /// <param name="nestClause">Nest clause being visited</param>
+        /// <param name="itemName">Name to be used when referencing the data being nested</param>
+        /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator</returns>
+        private N1QlFromQueryPart ParseNestClause(NestClause nestClause, string itemName)
+        {
+            switch (nestClause.InnerSequence.NodeType)
+            {
+                case ExpressionType.Constant:
+                    return VisitConstantExpressionNestClause(nestClause, nestClause.InnerSequence as ConstantExpression, itemName);
+
+                case SubQueryExpression.ExpressionType: // SubQueryExpression
+                    var subQuery = nestClause.InnerSequence as SubQueryExpression;
+                    if ((subQuery == null) || subQuery.QueryModel.ResultOperators.Any() || subQuery.QueryModel.MainFromClause.FromExpression.NodeType != ExpressionType.Constant)
+                    {
+                        throw new NotSupportedException("Unsupported Nest Inner Sequence");
+                    }
+
+                    // itemName parameter represents the final item name we want, which will be used in the LET statement
+                    // So generate a temporary item name to use on the NEST statement, which we can then reference in the LET statement
+
+                    var genItemName = GetNewGenName();
+                    var fromPart = VisitConstantExpressionNestClause(nestClause,
+                        subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression, genItemName);
+
+                    // The LET statement will use an ARRAY filtering clause that will reference each item in the array using a name
+                    // So generate a temporary name to use to reference items in the array, and ensure that it is used by the where clauses
+
+                    var genForName = GetNewGenName();
+                    subQuery.QueryModel.MainFromClause.ItemName = genForName;
+
+                    // Put any where clauses in the sub query in an ARRAY filtering clause using a LET statement
+
+                    var whereClauseString = String.Join(" AND ",
+                        subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
+                            .Select(p => GetN1QlExpression(p.Predicate)));
+
+                    var letPart = new N1QlLetQueryPart()
+                    {
+                        ItemName = EscapeIdentifier(itemName),
+                        Value =
+                            String.Format("ARRAY {0} FOR {0} IN {1} WHEN {2} END", EscapeIdentifier(genForName),
+                                EscapeIdentifier(genItemName), whereClauseString)
+                    };
+
+                    _queryPartsAggregator.AddLetPart(letPart);
+
+                    if (!nestClause.IsLeftOuterNest)
+                    {
+                        // This is an INNER NEST, but the inner sequence filter is being applied after the NEST operation is done
+                        // So we need to put an additional filter to drop rows with an empty array result
+
+                        _queryPartsAggregator.AddWherePart("(ARRAY_LENGTH({0}) > 0)", letPart.ItemName);
+                    }
+
+                    return fromPart;
+
+                default:
+                    throw new NotSupportedException("Unsupported Nest Inner Sequence");
+            }
+        }
+
+        /// <summary>
+        /// Visits a nest against a constant expression, which must be an IBucketQueryable implementation
+        /// </summary>
+        /// <param name="nestClause">Nest clause being visited</param>
+        /// <param name="constantExpression">Constant expression that is the InnerSequence of the NestClause</param>
+        /// <param name="itemName">Name to be used when referencing the data being nested</param>
+        /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator</returns>
+        private N1QlFromQueryPart VisitConstantExpressionNestClause(NestClause nestClause, ConstantExpression constantExpression, string itemName)
+        {
+            string bucketName = null;
+
+            if (constantExpression != null)
+            {
+                var bucketQueryable = constantExpression.Value as IBucketQueryable;
+                if (bucketQueryable != null)
+                {
+                    bucketName = bucketQueryable.BucketName;
+                }
+            }
+
+            if (bucketName == null)
+            {
+                throw new NotSupportedException("N1QL Nests Must Be Against IBucketQueryable");
+            }
+
+            return new N1QlFromQueryPart()
+            {
+                Source = EscapeIdentifier(bucketName),
+                ItemName = EscapeIdentifier(itemName),
+                OnKeys = GetN1QlExpression(nestClause.KeySelector),
+                JoinType = nestClause.IsLeftOuterNest ? "LEFT OUTER NEST" : "INNER NEST"
+            };
+        }
+
+        #endregion
+
         private string GetN1QlExpression(Expression expression)
         {
             return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _parameterAggregator, _methodCallTranslatorProvider);
+        }
+
+        private string GetNewGenName()
+        {
+            return String.Format("__genName{0}", _generatedItemNameIndex++);
         }
 
         /// <summary>
@@ -443,7 +556,7 @@ namespace Couchbase.Linq.QueryGeneration
             bool containsSpecialChar = false;
             for (var i = 0; i < identifier.Length; i++)
             {
-                if (!Char.IsLetterOrDigit(identifier[i]))
+                if (!Char.IsLetterOrDigit(identifier[i]) && (identifier[i] != '_'))
                 {
                     containsSpecialChar = true;
                     break;

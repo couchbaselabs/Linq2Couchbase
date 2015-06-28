@@ -115,6 +115,96 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             Assert.AreEqual(expected, n1QlQuery);
         }
 
+        [Test]
+        public void Test_Nest_Simple()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                .Nest(
+                    QueryFactory.Queryable<NestLevel2>(mockBucket.Object),
+                    level1 => level1.NestLevel2Keys,
+                    (level1, level2) => new {level1.Value, level2});
+                        
+            const string expected = "SELECT level1.Value as Value, level2 as level2 " +
+                "FROM default as level1 " +
+                "INNER NEST default as level2 ON KEYS level1.NestLevel2Keys";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Nest_Prefiltered()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                .Where(level1 => level1.Type == "level1")
+                .Nest(
+                    QueryFactory.Queryable<NestLevel2>(mockBucket.Object).Where(level2 => level2.Type == "level2"),
+                    level1 => level1.NestLevel2Keys,
+                    (level1, level2) => new { level1.Value, level2 });
+
+            const string expected = "SELECT level1.Value as Value, level2 as level2 " +
+                "FROM default as level1 " +
+                "INNER NEST default as __genName0 ON KEYS level1.NestLevel2Keys " +
+                "LET level2 = ARRAY __genName1 FOR __genName1 IN __genName0 WHEN (__genName1.Type = 'level2') END " +
+                "WHERE (level1.Type = 'level1') AND (ARRAY_LENGTH(level2) > 0)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_LeftOuterNest_Simple()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                .LeftOuterNest(
+                    QueryFactory.Queryable<NestLevel2>(mockBucket.Object),
+                    level1 => level1.NestLevel2Keys,
+                    (level1, level2) => new { level1.Value, level2 });
+
+            const string expected = "SELECT level1.Value as Value, level2 as level2 " +
+                "FROM default as level1 " +
+                "LEFT OUTER NEST default as level2 ON KEYS level1.NestLevel2Keys";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_LeftOuterNest_Prefiltered()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                .Where(level1 => level1.Type == "level1")
+                .LeftOuterNest(
+                    QueryFactory.Queryable<NestLevel2>(mockBucket.Object).Where(level2 => level2.Type == "level2"),
+                    level1 => level1.NestLevel2Keys,
+                    (level1, level2) => new { level1.Value, level2 });
+
+            const string expected = "SELECT level1.Value as Value, level2 as level2 " +
+                "FROM default as level1 " +
+                "LEFT OUTER NEST default as __genName0 ON KEYS level1.NestLevel2Keys " +
+                "LET level2 = ARRAY __genName1 FOR __genName1 IN __genName0 WHEN (__genName1.Type = 'level2') END " +
+                "WHERE (level1.Type = 'level1')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
         #region Helper Classes
 
         public class UnnestLevel1
@@ -129,6 +219,19 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
         public class UnnestLevel3
         {
+            public string Value { get; set; }
+        }
+
+        public class NestLevel1
+        {
+            public string Type { get; set; }
+            public string Value { get; set; }
+            public List<string> NestLevel2Keys { get; set; }
+        }
+
+        public class NestLevel2
+        {
+            public string Type { get; set; }
             public string Value { get; set; }
         }
 

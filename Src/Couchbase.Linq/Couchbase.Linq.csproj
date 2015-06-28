@@ -62,6 +62,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="QueryGeneration\IN1QlQueryModelVisitor.cs" />
+    <Compile Include="Clauses\NestClause.cs" />
+    <Compile Include="Clauses\NestExpressionNode.cs" />
     <Compile Include="Filters\AttributeEntityFilterSetGenerator.cs" />
     <Compile Include="Filters\EntityFilterAttribute.cs" />
     <Compile Include="Filters\EntityFilterManager.cs" />
@@ -98,6 +102,7 @@
     <Compile Include="QueryGeneration\DefaultMethodCallTranslatorProvider.cs" />
     <Compile Include="QueryGeneration\N1QLExpressionTreeVisitor.cs" />
     <Compile Include="QueryGeneration\N1QLFromQueryPart.cs" />
+    <Compile Include="QueryGeneration\N1QLLetQueryPart.cs" />
     <Compile Include="QueryGeneration\N1QLQueryModelVisitor.cs" />
     <Compile Include="QueryGeneration\N1QLQueryType.cs" />
     <Compile Include="QueryGeneration\NamedParameter.cs" />

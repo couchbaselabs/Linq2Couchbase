@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using Couchbase.Linq.Metadata;
 using Remotion.Linq.Parsing.ExpressionTreeVisitors;
 
 namespace Couchbase.Linq.Extensions
@@ -26,6 +28,156 @@ namespace Couchbase.Linq.Extensions
                     source.Expression,
                     Expression.Quote(predicate)));
         }
+
+        #region Nest
+
+        /// <summary>
+        ///     Nest for N1QL. (outer.Nest(inner, keySelector, resultSelector) translates to NEST inner ON KEYS outer.keySelector)
+        /// </summary>
+        /// <typeparam name="TOuter">Type of the source sequence</typeparam>
+        /// <typeparam name="TInner">Type of the inner sequence being nested</typeparam>
+        /// <typeparam name="TResult">Type of the result sequence</typeparam>
+        /// <param name="outer"></param>
+        /// <param name="inner">Sequence to be nested</param>
+        /// <param name="keySelector">Expression to get the list of keys to nest for an item in the source sequence.  Should return a list of strings.</param>
+        /// <param name="resultSelector">Expression that returns the result</param>
+        /// <remarks>Returns a result for values in the outer sequence only if matching values in the inner sequence are found</remarks>
+        /// <returns>Modified IQueryable</returns>
+        public static IQueryable<TResult> Nest<TOuter, TInner, TResult>(
+            this IQueryable<TOuter> outer,
+            IEnumerable<TInner> inner, 
+            Expression<Func<TOuter, IEnumerable<string>>> keySelector, 
+            Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
+        {
+            if (inner == null)
+            {
+                throw new ArgumentNullException("inner");
+            }
+            if (outer == null)
+            {
+                throw new ArgumentNullException("outer");
+            }
+            if (keySelector == null)
+            {
+                throw new ArgumentNullException("keySelector");
+            }
+            if (resultSelector == null)
+            {
+                throw new ArgumentNullException("resultSelector");
+            }
+
+            if (outer is EnumerableQuery<TOuter>)
+            {
+                // If outer is an IEnumerable converted to IQueryable via AsQueryable
+                // Then we need to just call the IEnumerable implementation
+
+                if (!typeof (IDocumentMetadataProvider).IsAssignableFrom(typeof (TInner)))
+                {
+                    throw new NotSupportedException("Inner Sequence Items Must Implement IDocumentMetadataProvider To Function With EnumerableQuery<T>");
+                }
+
+                var methodCall = 
+                    Expression.Call(
+                        typeof(EnumerableExtensions).GetMethod("Nest")
+                            .MakeGenericMethod(typeof(TOuter), typeof(TInner), typeof(TResult)),
+                        Expression.Constant(outer, typeof(IEnumerable<TOuter>)),
+                        Expression.Constant(inner, typeof(IEnumerable<TInner>)),
+                        keySelector,
+                        resultSelector);
+
+                return outer.Provider.CreateQuery<TResult>(
+                    Expression.Call(
+                        typeof(Queryable).GetMethods().First(p => p.Name == "AsQueryable" && p.GetGenericArguments().Length == 1)
+                            .MakeGenericMethod(typeof(TResult)),
+                        methodCall));
+            }
+            else
+            {
+                return outer.Provider.CreateQuery<TResult>(
+                    Expression.Call(
+                        ((MethodInfo)MethodBase.GetCurrentMethod())
+                            .MakeGenericMethod(typeof(TOuter), typeof(TInner), typeof(TResult)),
+                        outer.Expression,
+                        GetSourceExpression(inner),
+                        Expression.Quote(keySelector),
+                        Expression.Quote(resultSelector)));
+            }
+        }
+
+        /// <summary>
+        ///     Nest for N1QL. (outer.LeftNest(inner, keySelector, resultSelector) translates to LEFT OUTER NEST inner ON KEYS outer.keySelector)
+        /// </summary>
+        /// <typeparam name="TOuter">Type of the source sequence</typeparam>
+        /// <typeparam name="TInner">Type of the inner sequence being nested</typeparam>
+        /// <typeparam name="TResult">Type of the result sequence</typeparam>
+        /// <param name="outer"></param>
+        /// <param name="inner">Sequence to be nested</param>
+        /// <param name="keySelector">Expression to get the list of keys to nest for an item in the source sequence.  Should return a list of strings.</param>
+        /// <param name="resultSelector">Expression that returns the result</param>
+        /// <remarks>Returns a result for all values in the outer sequence</remarks>
+        /// <returns>Modified IQueryable</returns>
+        public static IQueryable<TResult> LeftOuterNest<TOuter, TInner, TResult>(
+            this IQueryable<TOuter> outer,
+            IEnumerable<TInner> inner,
+            Expression<Func<TOuter, IEnumerable<string>>> keySelector,
+            Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
+        {
+            if (inner == null)
+            {
+                throw new ArgumentNullException("inner");
+            }
+            if (outer == null)
+            {
+                throw new ArgumentNullException("outer");
+            }
+            if (keySelector == null)
+            {
+                throw new ArgumentNullException("keySelector");
+            }
+            if (resultSelector == null)
+            {
+                throw new ArgumentNullException("resultSelector");
+            }
+
+            if (outer is EnumerableQuery<TOuter>)
+            {
+                // If outer is an IEnumerable converted to IQueryable via AsQueryable
+                // Then we need to just call the IEnumerable implementation
+
+                if (!typeof(IDocumentMetadataProvider).IsAssignableFrom(typeof(TInner)))
+                {
+                    throw new NotSupportedException("Inner Sequence Items Must Implement IDocumentMetadataProvider To Function With EnumerableQuery<T>");
+                }
+
+                var methodCall =
+                    Expression.Call(
+                        typeof(EnumerableExtensions).GetMethod("LeftOuterNest")
+                            .MakeGenericMethod(typeof(TOuter), typeof(TInner), typeof(TResult)),
+                        Expression.Constant(outer, typeof(IEnumerable<TOuter>)),
+                        Expression.Constant(inner, typeof(IEnumerable<TInner>)),
+                        keySelector,
+                        resultSelector);
+
+                return outer.Provider.CreateQuery<TResult>(
+                    Expression.Call(
+                        typeof(Queryable).GetMethods().First(p => p.Name == "AsQueryable" && p.GetGenericArguments().Length == 1)
+                            .MakeGenericMethod(typeof(TResult)),
+                        methodCall));
+            }
+            else
+            {
+                return outer.Provider.CreateQuery<TResult>(
+                    Expression.Call(
+                        ((MethodInfo)MethodBase.GetCurrentMethod())
+                            .MakeGenericMethod(typeof(TOuter), typeof(TInner), typeof(TResult)),
+                        outer.Expression,
+                        GetSourceExpression(inner),
+                        Expression.Quote(keySelector),
+                        Expression.Quote(resultSelector)));
+            }
+        }
+
+        #endregion
 
         /// <summary>
         /// The EXPLAIN statement is used before any N1QL statement to obtain information about how the statement operates.
@@ -65,6 +217,13 @@ namespace Couchbase.Linq.Extensions
                 expression.Body);
 
             return source.Provider.CreateQuery<T>(queryExpression);
+        }
+
+        private static Expression GetSourceExpression<TSource>(IEnumerable<TSource> source)
+        {
+            IQueryable<TSource> q = source as IQueryable<TSource>;
+            if (q != null) return q.Expression;
+            return Expression.Constant(source, typeof(IEnumerable<TSource>));
         }
     }
 }

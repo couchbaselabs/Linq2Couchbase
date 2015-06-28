@@ -18,6 +18,10 @@ namespace Couchbase.Linq
             customNodeTypeRegistry.Register(WhereMissingExpressionNode.SupportedMethods,
                 typeof (WhereMissingExpressionNode));
 
+            //register the "Nest" clause type
+            customNodeTypeRegistry.Register(NestExpressionNode.SupportedMethods,
+                typeof(NestExpressionNode));
+
             //register the "Explain" expression node parser
             customNodeTypeRegistry.Register(ExplainExpressionNode.SupportedMethods,
                 typeof(ExplainExpressionNode));
