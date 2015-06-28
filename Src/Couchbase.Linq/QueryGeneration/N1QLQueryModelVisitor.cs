@@ -16,8 +16,24 @@ namespace Couchbase.Linq.QueryGeneration
     {
         private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
+        private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
 
         private bool _isSubQuery = false;
+
+        public N1QlQueryModelVisitor()
+        {
+            _methodCallTranslatorProvider = MethodInfoBasedMethodCallTranslatorRegistry.CreateDefault();
+        }
+
+        public N1QlQueryModelVisitor(IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        {
+            if (methodCallTranslatorProvider == null)
+            {
+                throw new ArgumentNullException("methodCallTranslatorProvider");
+            }
+
+            _methodCallTranslatorProvider = methodCallTranslatorProvider;
+        }
 
         public static string GenerateN1QlQuery(QueryModel queryModel)
         {
@@ -179,7 +195,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         private string GetN1QlExpression(Expression expression)
         {
-            return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _parameterAggregator);
+            return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _parameterAggregator, _methodCallTranslatorProvider);
         }
 
         /// <summary>

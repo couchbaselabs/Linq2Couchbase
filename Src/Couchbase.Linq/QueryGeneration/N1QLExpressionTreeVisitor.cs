@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
@@ -12,57 +13,24 @@ namespace Couchbase.Linq.QueryGeneration
     public class N1QlExpressionTreeVisitor : ThrowingExpressionTreeVisitor
     {
         private readonly StringBuilder _expression = new StringBuilder();
-
-        private readonly Dictionary<MethodInfo, Func<MethodCallExpression, Expression>> _methodCallTranslators =
-            new Dictionary<MethodInfo, Func<MethodCallExpression, Expression>>();
+        public StringBuilder Expression
+        {
+            get { return _expression; }
+        }
 
         private readonly IMemberNameResolver _nameResolver = new JsonNetMemberNameResolver();
         private readonly ParameterAggregator _parameterAggregator;
+        private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
 
-        private N1QlExpressionTreeVisitor(ParameterAggregator parameterAggregator)
+        private N1QlExpressionTreeVisitor(ParameterAggregator parameterAggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
             _parameterAggregator = parameterAggregator;
-            _methodCallTranslators.Add(typeof (string).GetMethod("Contains"), ContainsMethodTranslator);
-            _methodCallTranslators.Add(typeof (N1Ql).GetMethod("Meta"), MetaMethodTranslator);
+            _methodCallTranslatorProvider = methodCallTranslatorProvider;
         }
 
-        #region Method Translators
-
-        private Expression ContainsMethodTranslator(MethodCallExpression methodCallExpression)
+        public static string GetN1QlExpression(Expression expression, ParameterAggregator aggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
-            _expression.Append("(");
-            VisitExpression(methodCallExpression.Object);
-            _expression.Append(" LIKE '%");
-
-            var indexInsertStarted = _expression.Length;
-
-            VisitExpression(methodCallExpression.Arguments[0]);
-
-            var indexInsertEnded = _expression.Length;
-
-            _expression.Append("%')");
-
-            //Remove extra quote marks which have been added due to the string in the clause, these aren't needed as they have been added already in this case.
-            _expression.Remove(indexInsertStarted, 1);
-            _expression.Remove(indexInsertEnded - 2, 1);
-
-            return methodCallExpression;
-        }
-
-        private Expression MetaMethodTranslator(MethodCallExpression methodCallExpression)
-        {
-            _expression.Append("META(");
-            VisitExpression(methodCallExpression.Arguments[0]);
-            _expression.Append(')');
-
-            return methodCallExpression;
-        }
-
-        #endregion
-
-        public static string GetN1QlExpression(Expression expression, ParameterAggregator aggregator)
-        {
-            var visitor = new N1QlExpressionTreeVisitor(aggregator);
+            var visitor = new N1QlExpressionTreeVisitor(aggregator, methodCallTranslatorProvider);
             visitor.VisitExpression(expression);
             return visitor.GetN1QlExpression();
         }
@@ -216,12 +184,13 @@ namespace Couchbase.Linq.QueryGeneration
         /// <returns></returns>
         protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
         {
-            Func<MethodCallExpression, Expression> methodCallTranslator = null;
+            IMethodCallTranslator methodCallTranslator = _methodCallTranslatorProvider.GetTranslator(expression);
 
-            if (_methodCallTranslators.TryGetValue(expression.Method, out methodCallTranslator))
+            if (methodCallTranslator != null)
             {
-                return methodCallTranslator.Invoke(expression);
+                return methodCallTranslator.Translate(expression, this);
             }
+
             return base.VisitMethodCallExpression(expression);
         }
 
@@ -285,7 +254,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
         {
-            var modelVisitor = new N1QlQueryModelVisitor();
+            var modelVisitor = new N1QlQueryModelVisitor(_methodCallTranslatorProvider);
 
             modelVisitor.VisitQueryModel(expression.QueryModel);
             _expression.Append(modelVisitor.GetQuery());
