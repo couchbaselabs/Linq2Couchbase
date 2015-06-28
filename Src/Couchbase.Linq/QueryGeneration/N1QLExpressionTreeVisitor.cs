@@ -114,7 +114,7 @@ namespace Couchbase.Linq.QueryGeneration
         }
 
         protected override Expression VisitBinaryExpression(BinaryExpression expression)
-        {
+        {   
             ConstantExpression constantExpression;
 
             _expression.Append("(");
@@ -163,13 +163,27 @@ namespace Couchbase.Linq.QueryGeneration
                 case ExpressionType.Divide:
                     _expression.Append(" / ");
                     break;
+
+                case ExpressionType.Modulo:
+                    _expression.Append(" % ");
+                    break;
+
                 case ExpressionType.GreaterThan:
                     _expression.Append(" > ");
+                    break;
+
+                case ExpressionType.GreaterThanOrEqual:
+                    _expression.Append(" >= ");
                     break;
 
                 case ExpressionType.LessThan:
                     _expression.Append(" < ");
                     break;
+
+                case ExpressionType.LessThanOrEqual:
+                    _expression.Append(" <= ");
+                    break;
+
                 case ExpressionType.NotEqual:
                     constantExpression = expression.Right as ConstantExpression;
                     if ((constantExpression != null) && (constantExpression.Value == null))
@@ -183,6 +197,7 @@ namespace Couchbase.Linq.QueryGeneration
                         _expression.Append(" != ");
                     }
                     break;
+
                 default:
                     base.VisitBinaryExpression(expression);
                     break;
@@ -251,6 +266,12 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 case ExpressionType.Not:
                     _expression.Append("NOT ");
+                    VisitExpression(expression.Operand);
+                    break;
+
+                case ExpressionType.Negate:
+                case ExpressionType.NegateChecked:
+                    _expression.Append('-');
                     VisitExpression(expression.Operand);
                     break;
 
