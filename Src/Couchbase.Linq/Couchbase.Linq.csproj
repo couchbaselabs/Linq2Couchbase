@@ -89,6 +89,7 @@
     <Compile Include="QueryGeneration\IMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\IMethodCallTranslatorProvider.cs" />
     <Compile Include="QueryGeneration\JsonNetMemberNameResolver.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\ConcatMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\ContainsMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\MetaMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodInfoBasedMethodCallTranslatorRegistry.cs" />

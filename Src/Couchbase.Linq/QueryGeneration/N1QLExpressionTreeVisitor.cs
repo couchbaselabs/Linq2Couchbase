@@ -117,7 +117,14 @@ namespace Couchbase.Linq.QueryGeneration
                     break;
 
                 case ExpressionType.Add:
-                    _expression.Append(" + ");
+                    if ((expression.Left.Type != typeof (string)) || (expression.Right.Type != typeof (string)))
+                    {
+                        _expression.Append(" + ");
+                    }
+                    else
+                    {
+                        _expression.Append(" || ");
+                    }
                     break;
 
                 case ExpressionType.Subtract:

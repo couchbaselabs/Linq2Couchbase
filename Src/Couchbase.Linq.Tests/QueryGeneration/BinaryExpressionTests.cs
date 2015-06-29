@@ -306,5 +306,81 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
         #endregion
 
+        #region String Operators
+
+        [Test]
+        public void Test_StringAddition()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Select(e => new { name = e.FirstName + " " + e.LastName });
+
+            const string expected =
+                "SELECT ((e.fname || ' ') || e.lname) as name FROM default as e";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringConcat()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Select(e => new { name = String.Concat(e.FirstName, " ", e.LastName) });
+
+            const string expected =
+                "SELECT (e.fname || ' ' || e.lname) as name FROM default as e";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringConcatArray()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Select(e => new { name = String.Concat(new[] {e.FirstName, " ", e.LastName}) });
+
+            const string expected =
+                "SELECT (e.fname || ' ' || e.lname) as name FROM default as e";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringConcatFiveParameters()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Select(e => new { name = String.Concat(e.FirstName, " ", e.LastName, " ", "suffix") });
+
+            const string expected =
+                "SELECT (e.fname || ' ' || e.lname || ' ' || 'suffix') as name FROM default as e";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
+
     }
 }
