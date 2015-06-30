@@ -382,5 +382,45 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
         #endregion
 
+        #region "Coalesce Operators"
+
+        [Test]
+        public void Test_Coalesce_Single()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Select(e => new { name = e.FirstName ?? e.LastName });
+
+            const string expected =
+                "SELECT IFMISSINGORNULL(e.fname, e.lname) as name FROM default as e";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Coalesce_Double()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Select(e => new { name = e.FirstName ?? e.LastName ?? e.Email });
+
+            const string expected =
+                "SELECT IFMISSINGORNULL(e.fname, e.lname, e.email) as name FROM default as e";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
+
     }
 }

@@ -62,6 +62,18 @@ namespace Couchbase.Linq.QueryGeneration
             return _expression.ToString();
         }
 
+        public override Expression VisitExpression(Expression expression)
+        {
+            switch (expression.NodeType)
+            {
+                case ExpressionType.Coalesce:
+                    return VisitCoalesceExpression((BinaryExpression) expression);
+                    
+                default:
+                    return base.VisitExpression(expression);
+            }
+        }
+
         protected override Expression VisitNewExpression(NewExpression expression)
         {
             var arguments = expression.Arguments;
@@ -157,7 +169,7 @@ namespace Couchbase.Linq.QueryGeneration
         }
 
         protected override Expression VisitBinaryExpression(BinaryExpression expression)
-        {   
+        {
             ConstantExpression constantExpression;
 
             _expression.Append("(");
@@ -255,6 +267,38 @@ namespace Couchbase.Linq.QueryGeneration
 
             VisitExpression(expression.Right);
             _expression.Append(")");
+
+            return expression;
+        }
+
+        /// <summary>
+        ///     Visits a coalese expression recursively, building a IFMISSINGORNULL function
+        /// </summary>
+        private Expression VisitCoalesceExpression(BinaryExpression expression)
+        {
+            _expression.Append("IFMISSINGORNULL(");
+            VisitExpression(expression.Left);
+
+            var rightExpression = expression.Right;
+            while (rightExpression != null)
+            {
+                _expression.Append(", ");
+
+                if (rightExpression.NodeType == ExpressionType.Coalesce)
+                {
+                    var subExpression = (BinaryExpression) rightExpression;
+                    VisitExpression(subExpression.Left);
+
+                    rightExpression = subExpression.Right;
+                }
+                else
+                {
+                    VisitExpression(rightExpression);
+                    rightExpression = null;
+                }
+            }
+
+            _expression.Append(')');
 
             return expression;
         }
