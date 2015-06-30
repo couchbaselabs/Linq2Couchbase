@@ -225,6 +225,19 @@ namespace Couchbase.Linq.QueryGeneration
             return expression;
         }
 
+        protected override Expression VisitConditionalExpression(ConditionalExpression expression)
+        {
+            _expression.Append("CASE WHEN ");
+            VisitExpression(expression.Test);
+            _expression.Append(" THEN ");
+            VisitExpression(expression.IfTrue);
+            _expression.Append(" ELSE ");
+            VisitExpression(expression.IfFalse);
+            _expression.Append(" END");
+
+            return expression;
+        }
+
         protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
         {
             _expression.Append(N1QlQueryModelVisitor.EscapeIdentifier(expression.ReferencedQuerySource.ItemName));
