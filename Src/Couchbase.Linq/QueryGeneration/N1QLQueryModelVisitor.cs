@@ -83,17 +83,13 @@ namespace Couchbase.Linq.QueryGeneration
 
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
         {
-            foreach (var parameter in GetSelectParameters(selectClause, queryModel))
-            {
-                _queryPartsAggregator.AddSelectParts(parameter);
-            }
+            _queryPartsAggregator.SelectPart = GetSelectParameters(selectClause, queryModel);
+            
             base.VisitSelectClause(selectClause, queryModel);
         }
 
-        private IEnumerable<string> GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
+        private string GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
         {
-            var prefix = EscapeIdentifier(queryModel.MainFromClause.ItemName);
-
             var expression = GetN1QlExpression(selectClause.Selector);
 
             if (selectClause.Selector.GetType() == typeof (QuerySourceReferenceExpression))
@@ -101,7 +97,7 @@ namespace Couchbase.Linq.QueryGeneration
                 expression = string.Concat(expression, ".*");
             }
 
-            return expression.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            return expression;
         }
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)

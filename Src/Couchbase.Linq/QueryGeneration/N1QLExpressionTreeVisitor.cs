@@ -64,7 +64,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 if (i > 0)
                 {
-                    _expression.Append(",");
+                    _expression.Append(", ");
                 }
 
                 var expressionLength = _expression.Length;
@@ -76,9 +76,40 @@ namespace Couchbase.Linq.QueryGeneration
                 {
                     _expression.AppendFormat(" as {0}", N1QlQueryModelVisitor.EscapeIdentifier(members[i].Name));
                 }
+                else if (i > 0)
+                {
+                    // nothing was added, so remove the extra comma
+                    _expression.Length -= 2;
+                }
             }
 
             return expression;
+        }
+
+        protected override Expression VisitNewArrayExpression(NewArrayExpression expression)
+        {
+            if (expression.NodeType == ExpressionType.NewArrayInit)
+            {
+                _expression.Append('[');
+
+                for (var i=0; i<expression.Expressions.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        _expression.Append(", ");
+                    }
+
+                    VisitExpression(expression.Expressions[i]);
+                }
+
+                _expression.Append(']');
+
+                return expression;
+            }
+            else
+            {
+                return base.VisitNewArrayExpression(expression);
+            }
         }
 
         protected override Expression VisitBinaryExpression(BinaryExpression expression)
@@ -216,6 +247,27 @@ namespace Couchbase.Linq.QueryGeneration
             else if (namedParameter.Value is bool)
             {
                 _expression.Append((bool) namedParameter.Value ? "TRUE" : "FALSE");
+            }
+            else if (namedParameter.Value is Array)
+            {
+                _expression.Append('[');
+
+                bool first = true;
+                foreach (var element in (System.Collections.IEnumerable)namedParameter.Value)
+                {
+                    if (first)
+                    {
+                        first = false;
+                    }
+                    else
+                    {
+                        _expression.Append(", ");
+                    }
+
+                    VisitConstantExpression(System.Linq.Expressions.Expression.Constant(element));
+                }
+
+                _expression.Append(']');
             }
             else
             {

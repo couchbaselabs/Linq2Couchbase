@@ -13,13 +13,12 @@ namespace Couchbase.Linq.QueryGeneration
 
         public QueryPartsAggregator()
         {
-            SelectParts = new List<string>();
             FromParts = new List<N1QlFromQueryPart>();
             WhereParts = new List<string>();
             OrderByParts = new List<string>();
         }
 
-        public List<string> SelectParts { get; set; }
+        public string SelectPart { get; set; }
         public List<N1QlFromQueryPart> FromParts { get; set; }
         public List<string> WhereParts { get; set; }
         public List<string> OrderByParts { get; set; }
@@ -37,11 +36,6 @@ namespace Couchbase.Linq.QueryGeneration
         /// Defaults to building a SELECT query
         /// </remarks>
         public N1QlQueryType QueryType { get; set; }
-
-        public void AddSelectParts(string format, params object[] args)
-        {
-            SelectParts.Add(string.Format(format, args));
-        }
 
         public void AddWhereMissingPart(string format, params object[] args)
         {
@@ -70,24 +64,12 @@ namespace Couchbase.Linq.QueryGeneration
         private string BuildSelectQuery()
         {
             var sb = new StringBuilder();
-            var selectParts = new StringBuilder();
-            for (var i = 0; i < SelectParts.Count; i++)
-            {
-                if (i == SelectParts.Count - 1)
-                {
-                    selectParts.Append(SelectParts[i]);
-                }
-                else
-                {
-                    selectParts.AppendFormat("{0}, ", SelectParts[i]);
-                }
-            }
-
+            
             if (!string.IsNullOrWhiteSpace(ExplainPart))
             {
                 sb.Append(ExplainPart);
             }
-            sb.AppendFormat("SELECT {0}{1}", string.IsNullOrWhiteSpace(DistinctPart) ? string.Empty : DistinctPart,  selectParts);
+            sb.AppendFormat("SELECT {0}{1}", string.IsNullOrWhiteSpace(DistinctPart) ? string.Empty : DistinctPart,  SelectPart);
                 //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5
 
             if (FromParts.Any())
