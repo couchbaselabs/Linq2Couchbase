@@ -205,9 +205,17 @@ namespace Couchbase.Linq.QueryGeneration
         {
             var namedParameter = _parameterAggregator.AddNamedParameter(expression.Value);
 
-            if (namedParameter.Value is string)
+            if (namedParameter.Value == null)
+            {
+                _expression.Append("NULL");
+            }
+            else if (namedParameter.Value is string)
             {
                 _expression.AppendFormat("'{0}'", namedParameter.Value);
+            }
+            else if (namedParameter.Value is bool)
+            {
+                _expression.Append((bool) namedParameter.Value ? "TRUE" : "FALSE");
             }
             else
             {
