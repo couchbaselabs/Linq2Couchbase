@@ -90,11 +90,20 @@ namespace Couchbase.Linq.QueryGeneration
 
         private string GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
         {
-            var expression = GetN1QlExpression(selectClause.Selector);
+            string expression;
 
             if (selectClause.Selector.GetType() == typeof (QuerySourceReferenceExpression))
             {
-                expression = string.Concat(expression, ".*");
+                expression = string.Concat(GetN1QlExpression(selectClause.Selector), ".*");
+            }
+            else if (selectClause.Selector.NodeType == ExpressionType.New)
+            {
+                expression = N1QlExpressionTreeVisitor.GetN1QlSelectNewExpression(selectClause.Selector as NewExpression,
+                    _parameterAggregator, _methodCallTranslatorProvider);
+            }
+            else
+            {
+                expression = GetN1QlExpression(selectClause.Selector);
             }
 
             return expression;

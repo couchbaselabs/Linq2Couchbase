@@ -121,5 +121,41 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public void Test_NewObject()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                .Select(e => new { Value = new { e.FirstName, e.LastName } });
+
+            const string expected =
+                "SELECT {\"FirstName\": e.fname, \"LastName\": e.lname} as Value FROM default as e";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_NewObjectInArray()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                .Select(e => new {Value = new[] { new {Name = e.FirstName}, new {Name = e.LastName} } });
+
+            const string expected =
+                "SELECT [{\"Name\": e.fname}, {\"Name\": e.lname}] as Value FROM default as e";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
     }
 }

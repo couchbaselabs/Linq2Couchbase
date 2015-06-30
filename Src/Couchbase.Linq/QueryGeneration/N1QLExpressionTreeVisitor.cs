@@ -35,6 +35,13 @@ namespace Couchbase.Linq.QueryGeneration
             return visitor.GetN1QlExpression();
         }
 
+        public static string GetN1QlSelectNewExpression(NewExpression expression, ParameterAggregator aggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        {
+            var visitor = new N1QlExpressionTreeVisitor(aggregator, methodCallTranslatorProvider);
+            visitor.VisitSelectNewExpression(expression);
+            return visitor.GetN1QlExpression();
+        }
+
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
         {
             var expression = unhandledItem as Expression;
@@ -56,6 +63,43 @@ namespace Couchbase.Linq.QueryGeneration
         }
 
         protected override Expression VisitNewExpression(NewExpression expression)
+        {
+            var arguments = expression.Arguments;
+            var members = expression.Members;
+
+            _expression.Append('{');
+
+            for (var i = 0; i < members.Count; i++)
+            {
+                var beforeAppendLength = _expression.Length;
+
+                if (i > 0)
+                {
+                    _expression.Append(", ");
+                }
+
+                _expression.AppendFormat("\"{0}\": ", members[i].Name);
+
+                var beforeSubExpressionLength = _expression.Length;
+
+                VisitExpression(arguments[i]);
+
+                if (_expression.Length == beforeSubExpressionLength)
+                {                    
+                    // nothing was added for the value, so remove the part that was added originally
+                    _expression.Length = beforeAppendLength;
+                }
+            }
+
+            _expression.Append('}');
+
+            return expression;
+        }
+
+        /// <summary>
+        /// Parses the new object that is part of the select expression with "as" based formatting
+        /// </summary>
+        private Expression VisitSelectNewExpression(NewExpression expression)
         {
             var arguments = expression.Arguments;
             var members = expression.Members;
