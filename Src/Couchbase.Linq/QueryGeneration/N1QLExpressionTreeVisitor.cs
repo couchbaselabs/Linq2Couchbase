@@ -156,12 +156,12 @@ namespace Couchbase.Linq.QueryGeneration
                     }
 
                     VisitExpression(expression.Expressions[i]);
-                }
+            }
 
                 _expression.Append(']');
 
-                return expression;
-            }
+            return expression;
+        }
             else
             {
                 return base.VisitNewArrayExpression(expression);
@@ -206,7 +206,7 @@ namespace Couchbase.Linq.QueryGeneration
                 case ExpressionType.Add:
                     if ((expression.Left.Type != typeof (string)) || (expression.Right.Type != typeof (string)))
                     {
-                        _expression.Append(" + ");
+                    _expression.Append(" + ");
                     }
                     else
                     {
@@ -347,8 +347,8 @@ namespace Couchbase.Linq.QueryGeneration
                     {
                         first = false;
                     }
-                    else
-                    {
+            else
+            {
                         _expression.Append(", ");
                     }
 

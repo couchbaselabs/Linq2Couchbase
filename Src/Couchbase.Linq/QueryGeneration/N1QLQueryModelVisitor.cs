@@ -17,6 +17,7 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
         private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
+        private readonly List<UnclaimedGroupJoin> _unclaimedGroupJoins = new List<UnclaimedGroupJoin>(); 
 
         private bool _isSubQuery = false;
 
@@ -53,6 +54,11 @@ namespace Couchbase.Linq.QueryGeneration
             queryModel.MainFromClause.Accept(this, queryModel);
             VisitBodyClauses(queryModel.BodyClauses, queryModel);
             VisitResultOperators(queryModel.ResultOperators, queryModel);
+
+            if (_unclaimedGroupJoins.Any())
+            {
+                throw new NotSupportedException("N1QL Requires All Group Joins Have A Matching From Clause Subquery");
+        }
         }
 
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
@@ -175,28 +181,247 @@ namespace Couchbase.Linq.QueryGeneration
             base.VisitOrderByClause(orderByClause, queryModel, index);
         }
 
-        //TODO: Implement Joins
+        #region Additional From Clauses
+
+        public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
+        {
+            var handled = false;
+
+            switch (fromClause.FromExpression.NodeType)
+            {
+                case ExpressionType.MemberAccess:
+                    // Unnest operation
+
+                    var fromPart = VisitMemberFromExpression(fromClause, fromClause.FromExpression as MemberExpression);
+                    _queryPartsAggregator.AddFromPart(fromPart);
+                    handled = true;
+                    break;
+
+                case (ExpressionType)100002: // SubQueryExpression
+                    // Might be an unnest or a join to another bucket
+
+                    handled = VisitSubQueryFromExpression(fromClause, fromClause.FromExpression as SubQueryExpression);
+                    break;
+            }
+
+            if (!handled)
+            {
+                throw new NotSupportedException("N1QL Does Not Support This Type Of From Clause");
+            }
+
+            base.VisitAdditionalFromClause(fromClause, queryModel, index);
+        }
+
+        /// <summary>
+        /// Visits an AdditionalFromClause that is executing a subquery
+        /// </summary>
+        /// <param name="fromClause">AdditionalFromClause being visited</param>
+        /// <param name="subQuery">Subquery being executed by the AdditionalFromClause</param>
+        /// <returns>True if handled</returns>
+        private bool VisitSubQueryFromExpression(AdditionalFromClause fromClause, SubQueryExpression subQuery)
+        {
+            var mainFromExpression = subQuery.QueryModel.MainFromClause.FromExpression;
+
+            switch (mainFromExpression.NodeType)
+            {
+                case (ExpressionType)100001: // QuerySourceReferenceExpression
+                    // Joining to another bucket using a previous group join operation
+
+                    return VisitSubQuerySourceReferenceExpression(fromClause, subQuery, mainFromExpression as QuerySourceReferenceExpression);
+
+                case ExpressionType.MemberAccess:
+                    // Unnest operation
+
+                    var fromPart = VisitMemberFromExpression(fromClause, mainFromExpression as MemberExpression);
+
+                    if (subQuery.QueryModel.ResultOperators.OfType<DefaultIfEmptyResultOperator>().Any())
+                    {
+                        fromPart.JoinType = "OUTER UNNEST";
+                    }
+
+                    _queryPartsAggregator.AddFromPart(fromPart);
+
+                    // be sure the subquery clauses use the provided itemName
+                    subQuery.QueryModel.MainFromClause.ItemName = fromClause.ItemName;
+
+                    // Apply where filters in the subquery to the main query
+                    VisitBodyClauses(subQuery.QueryModel.BodyClauses, subQuery.QueryModel);
+
+                    return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Visit an AdditionalFromClause referencing a previous group join clause
+        /// </summary>
+        /// <param name="fromClause">AdditionalFromClause being visited</param>
+        /// <param name="subQuery">SubQueryExpression being visited</param>
+        /// <param name="querySourceReference">QuerySourceReferenceExpression that is the MainFromClause of the SubQuery</param>
+        /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to INNER UNNEST.</returns>
+        private bool VisitSubQuerySourceReferenceExpression(AdditionalFromClause fromClause, SubQueryExpression subQuery,
+            QuerySourceReferenceExpression querySourceReference)
+        {
+            var unclaimedJoin =
+                    _unclaimedGroupJoins.FirstOrDefault(
+                        p => p.GroupJoinClause == querySourceReference.ReferencedQuerySource);
+            if (unclaimedJoin != null)
+            {
+                // this additional from clause is for a previous group join
+                // if not, then it isn't supported and we'll let the method return false so an exception is thrown
+
+                var fromPart = ParseJoinClause(unclaimedJoin.JoinClause, fromClause.ItemName);
+
+                if (subQuery.QueryModel.ResultOperators.OfType<DefaultIfEmptyResultOperator>().Any())
+                {
+                    fromPart.JoinType = "LEFT JOIN";
+
+                    // TODO Handle where clauses applied to the inner sequence before the join
+                    // Currently they are filtered after the join is complete instead of before by N1QL
+                }
+
+                _unclaimedGroupJoins.Remove(unclaimedJoin);
+                _queryPartsAggregator.AddFromPart(fromPart);
+
+                return true;
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Visit an AdditionalFromClause referencing a member
+        /// </summary>
+        /// <param name="fromClause">AdditionalFromClause being visited</param>
+        /// <param name="expression">MemberExpression being referenced</param>
+        /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to INNER UNNEST.</returns>
+        private N1QlFromQueryPart VisitMemberFromExpression(AdditionalFromClause fromClause, MemberExpression expression)
+        {
+            // This case represents an unnest operation
+
+            return new N1QlFromQueryPart()
+            {
+                Source = GetN1QlExpression(expression),
+                ItemName = EscapeIdentifier(fromClause.ItemName),
+                JoinType = "INNER UNNEST"
+            };
+        }
+        
+        #endregion
+
+        #region Join Clauses
+
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel,
             GroupJoinClause groupJoinClause)
         {
+            // Store the group join with the expectation it will be used later by an additional from clause
+
+            _unclaimedGroupJoins.Add(new UnclaimedGroupJoin()
+            {
+                JoinClause = joinClause,
+                GroupJoinClause = groupJoinClause
+            });
+
             base.VisitJoinClause(joinClause, queryModel, groupJoinClause);
         }
 
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
-            _queryPartsAggregator.AddFromPart(new N1QlFromQueryPart()
-            {
-                Source = joinClause.ItemType.Name.ToLower(),
-                ItemName = joinClause.ItemName
-            });
+            // basic join clause is an INNER JOIN against another bucket
 
-            _queryPartsAggregator.AddWherePart("ON KEYS ARRAY {0} FOR {1} IN {2} END",
-                joinClause.OuterKeySelector,
-                joinClause.InnerKeySelector,
-                joinClause.ItemName);
+            var fromQueryPart = ParseJoinClause(joinClause, joinClause.ItemName);
+
+            _queryPartsAggregator.AddFromPart(fromQueryPart);
 
             base.VisitJoinClause(joinClause, queryModel, index);
         }
+
+        /// <summary>
+        /// Visits a join against either a constant expression of IBucketQueryable, or a subquery based on an IBucketQueryable
+        /// </summary>
+        /// <param name="joinClause">Join clause being visited</param>
+        /// <param name="itemName">Name to be used when referencing the data being joined</param>
+        /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to INNER JOIN.</returns>
+        /// <remarks>The InnerKeySelector must be selecting the N1Ql.Key of the InnerSequence</remarks>
+        private N1QlFromQueryPart ParseJoinClause(JoinClause joinClause, string itemName)
+        {
+            switch (joinClause.InnerSequence.NodeType)
+            {
+                case ExpressionType.Constant:
+                    return VisitConstantExpressionJoinClause(joinClause, joinClause.InnerSequence as ConstantExpression, itemName);
+
+                case (ExpressionType)100002: // SubQueryExpression
+                    var subQuery = joinClause.InnerSequence as SubQueryExpression;
+                    if ((subQuery == null) || subQuery.QueryModel.ResultOperators.Any() || subQuery.QueryModel.MainFromClause.FromExpression.NodeType != ExpressionType.Constant)
+                    {
+                        throw new NotSupportedException("Unsupported Join Inner Sequence");
+                    }
+
+                    // be sure the subquery clauses use the provided itemName
+                    subQuery.QueryModel.MainFromClause.ItemName = itemName;
+
+                    var fromPart = VisitConstantExpressionJoinClause(joinClause,
+                        subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression, itemName);
+
+                    VisitBodyClauses(subQuery.QueryModel.BodyClauses, subQuery.QueryModel);
+                    
+                    return fromPart;
+
+                default:
+                    throw new NotSupportedException("Unsupported Join Inner Sequence");
+            }
+        }
+
+        /// <summary>
+        /// Visits a join against a constant expression, which must be an IBucketQueryable implementation
+        /// </summary>
+        /// <param name="joinClause">Join clause being visited</param>
+        /// <param name="constantExpression">Constant expression that is the InnerSequence of the JoinClause</param>
+        /// <param name="itemName">Name to be used when referencing the data being joined</param>
+        /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to INNER JOIN.</returns>
+        /// <remarks>The InnerKeySelector must be selecting the N1Ql.Key of the InnerSequence</remarks>
+        private N1QlFromQueryPart VisitConstantExpressionJoinClause(JoinClause joinClause, ConstantExpression constantExpression, string itemName)
+        {
+            string bucketName = null;
+
+            if (constantExpression != null)
+            {
+                var bucketQueryable = constantExpression.Value as IBucketQueryable;
+                if (bucketQueryable != null)
+                {
+                    bucketName = bucketQueryable.BucketName;
+                }
+            }
+
+            if (bucketName == null)
+            {
+                throw new NotSupportedException("N1QL Joins Must Be Against IBucketQueryable");
+            }
+
+            var keyExpression = joinClause.InnerKeySelector as MethodCallExpression;
+            if ((keyExpression == null) ||
+                (keyExpression.Method != typeof(N1Ql).GetMethod("Key")) ||
+                (keyExpression.Arguments.Count != 1))
+            {
+                throw new NotSupportedException("N1QL Join Selector Must Be A Call To N1Ql.Key");
+            }
+
+            if (!(keyExpression.Arguments[0] is QuerySourceReferenceExpression))
+            {
+                throw new NotSupportedException("N1QL Join Selector Call To N1Ql.Key Must Reference The Inner Sequence");
+            }
+
+            return new N1QlFromQueryPart()
+            {
+                Source = EscapeIdentifier(bucketName),
+                ItemName = EscapeIdentifier(itemName),
+                OnKeys = GetN1QlExpression(joinClause.OuterKeySelector),
+                JoinType = "INNER JOIN"
+            };
+        }
+
+        #endregion
 
         private string GetN1QlExpression(Expression expression)
         {
