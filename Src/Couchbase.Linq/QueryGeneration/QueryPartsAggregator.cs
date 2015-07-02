@@ -95,7 +95,20 @@ namespace Couchbase.Linq.QueryGeneration
                 var mainFrom = FromParts.First();
                 sb.AppendFormat(" FROM {0} as {1}",
                     mainFrom.Source,
-                    mainFrom.ItemName); //TODO support multiple from parts
+                    mainFrom.ItemName);
+
+                foreach (var joinPart in FromParts.Skip(1))
+                {
+                    sb.AppendFormat(" {0} {1} as {2}",
+                        joinPart.JoinType,
+                        joinPart.Source,
+                        joinPart.ItemName);
+
+                    if (!string.IsNullOrEmpty(joinPart.OnKeys))
+                    {
+                        sb.AppendFormat(" ON KEYS {0}", joinPart.OnKeys);
+                    }
+               }
             }
             if (WhereParts.Any())
             {
@@ -133,7 +146,20 @@ namespace Couchbase.Linq.QueryGeneration
                 var mainFrom = FromParts.First();
                 sb.AppendFormat(" FROM {0} as {1}",
                     mainFrom.Source,
-                    mainFrom.ItemName); //TODO support multiple from parts
+                    mainFrom.ItemName);
+
+                foreach (var joinPart in FromParts.Skip(1))
+                {
+                    sb.AppendFormat(" {0} {1} as {2}",
+                        joinPart.JoinType,
+                        joinPart.Source,
+                        joinPart.ItemName);
+
+                    if (!string.IsNullOrEmpty(joinPart.OnKeys))
+                    {
+                        sb.AppendFormat(" ON KEYS {0}", joinPart.OnKeys);
+                    }
+                }
             }
 
             bool hasWhereClause = false;
