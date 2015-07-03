@@ -159,6 +159,25 @@ namespace Couchbase.Linq.Tests
         }
 
         [Test]
+        public void Map2PocoTests_NewObjectsInArray()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var query = from brewery in bucket.Queryable<Brewery>()
+                                where brewery.Type == "brewery"
+                                select new { name = brewery.Name, list = new[] { new { part = brewery.City }, new { part = brewery.State }, new { part = brewery.Code } } };
+
+                    foreach (var brewery in query.Take(10))
+                    {
+                        Console.WriteLine("Brewery {0} has address parts {1}", brewery.name, String.Join(", ", brewery.list.Select(p => p.part)));
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void AnyAllTests_AnyNestedArrayWithFilter()
         {
             using (var cluster = new Cluster())

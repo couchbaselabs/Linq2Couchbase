@@ -16,9 +16,25 @@ namespace Couchbase.Linq.QueryGeneration
     {
         private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
+        private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
         private readonly List<UnclaimedGroupJoin> _unclaimedGroupJoins = new List<UnclaimedGroupJoin>(); 
 
         private bool _isSubQuery = false;
+
+        public N1QlQueryModelVisitor()
+        {
+            _methodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider();
+        }
+
+        public N1QlQueryModelVisitor(IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        {
+            if (methodCallTranslatorProvider == null)
+            {
+                throw new ArgumentNullException("methodCallTranslatorProvider");
+            }
+
+            _methodCallTranslatorProvider = methodCallTranslatorProvider;
+        }
 
         public static string GenerateN1QlQuery(QueryModel queryModel)
         {
@@ -42,7 +58,7 @@ namespace Couchbase.Linq.QueryGeneration
             if (_unclaimedGroupJoins.Any())
             {
                 throw new NotSupportedException("N1QL Requires All Group Joins Have A Matching From Clause Subquery");
-            }
+        }
         }
 
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
@@ -73,25 +89,30 @@ namespace Couchbase.Linq.QueryGeneration
 
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
         {
-            foreach (var parameter in GetSelectParameters(selectClause, queryModel))
-            {
-                _queryPartsAggregator.AddSelectParts(parameter);
-            }
+            _queryPartsAggregator.SelectPart = GetSelectParameters(selectClause, queryModel);
+            
             base.VisitSelectClause(selectClause, queryModel);
         }
 
-        private IEnumerable<string> GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
+        private string GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
         {
-            var prefix = EscapeIdentifier(queryModel.MainFromClause.ItemName);
-
-            var expression = GetN1QlExpression(selectClause.Selector);
+            string expression;
 
             if (selectClause.Selector.GetType() == typeof (QuerySourceReferenceExpression))
             {
-                expression = string.Concat(expression, ".*");
+                expression = string.Concat(GetN1QlExpression(selectClause.Selector), ".*");
+            }
+            else if (selectClause.Selector.NodeType == ExpressionType.New)
+            {
+                expression = N1QlExpressionTreeVisitor.GetN1QlSelectNewExpression(selectClause.Selector as NewExpression,
+                    _parameterAggregator, _methodCallTranslatorProvider);
+            }
+            else
+            {
+                expression = GetN1QlExpression(selectClause.Selector);
             }
 
-            return expression.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            return expression;
         }
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
@@ -404,7 +425,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         private string GetN1QlExpression(Expression expression)
         {
-            return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _parameterAggregator);
+            return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _parameterAggregator, _methodCallTranslatorProvider);
         }
 
         /// <summary>

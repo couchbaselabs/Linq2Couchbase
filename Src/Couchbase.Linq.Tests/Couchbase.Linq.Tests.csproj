@@ -99,6 +99,11 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryClientExtensionTests.cs" />
     <Compile Include="QueryGeneration\NestTests.cs" />
+    <Compile Include="QueryGeneration\ConditionalExpressionTests.cs" />
+    <Compile Include="QueryGeneration\ConstantExpressionTests.cs" />
+    <Compile Include="QueryGeneration\IsMissingTests.cs" />
+    <Compile Include="QueryGeneration\UnaryExpressionTests.cs" />
+    <Compile Include="QueryGeneration\BinaryExpressionTests.cs" />
     <Compile Include="QueryGeneration\JoinTests.cs" />
     <Compile Include="QueryGeneration\MetaTests.cs" />
     <Compile Include="QueryGeneration\ExplainTests.cs" />

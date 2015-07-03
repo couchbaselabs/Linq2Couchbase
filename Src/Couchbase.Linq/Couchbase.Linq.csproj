@@ -86,7 +86,16 @@
     <Compile Include="Extensions\BucketExtensions.cs" />
     <Compile Include="QueryGeneration\CommandData.cs" />
     <Compile Include="QueryGeneration\IMemberNameResolver.cs" />
+    <Compile Include="QueryGeneration\IMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\IMethodCallTranslatorProvider.cs" />
     <Compile Include="QueryGeneration\JsonNetMemberNameResolver.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\ConcatMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\ContainsMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\IsValuedMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\IsMissingMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\KeyMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\MetaMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\DefaultMethodCallTranslatorProvider.cs" />
     <Compile Include="QueryGeneration\N1QLExpressionTreeVisitor.cs" />
     <Compile Include="QueryGeneration\N1QLFromQueryPart.cs" />
     <Compile Include="QueryGeneration\N1QLQueryModelVisitor.cs" />
