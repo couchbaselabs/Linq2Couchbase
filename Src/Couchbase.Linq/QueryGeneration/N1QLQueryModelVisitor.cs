@@ -23,7 +23,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         public N1QlQueryModelVisitor()
         {
-            _methodCallTranslatorProvider = MethodInfoBasedMethodCallTranslatorRegistry.CreateDefault();
+            _methodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider();
         }
 
         public N1QlQueryModelVisitor(IMethodCallTranslatorProvider methodCallTranslatorProvider)

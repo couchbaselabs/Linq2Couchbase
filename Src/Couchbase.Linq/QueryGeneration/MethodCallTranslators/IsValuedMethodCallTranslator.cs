@@ -10,8 +10,16 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
     class IsValuedMethodCallTranslator : IMethodCallTranslator
     {
-        public static readonly MethodInfo[] SupportedMethods =
+        private static readonly MethodInfo[] SupportedMethodsStatic =
             typeof (N1Ql).GetMethods().Where(p => (p.Name == "IsValued") || (p.Name == "IsNotValued")).ToArray();
+
+        public IEnumerable<MethodInfo> SupportMethods
+        {
+            get
+            {
+                return SupportedMethodsStatic;
+            }
+        }
             
         public Expression Translate(MethodCallExpression methodCallExpression, N1QlExpressionTreeVisitor expressionTreeVisitor)
         {

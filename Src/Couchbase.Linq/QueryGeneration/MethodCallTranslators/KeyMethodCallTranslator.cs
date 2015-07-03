@@ -10,9 +10,17 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
     class KeyMethodCallTranslator : IMethodCallTranslator
     {
-        public static readonly MethodInfo[] SupportedMethods = {
+        private static readonly MethodInfo[] SupportedMethodsStatic = {
             typeof (N1Ql).GetMethod("Key")
         };
+
+        public IEnumerable<MethodInfo> SupportMethods
+        {
+            get
+            {
+                return SupportedMethodsStatic;
+            }
+        }
 
         public Expression Translate(MethodCallExpression methodCallExpression, N1QlExpressionTreeVisitor expressionTreeVisitor)
         {

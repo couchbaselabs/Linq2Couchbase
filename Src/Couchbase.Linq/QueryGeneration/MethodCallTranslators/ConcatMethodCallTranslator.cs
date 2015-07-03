@@ -11,7 +11,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
     class ConcatMethodCallTranslator : IMethodCallTranslator
     {
-        public static readonly MethodInfo[] SupportedMethods = {
+        private static readonly MethodInfo[] SupportedMethodsStatic = {
             typeof (string).GetMethod("Concat", new[] { typeof (object) }),
             typeof (string).GetMethod("Concat", new[] { typeof (object), typeof (object) }),
             typeof (string).GetMethod("Concat", new[] { typeof (object), typeof (object), typeof (object) }),
@@ -23,6 +23,14 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             typeof (string).GetMethod("Concat", new[] { typeof (IEnumerable<string>) }),
             typeof (string).GetMethods().Single (mi => mi.Name == "Concat" && mi.IsGenericMethod && mi.GetGenericArguments().Length == 1)
         };
+
+        public IEnumerable<MethodInfo> SupportMethods
+        {
+            get
+            {
+                return SupportedMethodsStatic;
+            }
+        }
 
         public Expression Translate(MethodCallExpression methodCallExpression, N1QlExpressionTreeVisitor expressionTreeVisitor)
         {
