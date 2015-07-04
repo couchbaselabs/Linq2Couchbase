@@ -94,6 +94,7 @@
     <Compile Include="QueryGeneration\IMethodCallTranslatorProvider.cs" />
     <Compile Include="QueryGeneration\JsonNetMemberNameResolver.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\ConcatMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\ListIndexMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\ContainsMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\IsValuedMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\IsMissingMethodCallTranslator.cs" />
