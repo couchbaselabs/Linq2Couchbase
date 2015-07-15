@@ -14,12 +14,14 @@ namespace Couchbase.Linq.QueryGeneration
         public QueryPartsAggregator()
         {
             FromParts = new List<N1QlFromQueryPart>();
+            LetParts = new List<N1QlLetQueryPart>();
             WhereParts = new List<string>();
             OrderByParts = new List<string>();
         }
 
         public string SelectPart { get; set; }
         public List<N1QlFromQueryPart> FromParts { get; set; }
+        public List<N1QlLetQueryPart> LetParts { get; set; } 
         public List<string> WhereParts { get; set; }
         public List<string> OrderByParts { get; set; }
         public string LimitPart { get; set; }
@@ -52,9 +54,31 @@ namespace Couchbase.Linq.QueryGeneration
             FromParts.Add(fromPart);
         }
 
+        public void AddLetPart(N1QlLetQueryPart letPart)
+        {
+            LetParts.Add(letPart);
+        }
+
         public void AddDistinctPart(string value)
         {
             DistinctPart = value;
+        }
+
+        private void ApplyLetParts(StringBuilder sb)
+        {
+            for (var i = 0; i < LetParts.Count; i++)
+            {
+                if (i == 0)
+                {
+                    sb.Append(" LET ");
+                }
+                else
+                {
+                    sb.Append(", ");
+                }
+
+                sb.AppendFormat("{0} = {1}", LetParts[i].ItemName, LetParts[i].Value);
+            }
         }
 
         /// <summary>
@@ -92,6 +116,9 @@ namespace Couchbase.Linq.QueryGeneration
                     }
                }
             }
+
+            ApplyLetParts(sb);
+
             if (WhereParts.Any())
             {
                 sb.AppendFormat(" WHERE {0}", String.Join(" AND ", WhereParts));
@@ -143,6 +170,8 @@ namespace Couchbase.Linq.QueryGeneration
                     }
                 }
             }
+
+            ApplyLetParts(sb);
 
             bool hasWhereClause = false;
             if (WhereParts.Any())
