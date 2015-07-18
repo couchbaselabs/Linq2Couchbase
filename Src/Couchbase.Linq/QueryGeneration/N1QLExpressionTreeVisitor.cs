@@ -68,6 +68,9 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 case ExpressionType.Coalesce:
                     return VisitCoalesceExpression((BinaryExpression) expression);
+
+                case ExpressionType.ArrayIndex:
+                    return VisitArrayIndexExpression((BinaryExpression) expression);
                     
                 default:
                     return base.VisitExpression(expression);
@@ -299,6 +302,19 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             _expression.Append(')');
+
+            return expression;
+        }
+
+        /// <summary>
+        ///     Special handling for ArrayIndex binary expressions
+        /// </summary>
+        protected virtual Expression VisitArrayIndexExpression(BinaryExpression expression)
+        {
+            VisitExpression(expression.Left);
+            _expression.Append('[');
+            VisitExpression(expression.Right);
+            _expression.Append(']');
 
             return expression;
         }
