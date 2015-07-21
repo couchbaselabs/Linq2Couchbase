@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="QueryGeneration\Expressions\StringComparisonExpression.cs" />
     <Compile Include="QueryGeneration\IN1QlQueryModelVisitor.cs" />
     <Compile Include="Clauses\NestClause.cs" />
     <Compile Include="Clauses\NestExpressionNode.cs" />
@@ -101,6 +102,14 @@
     <Compile Include="QueryGeneration\MethodCallTranslators\KeyMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\MetaMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\DefaultMethodCallTranslatorProvider.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\StringSplitMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\StringIndexOfMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\StringReplaceMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\StringTrimMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\StringCapitalizationMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\StringLengthMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\MathMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\SubstringMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\N1QLExpressionTreeVisitor.cs" />
     <Compile Include="QueryGeneration\N1QLFromQueryPart.cs" />
     <Compile Include="QueryGeneration\N1QLLetQueryPart.cs" />

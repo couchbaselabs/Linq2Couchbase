@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Couchbase.Linq.QueryGeneration.Expressions;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionTreeVisitors;
 using Remotion.Linq.Parsing;
@@ -12,6 +13,11 @@ namespace Couchbase.Linq.QueryGeneration
 {
     public class N1QlExpressionTreeVisitor : ThrowingExpressionTreeVisitor
     {
+        private static readonly MethodInfo[] StringCompareMethods = {
+           typeof(string).GetMethod("Compare", new[] { typeof(string), typeof(string) }),
+           typeof(string).GetMethod("CompareTo", new[] { typeof(string) })
+        };
+
         private readonly StringBuilder _expression = new StringBuilder();
         public StringBuilder Expression
         {
@@ -22,7 +28,7 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly ParameterAggregator _parameterAggregator;
         private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
 
-        private N1QlExpressionTreeVisitor(ParameterAggregator parameterAggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        protected N1QlExpressionTreeVisitor(ParameterAggregator parameterAggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
             _parameterAggregator = parameterAggregator;
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
@@ -71,10 +77,24 @@ namespace Couchbase.Linq.QueryGeneration
 
                 case ExpressionType.ArrayIndex:
                     return VisitArrayIndexExpression((BinaryExpression) expression);
+
+                case ExpressionType.Extension:
+                    return VisitExtensionExpression(expression);
                     
                 default:
                     return base.VisitExpression(expression);
             }
+        }
+
+        protected Expression VisitExtensionExpression(Expression expression)
+        {
+            var stringComparison = expression as StringComparisonExpression;
+            if (stringComparison != null)
+            {
+                return VisitStringComparisonExpression(stringComparison);
+            }
+
+            throw CreateUnhandledItemException(expression, "VisitExtensionExpression");
         }
 
         protected override Expression VisitNewExpression(NewExpression expression)
@@ -173,6 +193,17 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitBinaryExpression(BinaryExpression expression)
         {
+            var binaryExpression = expression as BinaryExpression;
+            if (binaryExpression != null)
+            {
+                var newExpression = ConvertStringCompareExpression(binaryExpression);
+                if (newExpression != expression)
+                {
+                    // Stop processing the current expression, visit the new expression instead
+                    return VisitExpression(newExpression);
+                }
+            }
+
             ConstantExpression constantExpression;
 
             _expression.Append("(");
@@ -274,6 +305,189 @@ namespace Couchbase.Linq.QueryGeneration
             return expression;
         }
 
+        #region String Comparison
+
+        /// <summary>
+        /// Converts String.Compare expressions to a StringComparisonExpression, if applicable
+        /// </summary>
+        /// <param name="expression">BinaryExpression to test and convert</param>
+        /// <returns>If not a String.Compare expression, returns the original expression.  Otherwise the converted expression.</returns>
+        /// <remarks>
+        /// Converts String.Compare and String.CompareTo clauses where compared to an integer.
+        /// i.e. String.Compare(x, y) &lt; 0 or x.CompareTo(y) &lt; 0 are both the equivalent of x &lt; y
+        /// </remarks>
+        public Expression ConvertStringCompareExpression(BinaryExpression expression)
+        {
+            // Only convert <, <=, >, >=, ==, !=
+
+            if (!StringComparisonExpression.SupportedOperations.Contains(expression.NodeType))
+            {
+                return expression;
+            }
+
+            // See if one side is a call to String.Compare
+
+            var leftExpression = expression.Left as MethodCallExpression;
+            var rightExpression = expression.Right as MethodCallExpression;
+
+            if ((leftExpression != null) && !StringCompareMethods.Contains(leftExpression.Method))
+            {
+                leftExpression = null;
+            }
+            if ((rightExpression != null) && !StringCompareMethods.Contains(rightExpression.Method))
+            {
+                rightExpression = null;
+            }
+
+            var methodCallExpression = leftExpression ?? rightExpression;
+
+            if (methodCallExpression == null)
+            {
+                // Not a string comparison
+                return expression;
+            }
+
+            // Get the number side of the comparison, which must be a constant integer
+
+            var numericExpression = leftExpression != null
+                ? expression.Right as ConstantExpression
+                : expression.Left as ConstantExpression;
+
+            if ((numericExpression == null) || !typeof (int).IsAssignableFrom(numericExpression.Type))
+            {
+                // Only convert if comparing to an integer
+                return expression;
+            }
+
+            var number = (int) numericExpression.Value;
+
+            // Get the strings from the method call parameters
+
+            Expression leftString;
+            Expression rightString;
+
+            if (methodCallExpression.Arguments.Count > 1)
+            {
+                leftString = methodCallExpression.Arguments[0];
+                rightString = methodCallExpression.Arguments[1];
+            }
+            else
+            {
+                leftString = methodCallExpression.Object;
+                rightString = methodCallExpression.Arguments[0];
+            }
+
+            if (leftExpression == null)
+            {
+                // If the method call is on the right side of the binary expression, then reverse the strings
+
+                var temp = leftString;
+                leftString = rightString;
+                rightString = temp;
+            }
+
+            return ConvertStringCompareExpression(leftString, rightString, expression.NodeType, number);
+        }
+
+        /// <summary>
+        /// Converts String.Compare expression to StringComparisonExpression
+        /// </summary>
+        /// <param name="leftString">String expression on the left side of the comparison</param>
+        /// <param name="rightString">String expression on the right side of the comparison</param>
+        /// <param name="operation">Comparison operation being performed</param>
+        /// <param name="number">Number that String.Compare was being compared to, typically 0, 1, or -1.</param>
+        private Expression ConvertStringCompareExpression(Expression leftString, Expression rightString,
+            ExpressionType operation, int number)
+        {
+            if (number == 1)
+            {
+                if ((operation == ExpressionType.LessThan) || (operation == ExpressionType.NotEqual))
+                {
+                    operation = ExpressionType.LessThanOrEqual;
+                }
+                else if ((operation == ExpressionType.Equal || operation == ExpressionType.GreaterThanOrEqual))
+                {
+                    operation = ExpressionType.GreaterThan;
+                }
+                else
+                {
+                    // Always evaluates to true or false regardless of input, so return a constant expression
+                    return System.Linq.Expressions.Expression.Constant(operation == ExpressionType.LessThanOrEqual,
+                        typeof (bool));
+                }
+            } 
+            else if (number == -1)
+            {
+                if ((operation == ExpressionType.GreaterThan) || (operation == ExpressionType.NotEqual))
+                {
+                    operation = ExpressionType.GreaterThanOrEqual;
+                }
+                else if ((operation == ExpressionType.Equal || operation == ExpressionType.LessThanOrEqual))
+                {
+                    operation = ExpressionType.LessThan;
+                }
+                else
+                {
+                    // Always evaluates to true or false regardless of input, so return a constant expression
+                    return System.Linq.Expressions.Expression.Constant(operation == ExpressionType.GreaterThanOrEqual,
+                        typeof(bool));
+                }
+            }
+            else if (number > 1)
+            {
+                // Always evaluates to true or false regardless of input, so return a constant expression
+                return System.Linq.Expressions.Expression.Constant(
+                    (operation == ExpressionType.NotEqual) || (operation == ExpressionType.LessThan) || (operation == ExpressionType.LessThanOrEqual),
+                    typeof(bool));
+            }
+            else if (number < -1)
+            {
+                // Always evaluates to true or false regardless of input, so return a constant expression
+                return System.Linq.Expressions.Expression.Constant(
+                    (operation == ExpressionType.NotEqual) || (operation == ExpressionType.GreaterThan) || (operation == ExpressionType.GreaterThanOrEqual),
+                    typeof(bool));
+            }
+            
+            // If number == 0 we just leave operation unchanged
+
+            return StringComparisonExpression.Create(operation, leftString, rightString);
+        }
+
+        protected virtual Expression VisitStringComparisonExpression(StringComparisonExpression expression)
+        {
+            _expression.Append('(');
+            VisitExpression(expression.Left);
+
+            switch (expression.Operation)
+            {
+                case ExpressionType.Equal:
+                    _expression.Append(" = ");
+                    break;
+                case ExpressionType.NotEqual:
+                    _expression.Append(" != ");
+                    break;
+                case ExpressionType.LessThan:
+                    _expression.Append(" < ");
+                    break;
+                case ExpressionType.LessThanOrEqual:
+                    _expression.Append(" <= ");
+                    break;
+                case ExpressionType.GreaterThan:
+                    _expression.Append(" > ");
+                    break;
+                case ExpressionType.GreaterThanOrEqual:
+                    _expression.Append(" >= ");
+                    break;
+            }
+
+            VisitExpression(expression.Right);
+            _expression.Append(')');
+
+            return expression;
+        }
+
+        #endregion
+
         /// <summary>
         ///     Visits a coalese expression recursively, building a IFMISSINGORNULL function
         /// </summary>
@@ -346,7 +560,11 @@ namespace Couchbase.Linq.QueryGeneration
             }
             else if (namedParameter.Value is string)
             {
-                _expression.AppendFormat("'{0}'", namedParameter.Value);
+                _expression.AppendFormat("'{0}'", namedParameter.Value.ToString().Replace("'", "''"));
+            }
+            else if (namedParameter.Value is char)
+            {
+                _expression.AppendFormat("'{0}'", (char)namedParameter.Value != '\'' ? namedParameter.Value : "''");
             }
             else if (namedParameter.Value is bool)
             {
@@ -363,8 +581,8 @@ namespace Couchbase.Linq.QueryGeneration
                     {
                         first = false;
                     }
-            else
-            {
+                    else
+                    {
                         _expression.Append(", ");
                     }
 
@@ -402,6 +620,25 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitMemberExpression(MemberExpression expression)
         {
+            if (expression.Expression.Type.Assembly.GetName().Name == "mscorlib")
+            {
+                // For property getters on the core .Net classes, we don't want to just recurse through the .Net object model
+                // Instead, convert to a MethodCallExpression
+                // And it will pass through the appropriate IMethodCallTranslator
+                // (i.e. string.Length)
+
+                var propInfo = expression.Member as PropertyInfo;
+                if ((propInfo != null) && (propInfo.GetMethod != null) && (propInfo.GetMethod.GetParameters().Length == 0))
+                {
+                    // Convert to a property getter method call
+                    var newExpression = System.Linq.Expressions.Expression.Call(
+                        expression.Expression,
+                        propInfo.GetMethod);
+
+                    return VisitExpression(newExpression);
+                }
+            }
+
             string memberName;
 
             if (_nameResolver.TryResolveMemberName(expression.Member, out memberName))
