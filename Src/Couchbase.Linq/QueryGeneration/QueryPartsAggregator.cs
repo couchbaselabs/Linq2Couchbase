@@ -31,6 +31,10 @@ namespace Couchbase.Linq.QueryGeneration
         public string ExplainPart { get; set; }
         public string MetaPart { get; set; }
         public string WhereAllPart { get; set; }
+        /// <summary>
+        /// For subqueries, stores the name of property to extract to a plain array
+        /// </summary>
+        public string ArrayPropertyExtractionPart { get; set; }
 
         /// <summary>
         /// Indicates the type of query or subquery being generated
@@ -39,6 +43,18 @@ namespace Couchbase.Linq.QueryGeneration
         /// Defaults to building a SELECT query
         /// </remarks>
         public N1QlQueryType QueryType { get; set; }
+
+        /// <summary>
+        /// Returns true if the QueryType is an array-based subquery
+        /// </summary>
+        public bool IsArraySubquery
+        {
+            get
+            {
+                return (QueryType == N1QlQueryType.Array) || (QueryType == N1QlQueryType.ArrayAny) ||
+                       (QueryType == N1QlQueryType.ArrayAll);
+            }
+        }
 
         public void AddWhereMissingPart(string format, params object[] args)
         {
@@ -100,6 +116,29 @@ namespace Couchbase.Linq.QueryGeneration
         {
             var sb = new StringBuilder();
             
+            if (QueryType == N1QlQueryType.Subquery)
+            {
+                if (!string.IsNullOrEmpty(ArrayPropertyExtractionPart))
+                {
+                    // Subqueries will always return a list of objects
+                    // But we need to use an ARRAY statement to convert it into an array of a particular property of that object
+
+                    sb.AppendFormat("ARRAY `ArrayExtent`.{0} FOR `ArrayExtent` IN (", ArrayPropertyExtractionPart);
+                }
+                else
+                {
+                    sb.Append('(');
+                }
+            }
+            else if (QueryType == N1QlQueryType.SubqueryAny)
+            {
+                sb.AppendFormat("ANY {0} IN (", ArrayPropertyExtractionPart);
+            }
+            else if (QueryType == N1QlQueryType.SubqueryAll)
+            {
+                sb.AppendFormat("EVERY {0} IN (", ArrayPropertyExtractionPart);
+            }
+
             if (!string.IsNullOrWhiteSpace(ExplainPart))
             {
                 sb.Append(ExplainPart);
@@ -152,6 +191,26 @@ namespace Couchbase.Linq.QueryGeneration
                 sb.Append(OffsetPart);
             }
 
+            if (QueryType == N1QlQueryType.Subquery)
+            {
+                if (!string.IsNullOrEmpty(ArrayPropertyExtractionPart))
+                {
+                    sb.Append(") END");
+                }
+                else
+                {
+                    sb.Append(')');
+                }
+            }
+            else if (QueryType == N1QlQueryType.SubqueryAny)
+            {
+                sb.Append(") SATISFIES true END");
+            }
+            else if (QueryType == N1QlQueryType.SubqueryAll)
+            {
+                sb.AppendFormat(") SATISFIES {0} END", WhereAllPart);
+            }
+
             return sb.ToString();
         }
 
@@ -164,7 +223,7 @@ namespace Couchbase.Linq.QueryGeneration
             var sb = new StringBuilder();
 
             sb.AppendFormat("SELECT {0} as result",
-                QueryType == N1QlQueryType.AnyMainQuery ? "true" : "false");
+                QueryType == N1QlQueryType.MainQueryAny ? "true" : "false");
 
             if (FromParts.Any())
             {
@@ -202,7 +261,7 @@ namespace Couchbase.Linq.QueryGeneration
                 hasWhereClause = true;
             }
 
-            if (QueryType == N1QlQueryType.AllMainQuery)
+            if (QueryType == N1QlQueryType.MainQueryAll)
             {
                 sb.AppendFormat(" {0} NOT ({1})",
                     hasWhereClause ? "AND" : "WHERE",
@@ -229,7 +288,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             var source = mainFrom.Source;
-            if ((QueryType == N1QlQueryType.All) && WhereParts.Any())
+            if ((QueryType == N1QlQueryType.ArrayAll) && WhereParts.Any())
             {
                 // WhereParts should be used to filter the source before the EVERY query
                 // This is done using the ARRAY operator with a WHEN clause
@@ -241,11 +300,11 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             sb.AppendFormat("{0} {1} IN {2} ",
-                QueryType == N1QlQueryType.Any ? "ANY" : "EVERY",
+                QueryType == N1QlQueryType.ArrayAny ? "ANY" : "EVERY",
                 mainFrom.ItemName,
                 source);
 
-            if (QueryType == N1QlQueryType.Any)
+            if (QueryType == N1QlQueryType.ArrayAny)
             {
                 // WhereParts should be applied to the SATISFIES portion of the query
 
@@ -278,16 +337,19 @@ namespace Couchbase.Linq.QueryGeneration
             switch (QueryType)
             {
                 case N1QlQueryType.Select:
+                case N1QlQueryType.Subquery:
+                case N1QlQueryType.SubqueryAny:
+                case N1QlQueryType.SubqueryAll:
                     query = BuildSelectQuery();
                     break;
 
-                case N1QlQueryType.Any:
-                case N1QlQueryType.All:
+                case N1QlQueryType.ArrayAny:
+                case N1QlQueryType.ArrayAll:
                     query = BuildAnyAllQuery();
                     break;
 
-                case N1QlQueryType.AnyMainQuery:
-                case N1QlQueryType.AllMainQuery:
+                case N1QlQueryType.MainQueryAny:
+                case N1QlQueryType.MainQueryAll:
                     query = BuildMainAnyAllQuery();
                     break;
 
