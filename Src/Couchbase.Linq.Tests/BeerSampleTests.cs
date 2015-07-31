@@ -178,6 +178,24 @@ namespace Couchbase.Linq.Tests
         }
 
         [Test]
+        public void UseKeys_SelectDocuments()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var query = from brewery in bucket.Queryable<Brewery>().UseKeys(new[] { "21st_amendment_brewery_cafe", "357" })
+                                select new { name = brewery.Name };
+
+                    foreach (var brewery in query)
+                    {
+                        Console.WriteLine("Brewery {0}", brewery.name);
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void AnyAllTests_AnyNestedArrayWithFilter()
         {
             using (var cluster = new Cluster())
