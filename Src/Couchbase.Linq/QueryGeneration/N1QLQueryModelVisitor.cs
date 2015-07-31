@@ -88,6 +88,11 @@ namespace Couchbase.Linq.QueryGeneration
             base.VisitMainFromClause(fromClause, queryModel);
         }
 
+        public virtual void VisitUseKeysClause(UseKeysClause clause, QueryModel queryModel, int index)
+        {
+            _queryPartsAggregator.AddUseKeysPart(GetN1QlExpression(clause.Keys));
+        }
+
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
         {
             _queryPartsAggregator.SelectPart = GetSelectParameters(selectClause, queryModel);

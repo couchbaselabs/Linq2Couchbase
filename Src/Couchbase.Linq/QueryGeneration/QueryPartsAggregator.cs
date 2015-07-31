@@ -21,6 +21,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         public string SelectPart { get; set; }
         public List<N1QlFromQueryPart> FromParts { get; set; }
+        public string UseKeysPart { get; set; }
         public List<N1QlLetQueryPart> LetParts { get; set; } 
         public List<string> WhereParts { get; set; }
         public List<string> OrderByParts { get; set; }
@@ -52,6 +53,16 @@ namespace Couchbase.Linq.QueryGeneration
         public void AddFromPart(N1QlFromQueryPart fromPart)
         {
             FromParts.Add(fromPart);
+        }
+
+        public void AddUseKeysPart(string useKeysPart)
+        {
+            if (!string.IsNullOrEmpty(UseKeysPart))
+            {
+                throw new InvalidOperationException("AddUseKeysPart May Only Be Called Once");
+            }
+
+            UseKeysPart = useKeysPart;
         }
 
         public void AddLetPart(N1QlLetQueryPart letPart)
@@ -102,6 +113,11 @@ namespace Couchbase.Linq.QueryGeneration
                 sb.AppendFormat(" FROM {0} as {1}",
                     mainFrom.Source,
                     mainFrom.ItemName);
+
+                if (!string.IsNullOrEmpty(UseKeysPart))
+                {
+                    sb.AppendFormat(" USE KEYS {0}", UseKeysPart);
+                }
 
                 foreach (var joinPart in FromParts.Skip(1))
                 {
@@ -156,6 +172,11 @@ namespace Couchbase.Linq.QueryGeneration
                 sb.AppendFormat(" FROM {0} as {1}",
                     mainFrom.Source,
                     mainFrom.ItemName);
+
+                if (!string.IsNullOrEmpty(UseKeysPart))
+                {
+                    sb.AppendFormat(" USE KEYS {0}", UseKeysPart);
+                }
 
                 foreach (var joinPart in FromParts.Skip(1))
                 {
