@@ -28,7 +28,7 @@ namespace Couchbase.Linq.Tests
                             fname = c.FirstName
                         };
 
-                    const string expected = "SELECT c.age as age, c.fname as fname FROM default as c";
+                    const string expected = "SELECT `c`.`age` as `age`, `c`.`fname` as `fname` FROM `default` as `c`";
 
                     var N1QLQuery = CreateN1QlQuery(bucket, query.Expression);
 
@@ -47,7 +47,7 @@ namespace Couchbase.Linq.Tests
                     var query = from c in bucket.Queryable<Contact>()
                         select c;
 
-                    const string expected = "SELECT c.* FROM default as c";
+                    const string expected = "SELECT `c`.* FROM `default` as `c`";
                     Assert.AreEqual(expected, CreateN1QlQuery(bucket, query.Expression));
                 }
             }
@@ -63,7 +63,7 @@ namespace Couchbase.Linq.Tests
                     var query = from c in bucket.Queryable<Contact>()
                         select c.Children;
 
-                    const string expected = "SELECT c.children FROM default as c";
+                    const string expected = "SELECT `c`.`children` FROM `default` as `c`";
                     Assert.AreEqual(expected, CreateN1QlQuery(bucket, query.Expression));
                 }
             }

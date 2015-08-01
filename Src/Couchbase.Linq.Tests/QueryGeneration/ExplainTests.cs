@@ -26,7 +26,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
             var explainQuery = Expression.Call(null, typeof(QueryExtensions).GetMethod("Explain").MakeGenericMethod(query.ElementType), query.Expression);
 
-            const string expected = "EXPLAIN SELECT c.age as age FROM default as c";
+            const string expected = "EXPLAIN SELECT `c`.`age` as `age` FROM `default` as `c`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, explainQuery);
 
