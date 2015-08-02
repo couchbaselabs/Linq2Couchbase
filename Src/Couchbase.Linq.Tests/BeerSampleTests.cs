@@ -13,6 +13,11 @@ namespace Couchbase.Linq.Tests
     [TestFixture]
     public class BeerSampleTests : N1QLTestBase
     {
+        protected override bool IsClusterRequired
+        {
+            get { return true; }
+        }
+
         [SetUp]
         public void TestSetUp()
         {

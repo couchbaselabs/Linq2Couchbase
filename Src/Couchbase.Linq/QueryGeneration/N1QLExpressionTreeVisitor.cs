@@ -24,26 +24,27 @@ namespace Couchbase.Linq.QueryGeneration
             get { return _expression; }
         }
 
-        private readonly IMemberNameResolver _nameResolver = new JsonNetMemberNameResolver();
+        private readonly IMemberNameResolver _nameResolver;
         private readonly ParameterAggregator _parameterAggregator;
         private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
 
-        protected N1QlExpressionTreeVisitor(ParameterAggregator parameterAggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        protected N1QlExpressionTreeVisitor(ParameterAggregator parameterAggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider, IMemberNameResolver nameResolver)
         {
             _parameterAggregator = parameterAggregator;
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
+            _nameResolver = nameResolver;
         }
 
-        public static string GetN1QlExpression(Expression expression, ParameterAggregator aggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        public static string GetN1QlExpression(Expression expression, ParameterAggregator aggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider, IMemberNameResolver nameResolver)
         {
-            var visitor = new N1QlExpressionTreeVisitor(aggregator, methodCallTranslatorProvider);
+            var visitor = new N1QlExpressionTreeVisitor(aggregator, methodCallTranslatorProvider, nameResolver);
             visitor.VisitExpression(expression);
             return visitor.GetN1QlExpression();
         }
 
-        public static string GetN1QlSelectNewExpression(NewExpression expression, ParameterAggregator aggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        public static string GetN1QlSelectNewExpression(NewExpression expression, ParameterAggregator aggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider, IMemberNameResolver nameResolver)
         {
-            var visitor = new N1QlExpressionTreeVisitor(aggregator, methodCallTranslatorProvider);
+            var visitor = new N1QlExpressionTreeVisitor(aggregator, methodCallTranslatorProvider, nameResolver);
             visitor.VisitSelectNewExpression(expression);
             return visitor.GetN1QlExpression();
         }
@@ -675,7 +676,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
         {
-            var modelVisitor = new N1QlQueryModelVisitor(_methodCallTranslatorProvider);
+            var modelVisitor = new N1QlQueryModelVisitor(_methodCallTranslatorProvider, _nameResolver);
 
             modelVisitor.VisitQueryModel(expression.QueryModel);
             _expression.Append(modelVisitor.GetQuery());

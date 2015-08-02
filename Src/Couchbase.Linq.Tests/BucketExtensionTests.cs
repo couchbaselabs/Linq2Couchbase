@@ -9,6 +9,11 @@ namespace Couchbase.Linq.Tests
     [TestFixture]
     public class BucketExtensionTests : N1QLTestBase
     {
+        protected override bool IsClusterRequired
+        {
+            get { return true; }
+        }
+
         [Test]
         public void Test_AnonymousType_In_Projection()
         {

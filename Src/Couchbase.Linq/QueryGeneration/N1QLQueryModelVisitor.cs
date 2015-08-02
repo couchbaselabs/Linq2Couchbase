@@ -17,6 +17,7 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly ParameterAggregator _parameterAggregator = new ParameterAggregator();
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
         private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
+        private readonly IMemberNameResolver _nameResolver;
         private readonly List<UnclaimedGroupJoin> _unclaimedGroupJoins = new List<UnclaimedGroupJoin>(); 
 
         private bool _isSubQuery = false;
@@ -25,16 +26,22 @@ namespace Couchbase.Linq.QueryGeneration
         public N1QlQueryModelVisitor()
         {
             _methodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider();
+            _nameResolver = new JsonNetMemberNameResolver(ClusterHelper.Get().Configuration.SerializationSettings.ContractResolver);
         }
 
-        public N1QlQueryModelVisitor(IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        public N1QlQueryModelVisitor(IMethodCallTranslatorProvider methodCallTranslatorProvider, IMemberNameResolver nameResolver)
         {
             if (methodCallTranslatorProvider == null)
             {
                 throw new ArgumentNullException("methodCallTranslatorProvider");
             }
+            if (nameResolver == null)
+            {
+                throw new ArgumentNullException("nameResolver");
+            }
 
             _methodCallTranslatorProvider = methodCallTranslatorProvider;
+            _nameResolver = nameResolver;
         }
 
         public static string GenerateN1QlQuery(QueryModel queryModel)
@@ -106,7 +113,7 @@ namespace Couchbase.Linq.QueryGeneration
             else if (selectClause.Selector.NodeType == ExpressionType.New)
             {
                 expression = N1QlExpressionTreeVisitor.GetN1QlSelectNewExpression(selectClause.Selector as NewExpression,
-                    _parameterAggregator, _methodCallTranslatorProvider);
+                    _parameterAggregator, _methodCallTranslatorProvider, _nameResolver);
             }
             else
             {
@@ -533,7 +540,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         private string GetN1QlExpression(Expression expression)
         {
-            return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _parameterAggregator, _methodCallTranslatorProvider);
+            return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _parameterAggregator, _methodCallTranslatorProvider, _nameResolver);
         }
 
         private string GetNewGenName()
