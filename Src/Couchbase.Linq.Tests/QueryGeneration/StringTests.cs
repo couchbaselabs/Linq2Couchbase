@@ -713,7 +713,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         public void StringCompare_LessThan1_ReturnsLessThanOrEqual()
         {
             var visitor = new Mock<N1QlExpressionTreeVisitor>(new ParameterAggregator(),
-                new DefaultMethodCallTranslatorProvider())
+                new DefaultMethodCallTranslatorProvider(),
+                new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()))
             {
                 CallBase = true
             };
@@ -741,7 +742,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         public void StringCompare_EqualTo1_ReturnsGreaterThan()
         {
             var visitor = new Mock<N1QlExpressionTreeVisitor>(new ParameterAggregator(),
-                new DefaultMethodCallTranslatorProvider())
+                new DefaultMethodCallTranslatorProvider(),
+                new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()))
             {
                 CallBase = true
             };
@@ -769,7 +771,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         public void StringCompare_GreaterThanNeg1_ReturnsGreaterThanOrEqual()
         {
             var visitor = new Mock<N1QlExpressionTreeVisitor>(new ParameterAggregator(),
-                new DefaultMethodCallTranslatorProvider())
+                new DefaultMethodCallTranslatorProvider(),
+                new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()))
             {
                 CallBase = true
             };
@@ -797,7 +800,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         public void StringCompare_EqualToNeg1_ReturnsLessThan()
         {
             var visitor = new Mock<N1QlExpressionTreeVisitor>(new ParameterAggregator(),
-                new DefaultMethodCallTranslatorProvider())
+                new DefaultMethodCallTranslatorProvider(),
+                new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()))
             {
                 CallBase = true
             };
