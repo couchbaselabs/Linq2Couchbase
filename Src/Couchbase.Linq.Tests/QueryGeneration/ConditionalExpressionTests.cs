@@ -25,7 +25,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                 .Select(e => new { e.FirstName, Value = e.Age < 10 ? null : e.LastName });
 
             const string expected =
-                "SELECT e.fname as FirstName, CASE WHEN (e.age < 10) THEN NULL ELSE e.lname END as Value FROM default as e";
+                "SELECT `e`.`fname` as `FirstName`, CASE WHEN (`e`.`age` < 10) THEN NULL ELSE `e`.`lname` END as `Value` FROM `default` as `e`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

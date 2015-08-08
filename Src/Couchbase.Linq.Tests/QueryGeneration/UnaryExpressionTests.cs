@@ -29,7 +29,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new { age = e.Age });
 
             const string expected =
-                "SELECT e.age as age FROM default as e WHERE NOT (e.age = 10)";
+                "SELECT `e`.`age` as `age` FROM `default` as `e` WHERE NOT (`e`.`age` = 10)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -51,7 +51,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new {age = -e.Age});
 
             const string expected =
-                "SELECT -e.age as age FROM default as e";
+                "SELECT -`e`.`age` as `age` FROM `default` as `e`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

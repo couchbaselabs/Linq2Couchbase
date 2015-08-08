@@ -154,7 +154,7 @@ namespace Couchbase.Linq.QueryGeneration
                 //only add 'as' part if the  previous visitexpression has generated something.
                 if (_expression.Length > expressionLength)
                 {
-                    _expression.AppendFormat(" as {0}", N1QlQueryModelVisitor.EscapeIdentifier(members[i].Name));
+                    _expression.AppendFormat(" as {0}", N1QlHelpers.EscapeIdentifier(members[i].Name));
                 }
                 else if (i > 0)
                 {
@@ -615,7 +615,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
         {
-            _expression.Append(N1QlQueryModelVisitor.EscapeIdentifier(expression.ReferencedQuerySource.ItemName));
+            _expression.Append(N1QlHelpers.EscapeIdentifier(expression.ReferencedQuerySource.ItemName));
             return expression;
         }
 
@@ -645,7 +645,7 @@ namespace Couchbase.Linq.QueryGeneration
             if (_nameResolver.TryResolveMemberName(expression.Member, out memberName))
             {
                 VisitExpression(expression.Expression);
-                _expression.AppendFormat(".{0}", N1QlQueryModelVisitor.EscapeIdentifier(memberName));
+                _expression.AppendFormat(".{0}", N1QlHelpers.EscapeIdentifier(memberName));
             }
 
             return expression;

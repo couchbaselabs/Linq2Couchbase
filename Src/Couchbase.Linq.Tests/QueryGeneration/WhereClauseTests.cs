@@ -23,7 +23,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new {age = e.Age, name = e.FirstName});
 
             const string expected =
-                "SELECT e.age as age, e.fname as name FROM default as e WHERE ((e.age > 10) AND (e.fname = 'Sam')) ORDER BY e.age ASC";
+                "SELECT `e`.`age` as `age`, `e`.`fname` as `name` FROM `default` as `e` WHERE ((`e`.`age` > 10) AND (`e`.`fname` = 'Sam')) ORDER BY `e`.`age` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -44,7 +44,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new {age = e.Age, name = e.FirstName});
 
             const string expected =
-                "SELECT e.age as age, e.fname as name FROM default as e WHERE (e.email = 'something@gmail.com') AND e.age IS MISSING ORDER BY e.age ASC";
+                "SELECT `e`.`age` as `age`, `e`.`fname` as `name` FROM `default` as `e` WHERE (`e`.`email` = 'something@gmail.com') AND `e`.`age` IS MISSING ORDER BY `e`.`age` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -63,7 +63,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new {age = e.Age, name = e.FirstName});
 
             const string expected =
-                "SELECT e.age as age, e.fname as name FROM default as e WHERE (((e.age > 10) AND (e.fname = 'Sam')) AND (e.lname LIKE '%a%'))";
+                "SELECT `e`.`age` as `age`, `e`.`fname` as `name` FROM `default` as `e` WHERE (((`e`.`age` > 10) AND (`e`.`fname` = 'Sam')) AND (`e`.`lname` LIKE '%a%'))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -83,7 +83,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
 
             const string expected =
-                "SELECT e.age as age, e.fname as name FROM default as e WHERE ((e.age > 10) AND (e.fname = 'Sam'))";
+                "SELECT `e`.`age` as `age`, `e`.`fname` as `name` FROM `default` as `e` WHERE ((`e`.`age` > 10) AND (`e`.`fname` = 'Sam'))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -106,7 +106,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
 
             const string expected =
-                "SELECT e.age as age, e.fname as name FROM default as e WHERE ((e.age > 10) AND (e.fname = 'Sam'))";
+                "SELECT `e`.`age` as `age`, `e`.`fname` as `name` FROM `default` as `e` WHERE ((`e`.`age` > 10) AND (`e`.`fname` = 'Sam'))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -126,7 +126,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new {age = e.Age, name = e.FirstName});
 
             const string expected =
-                "SELECT e.age as age, e.fname as name FROM default as e WHERE ((e.age > 10) AND (e.fname = 'Sam')) AND (e.email = 'myemail@test.com')";
+                "SELECT `e`.`age` as `age`, `e`.`fname` as `name` FROM `default` as `e` WHERE ((`e`.`age` > 10) AND (`e`.`fname` = 'Sam')) AND (`e`.`email` = 'myemail@test.com')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -145,7 +145,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new {age = e.Age, name = e.FirstName});
 
             const string expected =
-                "SELECT e.age as age, e.fname as name FROM default as e WHERE ((e.age > 10) OR (e.fname = 'Sam'))";
+                "SELECT `e`.`age` as `age`, `e`.`fname` as `name` FROM `default` as `e` WHERE ((`e`.`age` > 10) OR (`e`.`fname` = 'Sam'))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -163,7 +163,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Where(e => e.Age < 10 + 30)
                     .Select(e => new {age = e.Age, name = e.FirstName});
 
-            const string expected = "SELECT e.age as age, e.fname as name FROM default as e WHERE (e.age < 40)";
+            const string expected = "SELECT `e`.`age` as `age`, `e`.`fname` as `name` FROM `default` as `e` WHERE (`e`.`age` < 40)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -183,7 +183,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
 
             const string expected =
-                "SELECT e.age as age, e.fname as name FROM default as e WHERE (e.fname IS NULL)";
+                "SELECT `e`.`age` as `age`, `e`.`fname` as `name` FROM `default` as `e` WHERE (`e`.`fname` IS NULL)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -203,7 +203,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
 
             const string expected =
-                "SELECT e.age as age, e.fname as name FROM default as e WHERE (e.fname IS NOT NULL)";
+                "SELECT `e`.`age` as `age`, `e`.`fname` as `name` FROM `default` as `e` WHERE (`e`.`fname` IS NOT NULL)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

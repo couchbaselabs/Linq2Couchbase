@@ -77,8 +77,8 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _queryPartsAggregator.AddFromPart(new N1QlFromQueryPart()
                 {
-                    Source = EscapeIdentifier(((IBucketQueryable) bucketConstantExpression.Value).BucketName),
-                    ItemName = EscapeIdentifier(fromClause.ItemName)
+                    Source = N1QlHelpers.EscapeIdentifier(((IBucketQueryable) bucketConstantExpression.Value).BucketName),
+                    ItemName = N1QlHelpers.EscapeIdentifier(fromClause.ItemName)
                 });
             }
             else if (fromClause.FromExpression.NodeType == ExpressionType.MemberAccess)
@@ -86,7 +86,7 @@ namespace Couchbase.Linq.QueryGeneration
                 _queryPartsAggregator.AddFromPart(new N1QlFromQueryPart()
                 {
                     Source = GetN1QlExpression((MemberExpression) fromClause.FromExpression),
-                    ItemName = EscapeIdentifier(fromClause.ItemName)
+                    ItemName = N1QlHelpers.EscapeIdentifier(fromClause.ItemName)
                 });
 
                 _isSubQuery = true;
@@ -316,7 +316,7 @@ namespace Couchbase.Linq.QueryGeneration
             return new N1QlFromQueryPart()
             {
                 Source = GetN1QlExpression(expression),
-                ItemName = EscapeIdentifier(fromClause.ItemName),
+                ItemName = N1QlHelpers.EscapeIdentifier(fromClause.ItemName),
                 JoinType = "INNER UNNEST"
             };
         }
@@ -427,8 +427,8 @@ namespace Couchbase.Linq.QueryGeneration
 
             return new N1QlFromQueryPart()
             {
-                Source = EscapeIdentifier(bucketName),
-                ItemName = EscapeIdentifier(itemName),
+                Source = N1QlHelpers.EscapeIdentifier(bucketName),
+                ItemName = N1QlHelpers.EscapeIdentifier(itemName),
                 OnKeys = GetN1QlExpression(joinClause.OuterKeySelector),
                 JoinType = "INNER JOIN"
             };
@@ -484,12 +484,14 @@ namespace Couchbase.Linq.QueryGeneration
 
                     var letPart = new N1QlLetQueryPart()
                     {
-                        ItemName = EscapeIdentifier(itemName),
+                        ItemName = N1QlHelpers.EscapeIdentifier(itemName),
                         Value =
-                            String.Format("ARRAY {0} FOR {0} IN {1} WHEN {2} END", EscapeIdentifier(genForName),
-                                EscapeIdentifier(genItemName), whereClauseString)
+                            String.Format("ARRAY {0} FOR {0} IN {1} WHEN {2} END",
+                                N1QlHelpers.EscapeIdentifier(genForName),
+                                N1QlHelpers.EscapeIdentifier(genItemName),
+                                whereClauseString)
                     };
-
+                
                     _queryPartsAggregator.AddLetPart(letPart);
 
                     if (!nestClause.IsLeftOuterNest)
@@ -534,8 +536,8 @@ namespace Couchbase.Linq.QueryGeneration
 
             return new N1QlFromQueryPart()
             {
-                Source = EscapeIdentifier(bucketName),
-                ItemName = EscapeIdentifier(itemName),
+                Source = N1QlHelpers.EscapeIdentifier(bucketName),
+                ItemName = N1QlHelpers.EscapeIdentifier(itemName),
                 OnKeys = GetN1QlExpression(nestClause.KeySelector),
                 JoinType = nestClause.IsLeftOuterNest ? "LEFT OUTER NEST" : "INNER NEST"
             };
@@ -553,41 +555,5 @@ namespace Couchbase.Linq.QueryGeneration
             return String.Format("__genName{0}", _generatedItemNameIndex++);
         }
 
-        /// <summary>
-        ///     Ensures that if the identifier contains a hyphen or other special characters that it will be escaped by tick (`) characters.
-        /// </summary>
-        /// <param name="identifier">The identifier to format</param>
-        /// <returns>An escaped identifier, if escaping was required.  Otherwise the original identifier.</returns>
-        public static string EscapeIdentifier(string identifier)
-        {
-            if (identifier == null)
-            {
-                throw new ArgumentNullException("identifier");
-            }
-
-            bool containsSpecialChar = false;
-            for (var i = 0; i < identifier.Length; i++)
-            {
-                if (!Char.IsLetterOrDigit(identifier[i]) && (identifier[i] != '_'))
-                {
-                    containsSpecialChar = true;
-                    break;
-                }
-            }
-
-            if (!containsSpecialChar)
-            {
-                return identifier;
-            }
-            else
-            {
-                var sb = new System.Text.StringBuilder(identifier.Length + 2);
-
-                sb.Append('`');
-                sb.Append(identifier.Replace("`", "``"));
-                sb.Append('`');
-                return sb.ToString();
-            }
-        }
     }
 }
