@@ -27,18 +27,12 @@ namespace Couchbase.Linq.QueryGeneration
             if (identifier.IndexOf('`') >= 0)
             {
                 // This should not occur, and is primarily in place to prevent N1QL injection attacks
-                // So it isn't performance critical to perform this replace in the StringBuilder
+                // So it isn't performance critical to perform this replace in a StringBuilder with the concatenation
 
                 identifier = identifier.Replace("`", "``");
             }
 
-            var sb = new StringBuilder(identifier.Length + 2);
-
-            sb.Append('`');
-            sb.Append(identifier);
-            sb.Append('`');
-
-            return sb.ToString();
+            return string.Concat("`", identifier, "`");
         }
 
     }
