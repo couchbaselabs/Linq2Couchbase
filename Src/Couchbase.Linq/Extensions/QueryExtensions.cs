@@ -179,6 +179,64 @@ namespace Couchbase.Linq.Extensions
 
         #endregion
 
+        #region UseKeys
+
+        /// <summary>
+        ///     Filters documents based on a list of keys
+        /// </summary>
+        /// <typeparam name="items">Type of the items being filtered<typeparam>
+        /// <param name="items">Items being filtered</param>
+        /// <param name="keys">Keys to be selected</param>
+        /// <returns>Modified IQueryable</returns>
+        public static IQueryable<T> UseKeys<T>(
+            this IQueryable<T> items,
+            IEnumerable<string> keys)
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException("items");
+            }
+            if (keys == null)
+            {
+                throw new ArgumentNullException("keys");
+            }
+
+            if (items is EnumerableQuery<T>)
+            {
+                // If outer is an IEnumerable converted to IQueryable via AsQueryable
+                // Then we need to just call the IEnumerable implementation
+
+                if (!typeof(IDocumentMetadataProvider).IsAssignableFrom(typeof(T)))
+                {
+                    throw new NotSupportedException("Items Sequence Must Implement IDocumentMetadataProvider To Function With EnumerableQuery<T>");
+                }
+
+                var methodCall =
+                    Expression.Call(
+                        typeof(EnumerableExtensions).GetMethod("UseKeys")
+                            .MakeGenericMethod(typeof(T)),
+                        Expression.Constant(items, typeof(IEnumerable<T>)),
+                        Expression.Constant(keys, typeof(IEnumerable<string>)));
+
+                return items.Provider.CreateQuery<T>(
+                    Expression.Call(
+                        typeof(Queryable).GetMethods().First(p => p.Name == "AsQueryable" && p.GetGenericArguments().Length == 1)
+                            .MakeGenericMethod(typeof(T)),
+                        methodCall));
+            }
+            else
+            {
+                return items.Provider.CreateQuery<T>(
+                    Expression.Call(
+                        ((MethodInfo)MethodBase.GetCurrentMethod())
+                            .MakeGenericMethod(typeof(T)),
+                        items.Expression,
+                        GetSourceExpression(keys)));
+            }
+        }
+
+        #endregion
+
         /// <summary>
         /// The EXPLAIN statement is used before any N1QL statement to obtain information about how the statement operates.
         /// </summary>

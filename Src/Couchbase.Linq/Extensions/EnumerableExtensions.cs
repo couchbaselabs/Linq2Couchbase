@@ -11,6 +11,9 @@ namespace Couchbase.Linq.Extensions
 {
     public static class EnumerableExtensions
     {
+
+        #region Nest
+
         /// <summary>
         ///     Emulates Nest for N1QL against an IEnumerable
         /// </summary>
@@ -121,5 +124,34 @@ namespace Couchbase.Linq.Extensions
                 })
                 .Where(p => p != null); // Filter out any null results returned due to inner nest or a null from the resultSelector
         }
+
+        #endregion
+
+        #region UseKeys
+
+        /// <summary>
+        ///     Emulates UseKeys for N1QL against an IEnumerable
+        /// </summary>
+        /// <typeparam name="T">Type of the source sequence</typeparam>
+        /// <param name="items">Items being filtered</param>
+        /// <param name="keys">Keys to be selected</param>
+        /// <returns></returns>
+        public static IEnumerable<T> UseKeys<T>(
+            this IEnumerable<T> items, IEnumerable<string> keys) where T : IDocumentMetadataProvider
+        {
+            if (items == null)
+            {
+                throw new ArgumentNullException("items");
+            }
+            if (keys == null)
+            {
+                throw new ArgumentNullException("keys");
+            }
+
+            return items.Where(p => keys.Contains(N1Ql.Key(p)));
+        }
+
+        #endregion
+
     }
 }
