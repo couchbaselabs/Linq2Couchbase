@@ -83,9 +83,6 @@
     <Compile Include="Metadata\IDocumentMetadataProvider.cs" />
     <Compile Include="Operators\ExplainExpressionNode.cs" />
     <Compile Include="Operators\ExplainResultOperator.cs" />
-    <Compile Include="QueryClientQueryable.cs" />
-    <Compile Include="QueryClientQueryExecuter.cs" />
-    <Compile Include="Extensions\QueryClientExtensions.cs" />
     <Compile Include="BucketQueryable.cs" />
     <Compile Include="BucketQueryExecuter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
