@@ -25,9 +25,9 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         from address in brewery.Address
                         select new {name = brewery.Name, address};
 
-            const string expected = "SELECT `brewery`.`name` as `name`, `address` as `address` " +
-                "FROM `default` as `brewery` "+
-                "INNER UNNEST `brewery`.`address` as `address`";
+            const string expected = "SELECT `Extent1`.`name` as `name`, `Extent2` as `address` " +
+                "FROM `default` as `Extent1` "+
+                "INNER UNNEST `Extent1`.`address` as `Extent2`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -45,10 +45,10 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         orderby address
                         select new { name = brewery.Name, address };
 
-            const string expected = "SELECT `brewery`.`name` as `name`, `address` as `address` " +
-                "FROM `default` as `brewery` " +
-                "INNER UNNEST `brewery`.`address` as `address` " +
-                "ORDER BY `address` ASC";
+            const string expected = "SELECT `Extent1`.`name` as `name`, `Extent2` as `address` " +
+                "FROM `default` as `Extent1` " +
+                "INNER UNNEST `Extent1`.`address` as `Extent2` " +
+                "ORDER BY `Extent2` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -65,10 +65,10 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         from address in brewery.Address.Where(p => p != "123 First Street")
                         select new { name = brewery.Name, address };
 
-            const string expected = "SELECT `brewery`.`name` as `name`, `address` as `address` " +
-                "FROM `default` as `brewery` " +
-                "INNER UNNEST `brewery`.`address` as `address` " +
-                "WHERE (`address` != '123 First Street')";
+            const string expected = "SELECT `Extent1`.`name` as `name`, `Extent2` as `address` " +
+                "FROM `default` as `Extent1` " +
+                "INNER UNNEST `Extent1`.`address` as `Extent2` " +
+                "WHERE (`Extent2` != '123 First Street')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -85,9 +85,9 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         from address in brewery.Address.DefaultIfEmpty()
                         select new { name = brewery.Name, address };
 
-            const string expected = "SELECT `brewery`.`name` as `name`, `address` as `address` " +
-                "FROM `default` as `brewery` " +
-                "OUTER UNNEST `brewery`.`address` as `address`";
+            const string expected = "SELECT `Extent1`.`name` as `name`, `Extent2` as `address` " +
+                "FROM `default` as `Extent1` " +
+                "OUTER UNNEST `Extent1`.`address` as `Extent2`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -105,10 +105,10 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         from level3 in level2.Level3Items
                         select new { level3.Value };
 
-            const string expected = "SELECT `level3`.`Value` as `Value` " +
-                "FROM `default` as `level1` " +
-                "INNER UNNEST `level1`.`Level2Items` as `level2` " +
-                "INNER UNNEST `level2`.`Level3Items` as `level3`";
+            const string expected = "SELECT `Extent3`.`Value` as `Value` " +
+                "FROM `default` as `Extent1` " +
+                "INNER UNNEST `Extent1`.`Level2Items` as `Extent2` " +
+                "INNER UNNEST `Extent2`.`Level3Items` as `Extent3`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -127,9 +127,9 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     level1 => level1.NestLevel2Keys,
                     (level1, level2) => new {level1.Value, level2});
                         
-            const string expected = "SELECT `level1`.`Value` as `Value`, `level2` as `level2` " +
-                "FROM `default` as `level1` " +
-                "INNER NEST `default` as `level2` ON KEYS `level1`.`NestLevel2Keys`";
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent2` as `level2` " +
+                "FROM `default` as `Extent1` " +
+                "INNER NEST `default` as `Extent2` ON KEYS `Extent1`.`NestLevel2Keys`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -149,11 +149,11 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     level1 => level1.NestLevel2Keys,
                     (level1, level2) => new { level1.Value, level2 });
 
-            const string expected = "SELECT `level1`.`Value` as `Value`, `level2` as `level2` " +
-                "FROM `default` as `level1` " +
-                "INNER NEST `default` as `__genName0` ON KEYS `level1`.`NestLevel2Keys` " +
-                "LET `level2` = ARRAY `__genName1` FOR `__genName1` IN `__genName0` WHEN (`__genName1`.`Type` = 'level2') END " +
-                "WHERE (`level1`.`Type` = 'level1') AND (ARRAY_LENGTH(`level2`) > 0)";
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent4` as `level2` " +
+                "FROM `default` as `Extent1` " +
+                "INNER NEST `default` as `Extent2` ON KEYS `Extent1`.`NestLevel2Keys` " +
+                "LET `Extent4` = ARRAY `Extent3` FOR `Extent3` IN `Extent2` WHEN (`Extent3`.`Type` = 'level2') END " +
+                "WHERE (`Extent1`.`Type` = 'level1') AND (ARRAY_LENGTH(`Extent4`) > 0)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -172,9 +172,9 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     level1 => level1.NestLevel2Keys,
                     (level1, level2) => new { level1.Value, level2 });
 
-            const string expected = "SELECT `level1`.`Value` as `Value`, `level2` as `level2` " +
-                "FROM `default` as `level1` " +
-                "LEFT OUTER NEST `default` as `level2` ON KEYS `level1`.`NestLevel2Keys`";
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent2` as `level2` " +
+                "FROM `default` as `Extent1` " +
+                "LEFT OUTER NEST `default` as `Extent2` ON KEYS `Extent1`.`NestLevel2Keys`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -194,11 +194,11 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     level1 => level1.NestLevel2Keys,
                     (level1, level2) => new { level1.Value, level2 });
 
-            const string expected = "SELECT `level1`.`Value` as `Value`, `level2` as `level2` " +
-                "FROM `default` as `level1` " +
-                "LEFT OUTER NEST `default` as `__genName0` ON KEYS `level1`.`NestLevel2Keys` " +
-                "LET `level2` = ARRAY `__genName1` FOR `__genName1` IN `__genName0` WHEN (`__genName1`.`Type` = 'level2') END " +
-                "WHERE (`level1`.`Type` = 'level1')";
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent4` as `level2` " +
+                "FROM `default` as `Extent1` " +
+                "LEFT OUTER NEST `default` as `Extent2` ON KEYS `Extent1`.`NestLevel2Keys` " +
+                "LET `Extent4` = ARRAY `Extent3` FOR `Extent3` IN `Extent2` WHEN (`Extent3`.`Type` = 'level2') END " +
+                "WHERE (`Extent1`.`Type` = 'level1')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

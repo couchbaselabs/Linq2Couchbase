@@ -30,7 +30,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Abs(contact.Age) };
 
             const string expected =
-                "SELECT ABS(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT ABS(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -47,7 +47,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Ceiling((double)contact.Age) };
 
             const string expected =
-                "SELECT CEIL(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT CEIL(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -64,7 +64,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Floor((double)contact.Age) };
 
             const string expected =
-                "SELECT FLOOR(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT FLOOR(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -81,7 +81,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Pow(contact.Age, 2) };
 
             const string expected =
-                "SELECT POWER(`contact`.`age`, 2) as `i` FROM `default` as `contact`";
+                "SELECT POWER(`Extent1`.`age`, 2) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -98,7 +98,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Round((double)contact.Age) };
 
             const string expected =
-                "SELECT ROUND(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT ROUND(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -115,7 +115,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Round((double)contact.Age, 2) };
 
             const string expected =
-                "SELECT ROUND(`contact`.`age`, 2) as `i` FROM `default` as `contact`";
+                "SELECT ROUND(`Extent1`.`age`, 2) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -132,7 +132,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Sign(contact.Age) };
 
             const string expected =
-                "SELECT SIGN(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT SIGN(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -149,7 +149,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Sqrt(contact.Age) };
 
             const string expected =
-                "SELECT SQRT(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT SQRT(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -166,7 +166,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Truncate((double)contact.Age) };
 
             const string expected =
-                "SELECT TRUNC(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT TRUNC(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -187,7 +187,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Exp(contact.Age) };
 
             const string expected =
-                "SELECT EXP(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT EXP(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -204,7 +204,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Log(contact.Age) };
 
             const string expected =
-                "SELECT LN(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT LN(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -221,7 +221,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Log10(contact.Age) };
 
             const string expected =
-                "SELECT LOG(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT LOG(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -242,7 +242,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Acos(contact.Age) };
 
             const string expected =
-                "SELECT ACOS(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT ACOS(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -259,7 +259,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Asin(contact.Age) };
 
             const string expected =
-                "SELECT ASIN(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT ASIN(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -276,7 +276,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Atan(contact.Age) };
 
             const string expected =
-                "SELECT ATAN(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT ATAN(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -293,7 +293,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Atan2(contact.Age, 2) };
 
             const string expected =
-                "SELECT ATAN2(`contact`.`age`, 2) as `i` FROM `default` as `contact`";
+                "SELECT ATAN2(`Extent1`.`age`, 2) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -310,7 +310,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Cos(contact.Age) };
 
             const string expected =
-                "SELECT COS(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT COS(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -327,7 +327,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Sin(contact.Age) };
 
             const string expected =
-                "SELECT SIN(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT SIN(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -344,7 +344,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { i = Math.Tan(contact.Age) };
 
             const string expected =
-                "SELECT TAN(`contact`.`age`) as `i` FROM `default` as `contact`";
+                "SELECT TAN(`Extent1`.`age`) as `i` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

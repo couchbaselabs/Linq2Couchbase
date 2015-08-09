@@ -30,7 +30,13 @@ namespace Couchbase.Linq.Tests
         {
             var queryModel = QueryParserHelper.CreateQueryParser().GetParsedQuery(expression);
 
-            var visitor = new N1QlQueryModelVisitor(new DefaultMethodCallTranslatorProvider(), new JsonNetMemberNameResolver(_contractResolver));
+            var queryGenerationContext = new N1QlQueryGenerationContext()
+            {
+                MemberNameResolver = new JsonNetMemberNameResolver(_contractResolver),
+                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+            };
+
+            var visitor = new N1QlQueryModelVisitor(queryGenerationContext);
             visitor.VisitQueryModel(queryModel);
             return visitor.GetQuery();
         }
