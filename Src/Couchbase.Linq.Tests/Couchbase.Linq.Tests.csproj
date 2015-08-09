@@ -72,6 +72,7 @@
       <HintPath>..\packages\Remotion.Linq.1.15.15.0\lib\portable-net45+wp80+wpa81+win\Remotion.Linq.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Runtime.Serialization" />
@@ -82,10 +83,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BeerSample.cs" />
     <Compile Include="BeerSampleTests.cs" />
     <Compile Include="BucketExtensionTests.cs" />
     <Compile Include="Clauses\NestClauseTests.cs" />
     <Compile Include="Clauses\UseKeysClauseTests.cs" />
+    <Compile Include="DbContextTests.cs" />
     <Compile Include="Documents\Airline.cs" />
     <Compile Include="Documents\BeerFiltered.cs" />
     <Compile Include="Documents\Beer.cs" />
@@ -118,6 +121,7 @@
     <Compile Include="QueryGeneration\SelectTests.cs" />
     <Compile Include="QueryGeneration\TakeAndSkipTests.cs" />
     <Compile Include="QueryGeneration\WhereClauseTests.cs" />
+    <Compile Include="TestConfigurations.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\couchbase-net-client\Src\Couchbase\Couchbase.csproj">

@@ -64,7 +64,9 @@
   <ItemGroup>
     <Compile Include="Clauses\UseKeysExpressionNode.cs" />
     <Compile Include="Clauses\UseKeysClause.cs" />
+    <Compile Include="DbContext.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
+    <Compile Include="IDbContext.cs" />
     <Compile Include="QueryGeneration\Expressions\StringComparisonExpression.cs" />
     <Compile Include="QueryGeneration\IN1QlQueryModelVisitor.cs" />
     <Compile Include="Clauses\NestClause.cs" />
