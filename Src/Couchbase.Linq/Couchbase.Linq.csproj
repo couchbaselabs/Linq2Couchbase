@@ -110,9 +110,11 @@
     <Compile Include="QueryGeneration\MethodCallTranslators\MathMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\SubstringMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\N1QLExpressionTreeVisitor.cs" />
+    <Compile Include="QueryGeneration\N1QlExtentNameProvider.cs" />
     <Compile Include="QueryGeneration\N1QLFromQueryPart.cs" />
     <Compile Include="QueryGeneration\N1QlHelpers.cs" />
     <Compile Include="QueryGeneration\N1QLLetQueryPart.cs" />
+    <Compile Include="QueryGeneration\N1QlQueryGenerationContext.cs" />
     <Compile Include="QueryGeneration\N1QLQueryModelVisitor.cs" />
     <Compile Include="QueryGeneration\N1QLQueryType.cs" />
     <Compile Include="QueryGeneration\NamedParameter.cs" />
