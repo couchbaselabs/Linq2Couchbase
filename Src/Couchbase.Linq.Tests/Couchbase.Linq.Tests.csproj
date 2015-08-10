@@ -118,6 +118,7 @@
     <Compile Include="QueryGeneration\SelectTests.cs" />
     <Compile Include="QueryGeneration\TakeAndSkipTests.cs" />
     <Compile Include="QueryGeneration\WhereClauseTests.cs" />
+    <Compile Include="TestConfigurations.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\couchbase-net-client\Src\Couchbase\Couchbase.csproj">
