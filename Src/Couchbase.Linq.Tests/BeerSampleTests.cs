@@ -27,14 +27,8 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests()
         {
-            var clientConfiguration = new ClientConfiguration
-            {
-                Servers = new List<Uri>
-                {
-                    new Uri("http://localhost:8091")
-                }
-            };
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(
+                TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -52,7 +46,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -70,7 +64,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections_Where()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -89,7 +83,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections_WhereNot()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -108,7 +102,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections_Limit()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -129,7 +123,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections_Meta()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -149,7 +143,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Explain()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -166,7 +160,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_NewObjectsInArray()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -185,7 +179,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void UseKeys_SelectDocuments()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -203,7 +197,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void AnyAllTests_AnyNestedArrayWithFilter()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -222,7 +216,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void AnyAllTests_AnyOnMainDocument_ReturnsTrue()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -239,7 +233,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void AnyAllTests_AnyOnMainDocument_ReturnsFalse()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -256,7 +250,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void AnyAllTests_AllNestedArray()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -274,7 +268,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void AnyAllTests_AllNestedArrayPrefiltered()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -298,7 +292,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void AnyAllTests_AllOnMainDocument_ReturnsFalse()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -312,7 +306,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void AnyAllTests_AllOnMainDocument_ReturnsTrue()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -329,7 +323,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections_TypeFilterAttribute()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -347,7 +341,7 @@ namespace Couchbase.Linq.Tests
         {
             EntityFilterManager.SetFilter(new BreweryFilter());
 
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -362,7 +356,7 @@ namespace Couchbase.Linq.Tests
 
         public void Map2PocoTests_Simple_Projections_MetaWhere()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -381,7 +375,7 @@ namespace Couchbase.Linq.Tests
 
         public void Map2PocoTests_Simple_Projections_MetaId()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -400,7 +394,7 @@ namespace Couchbase.Linq.Tests
 
         public void AnyAllTests_AnyNestedArray()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -418,7 +412,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void JoinTests_InnerJoin_Simple()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -438,7 +432,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void JoinTests_InnerJoin_SortAndFilter()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -460,7 +454,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void JoinTests_InnerJoin_Prefiltered()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -482,7 +476,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void JoinTests_LeftJoin_Simple()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -503,7 +497,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void JoinTests_LeftJoin_SortAndFilter()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -526,7 +520,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void JoinTests_LeftJoin_Prefiltered()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -549,7 +543,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void NestTests_Unnest_Simple()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -568,7 +562,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void NestTests_Unnest_Sort()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
