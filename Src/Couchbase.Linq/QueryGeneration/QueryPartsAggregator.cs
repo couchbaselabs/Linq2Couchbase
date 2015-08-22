@@ -274,7 +274,33 @@ namespace Couchbase.Linq.QueryGeneration
         }
 
         /// <summary>
-        /// Builds a subquery using the ANY expression to test a nested array
+        /// Build a subquery against a nested array property
+        /// </summary>
+        /// <returns></returns>
+        private string BuildArrayQuery()
+        {
+            var sb = new StringBuilder();
+
+            var mainFrom = FromParts.FirstOrDefault();
+            if (mainFrom == null)
+            {
+                throw new InvalidOperationException("N1QL Subquery Missing From Part");
+            }
+
+            sb.AppendFormat("ARRAY {0} FOR {1} IN {2}", SelectPart, mainFrom.ItemName, mainFrom.Source);
+
+            if (WhereParts.Any())
+            {
+                sb.AppendFormat(" WHEN {0}", String.Join(" AND ", WhereParts));
+            }
+
+            sb.Append(" END");
+
+            return sb.ToString();
+        }
+
+        /// <summary>
+        /// Builds a subquery using the ANY or EVERY expression to test a nested array
         /// </summary>
         /// <returns>Query string</returns>
         private string BuildAnyAllQuery()
@@ -341,6 +367,10 @@ namespace Couchbase.Linq.QueryGeneration
                 case N1QlQueryType.SubqueryAny:
                 case N1QlQueryType.SubqueryAll:
                     query = BuildSelectQuery();
+                    break;
+
+                case N1QlQueryType.Array:
+                    query = BuildArrayQuery();
                     break;
 
                 case N1QlQueryType.ArrayAny:

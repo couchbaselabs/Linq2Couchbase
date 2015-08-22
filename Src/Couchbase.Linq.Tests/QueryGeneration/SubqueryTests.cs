@@ -147,5 +147,49 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public void Test_ArraySubqueryWithFilter()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                select new {name = brewery.Name, addresses = brewery.Address.Where(p => p.Length > 3)};
+
+            const string expected =
+                "SELECT `Extent1`.`name` as `name`, " +
+                "ARRAY `Extent2` FOR `Extent2` IN `Extent1`.`address` WHEN (LENGTH(`Extent2`) > 3) END as `addresses` " + 
+                "FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ArraySubquerySelectNewObject()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                select new { name = brewery.Name, addresses = brewery.Address.Select(p => new { address = p }) };
+
+            const string expected =
+                "SELECT `Extent1`.`name` as `name`, " +
+                "ARRAY {\"address\": `Extent2`} FOR `Extent2` IN `Extent1`.`address` END as `addresses` " +
+                "FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
     }
 }

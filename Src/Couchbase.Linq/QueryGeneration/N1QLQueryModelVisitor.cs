@@ -293,6 +293,8 @@ namespace Couchbase.Linq.QueryGeneration
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {
+            EnsureNotArraySubquery();
+
             var orderByParts =
                 orderByClause.Orderings.Select(
                     ordering =>
@@ -308,6 +310,8 @@ namespace Couchbase.Linq.QueryGeneration
 
         public override void VisitAdditionalFromClause(AdditionalFromClause fromClause, QueryModel queryModel, int index)
         {
+            EnsureNotArraySubquery();
+
             var handled = false;
 
             switch (fromClause.FromExpression.NodeType)
@@ -443,6 +447,8 @@ namespace Couchbase.Linq.QueryGeneration
         {
             // Store the group join with the expectation it will be used later by an additional from clause
 
+            EnsureNotArraySubquery();
+
             _unclaimedGroupJoins.Add(new UnclaimedGroupJoin()
             {
                 JoinClause = joinClause,
@@ -455,6 +461,8 @@ namespace Couchbase.Linq.QueryGeneration
         public override void VisitJoinClause(JoinClause joinClause, QueryModel queryModel, int index)
         {
             // basic join clause is an INNER JOIN against another bucket
+
+            EnsureNotArraySubquery();
 
             var fromQueryPart = ParseJoinClause(joinClause);
 
@@ -552,6 +560,8 @@ namespace Couchbase.Linq.QueryGeneration
 
         public void VisitNestClause(NestClause nestClause, QueryModel queryModel, int index)
         {
+            EnsureNotArraySubquery();
+
             _queryPartsAggregator.AddFromPart(ParseNestClause(nestClause));
         }
 
@@ -658,6 +668,14 @@ namespace Couchbase.Linq.QueryGeneration
         private string GetExtentName(IQuerySource querySource)
         {
             return _queryGenerationContext.ExtentNameProvider.GetExtentName(querySource);
+        }
+
+        private void EnsureNotArraySubquery()
+        {
+            if (_queryPartsAggregator.IsArraySubquery)
+            {
+                throw new NotSupportedException("N1QL Array Subqueries Do Not Support Joins, Nests, Sorting, Or Additional From Statements");
+            }
         }
     }
 }
