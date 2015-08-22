@@ -191,5 +191,64 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public void Test_ArraySubqueryWithSortAscending()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                select new { name = brewery.Name, addresses = brewery.Address.OrderBy(p => p) };
+
+            const string expected =
+                "SELECT `Extent1`.`name` as `name`, " +
+                "ARRAY_SORT(`Extent1`.`address`) as `addresses` " +
+                "FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ArraySubqueryWithSortDescending()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                select new { name = brewery.Name, addresses = brewery.Address.OrderByDescending(p => p) };
+
+            const string expected =
+                "SELECT `Extent1`.`name` as `name`, " +
+                "ARRAY_REVERSE(ARRAY_SORT(`Extent1`.`address`)) as `addresses` " +
+                "FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ArraySubqueryWithInvalidSort()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                select new { name = brewery.Name, addresses = brewery.Address.OrderByDescending(p => p.Length) };
+
+            Assert.Throws<NotSupportedException>(() => CreateN1QlQuery(mockBucket.Object, query.Expression));
+        }
     }
 }

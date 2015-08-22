@@ -35,6 +35,10 @@ namespace Couchbase.Linq.QueryGeneration
         /// For subqueries, stores the name of property to extract to a plain array
         /// </summary>
         public string ArrayPropertyExtractionPart { get; set; }
+        /// <summary>
+        /// For Array subqueries, list of functions to wrap the result
+        /// </summary>
+        public List<string> WrappingFunctions { get; set; } 
 
         /// <summary>
         /// Indicates the type of query or subquery being generated
@@ -106,6 +110,16 @@ namespace Couchbase.Linq.QueryGeneration
 
                 sb.AppendFormat("{0} = {1}", LetParts[i].ItemName, LetParts[i].Value);
             }
+        }
+
+        public void AddWrappingFunction(string function)
+        {
+            if (WrappingFunctions == null)
+            {
+                WrappingFunctions = new List<string>();
+            }
+
+            WrappingFunctions.Add(function);
         }
 
         /// <summary>
@@ -287,14 +301,36 @@ namespace Couchbase.Linq.QueryGeneration
                 throw new InvalidOperationException("N1QL Subquery Missing From Part");
             }
 
-            sb.AppendFormat("ARRAY {0} FOR {1} IN {2}", SelectPart, mainFrom.ItemName, mainFrom.Source);
-
-            if (WhereParts.Any())
+            if (WrappingFunctions != null)
             {
-                sb.AppendFormat(" WHEN {0}", String.Join(" AND ", WhereParts));
+                foreach (string function in WrappingFunctions.AsEnumerable().Reverse())
+                {
+                    sb.AppendFormat("{0}(", function);
+                }
             }
 
-            sb.Append(" END");
+            if ((SelectPart != mainFrom.ItemName) || WhereParts.Any())
+            {
+                sb.AppendFormat("ARRAY {0} FOR {1} IN {2}", SelectPart, mainFrom.ItemName, mainFrom.Source);
+
+                if (WhereParts.Any())
+                {
+                    sb.AppendFormat(" WHEN {0}", String.Join(" AND ", WhereParts));
+                }
+
+                sb.Append(" END");
+            }
+            else
+            {
+                // has no projection or predicates, so simplify
+
+                sb.Append(mainFrom.Source);
+            }
+
+            if (WrappingFunctions != null)
+            {
+                sb.Append(')', WrappingFunctions.Count);
+            }
 
             return sb.ToString();
         }

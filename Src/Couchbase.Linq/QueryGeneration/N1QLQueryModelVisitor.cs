@@ -291,20 +291,75 @@ namespace Couchbase.Linq.QueryGeneration
             base.VisitResultOperator(resultOperator, queryModel, index);
         }
 
+        #region Order By Clauses
+
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {
-            EnsureNotArraySubquery();
+            if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
+            {
+                var orderByParts =
+                    orderByClause.Orderings.Select(
+                        ordering =>
+                            string.Concat(GetN1QlExpression(ordering.Expression), " ",
+                                ordering.OrderingDirection.ToString().ToUpper())).ToList();
 
-            var orderByParts =
-                orderByClause.Orderings.Select(
-                    ordering =>
-                        String.Concat(GetN1QlExpression(ordering.Expression), " ",
-                            ordering.OrderingDirection.ToString().ToUpper())).ToList();
+                _queryPartsAggregator.AddOrderByPart(orderByParts);
 
-            _queryPartsAggregator.AddOrderByPart(orderByParts);
+                base.VisitOrderByClause(orderByClause, queryModel, index);
+            }
+            else
+            {
+                // This is an array subquery
 
-            base.VisitOrderByClause(orderByClause, queryModel, index);
+                if (!VerifyArraySubqueryOrderByClause(orderByClause, queryModel, index))
+                {
+                    throw new NotSupportedException("N1Ql Array Subqueries Support One Ordering By The Array Elements Only");
+                }
+
+                _queryPartsAggregator.AddWrappingFunction("ARRAY_SORT");
+                if (orderByClause.Orderings[0].OrderingDirection == OrderingDirection.Desc)
+                {
+                    // There is no function to sort an array descending
+                    // so we just reverse the array after it's sorted ascending
+
+                    _queryPartsAggregator.AddWrappingFunction("ARRAY_REVERSE");
+                }
+            }
         }
+
+        private bool VerifyArraySubqueryOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
+        {
+            // Arrays can only be sorted by a single ordering
+
+            if ((index > 0) || (orderByClause.Orderings.Count() != 1))
+            {
+                return false;
+            }
+
+            // Array must be ordered by the main from expression
+            // Which means the array elements themselves
+
+            var querySourceReferenceExpression = orderByClause.Orderings[0].Expression as QuerySourceReferenceExpression;
+            if (querySourceReferenceExpression == null)
+            {
+                return false;
+            }
+
+            var referencedQuerySource = querySourceReferenceExpression.ReferencedQuerySource as FromClauseBase;
+            if (referencedQuerySource == null)
+            {
+                return false;
+            }
+            
+            if (referencedQuerySource.FromExpression != queryModel.MainFromClause.FromExpression)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        #endregion
 
         #region Additional From Clauses
 
@@ -674,7 +729,7 @@ namespace Couchbase.Linq.QueryGeneration
         {
             if (_queryPartsAggregator.IsArraySubquery)
             {
-                throw new NotSupportedException("N1QL Array Subqueries Do Not Support Joins, Nests, Sorting, Or Additional From Statements");
+                throw new NotSupportedException("N1QL Array Subqueries Do Not Support Joins, Nests, Or Additional From Statements");
             }
         }
     }

@@ -618,5 +618,25 @@ namespace Couchbase.Linq.Tests
                 }
             }
         }
+
+        [Test()]
+        public void SubqueryTests_ArraySubquerySorted()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                                    where brewery.Type == "brewery"
+                                    orderby brewery.Name
+                                    select new { name = brewery.Name, addresses = brewery.Address.OrderByDescending(p => p).ToArray() };
+
+                    foreach (var b in breweries.Take(10))
+                    {
+                        Console.WriteLine("Brewery {0} has address {1}", b.name, string.Join(", ", b.addresses));
+                    }
+                }
+            }
+        }
     }
 }
