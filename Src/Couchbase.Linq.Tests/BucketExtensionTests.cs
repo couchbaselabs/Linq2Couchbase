@@ -17,7 +17,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_AnonymousType_In_Projection()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -40,7 +40,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_POCO()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -56,7 +56,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_Select_Children()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -72,7 +72,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_POCO_Basic()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {

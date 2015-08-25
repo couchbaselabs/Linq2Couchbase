@@ -47,9 +47,9 @@ namespace Couchbase.Linq.Tests
             {
                 _contractResolver = contractResolver;
             }
-
-            var config = new ClientConfiguration();
-            config.Servers.Add(new Uri("http://127.0.0.1:8091"));
+            var config = TestConfigurations.DefaultConfig();
+            //var config = new ClientConfiguration();
+            //config.Servers.Add(new Uri("http://127.0.0.1:8091"));
             config.DeserializationSettings.ContractResolver = _contractResolver;
             config.SerializationSettings.ContractResolver = _contractResolver;
             ClusterHelper.Initialize(config);
