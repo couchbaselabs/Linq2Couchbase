@@ -88,8 +88,8 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = from b in bucket.Queryable<Beer>()
-                                where b.Type == "beer" && !(b.Abv < 4)
-                                select new { name = b.Name, abv = b.Abv };
+                        where b.Type == "beer" && !(b.Abv < 4)
+                        select new {name = b.Name, abv = b.Abv};
 
                     foreach (var b in beers)
                     {
@@ -128,8 +128,8 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = (from b in bucket.Queryable<Beer>()
-                                 where b.Type == "beer"
-                                 select new { name = b.Name, meta = N1Ql.Meta(b) }).
+                        where b.Type == "beer"
+                        select new {name = b.Name, meta = N1Ql.Meta(b)}).
                         Take(10);
 
                     foreach (var b in beers)
@@ -148,8 +148,8 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var explanation = (from b in bucket.Queryable<Beer>()
-                                       where b.Type == "beer"
-                                       select b).
+                        where b.Type == "beer"
+                        select b).
                         Explain();
 
                     Console.WriteLine(explanation);
@@ -165,12 +165,20 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var query = from brewery in bucket.Queryable<Brewery>()
-                                where brewery.Type == "brewery"
-                                select new { name = brewery.Name, list = new[] { new { part = brewery.City }, new { part = brewery.State }, new { part = brewery.Code } } };
+                        where brewery.Type == "brewery"
+                        select
+                            new
+                            {
+                                name = brewery.Name,
+                                list =
+                                    new[]
+                                    {new {part = brewery.City}, new {part = brewery.State}, new {part = brewery.Code}}
+                            };
 
                     foreach (var brewery in query.Take(10))
                     {
-                        Console.WriteLine("Brewery {0} has address parts {1}", brewery.name, String.Join(", ", brewery.list.Select(p => p.part)));
+                        Console.WriteLine("Brewery {0} has address parts {1}", brewery.name,
+                            String.Join(", ", brewery.list.Select(p => p.part)));
                     }
                 }
             }
@@ -183,8 +191,10 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var query = from brewery in bucket.Queryable<Brewery>().UseKeys(new[] { "21st_amendment_brewery_cafe", "357" })
-                                select new { name = brewery.Name };
+                    var query =
+                        from brewery in
+                            bucket.Queryable<Brewery>().UseKeys(new[] {"21st_amendment_brewery_cafe", "357"})
+                        select new {name = brewery.Name};
 
                     foreach (var brewery in query)
                     {
@@ -202,8 +212,8 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var breweries = (from b in bucket.Queryable<Brewery>()
-                                     where b.Type == "brewery" && b.Address.Any(p => p == "563 Second Street")
-                                     select new { name = b.Name, address = b.Address }).
+                        where b.Type == "brewery" && b.Address.Any(p => p == "563 Second Street")
+                        select new {name = b.Name, address = b.Address}).
                         ToList();
 
                     Assert.IsNotEmpty(breweries);
@@ -221,8 +231,8 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var hasBreweries = (from b in bucket.Queryable<Brewery>()
-                                        where b.Type == "brewery"
-                                        select new { name = b.Name, address = b.Address }).
+                        where b.Type == "brewery"
+                        select new {name = b.Name, address = b.Address}).
                         Any();
 
                     Assert.True(hasBreweries);
@@ -238,8 +248,8 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var hasFaketype = (from b in bucket.Queryable<Brewery>()
-                                       where b.Type == "faketype"
-                                       select new { name = b.Name, address = b.Address }).
+                        where b.Type == "faketype"
+                        select new {name = b.Name, address = b.Address}).
                         Any();
 
                     Assert.False(hasFaketype);
@@ -255,8 +265,8 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var breweries = (from b in bucket.Queryable<Brewery>()
-                                     where b.Type == "brewery" && b.Address.All(p => p == "563 Second Street")
-                                     select new { name = b.Name, address = b.Address }).
+                        where b.Type == "brewery" && b.Address.All(p => p == "563 Second Street")
+                        select new {name = b.Name, address = b.Address}).
                         ToList();
 
                     Assert.IsNotEmpty(breweries);
@@ -278,9 +288,11 @@ namespace Couchbase.Linq.Tests
                     // In this example, all breweries which have NO address 563 Second Street will be returned
 
                     var breweries = (from b in bucket.Queryable<Brewery>()
-                                     where b.Type == "brewery" && b.Address.Where(p => p == "563 Second Street").All(p => p == "101 Fake Street")
-                                     orderby b.Name
-                                     select new { name = b.Name, address = b.Address }).
+                        where
+                            b.Type == "brewery" &&
+                            b.Address.Where(p => p == "563 Second Street").All(p => p == "101 Fake Street")
+                        orderby b.Name
+                        select new {name = b.Name, address = b.Address}).
                         ToList();
 
                     Assert.IsNotEmpty(breweries);
@@ -311,8 +323,8 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var allBreweriesHaveAddress = (from b in bucket.Queryable<Brewery>()
-                                                   where b.Type == "brewery"
-                                                   select new { b.Name })
+                        where b.Type == "brewery"
+                        select new {b.Name})
                         .All(p => p.Name != "");
 
                     Assert.True(allBreweriesHaveAddress);
@@ -437,11 +449,11 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = from beer in bucket.Queryable<Beer>()
-                                join brewery in bucket.Queryable<Brewery>()
-                                on beer.BreweryId equals N1Ql.Key(brewery)
-                                where brewery.Geo.Longitude > -80
-                                orderby beer.Name
-                                select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+                        join brewery in bucket.Queryable<Brewery>()
+                            on beer.BreweryId equals N1Ql.Key(brewery)
+                        where brewery.Geo.Longitude > -80
+                        orderby beer.Name
+                        select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
 
                     foreach (var b in beers.Take(10))
                     {
@@ -459,11 +471,11 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = from beer in bucket.Queryable<Beer>().Where(p => p.Type == "beer")
-                                join brewery in bucket.Queryable<Brewery>().Where(p => p.Type == "brewery")
-                                on beer.BreweryId equals N1Ql.Key(brewery)
-                                where brewery.Geo.Longitude > -80
-                                orderby beer.Name
-                                select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+                        join brewery in bucket.Queryable<Brewery>().Where(p => p.Type == "brewery")
+                            on beer.BreweryId equals N1Ql.Key(brewery)
+                        where brewery.Geo.Longitude > -80
+                        orderby beer.Name
+                        select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
 
                     foreach (var b in beers.Take(10))
                     {
@@ -481,10 +493,10 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = from beer in bucket.Queryable<Beer>()
-                                join breweryGroup in bucket.Queryable<Brewery>()
-                                on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
-                                from brewery in bg.DefaultIfEmpty()
-                                select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+                        join breweryGroup in bucket.Queryable<Brewery>()
+                            on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                        from brewery in bg.DefaultIfEmpty()
+                        select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
 
                     foreach (var b in beers.Take(10))
                     {
@@ -502,12 +514,12 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = from beer in bucket.Queryable<Beer>()
-                                join breweryGroup in bucket.Queryable<Brewery>()
-                                on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
-                                from brewery in bg.DefaultIfEmpty()
-                                where beer.Abv > 4
-                                orderby brewery.Name, beer.Name
-                                select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+                        join breweryGroup in bucket.Queryable<Brewery>()
+                            on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                        from brewery in bg.DefaultIfEmpty()
+                        where beer.Abv > 4
+                        orderby brewery.Name, beer.Name
+                        select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
 
                     foreach (var b in beers.Take(10))
                     {
@@ -525,12 +537,12 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var beers = from beer in bucket.Queryable<Beer>().Where(p => p.Type == "beer")
-                                join breweryGroup in bucket.Queryable<Brewery>().Where(p => p.Type == "brewery")
-                                on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
-                                from brewery in bg.DefaultIfEmpty()
-                                where beer.Abv > 4
-                                orderby brewery.Name, beer.Name
-                                select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+                        join breweryGroup in bucket.Queryable<Brewery>().Where(p => p.Type == "brewery")
+                            on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                        from brewery in bg.DefaultIfEmpty()
+                        where beer.Abv > 4
+                        orderby brewery.Name, beer.Name
+                        select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
 
                     foreach (var b in beers.Take(10))
                     {
@@ -548,8 +560,8 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var breweries = from brewery in bucket.Queryable<Brewery>()
-                                    from address in brewery.Address
-                                    select new { name = brewery.Name, address };
+                        from address in brewery.Address
+                        select new {name = brewery.Name, address};
 
                     foreach (var b in breweries.Take(10))
                     {
@@ -567,13 +579,75 @@ namespace Couchbase.Linq.Tests
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
                     var breweries = from brewery in bucket.Queryable<Brewery>()
-                                    from address in brewery.Address
-                                    orderby address
-                                    select new { name = brewery.Name, address };
+                        from address in brewery.Address
+                        orderby address
+                        select new {name = brewery.Name, address};
 
                     foreach (var b in breweries.Take(10))
                     {
                         Console.WriteLine("Brewery {0} has address line {1}", b.name, b.address);
+                    }
+                }
+            }
+        }
+
+        [Test()]
+        public void SubqueryTests_ArraySubqueryWithFilter()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                        where brewery.Type == "brewery"
+                        orderby brewery.Name
+                        select new {name = brewery.Name, addresses = brewery.Address.Where(p => p.Length > 3)};
+
+                    foreach (var b in breweries.Take(10))
+                    {
+                        Console.WriteLine("Brewery {0} has address {1}", b.name, string.Join(", ", b.addresses));
+                    }
+                }
+            }
+        }
+
+        [Test()]
+        public void SubqueryTests_ArraySubquerySelectNewObject()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                        where brewery.Type == "brewery"
+                        orderby brewery.Name
+                        select new {name = brewery.Name, addresses = brewery.Address.Select(p => new {address = p})};
+
+                    foreach (var b in breweries.Take(10))
+                    {
+                        Console.WriteLine("Brewery {0} has address {1}", b.name,
+                            string.Join(", ", b.addresses.Select(p => p.address)));
+                    }
+                }
+            }
+        }
+
+        [Test()]
+        public void SubqueryTests_ArraySubquerySorted()
+        {
+            using (var cluster = new Cluster())
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                        where brewery.Type == "brewery"
+                        orderby brewery.Name
+                        select
+                            new {name = brewery.Name, addresses = brewery.Address.OrderByDescending(p => p).ToArray()};
+
+                    foreach (var b in breweries.Take(10))
+                    {
+                        Console.WriteLine("Brewery {0} has address {1}", b.name, string.Join(", ", b.addresses));
                     }
                 }
             }

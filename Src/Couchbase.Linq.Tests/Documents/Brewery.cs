@@ -41,5 +41,12 @@ namespace Couchbase.Linq.Tests.Documents
 
         [JsonProperty("geo")]
         public Geo Geo { get; set; }
+
+        /// <summary>
+        /// Note: This property doesn't exist in the default beer-sample.  For tests we're acting as if it exists,
+        /// and is a list of keys for all beers made by the brewery.
+        /// </summary>
+        [JsonProperty("beers")]
+        public List<string> Beers { get; set; }
     }
 }

@@ -11,23 +11,43 @@
         Select = 0,
 
         /// <summary>
-        /// Any operation performed on a nested array as a subquery
+        /// Subquery against a bucket
         /// </summary>
-        Any,
+        Subquery,
 
         /// <summary>
-        /// Any operation performed on the main query
+        /// Subquery against an array using the ARRAY keyword
         /// </summary>
-        AnyMainQuery,
+        Array,
+
+        /// <summary>
+        /// Any operation performed on a nested array as a subquery
+        /// </summary>
+        ArrayAny,
+
+        /// <summary>
+        /// Any operation performed on a Couchbase bucket as the main query
+        /// </summary>
+        MainQueryAny,
+
+        /// <summary>
+        /// Any operation performed on a Couchbase bucket as a subquery
+        /// </summary>
+        SubqueryAny,
 
         /// <summary>
         /// All operation performed on a nested array as a subquery
         /// </summary>
-        All,
+        ArrayAll,
 
         /// <summary>
-        /// All operation performed on the main query
+        /// All operation performed on a Couchbase bucket as the main query
         /// </summary>
-        AllMainQuery
+        MainQueryAll,
+
+        /// <summary>
+        /// All operation performed on a Couchbase bucket as a subquery
+        /// </summary>
+        SubqueryAll
     }
 }
