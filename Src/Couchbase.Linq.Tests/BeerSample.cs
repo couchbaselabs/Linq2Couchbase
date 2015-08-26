@@ -2,6 +2,7 @@
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
 using Couchbase.Linq.Filters;
+
 using Couchbase.Linq.Tests.Documents;
 
 namespace Couchbase.Linq.Tests
