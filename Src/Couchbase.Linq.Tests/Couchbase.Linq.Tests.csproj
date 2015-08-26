@@ -54,6 +54,10 @@
     <Reference Include="Common.Logging.Log4Net1213">
       <HintPath>..\packages\Common.Logging.Log4Net1213.3.1.0\lib\net40\Common.Logging.Log4Net1213.dll</HintPath>
     </Reference>
+    <Reference Include="Couchbase.NetClient, Version=2.1.4.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\CouchbaseNetClient.2.1.4\lib\net45\Couchbase.NetClient.dll</HintPath>
+    </Reference>
     <Reference Include="log4net">
       <HintPath>..\packages\log4net.2.0.0\lib\net40-full\log4net.dll</HintPath>
     </Reference>
@@ -125,10 +129,6 @@
     <Compile Include="TestConfigurations.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\couchbase-net-client\Src\Couchbase\Couchbase.csproj">
-      <Project>{244eb9c8-8bcb-421d-a6dc-d54dceb206e8}</Project>
-      <Name>Couchbase</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Couchbase.Linq\Couchbase.Linq.csproj">
       <Project>{c0254649-0162-47a4-b3d3-354e0b3ff7d0}</Project>
       <Name>Couchbase.Linq</Name>
