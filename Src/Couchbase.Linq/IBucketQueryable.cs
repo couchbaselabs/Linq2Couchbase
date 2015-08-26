@@ -3,7 +3,7 @@
     /// <summary>
     /// Used to provide the bucket name to the query generator
     /// </summary>
-    interface IBucketQueryable
+    public interface IBucketQueryable
     {
         string BucketName { get; }
     }

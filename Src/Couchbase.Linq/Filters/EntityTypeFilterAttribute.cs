@@ -38,7 +38,7 @@ namespace Couchbase.Linq.Filters
         private Expression<Func<T, bool>> GetExpression<T>()
         {
             var parameter = Expression.Parameter(typeof (T), "p");
-            
+
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(Expression.PropertyOrField(parameter, "type"), Expression.Constant(Type)), parameter);
         }
 
@@ -52,6 +52,5 @@ namespace Couchbase.Linq.Filters
                 return source.Where(WhereExpression);
             }
         }
-
     }
 }

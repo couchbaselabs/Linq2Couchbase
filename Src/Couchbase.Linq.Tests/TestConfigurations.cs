@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Configuration.Client;
+using Couchbase.Configuration.Client.Providers;
 
 namespace Couchbase.Linq.Tests
 {
@@ -16,7 +18,8 @@ namespace Couchbase.Linq.Tests
 
         private static ClientConfiguration DefaultLocalhostConfig()
         {
-            return new ClientConfiguration();
+            var section = (CouchbaseClientSection)ConfigurationManager.GetSection("couchbaseClients/couchbase");
+            return new ClientConfiguration(section);
         }
     }
 }
