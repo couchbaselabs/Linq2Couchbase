@@ -1,23 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Core;
+﻿using System.Linq;
+using Couchbase.Configuration.Client;
 using Couchbase.Linq.Tests.Documents;
 
 namespace Couchbase.Linq.Tests
 {
     public class BeerSample : DbContext
     {
-        public BeerSample() :
-            this(ClusterHelper.Get(), "beer-sample")
+        public BeerSample(Cluster cluster)
+            : base(cluster, "beer-sample")
         {
-        }
 
-        public BeerSample(ICluster cluster, string bucketName)
-            : base(cluster, bucketName)
-        {
         }
 
         public IQueryable<Beer> Beers
@@ -30,7 +22,6 @@ namespace Couchbase.Linq.Tests
             get { return Query<Brewery>(); }
         }
     }
-
 }
 
 #region [ License information          ]

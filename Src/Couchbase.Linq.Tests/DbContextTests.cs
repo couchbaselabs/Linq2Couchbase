@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Couchbase.Linq.Tests.Documents;
+using Couchbase.N1QL;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.Tests
@@ -8,15 +9,20 @@ namespace Couchbase.Linq.Tests
     [TestFixture]
     public class DbContextTests
     {
+        [TestFixtureSetUp]
+        public void TestFixtureSetUp()
+        {
+            ClusterHelper.Initialize(TestConfigurations.DefaultConfig());
+        }
+
+
         [Test]
         public void Test_Basic_Query()
         {
-            ClusterHelper.Initialize();
-            var cluster = ClusterHelper.Get();
-
-            var db = new DbContext(cluster, "beer-sample");
+            var db = new DbContext(ClusterHelper.Get(), "beer-sample");
             var query = from x in db.Query<Beer>()
-                select x;
+                        where x.Type == "beer"
+                        select x;
 
             foreach (var beer in query)
             {
@@ -27,9 +33,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void BeerSampleContext_Tests()
         {
-            ClusterHelper.Initialize();
-
-            var db = new BeerSample();
+            var db = new BeerSample(ClusterHelper.Get());
             var beers = from b in db.Beers
                 select b;
 
@@ -42,9 +46,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void BeerSample_Tests()
         {
-            ClusterHelper.Initialize();
-
-            var db = new BeerSample();
+            var db = new BeerSample(ClusterHelper.Get());
             var query = from beer in db.Beers
                         join brewery in db.Breweries
                         on beer.BreweryId equals N1Ql.Key(brewery)
@@ -54,7 +56,6 @@ namespace Couchbase.Linq.Tests
             {
                 Console.WriteLine(beer.Name);
             }
-
         }
     }
 

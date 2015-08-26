@@ -2,33 +2,68 @@
 using System.Linq;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.Linq.Filters;
 
 namespace Couchbase.Linq
 {
+    /// <summary>
+    /// Provides a single point of entry to a Couchbase bucket which makes it easier to compose
+    /// and execute queries and to group togather changes which will be submitted back into the bucket.
+    /// </summary>
     public class DbContext : IDbContext
     {
-        private IBucket _bucket;
-        protected BucketConfiguration _bucketConfig;
+        private readonly IBucket _bucket;
+        protected BucketConfiguration BucketConfig;
 
-        public DbContext(ICluster cluster, string bucketName)
+        public DbContext(Cluster cluster, string bucketName)
+            : this(cluster, bucketName, string.Empty)
+        {
+        }
+
+        public DbContext(Cluster cluster, string bucketName, string password)
         {
             Cluster = cluster;
-            Configuration = cluster.Configuration;
-            _bucket = cluster.OpenBucket(bucketName);
-            _bucketConfig = Configuration.BucketConfigs[bucketName];
+            Configuration = Cluster.Configuration;
+            _bucket = Cluster.OpenBucket(bucketName, password);
         }
 
+        /// <summary>
+        /// Gets a reference to the <see cref="Cluster" /> that the <see cref="IDbContext" /> is using.
+        /// </summary>
+        /// <value>
+        /// The cluster.
+        /// </value>
         public ICluster Cluster { get; protected set; }
 
+        /// <summary>
+        /// Gets the configuration for the current <see cref="Cluster" />.
+        /// </summary>
+        /// <value>
+        /// The configuration.
+        /// </value>
         public ClientConfiguration Configuration { get; protected set; }
 
-
+        /// <summary>
+        /// Queries the current <see cref="IBucket" /> for entities of type <see cref="T" />. This is the target of
+        /// the Linq query requires that the associated JSON document have a type property that is the same as <see cref="T" />.
+        /// </summary>
+        /// <typeparam name="T">An entity or POCO representing the object graph of a JSON document.</typeparam>
+        /// <returns></returns>
         public IQueryable<T> Query<T>()
         {
-            return new BucketQueryable<T>(_bucket);
+            return EntityFilterManager.ApplyFilters(new BucketQueryable<T>(_bucket));
         }
 
-        public string BucketName { get { return _bucket.Name; } }
+        /// <summary>
+        /// Gets the name of the <see cref="IBucket"/>.
+        /// </summary>
+        /// <value>
+        /// The name of the bucket.
+        /// </value>
+        public string BucketName
+        {
+            get { return _bucket.Name; }
+        }
     }
 }
 
