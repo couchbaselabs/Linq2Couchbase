@@ -9,17 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq.Tests", "Cou
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq.Views", "Couchbase.Linq.Views\Couchbase.Linq.Views.csproj", "{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase", "..\..\couchbase-net-client\Src\Couchbase\Couchbase.csproj", "{244EB9C8-8BCB-421D-A6DC-D54DCEB206E8}"
-<<<<<<< HEAD
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{A7E95B2F-7D09-4DBA-A877-EBDB026776CC}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\NuGet.exe = .nuget\NuGet.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
-=======
->>>>>>> 4c2d3092979e899c241c9339c06144b8fb2f5a5d
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,10 +34,6 @@ Global
 		{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{244EB9C8-8BCB-421D-A6DC-D54DCEB206E8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{244EB9C8-8BCB-421D-A6DC-D54DCEB206E8}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{244EB9C8-8BCB-421D-A6DC-D54DCEB206E8}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{244EB9C8-8BCB-421D-A6DC-D54DCEB206E8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
