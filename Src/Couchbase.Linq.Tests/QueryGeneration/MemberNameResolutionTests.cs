@@ -25,7 +25,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         e => new {age = e.Age, firstName = e.FirstName, lastName = e.LastName, children = e.Children});
 
             const string expected =
-                "SELECT e.age as age, e.fname as firstName, e.lname as lastName, e.children as children FROM default as e WHERE ((e.age < 40) AND (e.fname LIKE '%a%'))";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `firstName`, `Extent1`.`lname` as `lastName`, `Extent1`.`children` as `children` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` < 40) AND (`Extent1`.`fname` LIKE '%a%'))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -46,7 +46,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new {brewName = e.Name, brewCity = e.City});
 
             const string expected =
-                "SELECT e.name as brewName, e.city as brewCity FROM default as e WHERE (e.country LIKE '%a%')";
+                "SELECT `Extent1`.`name` as `brewName`, `Extent1`.`city` as `brewCity` FROM `default` as `Extent1` WHERE (`Extent1`.`country` LIKE '%a%')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -67,7 +67,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Select(e => new {brewName = e.Name, brewCity = e.City});
 
             const string expected =
-                "SELECT e.name as brewName, e.city as brewCity FROM default as e WHERE (e.country LIKE '%a%')";
+                "SELECT `Extent1`.`name` as `brewName`, `Extent1`.`city` as `brewCity` FROM `default` as `Extent1` WHERE (`Extent1`.`country` LIKE '%a%')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -87,7 +87,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .Where(e => e.Age > 6)
                     .Select(e => new {name = e.FirstName, gender = e.Gender});
 
-            const string expected = "SELECT e.fname as name FROM default as e WHERE (e.age > 6)";
+            const string expected = "SELECT `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (`Extent1`.`age` > 6)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

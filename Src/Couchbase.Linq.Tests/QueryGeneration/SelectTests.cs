@@ -20,7 +20,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Select(e => new {age = e.Age, name = e.FirstName});
 
-            const string expected = "SELECT e.age as age, e.fname as name FROM default as e";
+            const string expected = "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -37,7 +37,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Select(e => e);
 
-            const string expected = "SELECT e.* FROM default as e";
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -55,7 +55,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                     .UseKeys(new[] { "abc", "def" })
                     .Select(e => e);
 
-            const string expected = "SELECT `<generated>_1`.* FROM default as `<generated>_1` USE KEYS ['abc', 'def']";
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` USE KEYS ['abc', 'def']";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

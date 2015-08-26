@@ -25,7 +25,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                 QueryFactory.Queryable<DocumentWithArray>(mockBucket.Object)
                     .Select(e => new { address = e.Array[0] });
 
-            const string expected = "SELECT e.Array[0] as address FROM default as e";
+            const string expected = "SELECT `Extent1`.`Array`[0] as `address` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -44,7 +44,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                 QueryFactory.Queryable<Brewery>(mockBucket.Object)
                     .Select(e => new { address = e.Address[0] });
 
-            const string expected = "SELECT e.address[0] as address FROM default as e";
+            const string expected = "SELECT `Extent1`.`address`[0] as `address` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -63,7 +63,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                 QueryFactory.Queryable<DocumentWithIList>(mockBucket.Object)
                     .Select(e => new { address = e.List[0] });
 
-            const string expected = "SELECT e.List[0] as address FROM default as e";
+            const string expected = "SELECT `Extent1`.`List`[0] as `address` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

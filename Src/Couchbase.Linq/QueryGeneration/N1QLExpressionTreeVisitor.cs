@@ -24,26 +24,28 @@ namespace Couchbase.Linq.QueryGeneration
             get { return _expression; }
         }
 
-        private readonly IMemberNameResolver _nameResolver = new JsonNetMemberNameResolver();
-        private readonly ParameterAggregator _parameterAggregator;
-        private readonly IMethodCallTranslatorProvider _methodCallTranslatorProvider;
+        private readonly N1QlQueryGenerationContext _queryGenerationContext;
 
-        protected N1QlExpressionTreeVisitor(ParameterAggregator parameterAggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        protected N1QlExpressionTreeVisitor(N1QlQueryGenerationContext queryGenerationContext)
         {
-            _parameterAggregator = parameterAggregator;
-            _methodCallTranslatorProvider = methodCallTranslatorProvider;
+            if (queryGenerationContext == null)
+            {
+                throw new ArgumentNullException("queryGenerationContext");
+            }
+
+            _queryGenerationContext = queryGenerationContext;
         }
 
-        public static string GetN1QlExpression(Expression expression, ParameterAggregator aggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        public static string GetN1QlExpression(Expression expression, N1QlQueryGenerationContext queryGenerationContext)
         {
-            var visitor = new N1QlExpressionTreeVisitor(aggregator, methodCallTranslatorProvider);
+            var visitor = new N1QlExpressionTreeVisitor(queryGenerationContext);
             visitor.VisitExpression(expression);
             return visitor.GetN1QlExpression();
         }
 
-        public static string GetN1QlSelectNewExpression(NewExpression expression, ParameterAggregator aggregator, IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        public static string GetN1QlSelectNewExpression(NewExpression expression, N1QlQueryGenerationContext queryGenerationContext)
         {
-            var visitor = new N1QlExpressionTreeVisitor(aggregator, methodCallTranslatorProvider);
+            var visitor = new N1QlExpressionTreeVisitor(queryGenerationContext);
             visitor.VisitSelectNewExpression(expression);
             return visitor.GetN1QlExpression();
         }
@@ -153,7 +155,7 @@ namespace Couchbase.Linq.QueryGeneration
                 //only add 'as' part if the  previous visitexpression has generated something.
                 if (_expression.Length > expressionLength)
                 {
-                    _expression.AppendFormat(" as {0}", N1QlQueryModelVisitor.EscapeIdentifier(members[i].Name));
+                    _expression.AppendFormat(" as {0}", N1QlHelpers.EscapeIdentifier(members[i].Name));
                 }
                 else if (i > 0)
                 {
@@ -540,7 +542,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// <returns></returns>
         protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
         {
-            IMethodCallTranslator methodCallTranslator = _methodCallTranslatorProvider.GetTranslator(expression);
+            IMethodCallTranslator methodCallTranslator = _queryGenerationContext.MethodCallTranslatorProvider.GetTranslator(expression);
 
             if (methodCallTranslator != null)
             {
@@ -552,7 +554,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitConstantExpression(ConstantExpression expression)
         {
-            var namedParameter = _parameterAggregator.AddNamedParameter(expression.Value);
+            var namedParameter = _queryGenerationContext.ParameterAggregator.AddNamedParameter(expression.Value);
 
             if (namedParameter.Value == null)
             {
@@ -614,7 +616,9 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
         {
-            _expression.Append(N1QlQueryModelVisitor.EscapeIdentifier(expression.ReferencedQuerySource.ItemName));
+            _expression.Append(N1QlHelpers.EscapeIdentifier(
+                _queryGenerationContext.ExtentNameProvider.GetExtentName(expression.ReferencedQuerySource)));
+
             return expression;
         }
 
@@ -641,10 +645,10 @@ namespace Couchbase.Linq.QueryGeneration
 
             string memberName;
 
-            if (_nameResolver.TryResolveMemberName(expression.Member, out memberName))
+            if (_queryGenerationContext.MemberNameResolver.TryResolveMemberName(expression.Member, out memberName))
             {
                 VisitExpression(expression.Expression);
-                _expression.AppendFormat(".{0}", N1QlQueryModelVisitor.EscapeIdentifier(memberName));
+                _expression.AppendFormat(".{0}", N1QlHelpers.EscapeIdentifier(memberName));
             }
 
             return expression;
@@ -675,7 +679,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
         {
-            var modelVisitor = new N1QlQueryModelVisitor(_methodCallTranslatorProvider);
+            var modelVisitor = new N1QlQueryModelVisitor(_queryGenerationContext);
 
             modelVisitor.VisitQueryModel(expression.QueryModel);
             _expression.Append(modelVisitor.GetQuery());

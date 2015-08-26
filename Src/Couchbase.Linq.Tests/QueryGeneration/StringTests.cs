@@ -33,8 +33,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname = 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` = 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -52,8 +52,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname = 'M''')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` = 'M''')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -70,7 +70,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName, ch = 'M' };
 
             const string expected =
-                "SELECT contact.fname as FirstName, 'M' as ch FROM default as contact";
+                "SELECT `Extent1`.`fname` as `FirstName`, 'M' as `ch` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -87,7 +87,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName, ch = '\'' };
 
             const string expected =
-                "SELECT contact.fname as FirstName, '''' as ch FROM default as contact";
+                "SELECT `Extent1`.`fname` as `FirstName`, '''' as `ch` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -109,8 +109,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (LENGTH(contact.fname) > 5)";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (LENGTH(`Extent1`.`fname`) > 5)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -128,8 +128,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.LastName };
 
             const string expected =
-                "SELECT contact.lname as LastName FROM default as contact " +
-                "WHERE (UPPER(contact.fname) = 'BOB')";
+                "SELECT `Extent1`.`lname` as `LastName` FROM `default` as `Extent1` " +
+                "WHERE (UPPER(`Extent1`.`fname`) = 'BOB')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -147,8 +147,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.LastName };
 
             const string expected =
-                "SELECT contact.lname as LastName FROM default as contact " +
-                "WHERE (LOWER(contact.fname) = 'bob')";
+                "SELECT `Extent1`.`lname` as `LastName` FROM `default` as `Extent1` " +
+                "WHERE (LOWER(`Extent1`.`fname`) = 'bob')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -165,7 +165,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.Substring(1) };
 
             const string expected =
-                "SELECT SUBSTR(contact.fname, 1) as name FROM default as contact";
+                "SELECT SUBSTR(`Extent1`.`fname`, 1) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -182,7 +182,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.Substring(1, 5) };
 
             const string expected =
-                "SELECT SUBSTR(contact.fname, 1, 5) as name FROM default as contact";
+                "SELECT SUBSTR(`Extent1`.`fname`, 1, 5) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -199,7 +199,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { firstLetter = contact.FirstName[0] };
 
             const string expected =
-                "SELECT SUBSTR(contact.fname, 0, 1) as firstLetter FROM default as contact";
+                "SELECT SUBSTR(`Extent1`.`fname`, 0, 1) as `firstLetter` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -216,7 +216,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.Split(null) };
 
             const string expected =
-                "SELECT SPLIT(contact.fname) as name FROM default as contact";
+                "SELECT SPLIT(`Extent1`.`fname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -233,7 +233,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.Split() };
 
             const string expected =
-                "SELECT SPLIT(contact.fname) as name FROM default as contact";
+                "SELECT SPLIT(`Extent1`.`fname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -250,7 +250,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.Split(' ') };
 
             const string expected =
-                "SELECT SPLIT(contact.fname, ' ') as name FROM default as contact";
+                "SELECT SPLIT(`Extent1`.`fname`, ' ') as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -279,7 +279,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { index = contact.FirstName.IndexOf(' ') };
 
             const string expected =
-                "SELECT POSITION(contact.fname, ' ') as index FROM default as contact";
+                "SELECT POSITION(`Extent1`.`fname`, ' ') as `index` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -296,7 +296,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { index = contact.FirstName.IndexOf(" ") };
 
             const string expected =
-                "SELECT POSITION(contact.fname, ' ') as index FROM default as contact";
+                "SELECT POSITION(`Extent1`.`fname`, ' ') as `index` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -313,7 +313,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.Replace(" ", "") };
 
             const string expected =
-                "SELECT REPLACE(contact.fname, ' ', '') as name FROM default as contact";
+                "SELECT REPLACE(`Extent1`.`fname`, ' ', '') as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -330,7 +330,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.Trim() };
 
             const string expected =
-                "SELECT TRIM(contact.fname) as name FROM default as contact";
+                "SELECT TRIM(`Extent1`.`fname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -347,7 +347,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.Trim(null) };
 
             const string expected =
-                "SELECT TRIM(contact.fname) as name FROM default as contact";
+                "SELECT TRIM(`Extent1`.`fname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -364,7 +364,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.Trim(' ', '\t', '\'') };
 
             const string expected =
-                "SELECT TRIM(contact.fname, ' \t''') as name FROM default as contact";
+                "SELECT TRIM(`Extent1`.`fname`, ' \t''') as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -381,7 +381,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.TrimEnd() };
 
             const string expected =
-                "SELECT RTRIM(contact.fname) as name FROM default as contact";
+                "SELECT RTRIM(`Extent1`.`fname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -398,7 +398,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.TrimEnd(null) };
 
             const string expected =
-                "SELECT RTRIM(contact.fname) as name FROM default as contact";
+                "SELECT RTRIM(`Extent1`.`fname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -415,7 +415,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.TrimEnd(' ', '\t', '\'') };
 
             const string expected =
-                "SELECT RTRIM(contact.fname, ' \t''') as name FROM default as contact";
+                "SELECT RTRIM(`Extent1`.`fname`, ' \t''') as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -432,7 +432,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.TrimStart() };
 
             const string expected =
-                "SELECT LTRIM(contact.fname) as name FROM default as contact";
+                "SELECT LTRIM(`Extent1`.`fname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -449,7 +449,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.TrimStart(null) };
 
             const string expected =
-                "SELECT LTRIM(contact.fname) as name FROM default as contact";
+                "SELECT LTRIM(`Extent1`.`fname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -466,7 +466,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { name = contact.FirstName.TrimStart(' ', '\t', '\'') };
 
             const string expected =
-                "SELECT LTRIM(contact.fname, ' \t''') as name FROM default as contact";
+                "SELECT LTRIM(`Extent1`.`fname`, ' \t''') as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -488,8 +488,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname = 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` = 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -507,8 +507,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname != 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` != 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -526,8 +526,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname < 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` < 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -545,8 +545,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname <= 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` <= 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -564,8 +564,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname > 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` > 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -583,8 +583,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname >= 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` >= 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -602,8 +602,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname = 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` = 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -621,8 +621,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname != 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` != 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -640,8 +640,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname < 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` < 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -659,8 +659,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname <= 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` <= 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -678,8 +678,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname > 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` > 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -697,8 +697,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         select new { contact.FirstName };
 
             const string expected =
-                "SELECT contact.fname as FirstName FROM default as contact " +
-                "WHERE (contact.fname >= 'M')";
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` >= 'M')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -712,8 +712,14 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         [Test]
         public void StringCompare_LessThan1_ReturnsLessThanOrEqual()
         {
-            var visitor = new Mock<N1QlExpressionTreeVisitor>(new ParameterAggregator(),
-                new DefaultMethodCallTranslatorProvider())
+            var queryGenerationContext = new N1QlQueryGenerationContext()
+            {
+                MemberNameResolver =
+                    new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()),
+                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+            };
+
+            var visitor = new Mock<N1QlExpressionTreeVisitor>(queryGenerationContext)
             {
                 CallBase = true
             };
@@ -740,8 +746,14 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         [Test]
         public void StringCompare_EqualTo1_ReturnsGreaterThan()
         {
-            var visitor = new Mock<N1QlExpressionTreeVisitor>(new ParameterAggregator(),
-                new DefaultMethodCallTranslatorProvider())
+            var queryGenerationContext = new N1QlQueryGenerationContext()
+            {
+                MemberNameResolver =
+                    new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()),
+                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+            };
+
+            var visitor = new Mock<N1QlExpressionTreeVisitor>(queryGenerationContext)
             {
                 CallBase = true
             };
@@ -768,8 +780,14 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         [Test]
         public void StringCompare_GreaterThanNeg1_ReturnsGreaterThanOrEqual()
         {
-            var visitor = new Mock<N1QlExpressionTreeVisitor>(new ParameterAggregator(),
-                new DefaultMethodCallTranslatorProvider())
+            var queryGenerationContext = new N1QlQueryGenerationContext()
+            {
+                MemberNameResolver =
+                    new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()),
+                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+            };
+
+            var visitor = new Mock<N1QlExpressionTreeVisitor>(queryGenerationContext)
             {
                 CallBase = true
             };
@@ -796,8 +814,14 @@ namespace Couchbase.Linq.Tests.QueryGeneration
         [Test]
         public void StringCompare_EqualToNeg1_ReturnsLessThan()
         {
-            var visitor = new Mock<N1QlExpressionTreeVisitor>(new ParameterAggregator(),
-                new DefaultMethodCallTranslatorProvider())
+            var queryGenerationContext = new N1QlQueryGenerationContext()
+            {
+                MemberNameResolver =
+                    new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()),
+                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+            };
+
+            var visitor = new Mock<N1QlExpressionTreeVisitor>(queryGenerationContext)
             {
                 CallBase = true
             };

@@ -26,10 +26,10 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         on beer.BreweryId equals N1Ql.Key(brewery)
                         select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
 
-            const string expected = "SELECT beer.name as Name, beer.abv as Abv, brewery.name as BreweryName " +
-                "FROM default as beer "+
-                "INNER JOIN default as brewery " +
-                "ON KEYS beer.brewery_id";
+            const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
+                "FROM `default` as `Extent1` "+
+                "INNER JOIN `default` as `Extent2` " +
+                "ON KEYS `Extent1`.`brewery_id`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -49,12 +49,12 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         orderby beer.Name
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
-            const string expected = "SELECT beer.name as Name, beer.abv as Abv, brewery.name as BreweryName " +
-                "FROM default as beer " +
-                "INNER JOIN default as brewery " +
-                "ON KEYS beer.brewery_id " +
-                "WHERE (brewery.geo.lon > -80) " + 
-                "ORDER BY beer.name ASC";
+            const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
+                "FROM `default` as `Extent1` " +
+                "INNER JOIN `default` as `Extent2` " +
+                "ON KEYS `Extent1`.`brewery_id` " +
+                "WHERE (`Extent2`.`geo`.`lon` > -80) " + 
+                "ORDER BY `Extent1`.`name` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -72,11 +72,11 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         on beer.BreweryId equals N1Ql.Key(brewery)
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
-            const string expected = "SELECT p.name as Name, p.abv as Abv, brewery.name as BreweryName " +
-                "FROM default as p " +
-                "INNER JOIN default as brewery " +
-                "ON KEYS p.brewery_id " + 
-                "WHERE (p.type = 'beer') AND (brewery.type = 'brewery')";
+            const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
+                "FROM `default` as `Extent1` " +
+                "INNER JOIN `default` as `Extent2` " +
+                "ON KEYS `Extent1`.`brewery_id` " + 
+                "WHERE (`Extent1`.`type` = 'beer') AND (`Extent2`.`type` = 'brewery')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -95,10 +95,10 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         from brewery in bg.DefaultIfEmpty()
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
-            const string expected = "SELECT beer.name as Name, beer.abv as Abv, brewery.name as BreweryName " +
-                "FROM default as beer " +
-                "LEFT JOIN default as brewery " +
-                "ON KEYS beer.brewery_id";
+            const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
+                "FROM `default` as `Extent1` " +
+                "LEFT JOIN `default` as `Extent2` " +
+                "ON KEYS `Extent1`.`brewery_id`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -119,12 +119,12 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         orderby brewery.Name, beer.Name
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
-            const string expected = "SELECT beer.name as Name, beer.abv as Abv, brewery.name as BreweryName " +
-                "FROM default as beer " +
-                "LEFT JOIN default as brewery " +
-                "ON KEYS beer.brewery_id " +
-                "WHERE (beer.abv > 4) " +
-                "ORDER BY brewery.name ASC, beer.name ASC";
+            const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
+                "FROM `default` as `Extent1` " +
+                "LEFT JOIN `default` as `Extent2` " +
+                "ON KEYS `Extent1`.`brewery_id` " +
+                "WHERE (`Extent1`.`abv` > 4) " +
+                "ORDER BY `Extent2`.`name` ASC, `Extent1`.`name` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -143,11 +143,11 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                         from brewery in bg.DefaultIfEmpty()
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
-            const string expected = "SELECT p.name as Name, p.abv as Abv, brewery.name as BreweryName " +
-                "FROM default as p " +
-                "LEFT JOIN default as brewery " +
-                "ON KEYS p.brewery_id " +
-                "WHERE (p.type = 'beer') AND (brewery.type = 'brewery')";
+            const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
+                "FROM `default` as `Extent1` " +
+                "LEFT JOIN `default` as `Extent2` " +
+                "ON KEYS `Extent1`.`brewery_id` " +
+                "WHERE (`Extent1`.`type` = 'beer') AND (`Extent2`.`type` = 'brewery')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

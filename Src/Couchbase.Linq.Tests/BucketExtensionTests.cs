@@ -9,10 +9,15 @@ namespace Couchbase.Linq.Tests
     [TestFixture]
     public class BucketExtensionTests : N1QLTestBase
     {
+        protected override bool IsClusterRequired
+        {
+            get { return true; }
+        }
+
         [Test]
         public void Test_AnonymousType_In_Projection()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket())
                 {
@@ -23,7 +28,7 @@ namespace Couchbase.Linq.Tests
                             fname = c.FirstName
                         };
 
-                    const string expected = "SELECT c.age as age, c.fname as fname FROM default as c";
+                    const string expected = "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `fname` FROM `default` as `Extent1`";
 
                     var N1QLQuery = CreateN1QlQuery(bucket, query.Expression);
 
@@ -35,14 +40,14 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_POCO()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket())
                 {
                     var query = from c in bucket.Queryable<Contact>()
                         select c;
 
-                    const string expected = "SELECT c.* FROM default as c";
+                    const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1`";
                     Assert.AreEqual(expected, CreateN1QlQuery(bucket, query.Expression));
                 }
             }
@@ -51,14 +56,14 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_Select_Children()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket())
                 {
                     var query = from c in bucket.Queryable<Contact>()
                         select c.Children;
 
-                    const string expected = "SELECT c.children FROM default as c";
+                    const string expected = "SELECT `Extent1`.`children` FROM `default` as `Extent1`";
                     Assert.AreEqual(expected, CreateN1QlQuery(bucket, query.Expression));
                 }
             }
@@ -67,7 +72,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Test_POCO_Basic()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {

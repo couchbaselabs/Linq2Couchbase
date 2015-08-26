@@ -102,8 +102,8 @@
     <Compile Include="Documents\Schedule.cs" />
     <Compile Include="N1QLTestBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QueryClientExtensionTests.cs" />
     <Compile Include="QueryGeneration\ArrayIndexTests.cs" />
+    <Compile Include="QueryGeneration\N1QlHelpersTests.cs" />
     <Compile Include="QueryGeneration\NestTests.cs" />
     <Compile Include="QueryGeneration\ConditionalExpressionTests.cs" />
     <Compile Include="QueryGeneration\ConstantExpressionTests.cs" />

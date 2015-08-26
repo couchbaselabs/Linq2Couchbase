@@ -23,7 +23,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
                 .Select(c => new {age = c.Age})
                 .Distinct();
 
-            const string expected = "SELECT DISTINCT c.age as age FROM default as c";
+            const string expected = "SELECT DISTINCT `Extent1`.`age` as `age` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
