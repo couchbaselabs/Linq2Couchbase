@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>Linq2Couchbase</id>
+    <version>0.0.0</version>
+    <title>$title$</title>
+    <authors>Couchbase, Inc.</authors>
+    <owners>Couchbase, Inc.</owners>
+    <licenseUrl>http://www.apache.org/licenses/LICENSE-2.0.html</licenseUrl>
+    <projectUrl>https://github.com/couchbaselabs/Linq2Couchbase</projectUrl>
+    <iconUrl>https://raw.githubusercontent.com/couchbaselabs/Linq2Couchbase/master/Packaging/couchbase-logo.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>The official Language Integrated Query (LINQ) provider for querying Couchbase Server with N1QL using the Couchbase .NET 2.1 SDK.</description>
+    <releaseNotes>This is a developer preview of the Linq provider, expect API changes (some breaking) in future releases. Currently supported LINQ
+    features and a mapping of LINQ to N1QL keyword and method support can be found here: https://docs.google.com/document/d/1hPNZ-qTKpVzQsFwg_1uUueltzNL1wA75L5F-hYF92Cw/edit#heading=h.mdxvpxxy40vn
+    </releaseNotes>
+    <copyright>Copyright 2015</copyright>
+    <tags>couchbase linq n1ql nosql database</tags>
+  </metadata>
+</package>
