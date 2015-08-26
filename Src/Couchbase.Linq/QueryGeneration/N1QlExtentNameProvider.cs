@@ -18,10 +18,15 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly Dictionary<IQuerySource, string> _extentDictionary = new Dictionary<IQuerySource, string>();
 
         /// <summary>
+        /// If non-null, prefixes all extent names.  I.e. If set to "`p`." then `Extent1` becomes `p`.`Extent1`
+        /// </summary>
+        public string Prefix { get; set; }
+
+        /// <summary>
         /// Provides the extent name for a given query source
         /// </summary>
         /// <param name="querySource">IQuerySource for which to get the extent name</param>
-        /// <returns>The unescaped extent name for the N1QL query</returns>
+        /// <returns>The escaped extent name for the N1QL query</returns>
         public string GetExtentName(IQuerySource querySource)
         {
             if (querySource == null)
@@ -29,6 +34,23 @@ namespace Couchbase.Linq.QueryGeneration
                 throw new ArgumentNullException("querySource");
             }
 
+            if (Prefix != null)
+            {
+                return Prefix + GetExtentNameUnprefixed(querySource);
+            }
+            else
+            {
+                return GetExtentNameUnprefixed(querySource);
+            }
+        }
+
+        /// <summary>
+        /// Provides the extent name for a given query source, before the Prefix is applied
+        /// </summary>
+        /// <param name="querySource">IQuerySource for which to get the extent name</param>
+        /// <returns>The escaped extent name for the N1QL query</returns>
+        private string GetExtentNameUnprefixed(IQuerySource querySource)
+        {
             string extentName;
             if (!_extentDictionary.TryGetValue(querySource, out extentName))
             {
@@ -66,13 +88,13 @@ namespace Couchbase.Linq.QueryGeneration
                 throw new InvalidOperationException("The given secondaryExtent has already been generated a unique extent name");
             }
 
-            _extentDictionary.Add(secondaryExtent, GetExtentName(primaryExtent));
+            _extentDictionary.Add(secondaryExtent, GetExtentNameUnprefixed(primaryExtent));
         }
 
         /// <summary>
         /// Generates a one-time use extent name, which isn't linked to an IQuerySource
         /// </summary>
-        /// <returns>The unescaped extent name for the N1QL query</returns>
+        /// <returns>The escaped extent name for the N1QL query</returns>
         public string GetUnlinkedExtentName()
         {
             return GetNextExtentName();
@@ -80,7 +102,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         private string GetNextExtentName()
         {
-            return string.Format(ExtentNameFormat, ++_extentIndex);
+            return N1QlHelpers.EscapeIdentifier(string.Format(ExtentNameFormat, ++_extentIndex));
         }
     }
 }

@@ -110,6 +110,7 @@
     <Compile Include="QueryGeneration\IsMissingTests.cs" />
     <Compile Include="QueryGeneration\MathTests.cs" />
     <Compile Include="QueryGeneration\StringTests.cs" />
+    <Compile Include="QueryGeneration\SubqueryTests.cs" />
     <Compile Include="QueryGeneration\UnaryExpressionTests.cs" />
     <Compile Include="QueryGeneration\BinaryExpressionTests.cs" />
     <Compile Include="QueryGeneration\JoinTests.cs" />

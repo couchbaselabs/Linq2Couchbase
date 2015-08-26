@@ -616,8 +616,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
         {
-            _expression.Append(N1QlHelpers.EscapeIdentifier(
-                _queryGenerationContext.ExtentNameProvider.GetExtentName(expression.ReferencedQuerySource)));
+            _expression.Append(_queryGenerationContext.ExtentNameProvider.GetExtentName(expression.ReferencedQuerySource));
 
             return expression;
         }
@@ -679,7 +678,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
         {
-            var modelVisitor = new N1QlQueryModelVisitor(_queryGenerationContext);
+            var modelVisitor = new N1QlQueryModelVisitor(_queryGenerationContext, true);
 
             modelVisitor.VisitQueryModel(expression.QueryModel);
             _expression.Append(modelVisitor.GetQuery());
