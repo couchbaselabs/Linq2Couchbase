@@ -594,7 +594,7 @@ namespace Couchbase.Linq.Tests
         [Test()]
         public void SubqueryTests_ArraySubqueryWithFilter()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -614,7 +614,7 @@ namespace Couchbase.Linq.Tests
         [Test()]
         public void SubqueryTests_ArraySubquerySelectNewObject()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -635,7 +635,7 @@ namespace Couchbase.Linq.Tests
         [Test()]
         public void SubqueryTests_ArraySubquerySorted()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
