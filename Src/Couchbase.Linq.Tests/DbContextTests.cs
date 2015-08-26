@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
+using Couchbase.Core;
 using Couchbase.Linq.Tests.Documents;
+using Couchbase.N1QL;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.Tests
@@ -8,14 +10,19 @@ namespace Couchbase.Linq.Tests
     [TestFixture]
     public class DbContextTests
     {
+        [TestFixtureSetUp]
+        public void TestFixtureSetUp()
+        {
+            ClusterHelper.Initialize(TestConfigurations.DefaultConfig());
+        }
+
+
         [Test]
         public void Test_Basic_Query()
         {
-            ClusterHelper.Initialize();
-            var cluster = ClusterHelper.Get();
-
-            var db = new DbContext(cluster, "beer-sample");
+            var db = new DbContext(ClusterHelper.Get(), "beer-sample");
             var query = from x in db.Query<Beer>()
+                where x.Type == "beer"
                 select x;
 
             foreach (var beer in query)
@@ -24,11 +31,10 @@ namespace Couchbase.Linq.Tests
             }
         }
 
+        /// <exception cref="InitializationException">Thrown if Initialize is not called before accessing this method.</exception>
         [Test]
         public void BeerSampleContext_Tests()
         {
-            ClusterHelper.Initialize();
-
             var db = new BeerSample();
             var beers = from b in db.Beers
                 select b;
@@ -39,11 +45,10 @@ namespace Couchbase.Linq.Tests
             }
         }
 
+        /// <exception cref="InitializationException">Thrown if Initialize is not called before accessing this method.</exception>
         [Test]
         public void BeerSample_Tests()
         {
-            ClusterHelper.Initialize();
-
             var db = new BeerSample();
             var query = from beer in db.Beers
                         join brewery in db.Breweries
@@ -54,7 +59,6 @@ namespace Couchbase.Linq.Tests
             {
                 Console.WriteLine(beer.Name);
             }
-
         }
     }
 
