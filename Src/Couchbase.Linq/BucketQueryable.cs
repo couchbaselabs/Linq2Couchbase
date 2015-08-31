@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Couchbase.Core;
 using Remotion.Linq;
@@ -16,10 +17,15 @@ namespace Couchbase.Linq
             get { return _bucket.Name; }
         }
 
-        public BucketQueryable(IQueryParser queryParser, IQueryExecutor executor)
+        public BucketQueryable(IBucket bucket, IQueryParser queryParser, IQueryExecutor executor)
             : base(queryParser, executor)
         {
-            // Is this constructor necessary?
+            if (bucket == null)
+            {
+                throw new ArgumentNullException("bucket");
+            }
+
+            _bucket = bucket;
         }
 
         public BucketQueryable(IQueryProvider provider)
@@ -37,6 +43,11 @@ namespace Couchbase.Linq
         public BucketQueryable(IBucket bucket)
             : base(QueryParserHelper.CreateQueryParser(), new BucketQueryExecuter(bucket))
         {
+            if (bucket == null)
+            {
+                throw new ArgumentNullException("bucket");
+            }
+
             _bucket = bucket;
         }
     }
