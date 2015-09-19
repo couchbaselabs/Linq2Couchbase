@@ -35,7 +35,7 @@ namespace Couchbase.Linq
         }
 
         public BucketQueryable(IBucket bucket)
-            : base(QueryParserHelper.CreateQueryParser(), new BucketQueryExecuter(bucket))
+            : base(QueryParserHelper.CreateQueryParser(), new BucketQueryExecutor(bucket))
         {
             _bucket = bucket;
         }

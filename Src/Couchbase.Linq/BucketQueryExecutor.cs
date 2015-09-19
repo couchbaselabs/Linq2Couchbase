@@ -11,7 +11,7 @@ using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Couchbase.Linq
 {
-    public class BucketQueryExecuter : IQueryExecutor
+    public class BucketQueryExecutor : IQueryExecutor
     {
         private readonly IBucket _bucket;
 
@@ -20,7 +20,7 @@ namespace Couchbase.Linq
             get { return _bucket.Name; }
         }
 
-        public BucketQueryExecuter(IBucket bucket)
+        public BucketQueryExecutor(IBucket bucket)
         {
             _bucket = bucket;
         }
