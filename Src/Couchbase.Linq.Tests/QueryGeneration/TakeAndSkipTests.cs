@@ -63,5 +63,71 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public void Test_First()
+        {
+            var temp = CreateQueryable<Contact>("default").First();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_FirstOrDefault()
+        {
+            var temp = CreateQueryable<Contact>("default").FirstOrDefault();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_FirstWithSkip()
+        {
+            var temp = CreateQueryable<Contact>("default").Skip(10).First();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1 OFFSET 10";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Single()
+        {
+            var temp = CreateQueryable<Contact>("default").Single();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 2";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_SingleOrDefault()
+        {
+            var temp = CreateQueryable<Contact>("default").SingleOrDefault();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 2";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_SingleWithSkip()
+        {
+            var temp = CreateQueryable<Contact>("default").Skip(10).Single();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 2 OFFSET 10";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
     }
 }

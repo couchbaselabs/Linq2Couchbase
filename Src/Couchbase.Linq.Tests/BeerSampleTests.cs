@@ -773,5 +773,187 @@ namespace Couchbase.Linq.Tests
                 }
             }
         }
+
+        [Test()]
+        public void First_Empty()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                        where beer.Type == "abcdefg"
+                        select new { beer.Name };
+
+                    Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        // ReSharper disable once UnusedVariable
+                        var temp = beers.First();
+                    });
+                }
+            }
+        }
+
+        [Test()]
+        public void First_HasResult()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                where beer.Type == "beer"
+                                select new { beer.Name };
+
+                    Console.WriteLine(beers.First().Name);
+                }
+            }
+        }
+
+        [Test()]
+        public void FirstOrDefault_Empty()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                where beer.Type == "abcdefg"
+                                select new { beer.Name };
+
+                    var aBeer = beers.FirstOrDefault();
+                    Assert.IsNull(aBeer);
+                }
+            }
+        }
+
+        [Test()]
+        public void FirstOrDefault_HasResult()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                where beer.Type == "beer"
+                                select new { beer.Name };
+
+                    var aBeer = beers.FirstOrDefault();
+                    Assert.IsNotNull(aBeer);
+                    Console.WriteLine(aBeer.Name);
+                }
+            }
+        }
+
+        [Test()]
+        public void Single_Empty()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                where beer.Type == "abcdefg"
+                                select new { beer.Name };
+
+                    Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        // ReSharper disable once UnusedVariable
+                        var temp = beers.Single();
+                    });
+                }
+            }
+        }
+
+        [Test()]
+        public void Single_HasResult()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                where beer.Name == "21A IPA"
+                                select new { beer.Name };
+
+                    Console.WriteLine(beers.Single().Name);
+                }
+            }
+        }
+
+        [Test()]
+        public void Single_HasManyResults()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                where beer.Type == "beer"
+                                select new { beer.Name };
+
+                    Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        // ReSharper disable once UnusedVariable
+                        var temp = beers.Single();
+                    });
+                }
+            }
+        }
+
+        [Test()]
+        public void SingleOrDefault_Empty()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                where beer.Type == "abcdefg"
+                                select new { beer.Name };
+
+                    var aBeer = beers.SingleOrDefault();
+                    Assert.IsNull(aBeer);
+                }
+            }
+        }
+
+        [Test()]
+        public void SingleOrDefault_HasResult()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                where beer.Name == "21A IPA"
+                                select new { beer.Name };
+
+                    var aBeer = beers.SingleOrDefault();
+                    Assert.IsNotNull(aBeer);
+                    Console.WriteLine(aBeer.Name);
+                }
+            }
+        }
+
+        [Test()]
+        public void SingleOrDefault_HasManyResults()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from beer in bucket.Queryable<Beer>()
+                                where beer.Type == "beer"
+                                select new { beer.Name };
+
+                    Assert.Throws<InvalidOperationException>(() =>
+                    {
+                        // ReSharper disable once UnusedVariable
+                        var temp = beers.SingleOrDefault();
+                    });
+                }
+            }
+        }
     }
 }

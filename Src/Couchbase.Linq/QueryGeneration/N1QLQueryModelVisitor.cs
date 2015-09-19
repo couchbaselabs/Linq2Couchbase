@@ -325,6 +325,19 @@ namespace Couchbase.Linq.QueryGeneration
                 _queryPartsAggregator.AddOffsetPart(" OFFSET {0}",
                     Convert.ToInt32(GetN1QlExpression(skipResultOperator.Count)));
             }
+            else if (resultOperator is FirstResultOperator)
+            {
+                // We can save query execution time with a short circuit for .First()
+
+                _queryPartsAggregator.AddLimitPart(" LIMIT {0}", 1);
+            }
+            else if (resultOperator is SingleResultOperator)
+            {
+                // We can save query execution time with a short circuit for .Single()
+                // But we have to get at least 2 results so we know if there was more than 1
+
+                _queryPartsAggregator.AddLimitPart(" LIMIT {0}", 2);
+            }
             else if (resultOperator is DistinctResultOperator)
             {
                 var distinctResultOperator = resultOperator as DistinctResultOperator;
