@@ -3,22 +3,46 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Couchbase.Linq.Clauses;
-using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Operators;
+using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
+using Remotion.Linq.Parsing.ExpressionTreeVisitors;
+using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
 
 namespace Couchbase.Linq.QueryGeneration
 {
     public class N1QlQueryModelVisitor : QueryModelVisitorBase, IN1QlQueryModelVisitor
     {
+        #region Constants
+        private enum GroupingStatus
+        {
+            None,
+            InGroupSubquery,
+            AfterGroupSubquery
+        }
+        
+        #endregion
+
         private readonly N1QlQueryGenerationContext _queryGenerationContext;
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
-        private readonly List<UnclaimedGroupJoin> _unclaimedGroupJoins = new List<UnclaimedGroupJoin>(); 
+        private readonly List<UnclaimedGroupJoin> _unclaimedGroupJoins = new List<UnclaimedGroupJoin>();
 
-        private bool _isSubQuery = false;
+        private readonly bool _isSubQuery = false;
+
+        /// <summary>
+        /// When != GroupingStatus.None, indicates this query is actually an outer wrapper for a GroupBy clause.
+        /// The GroupBy subquery is flattened into this query, and behaviors change.  For example, Where clauses
+        /// are interpreted as Having clauses instead.
+        /// </summary>
+        private GroupingStatus _groupingStatus = GroupingStatus.None;
+
+        /// <summary>
+        /// Stores the mappings between expressions outside the group query to the extents inside
+        /// </summary>
+        private ExpressionTransformerRegistry _groupingExpressionTransformerRegistry; 
 
         public N1QlQueryModelVisitor()
         {
@@ -67,11 +91,16 @@ namespace Couchbase.Linq.QueryGeneration
             VisitBodyClauses(queryModel.BodyClauses, queryModel);
             VisitResultOperators(queryModel.ResultOperators, queryModel);
 
-            // Select clause must be visited after the from clause and body clauses
-            // This ensures that any extents are linked before being referenced in the select statement
-            // Select clause must be visited after result operations because Any and All operators
-            // May change how we handle the select clause
-            queryModel.SelectClause.Accept(this, queryModel);
+            if (_groupingStatus != GroupingStatus.InGroupSubquery)
+            {
+                // Select clause should not be visited for grouping subqueries
+                
+                // Select clause must be visited after the from clause and body clauses
+                // This ensures that any extents are linked before being referenced in the select statement
+                // Select clause must be visited after result operations because Any and All operators
+                // May change how we handle the select clause
+                queryModel.SelectClause.Accept(this, queryModel);
+            }
 
             if (_unclaimedGroupJoins.Any())
             {
@@ -111,6 +140,34 @@ namespace Couchbase.Linq.QueryGeneration
 
                 // This is an Array type subquery, since we're querying against a member not a bucket
                 _queryPartsAggregator.QueryType = N1QlQueryType.Array;
+            }
+            else if (fromClause.FromExpression.NodeType == SubQueryExpression.ExpressionType)
+            {
+                var subQuery = (SubQueryExpression) fromClause.FromExpression;
+                if (!subQuery.QueryModel.ResultOperators.Any(p => p is GroupResultOperator))
+                {
+                    throw new NotSupportedException("Subqueries In The Main From Clause Are Only Supported For Grouping");
+                }
+
+                _groupingStatus = GroupingStatus.InGroupSubquery;
+                _queryGenerationContext.GroupingQuerySource = new QuerySourceReferenceExpression(fromClause);
+
+                VisitQueryModel(subQuery.QueryModel);
+
+                _groupingStatus = GroupingStatus.AfterGroupSubquery;
+            }
+            else if (fromClause.FromExpression.NodeType == QuerySourceReferenceExpression.ExpressionType)
+            {
+                if (!fromClause.FromExpression.Equals(_queryGenerationContext.GroupingQuerySource))
+                {
+                    throw new NotSupportedException("From Clauses May Not Reference Any Query Source Other Than The Grouping Subquery");    
+                }
+
+                // We're performing an aggregate against a group
+                _queryPartsAggregator.QueryType = N1QlQueryType.Aggregate;
+
+                // Ensure that we use the same extent name as the grouping
+                _queryGenerationContext.ExtentNameProvider.LinkExtents(_queryGenerationContext.GroupingQuerySource.ReferencedQuerySource, fromClause);
             }
 
             base.VisitMainFromClause(fromClause, queryModel);
@@ -152,20 +209,38 @@ namespace Couchbase.Linq.QueryGeneration
 
             if (selectClause.Selector.GetType() == typeof (QuerySourceReferenceExpression))
             {
-                expression = GetN1QlExpression(selectClause.Selector);
-
-                if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
+                if (_queryPartsAggregator.AggregateFunction == null)
                 {
-                    expression = string.Concat(expression, ".*");
+                    expression = GetN1QlExpression(selectClause.Selector);
+
+                    if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
+                    {
+                        expression = string.Concat(expression, ".*");
+                    }
+                }
+                else
+                {
+                    // for aggregates, just use "*" (i.e. AggregateFunction = "COUNT", expression = "*" results in COUNT(*)"
+
+                    expression = "*";
                 }
             }
             else if (selectClause.Selector.NodeType == ExpressionType.New)
             {
                 if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
                 {
+                    var selector = selectClause.Selector as NewExpression;
+
+                    if (_groupingStatus == GroupingStatus.AfterGroupSubquery)
+                    {
+                        // SELECT clauses must be remapped to refer directly to the extents in the grouping subquery
+                        // rather than refering to the output of the grouping subquery
+
+                        selector = (NewExpression) TransformingExpressionTreeVisitor.Transform(selector, _groupingExpressionTransformerRegistry);
+                    }
+
                     expression =
-                        N1QlExpressionTreeVisitor.GetN1QlSelectNewExpression(selectClause.Selector as NewExpression,
-                            _queryGenerationContext);
+                        N1QlExpressionTreeVisitor.GetN1QlSelectNewExpression(selector, _queryGenerationContext);
                 }
                 else
                 {
@@ -208,14 +283,30 @@ namespace Couchbase.Linq.QueryGeneration
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
-            _queryPartsAggregator.AddWherePart(GetN1QlExpression(whereClause.Predicate));
+            if (_groupingStatus != GroupingStatus.AfterGroupSubquery)
+            {
+                _queryPartsAggregator.AddWherePart(GetN1QlExpression(whereClause.Predicate));
+            }
+            else
+            {
+                _queryPartsAggregator.AddHavingPart(GetN1QlExpression(whereClause.Predicate));
+            }
+
             base.VisitWhereClause(whereClause, queryModel, index);
         }
 
         public void VisitWhereMissingClause(WhereMissingClause whereClause, QueryModel queryModel, int index)
         {
-            var expression = GetN1QlExpression(whereClause.Predicate);
-            _queryPartsAggregator.AddWhereMissingPart(String.Concat(expression, " IS MISSING"));
+            var expression = string.Concat(GetN1QlExpression(whereClause.Predicate), " IS MISSING");
+
+            if (_groupingStatus != GroupingStatus.AfterGroupSubquery)
+            {
+                _queryPartsAggregator.AddWherePart(expression);
+            }
+            else
+            {
+                _queryPartsAggregator.AddHavingPart(expression);
+            }
         }
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
@@ -286,15 +377,96 @@ namespace Couchbase.Linq.QueryGeneration
                     _queryGenerationContext.ExtentNameProvider.Prefix = null;
                 }
             }
-
+            else if (resultOperator is GroupResultOperator)
+            {
+                VisitGroupResultOperator((GroupResultOperator)resultOperator, queryModel);
+            }
+            else if (resultOperator is AverageResultOperator)
+            {
+                _queryPartsAggregator.AggregateFunction = "AVG";
+            }
+            else if ((resultOperator is CountResultOperator) || (resultOperator is LongCountResultOperator))
+            {
+                _queryPartsAggregator.AggregateFunction = "COUNT";
+            }
+            else if (resultOperator is MaxResultOperator)
+            {
+                _queryPartsAggregator.AggregateFunction = "MAX";
+            }
+            else if (resultOperator is MinResultOperator)
+            {
+                _queryPartsAggregator.AggregateFunction = "MIN";
+            }
+            else if (resultOperator is SumResultOperator)
+            {
+                _queryPartsAggregator.AggregateFunction = "SUM";
+            }
 
             base.VisitResultOperator(resultOperator, queryModel, index);
         }
+
+        #region Grouping
+
+        protected virtual void VisitGroupResultOperator(GroupResultOperator groupResultOperator, QueryModel queryModel)
+        {
+            _groupingExpressionTransformerRegistry = new ExpressionTransformerRegistry();
+
+            // Add GROUP BY clause for the grouping key
+            // And add transformations for any references to the key
+
+            if (groupResultOperator.KeySelector.NodeType == ExpressionType.New)
+            {
+                // Grouping by a multipart key, so add each key to the GROUP BY clause
+
+                var newExpression = (NewExpression) groupResultOperator.KeySelector;
+
+                foreach (var argument in newExpression.Arguments)                {
+                    _queryPartsAggregator.AddGroupByPart(GetN1QlExpression(argument));
+                }
+
+                // Use MultiKeyExpressionTransformer to remap access to the Key property
+
+                _groupingExpressionTransformerRegistry.Register(
+                    new MultiKeyExpressionTransfomer(_queryGenerationContext.GroupingQuerySource, newExpression));
+            }
+            else
+            {
+                // Grouping by a single column
+
+                _queryPartsAggregator.AddGroupByPart(GetN1QlExpression(groupResultOperator.KeySelector));
+
+                // Use KeyExpressionTransformer to remap access to the Key property
+
+                _groupingExpressionTransformerRegistry.Register(
+                    new KeyExpressionTransfomer(_queryGenerationContext.GroupingQuerySource, groupResultOperator.KeySelector));
+            }
+
+            // Add transformations for any references to the element selector
+
+            if (groupResultOperator.ElementSelector.NodeType == QuerySourceReferenceExpression.ExpressionType)
+            {
+                _queryGenerationContext.ExtentNameProvider.LinkExtents(
+                    ((QuerySourceReferenceExpression) groupResultOperator.ElementSelector).ReferencedQuerySource,
+                    _queryGenerationContext.GroupingQuerySource.ReferencedQuerySource);
+            }
+            else
+            {
+                throw new NotSupportedException("Unsupported GroupResultOperator ElementSelector Type");
+            }
+        }
+
+        #endregion
 
         #region Order By Clauses
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {
+            if (_groupingStatus == GroupingStatus.InGroupSubquery)
+            {
+                // Just ignore sorting before grouping takes place
+                return;
+            }
+
             if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
             {
                 var orderByParts =
@@ -717,6 +889,14 @@ namespace Couchbase.Linq.QueryGeneration
 
         private string GetN1QlExpression(Expression expression)
         {
+            if (_groupingStatus == GroupingStatus.AfterGroupSubquery)
+            {
+                // SELECT, HAVING, and ORDER BY clauses must be remapped to refer directly to the extents in the grouping subquery
+                // rather than refering to the output of the grouping subquery
+
+                expression = TransformingExpressionTreeVisitor.Transform(expression, _groupingExpressionTransformerRegistry);
+            }
+
             return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _queryGenerationContext);
         }
 

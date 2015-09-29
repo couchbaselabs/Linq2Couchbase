@@ -652,5 +652,126 @@ namespace Couchbase.Linq.Tests
                 }
             }
         }
+
+        [Test()]
+        public void AggregateTests_SimpleAverage()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var avg = bucket.Queryable<Beer>().Where(p => p.Type == "beer" && N1Ql.IsValued(p.Abv)).Average(p => p.Abv);
+
+                    Console.WriteLine("Average ABV of all beers is {0}", avg);
+                }
+            }
+        }
+
+        [Test()]
+        public void AggregateTests_SimpleCount()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var count = bucket.Queryable<Beer>().Count(p => p.Type == "beer");
+
+                    Console.WriteLine("Number of beers is {0}", count);
+                }
+            }
+        }
+
+        [Test()]
+        public void AggregateTests_GroupBy()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries =
+                        from beer in bucket.Queryable<Beer>()
+                        where beer.Type == "beer"
+                        group beer by beer.BreweryId
+                        into g
+                        orderby g.Key
+                        select new { breweryid = g.Key, count = g.Count(), avgAbv = g.Average(p => p.Abv)};
+
+                    foreach (var brewery in breweries)
+                    {
+                        Console.WriteLine("Brewery {0} has {1} beers with {2:f2} average ABV", brewery.breweryid, brewery.count, brewery.avgAbv);
+                    }
+                }
+            }
+        }
+
+        [Test()]
+        public void AggregateTests_Having()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries =
+                        from beer in bucket.Queryable<Beer>()
+                        where beer.Type == "beer"
+                        group beer by beer.BreweryId
+                        into g
+                        where g.Count() >= 5
+                        orderby g.Key
+                        select new { breweryid = g.Key, count = g.Count(), avgAbv = g.Average(p => p.Abv) };
+
+                    foreach (var brewery in breweries)
+                    {
+                        Console.WriteLine("Brewery {0} has {1} beers with {2:f2} average ABV", brewery.breweryid, brewery.count, brewery.avgAbv);
+                    }
+                }
+            }
+        }
+
+        [Test()]
+        public void AggregateTests_OrderByAggregate()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries =
+                        from beer in bucket.Queryable<Beer>()
+                        where beer.Type == "beer"
+                        group beer by beer.BreweryId
+                        into g
+                        orderby g.Count() descending 
+                        select new { breweryid = g.Key, count = g.Count(), avgAbv = g.Average(p => p.Abv) };
+
+                    foreach (var brewery in breweries)
+                    {
+                        Console.WriteLine("Brewery {0} has {1} beers with {2:f2} average ABV", brewery.breweryid, brewery.count, brewery.avgAbv);
+                    }
+                }
+            }
+        }
+
+        [Test()]
+        public void AggregateTests_JoinBeforeGroupByAndMultipartKey()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var breweries =
+                        from beer in bucket.Queryable<Beer>()
+                        join brewery in bucket.Queryable<Brewery>() on beer.BreweryId equals N1Ql.Key(brewery)
+                        where beer.Type == "beer"
+                        group beer by new { breweryid = beer.BreweryId, breweryName = brewery.Name }
+                        into g
+                        select new { g.Key.breweryName, count = g.Count(), avgAbv = g.Average(p => p.Abv) };
+
+                    foreach (var brewery in breweries)
+                    {
+                        Console.WriteLine("Brewery {0} has {1} beers with {2:f2} average ABV", brewery.breweryName, brewery.count, brewery.avgAbv);
+                    }
+                }
+            }
+        }
     }
 }

@@ -48,6 +48,11 @@
         /// <summary>
         /// All operation performed on a Couchbase bucket as a subquery
         /// </summary>
-        SubqueryAll
+        SubqueryAll,
+
+        /// <summary>
+        /// Represents a simple aggregate against a group.  Query returned will be the aggregate function call only.
+        /// </summary>
+        Aggregate
     }
 }
