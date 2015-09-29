@@ -25,6 +25,8 @@ namespace Couchbase.Linq.QueryGeneration
         public List<N1QlLetQueryPart> LetParts { get; set; } 
         public List<string> WhereParts { get; set; }
         public List<string> OrderByParts { get; set; }
+        public List<string> GroupByParts { get; set; } 
+        public List<string> HavingParts { get; set; } 
         public string LimitPart { get; set; }
         public string OffsetPart { get; set; }
         public string DistinctPart { get; set; }
@@ -38,7 +40,11 @@ namespace Couchbase.Linq.QueryGeneration
         /// <summary>
         /// For Array subqueries, list of functions to wrap the result
         /// </summary>
-        public List<string> WrappingFunctions { get; set; } 
+        public List<string> WrappingFunctions { get; set; }
+        /// <summary>
+        /// For aggregates, wraps the SelectPart with this function call
+        /// </summary>
+        public string AggregateFunction { get; set; }
 
         /// <summary>
         /// Indicates the type of query or subquery being generated
@@ -93,6 +99,32 @@ namespace Couchbase.Linq.QueryGeneration
         public void AddDistinctPart(string value)
         {
             DistinctPart = value;
+        }
+
+        /// <summary>
+        /// Adds an expression to the comma-delimited list of the GROUP BY clause
+        /// </summary>
+        public void AddGroupByPart(string value)
+        {
+            if (GroupByParts == null)
+            {
+                GroupByParts = new List<string>();
+            }
+
+            GroupByParts.Add(value);
+        }
+
+        /// <summary>
+        /// Adds an expression to the HAVING clause, ANDed with any other expressions
+        /// </summary>
+        public void AddHavingPart(string value)
+        {
+            if (HavingParts == null)
+            {
+                HavingParts = new List<string>();
+            }
+
+            HavingParts.Add(value);
         }
 
         private void ApplyLetParts(StringBuilder sb)
@@ -157,8 +189,21 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 sb.Append(ExplainPart);
             }
-            sb.AppendFormat("SELECT {0}{1}", string.IsNullOrWhiteSpace(DistinctPart) ? string.Empty : DistinctPart,  SelectPart);
+
+            if (!string.IsNullOrEmpty(AggregateFunction))
+            {
+                sb.AppendFormat("SELECT {0}({1}{2}) as `result`",
+                    AggregateFunction,
+                    !string.IsNullOrWhiteSpace(DistinctPart) ? DistinctPart : string.Empty,
+                    SelectPart);
+            }
+            else
+            {
+                sb.AppendFormat("SELECT {0}{1}",
+                    !string.IsNullOrWhiteSpace(DistinctPart) ? DistinctPart : string.Empty,
+                    SelectPart);
                 //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5
+            }
 
             if (FromParts.Any())
             {
@@ -191,6 +236,14 @@ namespace Couchbase.Linq.QueryGeneration
             if (WhereParts.Any())
             {
                 sb.AppendFormat(" WHERE {0}", String.Join(" AND ", WhereParts));
+            }
+            if ((GroupByParts != null) && GroupByParts.Any())
+            {
+                sb.AppendFormat(" GROUP BY {0}", string.Join(", ", GroupByParts));
+            }
+            if ((HavingParts != null) && HavingParts.Any())
+            {
+                sb.AppendFormat(" HAVING {0}", string.Join(" AND ", HavingParts));
             }
             if (OrderByParts.Any())
             {
@@ -392,6 +445,11 @@ namespace Couchbase.Linq.QueryGeneration
             return sb.ToString();
         }
 
+        private string BuildAggregate()
+        {
+            return string.Format("{0}({1})", AggregateFunction, SelectPart);
+        }
+
         public string BuildN1QlQuery()
         {
             string query;
@@ -417,6 +475,10 @@ namespace Couchbase.Linq.QueryGeneration
                 case N1QlQueryType.MainQueryAny:
                 case N1QlQueryType.MainQueryAll:
                     query = BuildMainAnyAllQuery();
+                    break;
+
+                case N1QlQueryType.Aggregate:
+                    query = BuildAggregate();
                     break;
 
                 default:

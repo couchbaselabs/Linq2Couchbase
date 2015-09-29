@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Common.Logging;
 using Couchbase.Core;
+using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.N1QL;
 using Newtonsoft.Json;
@@ -56,7 +57,7 @@ namespace Couchbase.Linq
             if (queryModel.ResultOperators.Any(p => p is AnyResultOperator))
             {
                 // Need to extract the value from an object
-                var result = ExecuteSingle<AnyAllResult>(queryModel, true);
+                var result = ExecuteSingle<SimpleResult<bool>>(queryModel, true);
 
                 // For an Any operation, no result row means that the Any should return false
                 return (T)(object)(result != null ? result.result : false);
@@ -64,13 +65,19 @@ namespace Couchbase.Linq
             else if (queryModel.ResultOperators.Any(p => p is AllResultOperator))
             {
                 // Need to extract the value from an object
-                var result = ExecuteSingle<AnyAllResult>(queryModel, true);
+                var result = ExecuteSingle<SimpleResult<bool>>(queryModel, true);
 
                 // For an All operation, no result row means that the All should return true
                 return (T)(object)(result != null ? result.result : true);
             }
-
-            return ExecuteCollection<T>(queryModel).Single();
+            else if (queryModel.ResultOperators.Any(p => p is ExplainResultOperator))
+            {
+                return ExecuteSingle<T>(queryModel, false);
+            }
+            else
+            {
+                return ExecuteSingle<SimpleResult<T>>(queryModel, false).result;
+            }
         }
 
         public T ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty)
@@ -92,9 +99,9 @@ namespace Couchbase.Linq
         /// <summary>
         /// Used to extract the result row from an Any or All operation
         /// </summary>
-        private class AnyAllResult
+        private class SimpleResult<T>
         {
-            public bool result { get; set; }
+            public T result { get; set; }
         }
 
     }
