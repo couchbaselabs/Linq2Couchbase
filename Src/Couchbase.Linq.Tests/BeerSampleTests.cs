@@ -656,7 +656,7 @@ namespace Couchbase.Linq.Tests
         [Test()]
         public void AggregateTests_SimpleAverage()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -670,7 +670,7 @@ namespace Couchbase.Linq.Tests
         [Test()]
         public void AggregateTests_SimpleCount()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -684,7 +684,7 @@ namespace Couchbase.Linq.Tests
         [Test()]
         public void AggregateTests_GroupBy()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -707,7 +707,7 @@ namespace Couchbase.Linq.Tests
         [Test()]
         public void AggregateTests_Having()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -731,7 +731,7 @@ namespace Couchbase.Linq.Tests
         [Test()]
         public void AggregateTests_OrderByAggregate()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
@@ -754,7 +754,7 @@ namespace Couchbase.Linq.Tests
         [Test()]
         public void AggregateTests_JoinBeforeGroupByAndMultipartKey()
         {
-            using (var cluster = new Cluster())
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
