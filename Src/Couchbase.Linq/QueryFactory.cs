@@ -3,7 +3,7 @@ using Couchbase.Core;
 
 namespace Couchbase.Linq
 {
-    public class QueryFactory
+    internal class QueryFactory
     {
         public static IQueryable<T> Queryable<T>(IBucket bucket)
         {

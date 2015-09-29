@@ -13,7 +13,7 @@ using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Couchbase.Linq
 {
-    public class BucketQueryExecutor : IQueryExecutor
+    internal class BucketQueryExecutor : IQueryExecutor
     {
         private static readonly ILog Log = LogManager.GetLogger<BucketQueryExecutor>();
         private readonly IBucket _bucket;

@@ -7,7 +7,7 @@ using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 namespace Couchbase.Linq
 {
-    public class QueryParserHelper
+    internal class QueryParserHelper
     {
         public static IQueryParser CreateQueryParser()
         {
