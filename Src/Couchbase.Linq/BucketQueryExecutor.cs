@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Common.Logging;
 using Couchbase.Core;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.N1QL;
@@ -11,8 +12,9 @@ using Remotion.Linq.Clauses.ResultOperators;
 
 namespace Couchbase.Linq
 {
-    public class BucketQueryExecuter : IQueryExecutor
+    public class BucketQueryExecutor : IQueryExecutor
     {
+        private static readonly ILog Log = LogManager.GetLogger<BucketQueryExecutor>();
         private readonly IBucket _bucket;
 
         public string BucketName
@@ -20,7 +22,7 @@ namespace Couchbase.Linq
             get { return _bucket.Name; }
         }
 
-        public BucketQueryExecuter(IBucket bucket)
+        public BucketQueryExecutor(IBucket bucket)
         {
             _bucket = bucket;
         }
@@ -31,7 +33,7 @@ namespace Couchbase.Linq
             var result = _bucket.Query<T>(new QueryRequest(commandData));
             if (!result.Success)
             {
-                if (result.Exception != null && result.Errors == null || result.Errors.Count == 0)
+                if (result.Exception != null && (result.Errors == null || result.Errors.Count == 0))
                 {
                     throw result.Exception;
                 }
@@ -80,7 +82,11 @@ namespace Couchbase.Linq
 
         public string ExecuteCollection(QueryModel queryModel)
         {
-            return N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel);
+            var query = N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel);
+
+            Log.Debug(m => m("Generated query: {0}", query));
+
+            return query;
         }
 
         /// <summary>

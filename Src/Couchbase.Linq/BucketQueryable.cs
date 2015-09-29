@@ -6,7 +6,7 @@ using Remotion.Linq.Parsing.Structure;
 
 namespace Couchbase.Linq
 {
-    public class BucketQueryable<T> : QueryableBase<T>, IBucketQueryable
+    public class BucketQueryable<T> : QueryableBase<T>, IBucketQueryable<T>
     {
 
         private readonly IBucket _bucket;
@@ -35,7 +35,7 @@ namespace Couchbase.Linq
         }
 
         public BucketQueryable(IBucket bucket)
-            : base(QueryParserHelper.CreateQueryParser(), new BucketQueryExecuter(bucket))
+            : base(QueryParserHelper.CreateQueryParser(), new BucketQueryExecutor(bucket))
         {
             _bucket = bucket;
         }
