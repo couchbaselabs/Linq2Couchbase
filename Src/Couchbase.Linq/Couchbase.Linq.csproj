@@ -72,6 +72,8 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="IBucketContext.cs" />
     <Compile Include="QueryGeneration\Expressions\StringComparisonExpression.cs" />
+    <Compile Include="QueryGeneration\ExpressionTransformers\DateTimeComparisonExpressionTransformer.cs" />
+    <Compile Include="QueryGeneration\ExpressionTransformers\DateTimeTransformationRegistry.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\MultiKeyExpressionTransfomer.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\KeyExpressionTransfomer.cs" />
     <Compile Include="QueryGeneration\IN1QlQueryModelVisitor.cs" />
@@ -118,6 +120,7 @@
     <Compile Include="QueryGeneration\MethodCallTranslators\MathMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\SubqueryMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\SubstringMethodCallTranslator.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\UnixMillisecondsMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\N1QLExpressionTreeVisitor.cs" />
     <Compile Include="QueryGeneration\N1QlExtentNameProvider.cs" />
     <Compile Include="QueryGeneration\N1QLFromQueryPart.cs" />
@@ -134,6 +137,7 @@
     <Compile Include="N1QL.cs" />
     <Compile Include="QueryGeneration\UnclaimedGroupJoin.cs" />
     <Compile Include="QueryParserHelper.cs" />
+    <Compile Include="UnixMillisecondsDateTime.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Couchbase.Linq.nuspec">

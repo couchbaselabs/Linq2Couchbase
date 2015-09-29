@@ -96,7 +96,8 @@ namespace Couchbase.Linq
             //"pluggable" resolver and translator via configuration.
             var memberNameResolver = new JsonNetMemberNameResolver(_configuration.SerializationSettings.ContractResolver);
             var methodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider();
-            var query = N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel, memberNameResolver,methodCallTranslatorProvider);
+            var query = N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel, memberNameResolver,
+                methodCallTranslatorProvider, _configuration.Serializer.Invoke());
 
             Log.Debug(m => m("Generated query: {0}", query));
 

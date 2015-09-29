@@ -716,7 +716,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             {
                 MemberNameResolver =
                     new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()),
-                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
+                Serializer = new Core.Serialization.DefaultSerializer()
             };
 
             var visitor = new Mock<N1QlExpressionTreeVisitor>(queryGenerationContext)
@@ -750,7 +751,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             {
                 MemberNameResolver =
                     new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()),
-                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
+                Serializer = new Core.Serialization.DefaultSerializer()
             };
 
             var visitor = new Mock<N1QlExpressionTreeVisitor>(queryGenerationContext)
@@ -784,7 +786,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             {
                 MemberNameResolver =
                     new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()),
-                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
+                Serializer = new Core.Serialization.DefaultSerializer()
             };
 
             var visitor = new Mock<N1QlExpressionTreeVisitor>(queryGenerationContext)
@@ -818,7 +821,8 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             {
                 MemberNameResolver =
                     new JsonNetMemberNameResolver(new Newtonsoft.Json.Serialization.DefaultContractResolver()),
-                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
+                Serializer = new Core.Serialization.DefaultSerializer()
             };
 
             var visitor = new Mock<N1QlExpressionTreeVisitor>(queryGenerationContext)

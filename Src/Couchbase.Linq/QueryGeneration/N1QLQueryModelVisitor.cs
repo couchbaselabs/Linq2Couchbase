@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Couchbase.Core.Serialization;
 using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
@@ -44,14 +45,16 @@ namespace Couchbase.Linq.QueryGeneration
         /// </summary>
         private ExpressionTransformerRegistry _groupingExpressionTransformerRegistry;
 
-        public N1QlQueryModelVisitor(IMemberNameResolver memberNameResolver, IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        public N1QlQueryModelVisitor(IMemberNameResolver memberNameResolver, IMethodCallTranslatorProvider methodCallTranslatorProvider,
+            ITypeSerializer serializer)
         {
             _queryGenerationContext = new N1QlQueryGenerationContext()
             {
                 //MemberNameResolver = new JsonNetMemberNameResolver(ClusterHelper.Get().Configuration.SerializationSettings.ContractResolver),
                 //MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
                 MemberNameResolver = memberNameResolver,
-                MethodCallTranslatorProvider = methodCallTranslatorProvider
+                MethodCallTranslatorProvider = methodCallTranslatorProvider,
+                Serializer = serializer
             };
         }
 
@@ -76,9 +79,10 @@ namespace Couchbase.Linq.QueryGeneration
             }
         }
 
-        public static string GenerateN1QlQuery(QueryModel queryModel, IMemberNameResolver memberNameResolver, IMethodCallTranslatorProvider methodCallTranslatorProvider)
+        public static string GenerateN1QlQuery(QueryModel queryModel, IMemberNameResolver memberNameResolver,
+            IMethodCallTranslatorProvider methodCallTranslatorProvider, ITypeSerializer serializer)
         {
-            var visitor = new N1QlQueryModelVisitor(memberNameResolver, methodCallTranslatorProvider);
+            var visitor = new N1QlQueryModelVisitor(memberNameResolver, methodCallTranslatorProvider, serializer);
             visitor.VisitQueryModel(queryModel);
             return visitor.GetQuery();
         }
