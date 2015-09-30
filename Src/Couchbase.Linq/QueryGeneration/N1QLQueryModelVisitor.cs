@@ -23,7 +23,7 @@ namespace Couchbase.Linq.QueryGeneration
             InGroupSubquery,
             AfterGroupSubquery
         }
-        
+
         #endregion
 
         private readonly N1QlQueryGenerationContext _queryGenerationContext;
@@ -42,21 +42,24 @@ namespace Couchbase.Linq.QueryGeneration
         /// <summary>
         /// Stores the mappings between expressions outside the group query to the extents inside
         /// </summary>
-        private ExpressionTransformerRegistry _groupingExpressionTransformerRegistry; 
+        private ExpressionTransformerRegistry _groupingExpressionTransformerRegistry;
 
-        public N1QlQueryModelVisitor()
+        public N1QlQueryModelVisitor(IMemberNameResolver memberNameResolver, IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
             _queryGenerationContext = new N1QlQueryGenerationContext()
             {
-                MemberNameResolver = new JsonNetMemberNameResolver(ClusterHelper.Get().Configuration.SerializationSettings.ContractResolver),
-                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+                //MemberNameResolver = new JsonNetMemberNameResolver(ClusterHelper.Get().Configuration.SerializationSettings.ContractResolver),
+                //MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+                MemberNameResolver = memberNameResolver,
+                MethodCallTranslatorProvider = methodCallTranslatorProvider
             };
         }
 
         public N1QlQueryModelVisitor(N1QlQueryGenerationContext queryGenerationContext) : this(queryGenerationContext, false)
-        {            
+        {
         }
 
+        /// <exception cref="ArgumentNullException"><paramref name="queryGenerationContext"/> is <see langword="null" />.</exception>
         public N1QlQueryModelVisitor(N1QlQueryGenerationContext queryGenerationContext, bool isSubQuery)
         {
             if (queryGenerationContext == null)
@@ -73,9 +76,9 @@ namespace Couchbase.Linq.QueryGeneration
             }
         }
 
-        public static string GenerateN1QlQuery(QueryModel queryModel)
+        public static string GenerateN1QlQuery(QueryModel queryModel, IMemberNameResolver memberNameResolver, IMethodCallTranslatorProvider methodCallTranslatorProvider)
         {
-            var visitor = new N1QlQueryModelVisitor();
+            var visitor = new N1QlQueryModelVisitor(memberNameResolver, methodCallTranslatorProvider);
             visitor.VisitQueryModel(queryModel);
             return visitor.GetQuery();
         }
@@ -85,6 +88,7 @@ namespace Couchbase.Linq.QueryGeneration
             return _queryPartsAggregator.BuildN1QlQuery();
         }
 
+        /// <exception cref="NotSupportedException">N1QL Requires All Group Joins Have A Matching From Clause Subquery</exception>
         public override void VisitQueryModel(QueryModel queryModel)
         {
             queryModel.MainFromClause.Accept(this, queryModel);
@@ -94,7 +98,6 @@ namespace Couchbase.Linq.QueryGeneration
             if (_groupingStatus != GroupingStatus.InGroupSubquery)
             {
                 // Select clause should not be visited for grouping subqueries
-                
                 // Select clause must be visited after the from clause and body clauses
                 // This ensures that any extents are linked before being referenced in the select statement
                 // Select clause must be visited after result operations because Any and All operators
@@ -108,6 +111,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
         }
 
+        /// <exception cref="NotSupportedException">N1Ql Bucket Subqueries Require A UseKeys Call</exception>
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
         {
             var bucketConstantExpression = fromClause.FromExpression as ConstantExpression;
@@ -160,7 +164,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 if (!fromClause.FromExpression.Equals(_queryGenerationContext.GroupingQuerySource))
                 {
-                    throw new NotSupportedException("From Clauses May Not Reference Any Query Source Other Than The Grouping Subquery");    
+                    throw new NotSupportedException("From Clauses May Not Reference Any Query Source Other Than The Grouping Subquery");
                 }
 
                 // We're performing an aggregate against a group

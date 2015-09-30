@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Common.Logging;
+using Couchbase.Configuration.Client;
 using Couchbase.Core;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration;
@@ -17,15 +18,17 @@ namespace Couchbase.Linq
     {
         private static readonly ILog Log = LogManager.GetLogger<BucketQueryExecutor>();
         private readonly IBucket _bucket;
+        private readonly ClientConfiguration _configuration;
 
         public string BucketName
         {
             get { return _bucket.Name; }
         }
 
-        public BucketQueryExecutor(IBucket bucket)
+        public BucketQueryExecutor(IBucket bucket, ClientConfiguration configuration)
         {
             _bucket = bucket;
+            _configuration = configuration;
         }
 
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
@@ -89,7 +92,11 @@ namespace Couchbase.Linq
 
         public string ExecuteCollection(QueryModel queryModel)
         {
-            var query = N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel);
+            //TODO: this should be refactored so that does not rely on NewtonSoft and so that it's using a
+            //"pluggable" resolver and translator via configuration.
+            var memberNameResolver = new JsonNetMemberNameResolver(_configuration.SerializationSettings.ContractResolver);
+            var methodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider();
+            var query = N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel, memberNameResolver,methodCallTranslatorProvider);
 
             Log.Debug(m => m("Generated query: {0}", query));
 
