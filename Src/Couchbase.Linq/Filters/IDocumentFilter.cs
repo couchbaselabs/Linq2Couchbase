@@ -5,7 +5,7 @@ namespace Couchbase.Linq.Filters
     /// <summary>
     /// Filter designed to be applied to a LINQ query automatically
     /// </summary>
-    public interface IEntityFilter<T>
+    public interface IDocumentFilter<T>
     {
         /// <summary>
         /// Priority of this filter compared to other filters against the same type.  Lower priorities execute first.

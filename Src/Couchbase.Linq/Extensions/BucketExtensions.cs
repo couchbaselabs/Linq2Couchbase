@@ -8,7 +8,7 @@ namespace Couchbase.Linq.Extensions
     {
         public static IQueryable<T> Queryable<T>(this IBucket bucket)
         {
-            return EntityFilterManager.ApplyFilters(new BucketQueryable<T>(bucket));
+            return DocumentFilterManager.ApplyFilters(new BucketQueryable<T>(bucket));
         }
     }
 }

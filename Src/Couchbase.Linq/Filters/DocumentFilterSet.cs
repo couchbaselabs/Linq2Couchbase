@@ -5,32 +5,32 @@ using System.Linq;
 namespace Couchbase.Linq.Filters
 {
     /// <summary>
-    /// Stores a list of <see cref="IEntityFilter&lt;T&gt;">IEntityFilter</see>s, sorted by Priority
+    /// Stores a list of <see cref="IDocumentFilter{T}">IDocumentFilter</see>s, sorted by Priority
     /// </summary>
     /// <remarks>
-    /// Sort order of IEntityFilters with the same Priority is undefined
+    /// Sort order of IDocumentFilters with the same Priority is undefined
     /// </remarks>
-    public class EntityFilterSet<T> : SortedSet<IEntityFilter<T>>
+    public class DocumentFilterSet<T> : SortedSet<IDocumentFilter<T>>
     {
 
         /// <summary>
-        /// Create an empty EntityFilterSet
+        /// Create an empty DocumentFilterSet
         /// </summary>
-        public EntityFilterSet() : base(new PriorityComparer())
+        public DocumentFilterSet() : base(new PriorityComparer())
         {
         }
 
         /// <summary>
-        /// Create an EntityFilterSet, filled with a set of filters
+        /// Create an DocumentFilterSet, filled with a set of filters
         /// </summary>
-        public EntityFilterSet(IEnumerable<IEntityFilter<T>> filters) : base(filters, new PriorityComparer())
+        public DocumentFilterSet(IEnumerable<IDocumentFilter<T>> filters) : base(filters, new PriorityComparer())
         {   
         }
 
         /// <summary>
-        /// Create an EntityFilterSet, filled with a set of filters
+        /// Create an DocumentFilterSet, filled with a set of filters
         /// </summary>
-        public EntityFilterSet(params IEntityFilter<T>[] filters)
+        public DocumentFilterSet(params IDocumentFilter<T>[] filters)
             : base(filters, new PriorityComparer())
         {
         }
@@ -53,10 +53,10 @@ namespace Couchbase.Linq.Filters
             return source;
         }
 
-        private class PriorityComparer : IComparer<IEntityFilter<T>>
+        private class PriorityComparer : IComparer<IDocumentFilter<T>>
         {
 
-            public int Compare(IEntityFilter<T> x, IEntityFilter<T> y)
+            public int Compare(IDocumentFilter<T> x, IDocumentFilter<T> y)
             {
                 return x.Priority.CompareTo(y.Priority);
             }
