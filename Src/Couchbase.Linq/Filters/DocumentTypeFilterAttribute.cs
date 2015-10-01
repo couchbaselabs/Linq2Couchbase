@@ -5,20 +5,20 @@ using System.Linq.Expressions;
 namespace Couchbase.Linq.Filters
 {
     /// <summary>
-    /// When using Linq2Couchbase, automatically filter returned entities by the "type" attribute
+    /// When using Linq2Couchbase, automatically filter returned documents by the "type" attribute
     /// </summary>
-    public class EntityTypeFilterAttribute : EntityFilterAttribute
+    public class DocumentTypeFilterAttribute : DocumentFilterAttribute
     {
         /// <summary>
-        /// Filter the results to include entities with this string as the "type" attribute
+        /// Filter the results to include documents with this string as the "type" attribute
         /// </summary>
         public string Type { get; set; }
 
         /// <summary>
-        /// Creates a new EntityTypeFilterAttribute
+        /// Creates a new DocumentTypeFilterAttribute
         /// </summary>
-        /// <param name="type">Filter the results to include entities with this string as the "type" attribute</param>
-        public EntityTypeFilterAttribute(string type)
+        /// <param name="type">Filter the results to include documents with this string as the "type" attribute</param>
+        public DocumentTypeFilterAttribute(string type)
         {
             Type = type;
         }
@@ -26,7 +26,7 @@ namespace Couchbase.Linq.Filters
         /// <summary>
         /// Apply the filter to a LINQ query
         /// </summary>
-        public override IEntityFilter<T> GetFilter<T>()
+        public override IDocumentFilter<T> GetFilter<T>()
         {
             return new WhereFilter<T>
             {
@@ -42,7 +42,7 @@ namespace Couchbase.Linq.Filters
             return Expression.Lambda<Func<T, bool>>(Expression.Equal(Expression.PropertyOrField(parameter, "type"), Expression.Constant(Type)), parameter);
         }
 
-        private class WhereFilter<T> : IEntityFilter<T>
+        private class WhereFilter<T> : IDocumentFilter<T>
         {
             public Expression<Func<T, bool>> WhereExpression { get; set; }
             public int Priority { get; set; }

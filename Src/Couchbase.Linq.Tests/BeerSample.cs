@@ -20,15 +20,15 @@ namespace Couchbase.Linq.Tests
         public BeerSample(Cluster cluster) : base(cluster, "beer-sample")
         {
             //Two ways of applying a filter are included in this example.
-            //This is by implementing IEntityFilter and then adding explicitly.
-            //adding it to the EntityFilterManager
-            EntityFilterManager.SetFilter(new BreweryFilter());
+            //This is by implementing IDocumentFilter and then adding explicitly.
+            //adding it to the DocumentFilterManager
+            DocumentFilterManager.SetFilter(new BreweryFilter());
         }
 
         public IQueryable<BeerFiltered> Beers
         {
             //This is an example of adding a filter declaratively by using an atribute
-            //to your entity. If you check out BeerFiltered clas you will see the EntityTypeFilter
+            //to your document. If you check out BeerFiltered clas you will see the DocumentTypeFilter
             //has been added to the class definition.
             get { return Query<BeerFiltered>(); }
         }

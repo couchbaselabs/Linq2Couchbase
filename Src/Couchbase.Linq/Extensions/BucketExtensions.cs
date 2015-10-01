@@ -10,7 +10,7 @@ namespace Couchbase.Linq.Extensions
         public static IQueryable<T> Queryable<T>(this IBucket bucket)
         {
             //TODO refactor so ClientConfiguration is injectable
-            return EntityFilterManager.ApplyFilters(new BucketQueryable<T>(bucket, new ClientConfiguration()));
+            return DocumentFilterManager.ApplyFilters(new BucketQueryable<T>(bucket,new ClientConfiguration()));
         }
     }
 }

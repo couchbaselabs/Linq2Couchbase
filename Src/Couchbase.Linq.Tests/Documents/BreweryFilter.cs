@@ -4,7 +4,7 @@ using Couchbase.Linq.Filters;
 
 namespace Couchbase.Linq.Tests.Documents
 {
-    class BreweryFilter : IEntityFilter<Brewery>
+    class BreweryFilter : IDocumentFilter<Brewery>
     {
         public int Priority { get; set; }
 

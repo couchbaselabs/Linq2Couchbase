@@ -51,7 +51,7 @@ namespace Couchbase.Linq
         /// <returns></returns>
         public IQueryable<T> Query<T>()
         {
-            return EntityFilterManager.ApplyFilters(new BucketQueryable<T>(_bucket, Configuration));
+            return DocumentFilterManager.ApplyFilters(new BucketQueryable<T>(_bucket, Configuration));
         }
 
         /// <summary>

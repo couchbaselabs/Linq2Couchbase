@@ -21,7 +21,7 @@ namespace Couchbase.Linq.Tests
         [SetUp]
         public void TestSetUp()
         {
-            Filters.EntityFilterManager.Clear();
+            Filters.DocumentFilterManager.Clear();
         }
 
         [Test]
@@ -351,7 +351,7 @@ namespace Couchbase.Linq.Tests
         [Test]
         public void Map2PocoTests_Simple_Projections_TypeFilterRuntime()
         {
-            EntityFilterManager.SetFilter(new BreweryFilter());
+            DocumentFilterManager.SetFilter(new BreweryFilter());
 
             using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
             {
