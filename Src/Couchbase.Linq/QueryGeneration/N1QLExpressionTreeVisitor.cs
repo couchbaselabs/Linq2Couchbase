@@ -82,7 +82,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 case ExpressionType.Extension:
                     return VisitExtensionExpression(expression);
-                    
+
                 default:
                     return base.VisitExpression(expression);
             }
@@ -672,7 +672,6 @@ namespace Couchbase.Linq.QueryGeneration
                     VisitExpression(expression.Operand);
                     break;
             }
-            
             return expression;
         }
 
