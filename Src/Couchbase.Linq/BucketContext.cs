@@ -10,17 +10,17 @@ namespace Couchbase.Linq
     /// Provides a single point of entry to a Couchbase bucket which makes it easier to compose
     /// and execute queries and to group togather changes which will be submitted back into the bucket.
     /// </summary>
-    public class DbContext : IDbContext
+    public class BucketContext : IBucketContext
     {
         private readonly IBucket _bucket;
         protected BucketConfiguration BucketConfig;
 
-        public DbContext(Cluster cluster, string bucketName)
+        public BucketContext(Cluster cluster, string bucketName)
             : this(cluster, bucketName, string.Empty)
         {
         }
 
-        public DbContext(Cluster cluster, string bucketName, string password)
+        public BucketContext(Cluster cluster, string bucketName, string password)
         {
             Cluster = cluster;
             Configuration = Cluster.Configuration;
@@ -28,7 +28,7 @@ namespace Couchbase.Linq
         }
 
         /// <summary>
-        /// Gets a reference to the <see cref="Cluster" /> that the <see cref="IDbContext" /> is using.
+        /// Gets a reference to the <see cref="Cluster" /> that the <see cref="IBucketContext" /> is using.
         /// </summary>
         /// <value>
         /// The cluster.

@@ -8,10 +8,10 @@ namespace Couchbase.Linq
     /// Provides a single point of entry to a Couchbase bucket which makes it easier to compose
     /// and execute queries and to group togather changes which will be submitted back into the bucket.
     /// </summary>
-    public interface IDbContext : IBucketQueryable
+    public interface IBucketContext : IBucketQueryable
     {
         /// <summary>
-        /// Gets a reference to the <see cref="Cluster"/> that the <see cref="IDbContext"/> is using.
+        /// Gets a reference to the <see cref="Cluster"/> that the <see cref="IBucketContext"/> is using.
         /// </summary>
         /// <value>
         /// The cluster.

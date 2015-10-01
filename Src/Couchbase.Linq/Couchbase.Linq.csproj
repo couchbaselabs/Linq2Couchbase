@@ -68,9 +68,9 @@
   <ItemGroup>
     <Compile Include="Clauses\UseKeysExpressionNode.cs" />
     <Compile Include="Clauses\UseKeysClause.cs" />
-    <Compile Include="DbContext.cs" />
+    <Compile Include="BucketContext.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
-    <Compile Include="IDbContext.cs" />
+    <Compile Include="IBucketContext.cs" />
     <Compile Include="QueryGeneration\Expressions\StringComparisonExpression.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\MultiKeyExpressionTransfomer.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\KeyExpressionTransfomer.cs" />

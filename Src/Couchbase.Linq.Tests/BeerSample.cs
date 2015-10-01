@@ -10,7 +10,7 @@ namespace Couchbase.Linq.Tests
     /// <summary>
     /// A concrete DbContext for the beer-sample example bucket.
     /// </summary>
-    public class BeerSample : DbContext
+    public class BeerSample : BucketContext
     {
         /// <exception cref="InitializationException">Thrown if ClusterHelper.Initialize is not called before accessing this method.</exception>
         public BeerSample() : this(ClusterHelper.Get())
