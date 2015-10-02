@@ -103,15 +103,5 @@ namespace Couchbase.Linq
         {
             return left._dateTime <= right._dateTime;
         }
-
-        //public static implicit operator UnixMillisecondsDateTime(DateTime dateTime)
-        //{
-        //    return FromDateTime(dateTime);
-        //}
-
-        //public static implicit operator DateTime(UnixMillisecondsDateTime unixMillisecondsDateTime)
-        //{
-        //    return ToDateTime(unixMillisecondsDateTime);
-        //}
     }
 }

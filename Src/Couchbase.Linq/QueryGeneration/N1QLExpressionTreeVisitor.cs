@@ -701,31 +701,5 @@ namespace Couchbase.Linq.QueryGeneration
 
             return expression;
         }
-
-        //public Expression VisitAndEnsureDateTimeFormat(Expression expression, N1QlDateTimeFormat expectedDateTimeFormat)
-        //{
-        //    if ((expression.Type != typeof (DateTime)) && (expression.Type != typeof (DateTime?)))
-        //    {
-        //        return VisitExpression(expression);
-        //    }
-
-        //    var result = expression;
-
-        //    if ((expectedDateTimeFormat == N1QlDateTimeFormat.IsoString) &&
-        //        (DateTimeFormat == N1QlDateTimeFormat.UnixMilliseconds))
-        //    {
-        //        _expression.Append("STR_TO_MILLIS(");
-        //        result = VisitExpression(expression);
-        //        _expression.Append(')');
-
-        //        DateTimeFormat = N1QlDateTimeFormat.IsoString;
-        //    }
-        //    else if ((expectedDateTimeFormat == N1QlDateTimeFormat.UnixMilliseconds))
-        //    {
-                
-        //    }
-
-        //    return result;
-        //}
     }
 }
