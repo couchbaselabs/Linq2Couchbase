@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Couchbase.Core;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Tests.Documents;
@@ -204,6 +205,27 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (`Extent1`.`fname` IS NOT NULL)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Where_With_DateComparison()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .Where(e => e.Updated >= new DateTime(2010, 1, 1, 0, 0, 0, DateTimeKind.Utc))
+                    .Select(e => new { e.Name });
+
+
+            const string expected =
+                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` " +
+                "WHERE (STR_TO_MILLIS(`Extent1`.`updated`) >= STR_TO_MILLIS(\"2010-01-01T00:00:00Z\"))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

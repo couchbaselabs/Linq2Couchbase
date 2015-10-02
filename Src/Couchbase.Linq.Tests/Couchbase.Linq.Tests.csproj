@@ -109,6 +109,7 @@
     <Compile Include="QueryGeneration\ArrayIndexTests.cs" />
     <Compile Include="QueryGeneration\AggregateTests.cs" />
     <Compile Include="BucketQueryExecutorEmulator.cs" />
+    <Compile Include="QueryGeneration\NullHandlingTests.cs" />
     <Compile Include="QueryGeneration\N1QlHelpersTests.cs" />
     <Compile Include="QueryGeneration\NestTests.cs" />
     <Compile Include="QueryGeneration\ConditionalExpressionTests.cs" />

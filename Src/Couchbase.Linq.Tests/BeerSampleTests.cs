@@ -100,6 +100,25 @@ namespace Couchbase.Linq.Tests
         }
 
         [Test]
+        public void Map2PocoTests_Simple_Projections_WhereDateTime()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var beers = from b in bucket.Queryable<Beer>()
+                                where (b.Type == "beer") && (b.Updated >= new DateTime(2010, 1, 1))
+                                select new { name = b.Name, updated = b.Updated };
+
+                    foreach (var b in beers.Take(20))
+                    {
+                        Console.WriteLine("{0} last updated {1:g}", b.name, b.updated);
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void Map2PocoTests_Simple_Projections_Limit()
         {
             using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))

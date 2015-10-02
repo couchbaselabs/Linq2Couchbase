@@ -157,5 +157,23 @@ namespace Couchbase.Linq.Tests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public void Test_DateTime()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                .Select(e => new { e.FirstName, Value = new DateTime(2000, 12, 1, 1, 23, 45, 67, DateTimeKind.Utc) });
+
+            const string expected =
+                "SELECT `Extent1`.`fname` as `FirstName`, \"2000-12-01T01:23:45.067Z\" as `Value` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
     }
 }

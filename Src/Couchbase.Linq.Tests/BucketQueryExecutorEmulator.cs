@@ -61,7 +61,8 @@ namespace Couchbase.Linq.Tests
             var queryGenerationContext = new N1QlQueryGenerationContext()
             {
                 MemberNameResolver = new JsonNetMemberNameResolver(Test.ContractResolver),
-                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
+                MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
+                Serializer = new Core.Serialization.DefaultSerializer()
             };
 
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);

@@ -8,6 +8,8 @@ using Couchbase.Linq.QueryGeneration.Expressions;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ExpressionTreeVisitors;
 using Remotion.Linq.Parsing;
+using Remotion.Linq.Parsing.ExpressionTreeVisitors;
+using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -38,6 +40,10 @@ namespace Couchbase.Linq.QueryGeneration
 
         public static string GetN1QlExpression(Expression expression, N1QlQueryGenerationContext queryGenerationContext)
         {
+            // Ensure that any date/time expressions are properly converted to Unix milliseconds as needed
+            expression = TransformingExpressionTreeVisitor.Transform(expression,
+                ExpressionTransformers.DateTimeTransformationRegistry.Default);
+
             var visitor = new N1QlExpressionTreeVisitor(queryGenerationContext);
             visitor.VisitExpression(expression);
             return visitor.GetN1QlExpression();
@@ -45,6 +51,10 @@ namespace Couchbase.Linq.QueryGeneration
 
         public static string GetN1QlSelectNewExpression(NewExpression expression, N1QlQueryGenerationContext queryGenerationContext)
         {
+            // Ensure that any date/time expressions are properly converted to Unix milliseconds as needed
+            expression = (NewExpression)TransformingExpressionTreeVisitor.Transform(expression,
+                ExpressionTransformers.DateTimeTransformationRegistry.Default);
+
             var visitor = new N1QlExpressionTreeVisitor(queryGenerationContext);
             visitor.VisitSelectNewExpression(expression);
             return visitor.GetN1QlExpression();
@@ -82,7 +92,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 case ExpressionType.Extension:
                     return VisitExtensionExpression(expression);
-
+                    
                 default:
                     return base.VisitExpression(expression);
             }
@@ -565,12 +575,19 @@ namespace Couchbase.Linq.QueryGeneration
                 _expression.AppendFormat("'{0}'", namedParameter.Value.ToString().Replace("'", "''"));
             }
             else if (namedParameter.Value is char)
-            {
+            {                
                 _expression.AppendFormat("'{0}'", (char)namedParameter.Value != '\'' ? namedParameter.Value : "''");
             }
             else if (namedParameter.Value is bool)
             {
                 _expression.Append((bool) namedParameter.Value ? "TRUE" : "FALSE");
+            }
+            else if (namedParameter.Value is DateTime)
+            {
+                // For consistency, use the JSON serializer configured for the cluster
+                var serializedDateTime = _queryGenerationContext.Serializer.Serialize(namedParameter.Value);
+
+                _expression.Append(Encoding.UTF8.GetString(serializedDateTime));
             }
             else if (namedParameter.Value is Array)
             {
