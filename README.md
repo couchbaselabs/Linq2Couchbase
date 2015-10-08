@@ -25,6 +25,25 @@ Once you have a Couchbase Server 4.0 instance or cluster setup, open Visual Stud
 
 NuGet will install the package and all dependencies. Once you have the resolved the dependencies, you will initialize a ClusterHelper object which will manage the bucket resources needed by the Linq provider.
 
+##Developer Guide##
+
+- The BucketContext
+- Mapping JSON documents to POCOs with DocumentFilters
+- Controlling output with Select
+- Filtering with Where
+- ASC, DESC, LIMIT and SKIP
+- Math functions
+- Date functions
+- Array filtering and projections
+- Grouping and Aggregation
+- USE KEYs
+- NEST and UNNEST
+- JOINs
+- Any and All
+- IS NULL and IS NOT NULL
+- The META Keyword
+
+
 ##Project management##
 
 The jira project is [here](http://issues.couchbase.com/browse/LINQ) - you can file bugs, propose features or get an idea for the roadmap there. List of supported and proposed N1QL features can be found [here](https://docs.google.com/document/d/1hPNZ-qTKpVzQsFwg_1uUueltzNL1wA75L5F-hYF92Cw/edit?usp=sharing). 
