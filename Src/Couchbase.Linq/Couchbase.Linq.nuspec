@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>Linq2Couchbase</id>
-    <version>1.0.0</version>
+    <version>1.0.0-beta</version>
     <title>The official Linq provider for Couchbase N1QL</title>
     <authors>Couchbase, Inc.</authors>
     <owners>Couchbase, Inc.</owners>
@@ -10,8 +10,14 @@
     <projectUrl>https://github.com/couchbaselabs/Linq2Couchbase</projectUrl>
     <iconUrl>https://raw.githubusercontent.com/couchbaselabs/Linq2Couchbase/master/Packaging/couchbase-logo.png</iconUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>The official Language Integrated Query (LINQ) provider for querying Couchbase Server with N1QL using the Couchbase .NET 2.1 SDK.</description>
+    <description>The official Language Integrated Query (LINQ) provider for querying Couchbase Server with N1QL using the Couchbase .NET 2.2 SDK.</description>
     <copyright>Copyright 2015</copyright>
     <tags>couchbase linq n1ql nosql database</tags>
+   <dependencies>
+      <group>
+        <dependency id="Newtonsoft.Json" version="7.0.1"/>
+        <dependency id="Common.Logging" version="3.3.0"/>
+      </group>
+    </dependencies>
   </metadata>
 </package>

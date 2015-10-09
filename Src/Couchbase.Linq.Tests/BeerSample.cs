@@ -12,12 +12,12 @@ namespace Couchbase.Linq.Tests
     /// </summary>
     public class BeerSample : BucketContext
     {
-        /// <exception cref="InitializationException">Thrown if ClusterHelper.Initialize is not called before accessing this method.</exception>
-        public BeerSample() : this(ClusterHelper.Get())
+        public BeerSample()
+            : this(ClusterHelper.GetBucket("beer-sample"))
         {
         }
 
-        public BeerSample(Cluster cluster) : base(cluster, "beer-sample")
+        public BeerSample(IBucket bucket) : base(bucket)
         {
             //Two ways of applying a filter are included in this example.
             //This is by implementing IDocumentFilter and then adding explicitly.

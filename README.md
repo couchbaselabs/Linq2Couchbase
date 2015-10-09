@@ -27,7 +27,7 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 
 ##Developer Guide##
 
-- The BucketContext
+- [The BucketContext](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/bucket-context.md)
 - Mapping JSON documents to POCOs with DocumentFilters
 - Controlling output with Select
 - Filtering with Where
