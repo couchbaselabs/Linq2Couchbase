@@ -15,25 +15,10 @@ namespace Couchbase.Linq
         private readonly IBucket _bucket;
         protected BucketConfiguration BucketConfig;
 
-        public BucketContext(Cluster cluster, string bucketName)
-            : this(cluster, bucketName, string.Empty)
+        public BucketContext(IBucket bucket)
         {
+            _bucket = bucket;
         }
-
-        public BucketContext(Cluster cluster, string bucketName, string password)
-        {
-            Cluster = cluster;
-            Configuration = Cluster.Configuration;
-            _bucket = Cluster.OpenBucket(bucketName, password);
-        }
-
-        /// <summary>
-        /// Gets a reference to the <see cref="Cluster" /> that the <see cref="IBucketContext" /> is using.
-        /// </summary>
-        /// <value>
-        /// The cluster.
-        /// </value>
-        public ICluster Cluster { get; protected set; }
 
         /// <summary>
         /// Gets the configuration for the current <see cref="Cluster" />.
@@ -41,7 +26,10 @@ namespace Couchbase.Linq
         /// <value>
         /// The configuration.
         /// </value>
-        public ClientConfiguration Configuration { get; protected set; }
+        public ClientConfiguration Configuration
+        {
+            get { return _bucket.Configuration.PoolConfiguration.ClientConfiguration; }
+        }
 
         /// <summary>
         /// Queries the current <see cref="IBucket" /> for entities of type <see cref="T" />. This is the target of

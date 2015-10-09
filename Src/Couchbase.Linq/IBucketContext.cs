@@ -11,14 +11,6 @@ namespace Couchbase.Linq
     public interface IBucketContext : IBucketQueryable
     {
         /// <summary>
-        /// Gets a reference to the <see cref="Cluster"/> that the <see cref="IBucketContext"/> is using.
-        /// </summary>
-        /// <value>
-        /// The cluster.
-        /// </value>
-        ICluster Cluster { get; }
-
-        /// <summary>
         /// Gets the configuration for the current <see cref="Cluster"/>.
         /// </summary>
         /// <value>
