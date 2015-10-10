@@ -32,7 +32,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from b in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from b in context.Query<Beer>()
                         select b;
 
                     foreach (var beer in beers)
@@ -50,7 +52,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from b in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from b in context.Query<Beer>()
                         select new {name = b.Name, abv = b.Abv};
 
                     foreach (var b in beers)
@@ -68,7 +72,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from b in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from b in context.Query<Beer>()
                         where b.Type == "beer"
                         select new {name = b.Name, abv = b.Abv};
 
@@ -87,7 +93,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from b in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from b in context.Query<Beer>()
                         where b.Type == "beer" && !(b.Abv < 4)
                         select new {name = b.Name, abv = b.Abv};
 
@@ -106,7 +114,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from b in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from b in context.Query<Beer>()
                                 where (b.Type == "beer") && (b.Updated >= new DateTime(2010, 1, 1))
                                 select new { name = b.Name, updated = b.Updated };
 
@@ -125,7 +135,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = (from b in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = (from b in context.Query<Beer>()
                         where b.Type == "beer"
                         select new {name = b.Name, abv = b.Abv}).
                         Take(10).
@@ -146,7 +158,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = (from b in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = (from b in context.Query<Beer>()
                         where b.Type == "beer"
                         select new {name = b.Name, meta = N1Ql.Meta(b)}).
                         Take(10);
@@ -166,7 +180,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var explanation = (from b in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var explanation = (from b in context.Query<Beer>()
                         where b.Type == "beer"
                         select b).
                         Explain();
@@ -183,7 +199,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var query = from brewery in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var query = from brewery in context.Query<Brewery>()
                         where brewery.Type == "brewery"
                         select
                             new
@@ -210,9 +228,11 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
+                    var context = new BucketContext(bucket);
+
                     var query =
                         from brewery in
-                            bucket.Queryable<Brewery>().UseKeys(new[] {"21st_amendment_brewery_cafe", "357"})
+                            context.Query<Brewery>().UseKeys(new[] {"21st_amendment_brewery_cafe", "357"})
                         select new {name = brewery.Name};
 
                     foreach (var brewery in query)
@@ -230,7 +250,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var breweries = (from b in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var breweries = (from b in context.Query<Brewery>()
                         where b.Type == "brewery" && b.Address.Any(p => p == "563 Second Street")
                         select new {name = b.Name, address = b.Address}).
                         ToList();
@@ -249,7 +271,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var hasBreweries = (from b in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var hasBreweries = (from b in context.Query<Brewery>()
                         where b.Type == "brewery"
                         select new {name = b.Name, address = b.Address}).
                         Any();
@@ -266,7 +290,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var hasFaketype = (from b in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var hasFaketype = (from b in context.Query<Brewery>()
                         where b.Type == "faketype"
                         select new {name = b.Name, address = b.Address}).
                         Any();
@@ -283,7 +309,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var breweries = (from b in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var breweries = (from b in context.Query<Brewery>()
                         where b.Type == "brewery" && b.Address.All(p => p == "563 Second Street")
                         select new {name = b.Name, address = b.Address}).
                         ToList();
@@ -301,12 +329,14 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
+                    var context = new BucketContext(bucket);
+
                     // Note: This query isn't very useful in the real world
                     // However, it does demonstrate how to prefilter the collection before all is run
                     // Which is behaviorly different then adding the Where predicate inside the All predicate
                     // In this example, all breweries which have NO address 563 Second Street will be returned
 
-                    var breweries = (from b in bucket.Queryable<Brewery>()
+                    var breweries = (from b in context.Query<Brewery>()
                         where
                             b.Type == "brewery" &&
                             b.Address.Where(p => p == "563 Second Street").All(p => p == "101 Fake Street")
@@ -327,7 +357,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var isAllBreweries = bucket.Queryable<Brewery>().All(p => p.Type == "brewery");
+                    var context = new BucketContext(bucket);
+
+                    var isAllBreweries = context.Query<Brewery>().All(p => p.Type == "brewery");
 
                     Assert.False(isAllBreweries);
                 }
@@ -341,7 +373,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var allBreweriesHaveAddress = (from b in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var allBreweriesHaveAddress = (from b in context.Query<Brewery>()
                         where b.Type == "brewery"
                         select new {b.Name})
                         .All(p => p.Name != "");
@@ -358,7 +392,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = (from b in bucket.Queryable<BeerFiltered>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = (from b in context.Query<BeerFiltered>()
                         select new {type = b.Type}).
                         AsEnumerable();
 
@@ -376,7 +412,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var breweries = (from b in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var breweries = (from b in context.Query<Brewery>()
                         select new {type = b.Type})
                         .AsEnumerable();
 
@@ -391,7 +429,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = (from b in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = (from b in context.Query<Beer>()
                         where b.Type == "beer" && N1Ql.Meta(b).Type == "json"
                         select new {name = b.Name}).
                         Take(10);
@@ -410,7 +450,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = (from b in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = (from b in context.Query<Beer>()
                         where b.Type == "beer"
                         select new {name = b.Name, id = N1Ql.Meta(b).Id}).
                         Take(10);
@@ -429,7 +471,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var breweries = (from b in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var breweries = (from b in context.Query<Brewery>()
                         where b.Type == "brewery" && b.Address.Any()
                         select new {name = b.Name, address = b.Address}).
                         ToList();
@@ -447,8 +491,10 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
-                        join brewery in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
+                        join brewery in context.Query<Brewery>()
                             on beer.BreweryId equals N1Ql.Key(brewery)
                         select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
 
@@ -467,8 +513,10 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
-                        join brewery in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
+                        join brewery in context.Query<Brewery>()
                             on beer.BreweryId equals N1Ql.Key(brewery)
                         where brewery.Geo.Longitude > -80
                         orderby beer.Name
@@ -489,8 +537,10 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>().Where(p => p.Type == "beer")
-                        join brewery in bucket.Queryable<Brewery>().Where(p => p.Type == "brewery")
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>().Where(p => p.Type == "beer")
+                        join brewery in context.Query<Brewery>().Where(p => p.Type == "brewery")
                             on beer.BreweryId equals N1Ql.Key(brewery)
                         where brewery.Geo.Longitude > -80
                         orderby beer.Name
@@ -511,8 +561,10 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
-                        join breweryGroup in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
+                        join breweryGroup in context.Query<Brewery>()
                             on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
                         from brewery in bg.DefaultIfEmpty()
                         select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
@@ -532,8 +584,10 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
-                        join breweryGroup in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
+                        join breweryGroup in context.Query<Brewery>()
                             on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
                         from brewery in bg.DefaultIfEmpty()
                         where beer.Abv > 4
@@ -555,8 +609,10 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>().Where(p => p.Type == "beer")
-                        join breweryGroup in bucket.Queryable<Brewery>().Where(p => p.Type == "brewery")
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>().Where(p => p.Type == "beer")
+                        join breweryGroup in context.Query<Brewery>().Where(p => p.Type == "brewery")
                             on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
                         from brewery in bg.DefaultIfEmpty()
                         where beer.Abv > 4
@@ -578,7 +634,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var breweries = from brewery in context.Query<Brewery>()
                         from address in brewery.Address
                         select new {name = brewery.Name, address};
 
@@ -597,7 +655,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var breweries = from brewery in context.Query<Brewery>()
                         from address in brewery.Address
                         orderby address
                         select new {name = brewery.Name, address};
@@ -617,7 +677,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var breweries = from brewery in context.Query<Brewery>()
                         where brewery.Type == "brewery"
                         orderby brewery.Name
                         select new {name = brewery.Name, addresses = brewery.Address.Where(p => p.Length > 3)};
@@ -637,7 +699,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var breweries = from brewery in context.Query<Brewery>()
                         where brewery.Type == "brewery"
                         orderby brewery.Name
                         select new {name = brewery.Name, addresses = brewery.Address.Select(p => new {address = p})};
@@ -658,7 +722,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var breweries = from brewery in bucket.Queryable<Brewery>()
+                    var context = new BucketContext(bucket);
+
+                    var breweries = from brewery in context.Query<Brewery>()
                         where brewery.Type == "brewery"
                         orderby brewery.Name
                         select
@@ -679,7 +745,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var avg = bucket.Queryable<Beer>().Where(p => p.Type == "beer" && N1Ql.IsValued(p.Abv)).Average(p => p.Abv);
+                    var context = new BucketContext(bucket);
+
+                    var avg = context.Query<Beer>().Where(p => p.Type == "beer" && N1Ql.IsValued(p.Abv)).Average(p => p.Abv);
 
                     Console.WriteLine("Average ABV of all beers is {0}", avg);
                 }
@@ -693,7 +761,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var count = bucket.Queryable<Beer>().Count(p => p.Type == "beer");
+                    var context = new BucketContext(bucket);
+
+                    var count = context.Query<Beer>().Count(p => p.Type == "beer");
 
                     Console.WriteLine("Number of beers is {0}", count);
                 }
@@ -707,8 +777,10 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
+                    var context = new BucketContext(bucket);
+
                     var breweries =
-                        from beer in bucket.Queryable<Beer>()
+                        from beer in context.Query<Beer>()
                         where beer.Type == "beer"
                         group beer by beer.BreweryId
                         into g
@@ -730,8 +802,10 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
+                    var context = new BucketContext(bucket);
+
                     var breweries =
-                        from beer in bucket.Queryable<Beer>()
+                        from beer in context.Query<Beer>()
                         where beer.Type == "beer"
                         group beer by beer.BreweryId
                         into g
@@ -754,8 +828,10 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
+                    var context = new BucketContext(bucket);
+
                     var breweries =
-                        from beer in bucket.Queryable<Beer>()
+                        from beer in context.Query<Beer>()
                         where beer.Type == "beer"
                         group beer by beer.BreweryId
                         into g
@@ -777,9 +853,11 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
+                    var context = new BucketContext(bucket);
+
                     var breweries =
-                        from beer in bucket.Queryable<Beer>()
-                        join brewery in bucket.Queryable<Brewery>() on beer.BreweryId equals N1Ql.Key(brewery)
+                        from beer in context.Query<Beer>()
+                        join brewery in context.Query<Brewery>() on beer.BreweryId equals N1Ql.Key(brewery)
                         where beer.Type == "beer"
                         group beer by new { breweryid = beer.BreweryId, breweryName = brewery.Name }
                         into g
@@ -800,7 +878,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
                         where beer.Type == "abcdefg"
                         select new { beer.Name };
 
@@ -820,7 +900,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
                                 where beer.Type == "beer"
                                 select new { beer.Name };
 
@@ -836,7 +918,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
                                 where beer.Type == "abcdefg"
                                 select new { beer.Name };
 
@@ -853,7 +937,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
                                 where beer.Type == "beer"
                                 select new { beer.Name };
 
@@ -871,7 +957,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
                                 where beer.Type == "abcdefg"
                                 select new { beer.Name };
 
@@ -891,7 +979,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
                                 where beer.Name == "21A IPA"
                                 select new { beer.Name };
 
@@ -907,7 +997,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
                                 where beer.Type == "beer"
                                 select new { beer.Name };
 
@@ -927,7 +1019,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
                                 where beer.Type == "abcdefg"
                                 select new { beer.Name };
 
@@ -944,7 +1038,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
                                 where beer.Name == "21A IPA"
                                 select new { beer.Name };
 
@@ -962,7 +1058,9 @@ namespace Couchbase.Linq.Tests
             {
                 using (var bucket = cluster.OpenBucket("beer-sample"))
                 {
-                    var beers = from beer in bucket.Queryable<Beer>()
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
                                 where beer.Type == "beer"
                                 select new { beer.Name };
 

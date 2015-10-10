@@ -95,7 +95,6 @@
   <ItemGroup>
     <Compile Include="BeerSample.cs" />
     <Compile Include="BeerSampleTests.cs" />
-    <Compile Include="BucketExtensionTests.cs" />
     <Compile Include="Clauses\NestClauseTests.cs" />
     <Compile Include="Clauses\UseKeysClauseTests.cs" />
     <Compile Include="DbContextTests.cs" />
