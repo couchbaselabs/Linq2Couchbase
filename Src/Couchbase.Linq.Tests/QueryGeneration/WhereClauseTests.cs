@@ -40,7 +40,7 @@ namespace Couchbase.Linq.Tests.QueryGeneration
             var query =
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Where(e => e.Email == "something@gmail.com")
-                    .WhereMissing(g => g.Age)
+                    .Where(g => N1Ql.IsMissing(g.Age))
                     .OrderBy(e => e.Age)
                     .Select(e => new {age = e.Age, name = e.FirstName});
 
