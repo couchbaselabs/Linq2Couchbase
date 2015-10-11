@@ -7,7 +7,7 @@ using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public class QueryPartsAggregator
+    internal class QueryPartsAggregator
     {
         private static readonly ILog Log = LogManager.GetCurrentClassLogger();
 

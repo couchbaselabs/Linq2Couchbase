@@ -10,7 +10,7 @@ namespace Couchbase.Linq.QueryGeneration.Expressions
     /// <summary>
     /// Represents a comparison between two strings
     /// </summary>
-    public class StringComparisonExpression : Expression
+    internal class StringComparisonExpression : Expression
     {
 
         public static readonly ExpressionType[] SupportedOperations =

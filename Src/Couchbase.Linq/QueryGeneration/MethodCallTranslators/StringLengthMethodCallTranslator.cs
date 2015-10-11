@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
-    class StringLengthMethodCallTranslator : IMethodCallTranslator
+    internal class StringLengthMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
         {

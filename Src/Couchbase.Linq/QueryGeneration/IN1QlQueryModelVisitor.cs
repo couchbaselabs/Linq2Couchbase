@@ -9,7 +9,7 @@ using Remotion.Linq;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public interface IN1QlQueryModelVisitor : IQueryModelVisitor
+    internal interface IN1QlQueryModelVisitor : IQueryModelVisitor
     {
         void VisitNestClause(NestClause clause, QueryModel queryModel, int index);
 

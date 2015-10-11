@@ -15,7 +15,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
     /// will later interpret the calls as STR_TO_MILLIS() calls in N1QL.  N1QL can't directly compare
     /// date/time values unless they're converted to Unix milliseconds first.
     /// </summary>
-    class DateTimeComparisonExpressionTransformer : IExpressionTransformer<BinaryExpression>
+    internal class DateTimeComparisonExpressionTransformer : IExpressionTransformer<BinaryExpression>
     {
         private static readonly MethodInfo FromDateTimeMethod =
             typeof (UnixMillisecondsDateTime).GetMethod("FromDateTime", new[] { typeof(DateTime) });

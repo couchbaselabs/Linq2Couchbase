@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
-    class ListIndexMethodCallTranslator : IMethodCallTranslator
+    internal class ListIndexMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic = {
             typeof (IList).GetMethod("get_Item"),

@@ -10,7 +10,7 @@ namespace Couchbase.Linq.QueryGeneration
     /// <summary>
     /// Provides unique names to use in N1QL queries for each IQuerySource extent
     /// </summary>
-    public class N1QlExtentNameProvider
+    internal class N1QlExtentNameProvider
     {
         private const string ExtentNameFormat = "Extent{0}";
 

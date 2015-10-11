@@ -10,7 +10,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
     /// <summary>
     /// Default registry of expression transformers used to convert DateTime expressions as needed for N1QL
     /// </summary>
-    class DateTimeTransformationRegistry
+    internal class DateTimeTransformationRegistry
     {
         /// <summary>
         /// Default registry of expression transformers used to convert DateTime expressions as needed for N1QL

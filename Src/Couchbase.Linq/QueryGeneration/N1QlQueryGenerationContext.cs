@@ -12,7 +12,7 @@ namespace Couchbase.Linq.QueryGeneration
     /// <summary>
     /// Used to pass query generation context between various classes
     /// </summary>
-    public class N1QlQueryGenerationContext
+    internal class N1QlQueryGenerationContext
     {
 
         public N1QlExtentNameProvider ExtentNameProvider { get; set; }

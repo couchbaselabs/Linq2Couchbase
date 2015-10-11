@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
-    class KeyMethodCallTranslator : IMethodCallTranslator
+    internal class KeyMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic = {
             typeof (N1Ql).GetMethod("Key")

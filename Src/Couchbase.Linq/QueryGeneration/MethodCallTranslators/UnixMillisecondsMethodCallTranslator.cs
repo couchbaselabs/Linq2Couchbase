@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
-    class UnixMillisecondsMethodCallTranslator : IMethodCallTranslator
+    internal class UnixMillisecondsMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic = {
             typeof (UnixMillisecondsDateTime).GetMethod("FromDateTime", new[] { typeof (DateTime) }),

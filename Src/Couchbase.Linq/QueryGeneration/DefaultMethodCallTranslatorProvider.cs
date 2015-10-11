@@ -11,7 +11,7 @@ namespace Couchbase.Linq.QueryGeneration
     /// Provides default method call translator provider for N1QL expressions.
     /// Uses classes implementing IMethodCallTranslator defined in Couchbase.Linq assembly
     /// </summary>
-    public class DefaultMethodCallTranslatorProvider : IMethodCallTranslatorProvider
+    internal class DefaultMethodCallTranslatorProvider : IMethodCallTranslatorProvider
     {
 
         #region Static

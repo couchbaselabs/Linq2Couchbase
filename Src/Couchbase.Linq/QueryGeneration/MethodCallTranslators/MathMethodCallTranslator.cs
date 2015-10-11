@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
-    class MathMethodCallTranslator : IMethodCallTranslator
+    internal class MathMethodCallTranslator : IMethodCallTranslator
     {
         /// <summary>
         /// Maps System.Math method call names to N1QL functions

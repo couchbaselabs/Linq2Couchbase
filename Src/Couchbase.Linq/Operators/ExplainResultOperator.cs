@@ -6,7 +6,7 @@ using Remotion.Linq.Clauses.StreamedData;
 
 namespace Couchbase.Linq.Operators
 {
-    public class ExplainResultOperator : ValueFromSequenceResultOperatorBase
+    internal class ExplainResultOperator : ValueFromSequenceResultOperatorBase
     {
         public override StreamedValue ExecuteInMemory<T>(StreamedSequence input)
         {

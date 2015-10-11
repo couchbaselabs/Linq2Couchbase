@@ -6,7 +6,7 @@ using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.Clauses
 {
-    public class NestClause : IBodyClause, IQuerySource
+    internal class NestClause : IBodyClause, IQuerySource
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="NestClause" /> class.

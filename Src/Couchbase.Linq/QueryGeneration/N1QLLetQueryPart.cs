@@ -3,7 +3,7 @@
     /// <summary>
     /// Represents an item in the LET part of a N1QL query
     /// </summary>
-    public class N1QlLetQueryPart
+    internal class N1QlLetQueryPart
     {
         /// <summary>
         /// Name of the value being assigned

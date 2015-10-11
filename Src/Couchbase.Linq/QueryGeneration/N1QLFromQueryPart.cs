@@ -6,7 +6,7 @@ namespace Couchbase.Linq.QueryGeneration
     /// <summary>
     /// Represents the FROM part of a query
     /// </summary>
-    public class N1QlFromQueryPart
+    internal class N1QlFromQueryPart
     {
 
         /// <summary>
