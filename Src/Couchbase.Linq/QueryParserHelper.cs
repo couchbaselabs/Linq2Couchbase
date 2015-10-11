@@ -14,10 +14,6 @@ namespace Couchbase.Linq
             //Create Custom node registry
             var customNodeTypeRegistry = new MethodInfoBasedNodeTypeRegistry();
 
-            //Register new clause type
-            customNodeTypeRegistry.Register(WhereMissingExpressionNode.SupportedMethods,
-                typeof (WhereMissingExpressionNode));
-
             //register the "Nest" clause type
             customNodeTypeRegistry.Register(NestExpressionNode.SupportedMethods,
                 typeof(NestExpressionNode));

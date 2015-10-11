@@ -88,8 +88,6 @@
     <Compile Include="Filters\DocumentFilterSet.cs" />
     <Compile Include="Filters\IDocumentFilter.cs" />
     <Compile Include="Filters\DocumentTypeFilterAttribute.cs" />
-    <Compile Include="Clauses\WhereMissingClause.cs" />
-    <Compile Include="Clauses\WhereMissingExpressionNode.cs" />
     <Compile Include="Extensions\QueryExtensions.cs" />
     <Compile Include="Filters\IDocumentFilterSetGenerator.cs" />
     <Compile Include="IBucketQueryable.cs" />

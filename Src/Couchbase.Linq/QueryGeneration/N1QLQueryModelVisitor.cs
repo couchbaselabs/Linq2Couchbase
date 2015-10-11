@@ -303,20 +303,6 @@ namespace Couchbase.Linq.QueryGeneration
             base.VisitWhereClause(whereClause, queryModel, index);
         }
 
-        public void VisitWhereMissingClause(WhereMissingClause whereClause, QueryModel queryModel, int index)
-        {
-            var expression = string.Concat(GetN1QlExpression(whereClause.Predicate), " IS MISSING");
-
-            if (_groupingStatus != GroupingStatus.AfterGroupSubquery)
-            {
-                _queryPartsAggregator.AddWherePart(expression);
-            }
-            else
-            {
-                _queryPartsAggregator.AddHavingPart(expression);
-            }
-        }
-
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
             if ((resultOperator is TakeResultOperator))
