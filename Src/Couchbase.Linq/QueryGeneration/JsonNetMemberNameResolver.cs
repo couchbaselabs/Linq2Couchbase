@@ -5,7 +5,7 @@ using Newtonsoft.Json.Serialization;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public class JsonNetMemberNameResolver : IMemberNameResolver
+    internal class JsonNetMemberNameResolver : IMemberNameResolver
     {
         private readonly IContractResolver _contractResolver;
 

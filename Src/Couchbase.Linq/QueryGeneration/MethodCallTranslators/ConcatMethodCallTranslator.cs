@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
-    class ConcatMethodCallTranslator : IMethodCallTranslator
+    internal class ConcatMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic = {
             typeof (string).GetMethod("Concat", new[] { typeof (object) }),

@@ -15,7 +15,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
     /// Used to convert references to the Key of a GroupBy statement to directly access the property
     /// used to make the key.  This is done after a grouping subquery is flattened into the main N1QL query.
     /// </summary>
-    class KeyExpressionTransfomer : IExpressionTransformer<MemberExpression>
+    internal class KeyExpressionTransfomer : IExpressionTransformer<MemberExpression>
     {
         public ExpressionType[] SupportedExpressionTypes
         {

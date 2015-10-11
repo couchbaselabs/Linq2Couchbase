@@ -9,7 +9,7 @@ namespace Couchbase.Linq.Operators
     /// <summary>
     /// Expression parser for N1QL "Explain" method.
     /// </summary>
-    public class ExplainExpressionNode : ResultOperatorExpressionNodeBase
+    internal class ExplainExpressionNode : ResultOperatorExpressionNodeBase
     {
         public static MethodInfo[] SupportedMethods =
         {

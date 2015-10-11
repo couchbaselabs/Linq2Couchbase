@@ -15,7 +15,7 @@ using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public class N1QlQueryModelVisitor : QueryModelVisitorBase, IN1QlQueryModelVisitor
+    internal class N1QlQueryModelVisitor : QueryModelVisitorBase, IN1QlQueryModelVisitor
     {
         #region Constants
         private enum GroupingStatus

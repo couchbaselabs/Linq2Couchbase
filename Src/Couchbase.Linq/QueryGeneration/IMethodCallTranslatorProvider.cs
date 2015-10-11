@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public interface IMethodCallTranslatorProvider
+    internal interface IMethodCallTranslatorProvider
     {
         IMethodCallTranslator GetTranslator(MethodCallExpression methodCallExpression);
     }

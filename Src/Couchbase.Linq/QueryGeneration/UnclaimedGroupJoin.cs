@@ -7,7 +7,7 @@ using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    class UnclaimedGroupJoin
+    internal class UnclaimedGroupJoin
     {
 
         public JoinClause JoinClause { get; set; }

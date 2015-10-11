@@ -6,7 +6,7 @@ using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.Clauses
 {
-    public class UseKeysClause : IBodyClause
+    internal class UseKeysClause : IBodyClause
     {
         /// <summary>
         ///     Initializes a new instance of the <see cref="UseKeysClause" /> class.

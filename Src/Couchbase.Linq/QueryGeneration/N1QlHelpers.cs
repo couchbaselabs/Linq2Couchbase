@@ -9,7 +9,7 @@ namespace Couchbase.Linq.QueryGeneration
     /// <summary>
     /// Helpers for N1QL query generation
     /// </summary>
-    public static class N1QlHelpers
+    internal static class N1QlHelpers
     {
 
         /// <summary>

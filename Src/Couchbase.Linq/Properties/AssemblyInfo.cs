@@ -38,4 +38,9 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
+
+// For writing tests against internal classes
 [assembly: InternalsVisibleTo("Couchbase.Linq.Tests")]
+
+// For using Moq against internal classes
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]

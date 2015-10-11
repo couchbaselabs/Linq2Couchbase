@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public interface IMethodCallTranslator
+    internal interface IMethodCallTranslator
     {
         IEnumerable<MethodInfo> SupportMethods { get; }
 

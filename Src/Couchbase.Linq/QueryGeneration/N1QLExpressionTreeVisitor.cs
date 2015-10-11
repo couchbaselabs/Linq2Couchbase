@@ -13,7 +13,7 @@ using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public class N1QlExpressionTreeVisitor : ThrowingExpressionTreeVisitor
+    internal class N1QlExpressionTreeVisitor : ThrowingExpressionTreeVisitor
     {
         private static readonly MethodInfo[] StringCompareMethods = {
            typeof(string).GetMethod("Compare", new[] { typeof(string), typeof(string) }),

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
-    class IsValuedMethodCallTranslator : IMethodCallTranslator
+    internal class IsValuedMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
             typeof (N1Ql).GetMethods().Where(p => (p.Name == "IsValued") || (p.Name == "IsNotValued")).ToArray();

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
-    class IsMissingMethodCallTranslator : IMethodCallTranslator
+    internal class IsMissingMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
             typeof (N1Ql).GetMethods().Where(p => (p.Name == "IsMissing") || (p.Name == "IsNotMissing")).ToArray();

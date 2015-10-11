@@ -7,7 +7,7 @@ using Remotion.Linq.Parsing.Structure.IntermediateModel;
 
 namespace Couchbase.Linq.Clauses
 {
-    public class UseKeysExpressionNode : MethodCallExpressionNodeBase
+    internal class UseKeysExpressionNode : MethodCallExpressionNodeBase
     {
         public static readonly MethodInfo[] SupportedMethods =
         {

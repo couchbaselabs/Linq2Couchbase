@@ -16,7 +16,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
     /// used to make the key.  This is done after a grouping subquery is flattened into the main N1QL query.
     /// The MultiKeyExpressionTransformer variant is used for multipart keys, where accessing members of the Key property.
     /// </summary>
-    class MultiKeyExpressionTransfomer : IExpressionTransformer<MemberExpression>
+    internal class MultiKeyExpressionTransfomer : IExpressionTransformer<MemberExpression>
     {
         public ExpressionType[] SupportedExpressionTypes
         {

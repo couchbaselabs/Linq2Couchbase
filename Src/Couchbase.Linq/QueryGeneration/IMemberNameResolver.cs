@@ -2,7 +2,7 @@
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public interface IMemberNameResolver
+    internal interface IMemberNameResolver
     {
         bool TryResolveMemberName(MemberInfo member, out string memberName);
     }

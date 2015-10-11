@@ -2,7 +2,7 @@
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    public sealed class ParameterAggregator
+    internal sealed class ParameterAggregator
     {
         private readonly List<NamedParameter> _parameters = new List<NamedParameter>();
 
