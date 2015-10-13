@@ -1,10 +1,12 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace Couchbase.Linq.Tests.Documents
 {
     public class Beer
     {
+        [Key]
         [JsonProperty("name")]
         public string Name { get; set; }
 
