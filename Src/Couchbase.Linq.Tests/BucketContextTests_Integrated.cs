@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Linq;
-using Couchbase.Core;
 using Couchbase.Linq.Tests.Documents;
-using Couchbase.N1QL;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.Tests
 {
     [TestFixture]
-    public class DbContextTests
+    // ReSharper disable once InconsistentNaming
+    public class BucketContextTests_Integrated
     {
         [TestFixtureSetUp]
         public void TestFixtureSetUp()
         {
             ClusterHelper.Initialize(TestConfigurations.DefaultConfig());
         }
-
 
         [Test]
         public void Test_Basic_Query()
@@ -31,7 +29,6 @@ namespace Couchbase.Linq.Tests
             }
         }
 
-        /// <exception cref="InitializationException">Thrown if Initialize is not called before accessing this method.</exception>
         [Test]
         public void BeerSampleContext_Tests()
         {
@@ -45,7 +42,6 @@ namespace Couchbase.Linq.Tests
             }
         }
 
-        /// <exception cref="InitializationException">Thrown if Initialize is not called before accessing this method.</exception>
         [Test]
         public void BeerSample_Tests()
         {
@@ -61,7 +57,6 @@ namespace Couchbase.Linq.Tests
             }
         }
     }
-
 }
 
 #region [ License information          ]
