@@ -29,7 +29,7 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 
 - [The BucketContext](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/bucket-context.md)
 - [Mapping JSON documents to POCOs with DocumentFilters](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/document-filters.md)
-- Controlling output with Select
+- [Controlling output with Select] (https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/simple-select.md)
 - Filtering with Where
 - ASC, DESC, LIMIT and SKIP
 - Math functions
