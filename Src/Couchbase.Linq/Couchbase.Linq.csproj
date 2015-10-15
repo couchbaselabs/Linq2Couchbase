@@ -72,8 +72,11 @@
     <Compile Include="Clauses\UseKeysExpressionNode.cs" />
     <Compile Include="Clauses\UseKeysClause.cs" />
     <Compile Include="BucketContext.cs" />
+    <Compile Include="DocumentNotFoundException.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="IBucketContext.cs" />
+    <Compile Include="Mapping\DocIdAttribute.cs" />
+    <Compile Include="DocumentIdMissingException.cs" />
     <Compile Include="QueryGeneration\Expressions\StringComparisonExpression.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\DateTimeComparisonExpressionTransformer.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\DateTimeTransformationRegistry.cs" />
@@ -136,6 +139,7 @@
     <Compile Include="QueryGeneration\UnclaimedGroupJoin.cs" />
     <Compile Include="QueryParserHelper.cs" />
     <Compile Include="UnixMillisecondsDateTime.cs" />
+    <Compile Include="Utils\ExceptionMsgs.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
@@ -144,6 +148,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
