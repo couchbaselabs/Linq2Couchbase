@@ -25,5 +25,19 @@ namespace Couchbase.Linq
         /// <typeparam name="T">An entity or POCO representing the object graph of a JSON document.</typeparam>
         /// <returns></returns>
         IQueryable<T> Query<T>();
+
+        /// <summary>
+        /// Saves the specified document.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="document">The document.</param>
+        void Save<T>(T document);
+
+        /// <summary>
+        /// Removes the specified document.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="document">The document.</param>
+        void Remove<T>(T document);
     }
 }
