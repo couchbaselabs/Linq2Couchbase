@@ -80,6 +80,12 @@ Here is an example of a custom filter which filters by Type:
 
 Note that the predicate can be anything you wish even compound.
 
+Once you have a custom filter, you will need to register it using the DocumentFilterManager:
+
+    DocumentFilterManager.SetFilter(new BreweryFilter());
+
+Typically this would done when the application starts up, or you could do it in the ctor of a class which extends `BucketContext`.
+
 ##Mapping POCO fields to JSON documents fields##
 Note that the mapping between the JSON document and your target POCO must match! The Linq provider does support JsonProperty which allows you to do custom mapping of JSON document to C# object properties.
 
