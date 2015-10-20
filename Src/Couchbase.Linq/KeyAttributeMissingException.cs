@@ -4,11 +4,11 @@ namespace Couchbase.Linq
 {
     /// <summary>
     /// Thrown if an identifier property can be found in a document. The identifier maps
-    /// to the primary key for the document in couchbase. Use <see cref=""/>
+    /// to the primary key for the document in couchbase.
     /// </summary>
-    public class DocumentIdMissingException : Exception
+    public class KeyAttributeMissingException : Exception
     {
-        public DocumentIdMissingException(string message)
+        public KeyAttributeMissingException(string message)
             : base(message)
         {
         }
