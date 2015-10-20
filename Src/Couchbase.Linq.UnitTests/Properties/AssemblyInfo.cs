@@ -1,16 +1,15 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("Couchbase.Linq")]
+[assembly: AssemblyTitle("Couchbase.Linq.UnitTests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("Couchbase.Linq")]
+[assembly: AssemblyProduct("Couchbase.Linq.UnitTests")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -23,7 +22,7 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 
-[assembly: Guid("f9de7771-ec88-4eae-a039-2bdcfa8f7c3b")]
+[assembly: Guid("14635a02-e0b4-49df-adc7-cad34e213f21")]
 
 // Version information for an assembly consists of the following four values:
 //
@@ -38,10 +37,3 @@ using System.Runtime.InteropServices;
 
 [assembly: AssemblyVersion("1.0.0.0")]
 [assembly: AssemblyFileVersion("1.0.0.0")]
-
-// For writing tests against internal classes
-[assembly: InternalsVisibleTo("Couchbase.Linq.UnitTests")]
-[assembly: InternalsVisibleTo("Couchbase.Linq.IntegrationTests")]
-
-// For using Moq against internal classes
-[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
