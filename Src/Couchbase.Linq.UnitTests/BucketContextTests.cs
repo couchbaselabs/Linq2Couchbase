@@ -10,22 +10,22 @@ namespace Couchbase.Linq.UnitTests
     public class BucketContextTests
     {
         [Test]
-        public void GetDocumentId_When_Id_Field_DoesNotExist_Throw_MissingIndentifier_Exception()
+        public void GetDocumentId_When_Id_Field_DoesNotExist_Throw_KeyAttributeMissingException()
         {
             var route = new Route();
             var bucket = new Mock<IBucket>();
             var ctx = new BucketContext(bucket.Object);
-            Assert.Throws<DocumentIdMissingException>(()=>ctx.GetDocumentId(route));
+            Assert.Throws<KeyAttributeMissingException>(()=>ctx.GetDocumentId(route));
         }
 
         [Test]
         public void GetDocumentId_When_DocId_Exists_Use_It()
         {
-            var beer = new Beer();
+            var beer = new Beer {Name = "beer1"};
             var bucket = new Mock<IBucket>();
             var ctx = new BucketContext(bucket.Object);
             var id = ctx.GetDocumentId(beer);
-            Assert.AreEqual("name", id);
+            Assert.AreEqual("beer1", id);
         }
 
        [Test]
@@ -35,13 +35,38 @@ namespace Couchbase.Linq.UnitTests
             var bucket = new Mock<IBucket>();
             var result = new Mock<IOperationResult<Beer>> ();
             result.Setup(x => x.Status).Returns(ResponseStatus.Success);
+            result.Setup(x => x.Success).Returns(true);
             bucket.Setup(x => x.Upsert(It.IsAny<string>(), It.IsAny<Beer>())).Returns(result.Object);
             var ctx = new BucketContext(bucket.Object);
             ctx.Save(beer);
         }
 
        [Test]
-       public void Save_When_DocId_Is_Not_Defined_Throw_DocumentIdMissingException()
+       public void Save_When_Write_Is_Not_Succesful_Throw_CouchbaseWriteException()
+       {
+           var beer = new Beer();
+           var bucket = new Mock<IBucket>();
+           var result = new Mock<IOperationResult<Beer>>();
+           result.Setup(x => x.Success).Returns(false);
+           bucket.Setup(x => x.Upsert(It.IsAny<string>(), It.IsAny<Beer>())).Returns(result.Object);
+           var ctx = new BucketContext(bucket.Object);
+           Assert.Throws<CouchbaseWriteException>(()=>ctx.Save(beer));
+       }
+
+       [Test]
+       public void Remove_When_Write_Is_Not_Succesful_Throw_CouchbaseWriteException()
+       {
+           var beer = new Beer();
+           var bucket = new Mock<IBucket>();
+           var result = new Mock<IOperationResult<Beer>>();
+           result.Setup(x => x.Success).Returns(false);
+           bucket.Setup(x => x.Remove(It.IsAny<string>())).Returns(result.Object);
+           var ctx = new BucketContext(bucket.Object);
+           Assert.Throws<CouchbaseWriteException>(() => ctx.Remove(beer));
+       }
+
+       [Test]
+       public void Save_When_KeyAttribute_Is_Not_Defined_Throw_DocumentIdMissingException()
        {
            var brewery = new Brewery();
            var bucket = new Mock<IBucket>();
@@ -49,7 +74,7 @@ namespace Couchbase.Linq.UnitTests
            result.Setup(x => x.Status).Returns(ResponseStatus.Success);
            bucket.Setup(x => x.Upsert(It.IsAny<string>(), It.IsAny<Brewery>())).Returns(result.Object);
            var ctx = new BucketContext(bucket.Object);
-           Assert.Throws<DocumentIdMissingException>(()=>ctx.Save(brewery));
+           Assert.Throws<KeyAttributeMissingException>(()=>ctx.Save(brewery));
        }
 
        [Test]
@@ -59,6 +84,7 @@ namespace Couchbase.Linq.UnitTests
            var bucket = new Mock<IBucket>();
            var result = new Mock<IOperationResult<Beer>>();
            result.Setup(x => x.Status).Returns(ResponseStatus.Success);
+           result.Setup(x => x.Success).Returns(true);
            bucket.Setup(x => x.Remove(It.IsAny<string>())).Returns(result.Object);
            var ctx = new BucketContext(bucket.Object);
            ctx.Remove(beer);
@@ -73,7 +99,7 @@ namespace Couchbase.Linq.UnitTests
            result.Setup(x => x.Status).Returns(ResponseStatus.Success);
            bucket.Setup(x => x.Upsert(It.IsAny<string>(), It.IsAny<Brewery>())).Returns(result.Object);
            var ctx = new BucketContext(bucket.Object);
-           Assert.Throws<DocumentIdMissingException>(() => ctx.Remove(brewery));
+           Assert.Throws<KeyAttributeMissingException>(() => ctx.Remove(brewery));
        }
     }
 }

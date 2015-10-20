@@ -73,10 +73,11 @@
     <Compile Include="Clauses\UseKeysExpressionNode.cs" />
     <Compile Include="Clauses\UseKeysClause.cs" />
     <Compile Include="BucketContext.cs" />
+    <Compile Include="CouchbaseWriteException.cs" />
     <Compile Include="DocumentNotFoundException.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="IBucketContext.cs" />
-    <Compile Include="DocumentIdMissingException.cs" />
+    <Compile Include="KeyAttributeMissingException.cs" />
     <Compile Include="QueryGeneration\Expressions\StringComparisonExpression.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\DateTimeComparisonExpressionTransformer.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\DateTimeTransformationRegistry.cs" />

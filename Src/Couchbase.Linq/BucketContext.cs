@@ -1,13 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
-using Couchbase.IO;
 using Couchbase.Linq.Filters;
 using Couchbase.Linq.Utils;
-using Newtonsoft.Json;
 
 namespace Couchbase.Linq
 {
@@ -19,6 +18,7 @@ namespace Couchbase.Linq
     {
         private readonly IBucket _bucket;
         protected BucketConfiguration BucketConfig;
+        private Dictionary<Type, PropertyInfo>_cachedKeyProperties = new Dictionary<Type, PropertyInfo>();
 
         public BucketContext(IBucket bucket)
         {
@@ -63,45 +63,31 @@ namespace Couchbase.Linq
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="document">The document.</param>
-        /// <exception cref="DocumentIdMissingException">The document id could not be found.</exception>
+        /// <exception cref="KeyAttributeMissingException">The document id could not be found.</exception>
         /// <exception cref="AmbiguousMatchException">More than one of the requested attributes was found.</exception>
         /// <exception cref="TypeLoadException">A custom attribute type cannot be loaded.</exception>
-        /// <exception cref="Exception">An internal exception was thrown.</exception>
+        /// <exception cref="CouchbaseWriteException">An exception wrapping the <see cref="IOperationResult"/> interface. Use this to determine what failed.</exception>
         public void Save<T>(T document)
         {
             var id = GetDocumentId(document);
             var result = _bucket.Upsert(id, document);
             if (!result.Success)
             {
-                if (result.Exception != null)
-                {
-                    // ReSharper disable once ThrowingSystemException
-                    throw result.Exception;
-                }
+                throw new CouchbaseWriteException(result);
             }
         }
 
-        /// <exception cref="DocumentIdMissingException">The document id could not be found.</exception>
+        /// <exception cref="KeyAttributeMissingException">The document id could not be found.</exception>
         /// <exception cref="AmbiguousMatchException">More than one of the requested attributes was found. </exception>
         /// <exception cref="TypeLoadException">A custom attribute type cannot be loaded. </exception>
-        /// <exception cref="DocumentNotFoundException">No document Id was found.</exception>
-        /// <exception cref="Exception">An internal exception was thrown.</exception>
+        /// <exception cref="CouchbaseWriteException">An exception wrapping the <see cref="IOperationResult"/> interface. Use this to determine what failed.</exception>
         public void Remove<T>(T document)
         {
             var id = GetDocumentId(document);
             var result = _bucket.Remove(id);
             if (!result.Success)
             {
-                if (result.Status == ResponseStatus.KeyNotFound)
-                {
-                    // ReSharper disable once HeapView.ObjectAllocation
-                    throw new DocumentNotFoundException(string.Format("{0}{1}", ExceptionMsgs.DocumentNotFound, id));
-                }
-                if (result.Exception != null)
-                {
-                    // ReSharper disable once ThrowingSystemException
-                    throw result.Exception;
-                }
+                throw new CouchbaseWriteException(result);
             }
         }
 
@@ -112,39 +98,31 @@ namespace Couchbase.Linq
         /// <typeparam name="T"></typeparam>
         /// <param name="document">The document.</param>
         /// <returns></returns>
-        /// <exception cref="DocumentIdMissingException">The document document id could not be found.</exception>
+        /// <exception cref="KeyAttributeMissingException">The document document key could not be found.</exception>
         /// <exception cref="AmbiguousMatchException">More than one of the requested attributes was found.</exception>
         /// <exception cref="TypeLoadException">A custom attribute type cannot be loaded.</exception>
         internal string GetDocumentId<T>(T document)
         {
-            var idName = string.Empty;
-            var type = typeof(T);
+            var type = document.GetType();
 
+            PropertyInfo propertyInfo;
+            if (_cachedKeyProperties.TryGetValue(type, out propertyInfo))
+            {
+                return (string) propertyInfo.GetValue(document);
+            }
             var properties = type.GetProperties();
-            foreach (var propertyInfo in properties)
+            foreach (var pi in properties)
             {
                 var attribute = (KeyAttribute)Attribute.
-                    GetCustomAttribute(propertyInfo, typeof(KeyAttribute));
+                    GetCustomAttribute(pi, typeof(KeyAttribute));
 
                 if (attribute != null)
                 {
-                    var jsonPropertyAttribute = (JsonPropertyAttribute)Attribute.
-                        GetCustomAttribute(propertyInfo, typeof(JsonPropertyAttribute));
-
-                    if (jsonPropertyAttribute != null)
-                    {
-                        idName = jsonPropertyAttribute.PropertyName;
-                        break;
-                    }
-                    idName = propertyInfo.Name;
-                    break;
+                    _cachedKeyProperties.Add(type, pi);
+                    return (string)pi.GetValue(document);
                 }
             }
-            if (string.IsNullOrWhiteSpace(idName))
-            {
-                throw new DocumentIdMissingException(ExceptionMsgs.DocumentIdMissing);
-            }
-            return idName;
+            throw new KeyAttributeMissingException(ExceptionMsgs.KeyAttributeMissing);
         }
     }
 }

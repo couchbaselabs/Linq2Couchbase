@@ -10,10 +10,10 @@ namespace Couchbase.Linq.Utils
     {
         public const string DocumentNotFound = "Document not found for Id: ";
 
-        public const string DocumentIdMissing = "No document Id was found; please use DocIdAttribute to define an id.";
+        public const string KeyAttributeMissing = "No KeyAttribute could be found for the document. Please " +
+                                                  "mark a key property with a KeyAttribute";
     }
 }
-
 #region [ License information          ]
 
 /* ************************************************************
