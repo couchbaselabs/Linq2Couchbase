@@ -31,13 +31,13 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 - Mapping JSON fields to POCO properties
 - [Mapping JSON documents to POCOs with DocumentFilters](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/document-filters.md)
 - [Controlling output with Select] (https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/simple-select.md)
-- Filtering with Where
+- [Filtering with Where] (https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/where-clause.md)
 - ASC, DESC, LIMIT and SKIP
 - Math functions
 - Date functions
 - Array filtering and projections
 - Grouping and Aggregation
-- USE KEYs
+- [The UseKeys Method] (https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/use-keys.md)
 - NEST and UNNEST
 - JOINs
 - Any and All
