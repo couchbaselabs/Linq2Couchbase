@@ -157,7 +157,7 @@ namespace Couchbase.Linq.IntegrationTests
 
                     var beers = (from b in context.Query<Beer>()
                         where b.Type == "beer"
-                        select new {name = b.Name, meta = N1Ql.Meta(b)}).
+                        select new {name = b.Name, meta = N1QlFunctions.Meta(b)}).
                         Take(10);
 
                     foreach (var b in beers)
@@ -427,7 +427,7 @@ namespace Couchbase.Linq.IntegrationTests
                     var context = new BucketContext(bucket);
 
                     var beers = (from b in context.Query<Beer>()
-                        where b.Type == "beer" && N1Ql.Meta(b).Type == "json"
+                        where b.Type == "beer" && N1QlFunctions.Meta(b).Type == "json"
                         select new {name = b.Name}).
                         Take(10);
 
@@ -449,7 +449,7 @@ namespace Couchbase.Linq.IntegrationTests
 
                     var beers = (from b in context.Query<Beer>()
                         where b.Type == "beer"
-                        select new {name = b.Name, id = N1Ql.Meta(b).Id}).
+                        select new {name = b.Name, id = N1QlFunctions.Meta(b).Id}).
                         Take(10);
 
                     foreach (var b in beers)
@@ -490,7 +490,7 @@ namespace Couchbase.Linq.IntegrationTests
 
                     var beers = from beer in context.Query<Beer>()
                         join brewery in context.Query<Brewery>()
-                            on beer.BreweryId equals N1Ql.Key(brewery)
+                            on beer.BreweryId equals N1QlFunctions.Key(brewery)
                         select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
 
                     foreach (var b in beers.Take(10))
@@ -512,7 +512,7 @@ namespace Couchbase.Linq.IntegrationTests
 
                     var beers = from beer in context.Query<Beer>()
                         join brewery in context.Query<Brewery>()
-                            on beer.BreweryId equals N1Ql.Key(brewery)
+                            on beer.BreweryId equals N1QlFunctions.Key(brewery)
                         where brewery.Geo.Longitude > -80
                         orderby beer.Name
                         select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
@@ -536,7 +536,7 @@ namespace Couchbase.Linq.IntegrationTests
 
                     var beers = from beer in context.Query<Beer>().Where(p => p.Type == "beer")
                         join brewery in context.Query<Brewery>().Where(p => p.Type == "brewery")
-                            on beer.BreweryId equals N1Ql.Key(brewery)
+                            on beer.BreweryId equals N1QlFunctions.Key(brewery)
                         where brewery.Geo.Longitude > -80
                         orderby beer.Name
                         select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
@@ -560,7 +560,7 @@ namespace Couchbase.Linq.IntegrationTests
 
                     var beers = from beer in context.Query<Beer>()
                         join breweryGroup in context.Query<Brewery>()
-                            on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                            on beer.BreweryId equals N1QlFunctions.Key(breweryGroup) into bg
                         from brewery in bg.DefaultIfEmpty()
                         select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
 
@@ -583,7 +583,7 @@ namespace Couchbase.Linq.IntegrationTests
 
                     var beers = from beer in context.Query<Beer>()
                         join breweryGroup in context.Query<Brewery>()
-                            on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                            on beer.BreweryId equals N1QlFunctions.Key(breweryGroup) into bg
                         from brewery in bg.DefaultIfEmpty()
                         where beer.Abv > 4
                         orderby brewery.Name, beer.Name
@@ -608,7 +608,7 @@ namespace Couchbase.Linq.IntegrationTests
 
                     var beers = from beer in context.Query<Beer>().Where(p => p.Type == "beer")
                         join breweryGroup in context.Query<Brewery>().Where(p => p.Type == "brewery")
-                            on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                            on beer.BreweryId equals N1QlFunctions.Key(breweryGroup) into bg
                         from brewery in bg.DefaultIfEmpty()
                         where beer.Abv > 4
                         orderby brewery.Name, beer.Name
@@ -742,7 +742,7 @@ namespace Couchbase.Linq.IntegrationTests
                 {
                     var context = new BucketContext(bucket);
 
-                    var avg = context.Query<Beer>().Where(p => p.Type == "beer" && N1Ql.IsValued(p.Abv)).Average(p => p.Abv);
+                    var avg = context.Query<Beer>().Where(p => p.Type == "beer" && N1QlFunctions.IsValued(p.Abv)).Average(p => p.Abv);
 
                     Console.WriteLine("Average ABV of all beers is {0}", avg);
                 }
@@ -852,7 +852,7 @@ namespace Couchbase.Linq.IntegrationTests
 
                     var breweries =
                         from beer in context.Query<Beer>()
-                        join brewery in context.Query<Brewery>() on beer.BreweryId equals N1Ql.Key(brewery)
+                        join brewery in context.Query<Brewery>() on beer.BreweryId equals N1QlFunctions.Key(brewery)
                         where beer.Type == "beer"
                         group beer by new { breweryid = beer.BreweryId, breweryName = brewery.Name }
                         into g

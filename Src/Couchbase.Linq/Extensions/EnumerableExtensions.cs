@@ -90,7 +90,7 @@ namespace Couchbase.Linq.Extensions
             // Create a dictionary on the inner sequence, based on document key
             // This ensures that the inner sequence is only enumerated once
             // And that lookups are fast
-            var innerDictionary = inner.ToDictionary(p => N1Ql.Key(p));
+            var innerDictionary = inner.ToDictionary(p => N1QlFunctions.Key(p));
 
             return outer
                 .Select(outerDocument =>
@@ -148,7 +148,7 @@ namespace Couchbase.Linq.Extensions
                 throw new ArgumentNullException("keys");
             }
 
-            return items.Where(p => keys.Contains(N1Ql.Key(p)));
+            return items.Where(p => keys.Contains(N1QlFunctions.Key(p)));
         }
 
         #endregion

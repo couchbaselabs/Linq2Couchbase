@@ -23,7 +23,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query = from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
                         join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
-                        on beer.BreweryId equals N1Ql.Key(brewery)
+                        on beer.BreweryId equals N1QlFunctions.Key(brewery)
                         select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
 
             const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
@@ -44,7 +44,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query = from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
                         join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
-                        on beer.BreweryId equals N1Ql.Key(brewery)
+                        on beer.BreweryId equals N1QlFunctions.Key(brewery)
                         where brewery.Geo.Longitude > -80
                         orderby beer.Name
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
@@ -69,7 +69,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query = from beer in QueryFactory.Queryable<Beer>(mockBucket.Object).Where(p => p.Type == "beer")
                         join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object).Where(p => p.Type == "brewery")
-                        on beer.BreweryId equals N1Ql.Key(brewery)
+                        on beer.BreweryId equals N1QlFunctions.Key(brewery)
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
             const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
@@ -91,7 +91,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query = from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
                         join breweryGroup in QueryFactory.Queryable<Brewery>(mockBucket.Object)
-                        on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                        on beer.BreweryId equals N1QlFunctions.Key(breweryGroup) into bg
                         from brewery in bg.DefaultIfEmpty()
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
@@ -113,7 +113,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query = from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
                         join breweryGroup in QueryFactory.Queryable<Brewery>(mockBucket.Object)
-                        on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                        on beer.BreweryId equals N1QlFunctions.Key(breweryGroup) into bg
                         from brewery in bg.DefaultIfEmpty()
                         where beer.Abv > 4
                         orderby brewery.Name, beer.Name
@@ -139,7 +139,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query = from beer in QueryFactory.Queryable<Beer>(mockBucket.Object).Where(p => p.Type == "beer")
                         join breweryGroup in QueryFactory.Queryable<Brewery>(mockBucket.Object).Where(p => p.Type == "brewery")
-                        on beer.BreweryId equals N1Ql.Key(breweryGroup) into bg
+                        on beer.BreweryId equals N1QlFunctions.Key(breweryGroup) into bg
                         from brewery in bg.DefaultIfEmpty()
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 

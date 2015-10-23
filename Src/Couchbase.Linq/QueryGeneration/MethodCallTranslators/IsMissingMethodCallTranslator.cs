@@ -11,7 +11,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     internal class IsMissingMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
-            typeof (N1Ql).GetMethods().Where(p => (p.Name == "IsMissing") || (p.Name == "IsNotMissing")).ToArray();
+            typeof (N1QlFunctions).GetMethods().Where(p => (p.Name == "IsMissing") || (p.Name == "IsNotMissing")).ToArray();
 
         public IEnumerable<MethodInfo> SupportMethods
         {

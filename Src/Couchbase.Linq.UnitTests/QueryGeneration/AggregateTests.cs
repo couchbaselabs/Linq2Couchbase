@@ -224,7 +224,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query =
                 from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
                 join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals
-                    N1Ql.Key(brewery)
+                    N1QlFunctions.Key(brewery)
                 group beer by brewery.Name
                 into g
                 select new {breweryName = g.Key, avgAbv = g.Average(p => p.Abv)};
@@ -252,7 +252,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query =
                 from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
-                join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals N1Ql.Key(brewery)
+                join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals N1QlFunctions.Key(brewery)
                 group beer by brewery.Name
                 into g
                 orderby g.Key
@@ -278,7 +278,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query =
                 from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
-                join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals N1Ql.Key(brewery)
+                join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals N1QlFunctions.Key(brewery)
                 group beer by brewery.Name
                 into g
                 orderby g.Average(p => p.Abv) descending 
@@ -308,7 +308,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query =
                 from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
-                join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals N1Ql.Key(brewery)
+                join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals N1QlFunctions.Key(brewery)
                 group beer by brewery.Name
                 into g
                 where string.Compare(g.Key, "N") >= 0 
@@ -334,7 +334,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query =
                 from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
-                join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals N1Ql.Key(brewery)
+                join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals N1QlFunctions.Key(brewery)
                 group beer by brewery.Name
                 into g
                 where g.Average(p => p.Abv) >= 6

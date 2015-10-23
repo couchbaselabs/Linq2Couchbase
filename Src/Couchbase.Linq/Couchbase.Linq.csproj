@@ -136,7 +136,7 @@
     <Compile Include="QueryGeneration\ParameterAggregator.cs" />
     <Compile Include="QueryGeneration\QueryPartsAggregator.cs" />
     <Compile Include="Metadata\DocumentMetadata.cs" />
-    <Compile Include="N1QL.cs" />
+    <Compile Include="N1QlFunctions.cs" />
     <Compile Include="QueryGeneration\UnclaimedGroupJoin.cs" />
     <Compile Include="QueryParserHelper.cs" />
     <Compile Include="UnixMillisecondsDateTime.cs" />

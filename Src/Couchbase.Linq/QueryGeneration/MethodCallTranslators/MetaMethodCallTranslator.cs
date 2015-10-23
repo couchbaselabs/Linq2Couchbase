@@ -11,7 +11,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     internal class MetaMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic = {
-            typeof (N1Ql).GetMethod("Meta")
+            typeof (N1QlFunctions).GetMethod("Meta")
         };
 
         public IEnumerable<MethodInfo> SupportMethods
