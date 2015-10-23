@@ -6,7 +6,7 @@ namespace Couchbase.Linq
     /// <summary>
     /// Implements static helper methods for N1QL queries 
     /// </summary>
-    public static class N1Ql
+    public static class N1QlFunctions
     {
 
         /// <summary>

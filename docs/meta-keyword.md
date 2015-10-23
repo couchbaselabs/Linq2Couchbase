@@ -13,7 +13,7 @@ There is additionally meta-data stored within couchbase for each document (TTL a
 The simplest usage of the META() function is to query it directly:
 
     var query = (from meta in context.Query<DocumentMetadata>()
-                 select N1Ql.Meta(meta)).
+                 select N1QlFunctions.Meta(meta)).
 				 Take(1);
 
 In this example, we are simply retrieving the meta-data from the first document returned in the beer-sample bucket. The "raw" results would look something like this:
@@ -39,13 +39,13 @@ Here is another example where you want to return the meta-data along with a fiel
 
 	 var beers = (from b in context.Query<Beer>()
                   where b.Type == "beer"
-                  select new {name = b.Name, meta = N1Ql.Meta(b)}); 
+                  select new {name = b.Name, meta = N1QlFunctions.Meta(b)});
 
 And another example where you only want to return the "id" portion of the meta-data in your projection:
 
 	var beers = (from b in context.Query<Beer>()
                  where b.Type == "beer"
-                 select new {name = b.Name, id = N1Ql.Meta(b).Id});
+                 select new {name = b.Name, id = N1QlFunctions.Meta(b).Id});
 
 The important thing to remember about the META function is that it is another tool available to you use in your queries!
 

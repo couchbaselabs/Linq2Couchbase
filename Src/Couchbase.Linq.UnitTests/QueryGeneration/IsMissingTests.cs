@@ -21,7 +21,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Where(p => N1Ql.IsMissing(p.Age));
+                .Where(p => N1QlFunctions.IsMissing(p.Age));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`age` IS MISSING";
 
@@ -37,7 +37,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Where(p => N1Ql.IsMissing(p, "test"));
+                .Where(p => N1QlFunctions.IsMissing(p, "test"));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`test` IS MISSING";
 
@@ -53,7 +53,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Where(p => N1Ql.IsNotMissing(p.Age));
+                .Where(p => N1QlFunctions.IsNotMissing(p.Age));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`age` IS NOT MISSING";
 
@@ -69,7 +69,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Where(p => N1Ql.IsNotMissing(p, "test"));
+                .Where(p => N1QlFunctions.IsNotMissing(p, "test"));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`test` IS NOT MISSING";
 
@@ -85,7 +85,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Select(p => new {age = N1Ql.IsMissing(p.Age) ? 10 : p.Age});
+                .Select(p => new {age = N1QlFunctions.IsMissing(p.Age) ? 10 : p.Age});
 
             const string expected = "SELECT CASE WHEN `Extent1`.`age` IS MISSING THEN 10 ELSE `Extent1`.`age` END as `age` FROM `default` as `Extent1`";
 
@@ -101,7 +101,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Where(p => N1Ql.IsValued(p.Age));
+                .Where(p => N1QlFunctions.IsValued(p.Age));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`age` IS VALUED";
 
@@ -117,7 +117,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Where(p => N1Ql.IsValued(p, "test"));
+                .Where(p => N1QlFunctions.IsValued(p, "test"));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`test` IS VALUED";
 
@@ -133,7 +133,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Where(p => N1Ql.IsNotValued(p.Age));
+                .Where(p => N1QlFunctions.IsNotValued(p.Age));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`age` IS NOT VALUED";
 
@@ -149,7 +149,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Where(p => N1Ql.IsNotValued(p, "test"));
+                .Where(p => N1QlFunctions.IsNotValued(p, "test"));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`test` IS NOT VALUED";
 
@@ -165,7 +165,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Select(p => new { age = N1Ql.IsNotValued(p.Age) ? 10 : p.Age });
+                .Select(p => new { age = N1QlFunctions.IsNotValued(p.Age) ? 10 : p.Age });
 
             const string expected = "SELECT CASE WHEN `Extent1`.`age` IS NOT VALUED THEN 10 ELSE `Extent1`.`age` END as `age` FROM `default` as `Extent1`";
 

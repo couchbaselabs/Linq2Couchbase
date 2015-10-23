@@ -22,7 +22,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Select(p => N1Ql.Meta(p));
+                .Select(p => N1QlFunctions.Meta(p));
 
             const string expected = "SELECT META(`Extent1`) FROM `default` as `Extent1`";
 
@@ -38,7 +38,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Select(c=> new {c.Age, Meta = N1Ql.Meta(c)});
+                .Select(c=> new {c.Age, Meta = N1QlFunctions.Meta(c)});
 
 
             const string expected = "SELECT `Extent1`.`age` as `Age`, META(`Extent1`) as `Meta` FROM `default` as `Extent1`";
@@ -51,7 +51,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         [Test]
         public void Test_Meta_Fakeable()
         {
-            // Confirms that the N1Ql.Meta operation can be faked for unit testing in a client application
+            // Confirms that the N1QlFunctions.Meta operation can be faked for unit testing in a client application
 
             var metadata = new DocumentMetadata()
             {
@@ -65,7 +65,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var data = (new List<Brewery> {mockObject.Object}).AsQueryable();
 
-            var query = from p in data select N1Ql.Meta(p).Id;
+            var query = from p in data select N1QlFunctions.Meta(p).Id;
 
             Assert.AreEqual(metadata.Id, query.First());
         }

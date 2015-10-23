@@ -48,7 +48,7 @@ namespace Couchbase.Linq.IntegrationTests
             var db = new BeerSample();
             var query = from beer in db.Beers
                         join brewery in db.Breweries
-                        on beer.BreweryId equals N1Ql.Key(brewery)
+                        on beer.BreweryId equals N1QlFunctions.Key(brewery)
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
             foreach (var beer in query)

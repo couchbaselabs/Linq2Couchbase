@@ -710,7 +710,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// </summary>
         /// <param name="joinClause">Join clause being visited</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to INNER JOIN.</returns>
-        /// <remarks>The InnerKeySelector must be selecting the N1Ql.Key of the InnerSequence</remarks>
+        /// <remarks>The InnerKeySelector must be selecting the N1QlFunctions.Key of the InnerSequence</remarks>
         private N1QlFromQueryPart ParseJoinClause(JoinClause joinClause)
         {
             switch (joinClause.InnerSequence.NodeType)
@@ -747,7 +747,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// <param name="joinClause">Join clause being visited</param>
         /// <param name="constantExpression">Constant expression that is the InnerSequence of the JoinClause</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to INNER JOIN.</returns>
-        /// <remarks>The InnerKeySelector must be selecting the N1Ql.Key of the InnerSequence</remarks>
+        /// <remarks>The InnerKeySelector must be selecting the N1QlFunctions.Key of the InnerSequence</remarks>
         private N1QlFromQueryPart VisitConstantExpressionJoinClause(JoinClause joinClause, ConstantExpression constantExpression)
         {
             string bucketName = null;
@@ -768,15 +768,15 @@ namespace Couchbase.Linq.QueryGeneration
 
             var keyExpression = joinClause.InnerKeySelector as MethodCallExpression;
             if ((keyExpression == null) ||
-                (keyExpression.Method != typeof(N1Ql).GetMethod("Key")) ||
+                (keyExpression.Method != typeof(N1QlFunctions).GetMethod("Key")) ||
                 (keyExpression.Arguments.Count != 1))
             {
-                throw new NotSupportedException("N1QL Join Selector Must Be A Call To N1Ql.Key");
+                throw new NotSupportedException("N1QL Join Selector Must Be A Call To N1QlFunctions.Key");
             }
 
             if (!(keyExpression.Arguments[0] is QuerySourceReferenceExpression))
             {
-                throw new NotSupportedException("N1QL Join Selector Call To N1Ql.Key Must Reference The Inner Sequence");
+                throw new NotSupportedException("N1QL Join Selector Call To N1QlFunctions.Key Must Reference The Inner Sequence");
             }
 
             return new N1QlFromQueryPart()

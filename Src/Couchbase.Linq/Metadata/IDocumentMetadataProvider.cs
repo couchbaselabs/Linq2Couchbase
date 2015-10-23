@@ -6,7 +6,7 @@
     /// <remarks>
     /// Used by a unit test to fake the results of a META operation in a Linq2Couchbase query
     /// </remarks>
-    /// <seealso cref="N1Ql.Meta" />
+    /// <seealso cref="N1QlFunctions.Meta" />
     public interface IDocumentMetadataProvider
     {
 
