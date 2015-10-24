@@ -20,6 +20,11 @@ namespace Couchbase.Linq
         protected BucketConfiguration BucketConfig;
         private Dictionary<Type, PropertyInfo>_cachedKeyProperties = new Dictionary<Type, PropertyInfo>();
 
+        /// <summary>
+        /// If true, generate change tracking proxies for documents during deserialization.  Defaults to false for higher performance queries.
+        /// </summary>
+        public virtual bool EnableChangeTracking { get; set; }
+
         public BucketContext(IBucket bucket)
         {
             _bucket = bucket;
@@ -44,7 +49,7 @@ namespace Couchbase.Linq
         /// <returns></returns>
         public IQueryable<T> Query<T>()
         {
-            return DocumentFilterManager.ApplyFilters(new BucketQueryable<T>(_bucket, Configuration));
+            return DocumentFilterManager.ApplyFilters(new BucketQueryable<T>(_bucket, Configuration, EnableChangeTracking));
         }
 
         /// <summary>

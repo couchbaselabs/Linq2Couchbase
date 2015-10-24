@@ -9,7 +9,7 @@ namespace Couchbase.Linq
         public static IQueryable<T> Queryable<T>(IBucket bucket)
         {
             //TODO refactor so ClientConfiguration is injectable
-            return new BucketQueryable<T>(bucket, new ClientConfiguration());
+            return new BucketQueryable<T>(bucket, new ClientConfiguration(), false);
         }
     }
 }

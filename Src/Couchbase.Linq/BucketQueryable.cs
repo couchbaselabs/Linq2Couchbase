@@ -58,10 +58,11 @@ namespace Couchbase.Linq
         /// </summary>
         /// <param name="bucket">The bucket.</param>
         /// <param name="configuration">The configuration.</param>
+        /// <param name="enableProxyGeneration">If true, generate change tracking proxies for documents during deserialization.</param>
         /// <exception cref="System.ArgumentNullException">bucket</exception>
         /// <exception cref="ArgumentNullException"><paramref name="bucket" /> is <see langword="null" />.</exception>
-        public BucketQueryable(IBucket bucket, ClientConfiguration configuration)
-            : base(QueryParserHelper.CreateQueryParser(), new BucketQueryExecutor(bucket, configuration))
+        public BucketQueryable(IBucket bucket, ClientConfiguration configuration, bool enableProxyGeneration)
+            : base(QueryParserHelper.CreateQueryParser(), new BucketQueryExecutor(bucket, configuration, enableProxyGeneration))
         {
             if (bucket == null)
             {

@@ -19,16 +19,55 @@ namespace Couchbase.Linq
         private static readonly ILog Log = LogManager.GetLogger<BucketQueryExecutor>();
         private readonly IBucket _bucket;
         private readonly ClientConfiguration _configuration;
+        private readonly bool _enableProxyGeneration;
 
         public string BucketName
         {
             get { return _bucket.Name; }
         }
 
-        public BucketQueryExecutor(IBucket bucket, ClientConfiguration configuration)
+        /// <summary>
+        /// If true, generate change tracking proxies for documents during deserialization.
+        /// </summary>
+        public bool EnableProxyGeneration
+        {
+            get { return _enableProxyGeneration; }
+        }
+
+        /// <summary>
+        /// Creates a new BucketQueryExecutor.
+        /// </summary>
+        /// <param name="bucket"><see cref="IBucket"/> to query.</param>
+        /// <param name="configuration"><see cref="ClientConfiguration"/> used during the query.</param>
+        /// <param name="enableProxyGeneration">If true, generate change tracking proxies for documents during deserialization.</param>
+        public BucketQueryExecutor(IBucket bucket, ClientConfiguration configuration, bool enableProxyGeneration)
         {
             _bucket = bucket;
             _configuration = configuration;
+            _enableProxyGeneration = enableProxyGeneration;
+        }
+
+        /// <summary>
+        /// Determines if proxies should be generated, based on the given query model and return type.
+        /// </summary>
+        /// <typeparam name="T">Return type expected for query rows.</typeparam>
+        /// <param name="queryModel">Query model.</param>
+        /// <returns>Returns true if proxies should be generated, based on the given query model and return type.</returns>
+        /// <remarks>
+        /// Queries with select projections don't need change tracking, because there is no original source document be
+        /// updated if their properties are changed.  So only create proxies if the rows being returned by the query are
+        /// plain instances of the document type being queried, without select projections.
+        /// </remarks>
+        private bool ShouldGenerateProxies<T>(QueryModel queryModel)
+        {
+            if (!EnableProxyGeneration)
+            {
+                return false;
+            }
+
+            var mainFromClauseType = queryModel.MainFromClause.ItemType;
+
+            return (mainFromClauseType == typeof (T)) || (mainFromClauseType == typeof (SimpleResult<T>));
         }
 
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
@@ -39,18 +78,26 @@ namespace Couchbase.Linq
 
             if (!resultExtractionRequired)
             {
-                return ExecuteCollection<T>(commandData);
+                return ExecuteCollection<T>(commandData, queryModel);
             }
             else
             {
-                return ExecuteCollection<SimpleResult<T>>(commandData)
+                return ExecuteCollection<SimpleResult<T>>(commandData, queryModel)
                     .Select(p => p.result);
             }
         }
 
-        private IEnumerable<T> ExecuteCollection<T>(string commandData)
+        private IEnumerable<T> ExecuteCollection<T>(string commandData, QueryModel queryModel)
         {
-            var result = _bucket.Query<T>(new QueryRequest(commandData));
+            var queryRequest = new QueryRequest(commandData);
+
+            if (ShouldGenerateProxies<T>(queryModel))
+            {
+                // Proxy generation was requested, and the
+                queryRequest.DataMapper = new Proxies.DocumentProxyDataMapper(_configuration);
+            }
+
+            var result = _bucket.Query<T>(queryRequest);
             if (!result.Success)
             {
                 if (result.Exception != null && (result.Errors == null || result.Errors.Count == 0))
@@ -130,7 +177,8 @@ namespace Couchbase.Linq
         private class SimpleResult<T>
         {
             // ReSharper disable once InconsistentNaming
-            public T result { get; set; }
+            // Note: must be virtual to support change tracking for First/Single
+            public virtual T result { get; set; }
         }
 
     }
