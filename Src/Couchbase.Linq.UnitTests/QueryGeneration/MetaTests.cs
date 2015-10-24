@@ -24,7 +24,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Select(p => N1QlFunctions.Meta(p));
 
-            const string expected = "SELECT META(`Extent1`) FROM `default` as `Extent1`";
+            const string expected = "SELECT META(`Extent1`) as `result` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

@@ -33,7 +33,23 @@ namespace Couchbase.Linq
 
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
-            var commandData = ExecuteCollection(queryModel);
+            bool resultExtractionRequired;
+
+            var commandData = ExecuteCollection(queryModel, out resultExtractionRequired);
+
+            if (!resultExtractionRequired)
+            {
+                return ExecuteCollection<T>(commandData);
+            }
+            else
+            {
+                return ExecuteCollection<SimpleResult<T>>(commandData)
+                    .Select(p => p.result);
+            }
+        }
+
+        private IEnumerable<T> ExecuteCollection<T>(string commandData)
+        {
             var result = _bucket.Query<T>(new QueryRequest(commandData));
             if (!result.Success)
             {
@@ -79,7 +95,7 @@ namespace Couchbase.Linq
             }
             else
             {
-                return ExecuteSingle<SimpleResult<T>>(queryModel, false).result;
+                return ExecuteSingle<T>(queryModel, false);
             }
         }
 
@@ -90,25 +106,30 @@ namespace Couchbase.Linq
                 : ExecuteCollection<T>(queryModel).Single();
         }
 
-        public string ExecuteCollection(QueryModel queryModel)
+        public string ExecuteCollection(QueryModel queryModel, out bool resultExtractionRequired)
         {
             //TODO: this should be refactored so that does not rely on NewtonSoft and so that it's using a
             //"pluggable" resolver and translator via configuration.
             var memberNameResolver = new JsonNetMemberNameResolver(_configuration.SerializationSettings.ContractResolver);
             var methodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider();
-            var query = N1QlQueryModelVisitor.GenerateN1QlQuery(queryModel, memberNameResolver,
-                methodCallTranslatorProvider, _configuration.Serializer.Invoke());
 
+            var visitor = new N1QlQueryModelVisitor(memberNameResolver, methodCallTranslatorProvider, _configuration.Serializer.Invoke());
+            visitor.VisitQueryModel(queryModel);
+
+            var query = visitor.GetQuery();
             Log.Debug(m => m("Generated query: {0}", query));
 
+            resultExtractionRequired = visitor.ResultExtractionRequired;
             return query;
         }
 
+        // ReSharper disable once ClassNeverInstantiated.Local
         /// <summary>
         /// Used to extract the result row from an Any or All operation
         /// </summary>
         private class SimpleResult<T>
         {
+            // ReSharper disable once InconsistentNaming
             public T result { get; set; }
         }
 

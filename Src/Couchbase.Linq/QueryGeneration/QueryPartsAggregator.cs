@@ -36,7 +36,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// <summary>
         /// For subqueries, stores the name of property to extract to a plain array
         /// </summary>
-        public string ArrayPropertyExtractionPart { get; set; }
+        public string PropertyExtractionPart { get; set; }
         /// <summary>
         /// For Array subqueries, list of functions to wrap the result
         /// </summary>
@@ -53,6 +53,18 @@ namespace Couchbase.Linq.QueryGeneration
         /// Defaults to building a SELECT query
         /// </remarks>
         public N1QlQueryType QueryType { get; set; }
+
+        /// <summary>
+        /// Returns true if the QueryType is a bucket-based subquery
+        /// </summary>
+        public bool IsBucketSubquery
+        {
+            get
+            {
+                return (QueryType == N1QlQueryType.Subquery) || (QueryType == N1QlQueryType.SubqueryAny) ||
+                       (QueryType == N1QlQueryType.SubqueryAll);
+            }
+        }
 
         /// <summary>
         /// Returns true if the QueryType is an array-based subquery
@@ -164,12 +176,12 @@ namespace Couchbase.Linq.QueryGeneration
             
             if (QueryType == N1QlQueryType.Subquery)
             {
-                if (!string.IsNullOrEmpty(ArrayPropertyExtractionPart))
+                if (!string.IsNullOrEmpty(PropertyExtractionPart))
                 {
                     // Subqueries will always return a list of objects
                     // But we need to use an ARRAY statement to convert it into an array of a particular property of that object
 
-                    sb.AppendFormat("ARRAY `ArrayExtent`.{0} FOR `ArrayExtent` IN (", ArrayPropertyExtractionPart);
+                    sb.AppendFormat("ARRAY `ArrayExtent`.{0} FOR `ArrayExtent` IN (", PropertyExtractionPart);
                 }
                 else
                 {
@@ -178,11 +190,11 @@ namespace Couchbase.Linq.QueryGeneration
             }
             else if (QueryType == N1QlQueryType.SubqueryAny)
             {
-                sb.AppendFormat("ANY {0} IN (", ArrayPropertyExtractionPart);
+                sb.AppendFormat("ANY {0} IN (", PropertyExtractionPart);
             }
             else if (QueryType == N1QlQueryType.SubqueryAll)
             {
-                sb.AppendFormat("EVERY {0} IN (", ArrayPropertyExtractionPart);
+                sb.AppendFormat("EVERY {0} IN (", PropertyExtractionPart);
             }
 
             if (!string.IsNullOrWhiteSpace(ExplainPart))
@@ -192,7 +204,7 @@ namespace Couchbase.Linq.QueryGeneration
 
             if (!string.IsNullOrEmpty(AggregateFunction))
             {
-                sb.AppendFormat("SELECT {0}({1}{2}) as `result`",
+                sb.AppendFormat("SELECT {0}({1}{2})",
                     AggregateFunction,
                     !string.IsNullOrWhiteSpace(DistinctPart) ? DistinctPart : string.Empty,
                     SelectPart);
@@ -203,6 +215,11 @@ namespace Couchbase.Linq.QueryGeneration
                     !string.IsNullOrWhiteSpace(DistinctPart) ? DistinctPart : string.Empty,
                     SelectPart);
                 //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5
+            }
+
+            if (!IsBucketSubquery && !string.IsNullOrEmpty(PropertyExtractionPart))
+            {
+                sb.AppendFormat(" as {0}", PropertyExtractionPart);
             }
 
             if (FromParts.Any())
@@ -260,7 +277,7 @@ namespace Couchbase.Linq.QueryGeneration
 
             if (QueryType == N1QlQueryType.Subquery)
             {
-                if (!string.IsNullOrEmpty(ArrayPropertyExtractionPart))
+                if (!string.IsNullOrEmpty(PropertyExtractionPart))
                 {
                     sb.Append(") END");
                 }
