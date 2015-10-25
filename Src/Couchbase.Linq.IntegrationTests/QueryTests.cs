@@ -188,6 +188,25 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void Map2PocoTests_Explain_QueryWithPropertyExtraction()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var context = new BucketContext(bucket);
+
+                    var explanation = (from b in context.Query<Beer>()
+                                       where b.Type == "beer"
+                                       select b.Abv).
+                        Explain();
+
+                    Console.WriteLine(explanation);
+                }
+            }
+        }
+
+        [Test]
         public void Map2PocoTests_NewObjectsInArray()
         {
             using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
@@ -211,6 +230,50 @@ namespace Couchbase.Linq.IntegrationTests
                     {
                         Console.WriteLine("Brewery {0} has address parts {1}", brewery.name,
                             String.Join(", ", brewery.list.Select(p => p.part)));
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void NoProjection_Meta()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var context = new BucketContext(bucket);
+
+                    var beers = (from b in context.Query<Beer>()
+                                 where b.Type == "beer"
+                                 select N1QlFunctions.Meta(b)).
+                        Take(10);
+
+                    foreach (var b in beers)
+                    {
+                        Console.WriteLine(b);
+                    }
+                }
+            }
+        }
+
+        [Test]
+        public void NoProjection_Number()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var context = new BucketContext(bucket);
+
+                    var beers = (from b in context.Query<Beer>()
+                                 where b.Type == "beer"
+                                 select b.Abv).
+                        Take(10);
+
+                    foreach (var b in beers)
+                    {
+                        Console.WriteLine(b);
                     }
                 }
             }

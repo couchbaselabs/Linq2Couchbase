@@ -140,7 +140,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 select g.Key;
 
             const string expected =
-                "SELECT `Extent1`.`brewery_id` " +
+                "SELECT `Extent1`.`brewery_id` as `result` " +
                 "FROM `default` as `Extent1` " +
                 "GROUP BY `Extent1`.`brewery_id`";
 

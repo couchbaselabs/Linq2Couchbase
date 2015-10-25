@@ -45,6 +45,13 @@ namespace Couchbase.Linq.QueryGeneration
         /// </summary>
         private ExpressionTransformerRegistry _groupingExpressionTransformerRegistry;
 
+        /// <summary>
+        /// Indicates that the result of this query is not the result expected by LINQ, instead it is an array of objects
+        /// which have a property "result" that contains the expected result.  The query executor will need to extract this
+        /// result property as part of the deserialization process.
+        /// </summary>
+        public bool ResultExtractionRequired { get; set; }
+
         public N1QlQueryModelVisitor(IMemberNameResolver memberNameResolver, IMethodCallTranslatorProvider methodCallTranslatorProvider,
             ITypeSerializer serializer)
         {
@@ -79,14 +86,6 @@ namespace Couchbase.Linq.QueryGeneration
             }
         }
 
-        public static string GenerateN1QlQuery(QueryModel queryModel, IMemberNameResolver memberNameResolver,
-            IMethodCallTranslatorProvider methodCallTranslatorProvider, ITypeSerializer serializer)
-        {
-            var visitor = new N1QlQueryModelVisitor(memberNameResolver, methodCallTranslatorProvider, serializer);
-            visitor.VisitQueryModel(queryModel);
-            return visitor.GetQuery();
-        }
-
         public string GetQuery()
         {
             return _queryPartsAggregator.BuildN1QlQuery();
@@ -107,6 +106,13 @@ namespace Couchbase.Linq.QueryGeneration
                 // Select clause must be visited after result operations because Any and All operators
                 // May change how we handle the select clause
                 queryModel.SelectClause.Accept(this, queryModel);
+            }
+
+            if (!string.IsNullOrEmpty(_queryPartsAggregator.ExplainPart))
+            {
+                // We no longer need to extract the result, because now the query is returning an explanation instead
+
+                ResultExtractionRequired = false;
             }
 
             if (_unclaimedGroupJoins.Any())
@@ -230,6 +236,8 @@ namespace Couchbase.Linq.QueryGeneration
                 {
                     // for aggregates, just use "*" (i.e. AggregateFunction = "COUNT", expression = "*" results in COUNT(*)"
 
+                    ResultExtractionRequired = true;
+                    _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
                     expression = "*";
                 }
             }
@@ -265,9 +273,19 @@ namespace Couchbase.Linq.QueryGeneration
                     // But N1QL will always return a list of objects with a single property
                     // So we need to use an ARRAY statement to convert the list
 
-                    _queryPartsAggregator.ArrayPropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+                    _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
 
-                    expression += " as " + _queryPartsAggregator.ArrayPropertyExtractionPart;
+                    expression += " as " + _queryPartsAggregator.PropertyExtractionPart;
+                }
+                else
+                {
+                    // This is a select expression on the main query that doesn't use a "new" clause, and isn't against an extent
+                    // So it will return an array of objects with properties, while LINQ is expecting an array of values
+                    // Since we can't extract the properties from the object in N1QL like we can with subqueries
+                    // We need to indicate to the BucketQueryExecutor that it will need to extract the properties
+
+                    _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+                    ResultExtractionRequired = true;
                 }
             }
 
@@ -352,7 +370,7 @@ namespace Couchbase.Linq.QueryGeneration
                     // For any Any query this value won't be used
                     // But we'll generate it for consistency
 
-                    _queryPartsAggregator.ArrayPropertyExtractionPart =
+                    _queryPartsAggregator.PropertyExtractionPart =
                         _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName();
                 }
             }
@@ -369,11 +387,11 @@ namespace Couchbase.Linq.QueryGeneration
                     // Each extent of the subquery will be a property returned by the subquery
                     // So we need to prefix the references to the subquery in the predicate with the iterator name from the ALL clause
 
-                    _queryPartsAggregator.ArrayPropertyExtractionPart =
+                    _queryPartsAggregator.PropertyExtractionPart =
                         _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName();
 
                     prefixedExtents = true;
-                    _queryGenerationContext.ExtentNameProvider.Prefix = _queryPartsAggregator.ArrayPropertyExtractionPart + ".";
+                    _queryGenerationContext.ExtentNameProvider.Prefix = _queryPartsAggregator.PropertyExtractionPart + ".";
                 }
 
                 var allResultOperator = (AllResultOperator) resultOperator;
