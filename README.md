@@ -38,10 +38,11 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 - Array filtering and projections
 - Grouping and Aggregation
 - [The UseKeys Method](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/use-keys.md)
-- NEST and UNNEST
-- JOINs
-- Any and All
-- IS NULL and IS NOT NULL
+- [JOINing Documents](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/joins.md)
+- [NESTing Documents](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/nest.md)
+- [UNNESTing Documents](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/unnest.md)
+- [Any and All](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/any-all.md)
+- [Testing For NULL And MISSING Attributes](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/null-missing-valued.md)
 - [The META Keyword](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/meta-keyword.md)
 
 
