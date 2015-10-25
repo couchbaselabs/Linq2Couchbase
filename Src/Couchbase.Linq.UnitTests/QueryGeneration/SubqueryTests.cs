@@ -193,6 +193,28 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_ArraySubquerySelectExpression()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                select new { name = brewery.Name, addresses = brewery.Address.Select(p => "Address " + p) };
+
+            const string expected =
+                "SELECT `Extent1`.`name` as `name`, " +
+                "ARRAY ('Address ' || `Extent2`) FOR `Extent2` IN `Extent1`.`address` END as `addresses` " +
+                "FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_ArraySubqueryWithSortAscending()
         {
             SetContractResolver(new DefaultContractResolver());

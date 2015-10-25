@@ -267,7 +267,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 expression = GetN1QlExpression(selectClause.Selector);
 
-                if ((_queryPartsAggregator.QueryType == N1QlQueryType.Subquery) || (_queryPartsAggregator.QueryType == N1QlQueryType.Array))
+                if (_queryPartsAggregator.QueryType == N1QlQueryType.Subquery)
                 {
                     // For LINQ, this subquery is expected to return a list of the specific property being selected
                     // But N1QL will always return a list of objects with a single property
@@ -362,7 +362,7 @@ namespace Couchbase.Linq.QueryGeneration
             else if (resultOperator is AnyResultOperator)
             {
                 _queryPartsAggregator.QueryType =
-                    _queryPartsAggregator.QueryType == N1QlQueryType.Array ? N1QlQueryType.ArrayAny : 
+                    _queryPartsAggregator.QueryType == N1QlQueryType.Array ? N1QlQueryType.ArrayAny :
                         _queryPartsAggregator.QueryType == N1QlQueryType.Subquery ? N1QlQueryType.SubqueryAny : N1QlQueryType.MainQueryAny;
 
                 if (_queryPartsAggregator.QueryType == N1QlQueryType.SubqueryAny)
@@ -547,7 +547,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 return false;
             }
-            
+
             if (referencedQuerySource.FromExpression != queryModel.MainFromClause.FromExpression)
             {
                 return false;
@@ -689,7 +689,7 @@ namespace Couchbase.Linq.QueryGeneration
                 JoinType = "INNER UNNEST"
             };
         }
-        
+
         #endregion
 
         #region Join Clauses
@@ -751,7 +751,7 @@ namespace Couchbase.Linq.QueryGeneration
                         subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression);
 
                     VisitBodyClauses(subQuery.QueryModel.BodyClauses, subQuery.QueryModel);
-                    
+
                     return fromPart;
 
                 default:
@@ -858,7 +858,7 @@ namespace Couchbase.Linq.QueryGeneration
                                 genItemName,
                                 whereClauseString)
                     };
-                
+
                     _queryPartsAggregator.AddLetPart(letPart);
 
                     if (!nestClause.IsLeftOuterNest)
