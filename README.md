@@ -27,8 +27,8 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 
 ##Developer Guide##
 
-- [The BucketContext](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/bucket-context.md)
-- Mapping JSON fields to POCO properties
+- [The BucketContext: how to use with ASP.NET and Owin/Katana applications](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/bucket-context.md)
+- [Mapping JSON fields to POCO properties](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/poco-mapping.md)
 - [Mapping JSON documents to POCOs with DocumentFilters](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/document-filters.md)
 - [Controlling output with Select](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/simple-select.md)
 - [Filtering with Where](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/where-clause.md)
