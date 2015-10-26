@@ -36,7 +36,7 @@ Assuming we have a document that looks like this:
 
 We can have an associated Airline class that is symmetrical in form and shape:
 	
-	[DocumentTypeFilter("airline")
+	[DocumentTypeFilter("airline")]
 	public class Airline
     {
         [JsonIgnore]
@@ -61,7 +61,7 @@ We can have an associated Airline class that is symmetrical in form and shape:
         public string Country { get; set; }
     }
 
-Now when we generate a Linq query, the `WHERE type="airline"` will be automatically added to the emitted N1QL query and only document of type "airline" will be returned.
+Now when we generate a Linq query, the `WHERE type="airline"` will be automatically added to the emitted N1QL query and only document of type "airline" will be returned. 
 
 ##Custom Document Filters##
 In addition to the default filters, custom filters are also supported which enable you to apply any predicate you wish to a POCO. To use a custom document filter, you create an implementation of IDocumentFilter which matches the criterion you wish to filter by. 
@@ -80,15 +80,15 @@ Here is an example of a custom filter which filters by Type:
 
 Note that the predicate can be anything you wish even compound.
 
-Once you have a custom filter, you will need to register it using the DocumentFilterManager:
+You have two options for applying a custom document filter.  The first is to make a custom filter attribute inherited from DocumentFilterAttribute.  Then apply this attribute to your document types.
 
-    DocumentFilterManager.SetFilter(new BreweryFilter());
+The second is to register the filter using the DocumentFilterManager for each document type:
+
+    DocumentFilterManager.SetFilter<DocumentType>(new BreweryFilter());
 
 Typically this would done when the application starts up, or you could do it in the ctor of a class which extends `BucketContext`.
 
-##Mapping POCO fields to JSON documents fields##
-Note that the mapping between the JSON document and your target POCO must match! The Linq provider does support JsonProperty which allows you to do custom mapping of JSON document to C# object properties.
-
+For an example of a dynamic document filter attribute inherited from DocumentFilterAttribute, see the source code for [DocumentTypeFilterAttribute](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/Src/Couchbase.Linq/Filters/DocumentTypeFilterAttribute.cs).
 
 
 	
