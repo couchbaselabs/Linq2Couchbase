@@ -92,7 +92,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 case ExpressionType.Extension:
                     return VisitExtensionExpression(expression);
-                    
+
                 default:
                     return base.VisitExpression(expression);
             }
@@ -132,7 +132,7 @@ namespace Couchbase.Linq.QueryGeneration
                 VisitExpression(arguments[i]);
 
                 if (_expression.Length == beforeSubExpressionLength)
-                {                    
+                {
                     // nothing was added for the value, so remove the part that was added originally
                     _expression.Length = beforeAppendLength;
                 }
@@ -250,13 +250,13 @@ namespace Couchbase.Linq.QueryGeneration
                     break;
 
                 case ExpressionType.Add:
-                    if ((expression.Left.Type != typeof (string)) || (expression.Right.Type != typeof (string)))
+                    if ((expression.Left.Type == typeof (string)) || (expression.Right.Type == typeof (string)))
                     {
-                    _expression.Append(" + ");
+                        _expression.Append(" || ");
                     }
                     else
                     {
-                        _expression.Append(" || ");
+                        _expression.Append(" + ");
                     }
                     break;
 
@@ -427,7 +427,7 @@ namespace Couchbase.Linq.QueryGeneration
                     return System.Linq.Expressions.Expression.Constant(operation == ExpressionType.LessThanOrEqual,
                         typeof (bool));
                 }
-            } 
+            }
             else if (number == -1)
             {
                 if ((operation == ExpressionType.GreaterThan) || (operation == ExpressionType.NotEqual))
@@ -459,7 +459,7 @@ namespace Couchbase.Linq.QueryGeneration
                     (operation == ExpressionType.NotEqual) || (operation == ExpressionType.GreaterThan) || (operation == ExpressionType.GreaterThanOrEqual),
                     typeof(bool));
             }
-            
+
             // If number == 0 we just leave operation unchanged
 
             return StringComparisonExpression.Create(operation, leftString, rightString);
@@ -575,7 +575,7 @@ namespace Couchbase.Linq.QueryGeneration
                 _expression.AppendFormat("'{0}'", namedParameter.Value.ToString().Replace("'", "''"));
             }
             else if (namedParameter.Value is char)
-            {                
+            {
                 _expression.AppendFormat("'{0}'", (char)namedParameter.Value != '\'' ? namedParameter.Value : "''");
             }
             else if (namedParameter.Value is bool)

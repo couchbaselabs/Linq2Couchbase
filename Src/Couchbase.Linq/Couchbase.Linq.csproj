@@ -114,6 +114,7 @@
     <Compile Include="QueryGeneration\MethodCallTranslators\KeyMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\MetaMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\DefaultMethodCallTranslatorProvider.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\ToStringMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\StringSplitMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\StringIndexOfMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\StringReplaceMethodCallTranslator.cs" />

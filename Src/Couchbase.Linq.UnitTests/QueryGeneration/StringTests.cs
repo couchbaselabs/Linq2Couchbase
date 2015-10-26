@@ -475,6 +475,44 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
         #endregion
 
+        #region ToString Tests
+
+        [Test]
+        public void Test_StringToString()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
+                        select new { FirstName = contact.FirstName.ToString() };
+
+            const string expected =
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_IntegerToString()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
+                        select new { Age = contact.Age.ToString() };
+
+            const string expected =
+                "SELECT TOSTRING(`Extent1`.`age`) as `Age` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
+
         #region Compare N1QL Format Tests
 
         [Test]

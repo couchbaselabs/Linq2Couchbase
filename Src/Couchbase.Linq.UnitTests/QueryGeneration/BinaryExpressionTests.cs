@@ -327,6 +327,24 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_StringAdditionNonString()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Select(e => new { key = "constant-" + e.Age });
+
+            const string expected =
+                "SELECT ('constant-' || `Extent1`.`age`) as `key` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_StringConcat()
         {
             var mockBucket = new Mock<IBucket>();
