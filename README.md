@@ -32,11 +32,12 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 - [Mapping JSON documents to POCOs with DocumentFilters](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/document-filters.md)
 - [Controlling output with Select](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/simple-select.md)
 - [Filtering with Where](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/where-clause.md)
-- ASC, DESC, LIMIT and SKIP
-- Math functions
-- Date functions
-- Array filtering and projections
-- Grouping and Aggregation
+- [Sorting and Paging Results](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/sorting-take-limit.md)
+- [String Handling](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/string-handling.md)
+- [Math Functions](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/math-functions.md)
+- [Date Handling](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/date-handling.md)
+- [Array Filtering, Projections, and Sorting](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/array-filtering-projections.md)
+- [Grouping and Aggregation](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/grouping-aggregation.md)
 - [The UseKeys Method](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/use-keys.md)
 - [JOINing Documents](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/joins.md)
 - [NESTing Documents](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/nest.md)

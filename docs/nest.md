@@ -4,16 +4,14 @@ Nesting documents is somewhat similar to [JOINing Documents](https://github.com/
 
 However, nesting returns the data in a different format.  Nests expect the document on the left to have a list of document keys in an array.  Each key on the document is then loaded from the bucket, and a array of documents is provided.  This array may then be manipulated and used elsewhere in the query, such as the select projection or where clause. 
 
-Note: Nests can be performed across multiple buckets, so long as the buckets are all on the same cluster.
+**Note:** Nests can be performed across multiple buckets, so long as the buckets are all on the same cluster.
 
-Nests and Keys
-==============
+##Nests and Keys
 In N1QL, all nest operations must be done using document keys.  The documents on the left hand side of the nest must provide an array of document keys, and these keys are matched against the document keys on the right hand side of the join.  You may not nest against document properties on the right hand side of the nest, so it is important to take this into consideration when designing your data model.
 
 Note: The examples below use the beer-sample bucket, and assume that brewery documents have an array of keys of beer documents.  This isn't actually the case in the default beer-sample bucket.  If you want to run these examples, you'll need to modify the brewery documents to support it.
 
-Inner Nests
-===========
+##Inner Nests
 An inner nest requires that there be at least one matching document on the right hand side of the nest.  If a matching document is not found, because none of the documents exist or the array of keys is empty or null, the document on the left hand side of the nest is dropped from the result set.
 
 	using (var cluster = new Cluster()) {
@@ -40,8 +38,7 @@ An inner nest requires that there be at least one matching document on the right
 
 Note: You may apply other LINQ operations such as where and orderby clauses after the nest operation.
 
-Left Outer Nests
-================
+##Left Outer Nests
 A left outer nest returns all documents on the left side of the nest, even if there are no documents on the right side is not found.
 
 	using (var cluster = new Cluster()) {
@@ -66,8 +63,7 @@ A left outer nest returns all documents on the left side of the nest, even if th
 		}
 	}
 
-Compound Keys
-=============
+##Compound Keys
 It is also possible to build the key on the left hand side of the nest using multiple properties and string constants.  As an example, imagine a bucket with this data structure:
 
 	Key: "order-1001"
