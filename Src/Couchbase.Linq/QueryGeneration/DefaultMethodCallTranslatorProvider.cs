@@ -32,7 +32,7 @@ namespace Couchbase.Linq.QueryGeneration
                     });
 
             return query.ToDictionary(p => p.method, p => p.instance);
-        } 
+        }
 
         #endregion
 
@@ -73,9 +73,23 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 return translator;
             }
-            
-            // Finally, check any interfaces that may have a matching 
-            return GetItemFromInterfaces(key);            
+
+            // Check any interfaces that may have a matching method
+            translator = GetItemFromInterfaces(key);
+            if (translator != null)
+            {
+                return translator;
+            }
+
+            // Finally, check base method if this is a virtual method
+            var baseMethod = key.GetBaseDefinition();
+            if ((baseMethod != null) && (baseMethod != key))
+            {
+                return GetItem(baseMethod);
+            }
+
+            // No match found
+            return null;
         }
 
         /// <summary>
@@ -140,7 +154,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 throw new ArgumentNullException("key");
             }
-            
+
             if (key.IsStatic || (key.DeclaringType == null) || (!key.DeclaringType.IsClass))
             {
                 return null;
