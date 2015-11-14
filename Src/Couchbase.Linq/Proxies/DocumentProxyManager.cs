@@ -32,7 +32,7 @@ namespace Couchbase.Linq.Proxies
         /// <summary>
         /// Singleton instance of <see cref="DocumentProxyManager"/> for use creating document proxies.
         /// </summary>
-        public static DocumentProxyManager Default { get; set; } = new DocumentProxyManager();
+        public static DocumentProxyManager Default { get; set; }
 
         private readonly ProxyGenerator _proxyGenerator;
         /// <summary>
@@ -41,6 +41,14 @@ namespace Couchbase.Linq.Proxies
         public ProxyGenerator ProxyGenerator
         {
             get { return _proxyGenerator; }
+        }
+
+        /// <summary>
+        /// Static constructor
+        /// </summary>
+        static DocumentProxyManager()
+        {
+            Default = new DocumentProxyManager();
         }
 
         /// <summary>
