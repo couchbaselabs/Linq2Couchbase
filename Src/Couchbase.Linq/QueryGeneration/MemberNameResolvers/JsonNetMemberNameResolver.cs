@@ -3,8 +3,16 @@ using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json.Serialization;
 
-namespace Couchbase.Linq.QueryGeneration
+namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
 {
+    /// <summary>
+    /// Implementation of <see cref="IMemberNameResolver"/> which uses a Newtonsoft.Json
+    /// <see cref="IContractResolver"/> to resolve member names.
+    /// </summary>
+    /// <remarks>
+    /// Used for backwards compatibility with older implementations of <see cref="Couchbase.Core.Serialization.ITypeSerializer"/>
+    /// which don't have a GetMemberName implementation like <see cref="Couchbase.Core.Serialization.IExtendedTypeSerializer"/>.
+    /// </remarks>
     internal class JsonNetMemberNameResolver : IMemberNameResolver
     {
         private readonly IContractResolver _contractResolver;

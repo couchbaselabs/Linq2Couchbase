@@ -5,8 +5,10 @@ using System.Text;
 using Common.Logging;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.Core.Serialization;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration;
+using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Couchbase.N1QL;
 using Newtonsoft.Json;
 using Remotion.Linq;
@@ -155,9 +157,15 @@ namespace Couchbase.Linq
 
         public string ExecuteCollection(QueryModel queryModel, out bool resultExtractionRequired)
         {
-            //TODO: this should be refactored so that does not rely on NewtonSoft and so that it's using a
-            //"pluggable" resolver and translator via configuration.
-            var memberNameResolver = new JsonNetMemberNameResolver(_configuration.SerializationSettings.ContractResolver);
+            // If ITypeSerializer is an IExtendedTypeSerializer, use it as the member name resolver
+            // Otherwise fallback to the legacy behavior which assumes we're using Newtonsoft.Json
+            // Note that DefaultSerializer implements IExtendedTypeSerializer, but has the same logic as JsonNetMemberNameResolver
+
+            var serializer = _configuration.Serializer.Invoke() as IExtendedTypeSerializer;
+            var memberNameResolver = serializer != null ?
+                (IMemberNameResolver)new ExtendedTypeSerializerMemberNameResolver(serializer) :
+                (IMemberNameResolver)new JsonNetMemberNameResolver(_configuration.SerializationSettings.ContractResolver);
+
             var methodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider();
 
             var visitor = new N1QlQueryModelVisitor(memberNameResolver, methodCallTranslatorProvider, _configuration.Serializer.Invoke());

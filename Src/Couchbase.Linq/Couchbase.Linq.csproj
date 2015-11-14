@@ -115,10 +115,11 @@
     <Compile Include="BucketQueryExecutor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="QueryFactory.cs" />
-    <Compile Include="QueryGeneration\IMemberNameResolver.cs" />
+    <Compile Include="QueryGeneration\MemberNameResolvers\IMemberNameResolver.cs" />
     <Compile Include="QueryGeneration\IMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\IMethodCallTranslatorProvider.cs" />
-    <Compile Include="QueryGeneration\JsonNetMemberNameResolver.cs" />
+    <Compile Include="QueryGeneration\MemberNameResolvers\ExtendedTypeSerializerMemberNameResolver.cs" />
+    <Compile Include="QueryGeneration\MemberNameResolvers\JsonNetMemberNameResolver.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\ConcatMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\ListIndexMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\ContainsMethodCallTranslator.cs" />

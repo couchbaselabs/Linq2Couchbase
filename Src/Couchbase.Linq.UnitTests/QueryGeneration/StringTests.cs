@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Couchbase.Core;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.Expressions;
+using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Couchbase.Linq.UnitTests.Documents;
 using Moq;
 using NUnit.Framework;
