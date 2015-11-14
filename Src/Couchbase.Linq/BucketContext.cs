@@ -129,6 +129,34 @@ namespace Couchbase.Linq
             }
             throw new KeyAttributeMissingException(ExceptionMsgs.KeyAttributeMissing);
         }
+
+        /// <summary>
+        /// Begins change tracking for the current request. To complete and save the changes call <see cref="SubmitChanges" />. Note that
+        /// <see cref="EnableChangeTracking" /> must be set to true for change tracking to be enabled.
+        /// </summary>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void BeginChangeTracking()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Submits the changes.
+        /// </summary>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void SubmitChanges()
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <summary>
+        /// Flushes the changes.
+        /// </summary>
+        /// <exception cref="System.NotImplementedException"></exception>
+        public void FlushChanges()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
 

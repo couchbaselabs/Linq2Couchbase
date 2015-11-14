@@ -19,6 +19,27 @@ namespace Couchbase.Linq
         ClientConfiguration Configuration { get; }
 
         /// <summary>
+        /// If true, generate change tracking proxies for documents during deserialization. Defaults to false for higher performance queries.
+        /// </summary>
+        bool EnableChangeTracking { get; set; }
+
+        /// <summary>
+        /// Begins change tracking for the current request. To complete and save the changes call <see cref="SubmitChanges"/>. Note that
+        /// <see cref="EnableChangeTracking"/> must be set to true for change tracking to be enabled.
+        /// </summary>
+        void BeginChangeTracking();
+
+        /// <summary>
+        /// Submits the changes.
+        /// </summary>
+        void SubmitChanges();
+
+        /// <summary>
+        /// Flushes the changes.
+        /// </summary>
+        void FlushChanges();
+
+        /// <summary>
         /// Queries the current <see cref="IBucket"/> for entities of type <see cref="T"/>. This is the target of
         /// the Linq query requires that the associated JSON document have a type property that is the same as <see cref="T"/>.
         /// </summary>
