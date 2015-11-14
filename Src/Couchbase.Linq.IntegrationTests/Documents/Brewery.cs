@@ -7,46 +7,46 @@ namespace Couchbase.Linq.IntegrationTests.Documents
     public class Brewery
     {
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public virtual string Name { get; set; }
 
         [JsonProperty("city")]
-        public string City { get; set; }
+        public virtual string City { get; set; }
 
         [JsonProperty("state")]
-        public string State { get; set; }
+        public virtual string State { get; set; }
 
         [JsonProperty("code")]
-        public string Code { get; set; }
+        public virtual string Code { get; set; }
 
         [JsonProperty("country")]
-        public string Country { get; set; }
+        public virtual string Country { get; set; }
 
         [JsonProperty("phone")]
-        public string Phone { get; set; }
+        public virtual string Phone { get; set; }
 
         [JsonProperty("website")]
-        public string Website { get; set; }
+        public virtual string Website { get; set; }
 
         [JsonProperty("type")]
-        public string Type { get; set; }
+        public virtual string Type { get; set; }
 
         [JsonProperty("updated")]
-        public DateTime Updated { get; set; }
+        public virtual DateTime Updated { get; set; }
 
         [JsonProperty("description")]
-        public string Description { get; set; }
+        public virtual string Description { get; set; }
 
         [JsonProperty("address")]
-        public List<string> Address { get; set; }
+        public virtual IList<string> Address { get; set; }
 
         [JsonProperty("geo")]
-        public Geo Geo { get; set; }
+        public virtual Geo Geo { get; set; }
 
         /// <summary>
         /// Note: This property doesn't exist in the default beer-sample.  For tests we're acting as if it exists,
         /// and is a list of keys for all beers made by the brewery.
         /// </summary>
         [JsonProperty("beers")]
-        public List<string> Beers { get; set; }
+        public virtual IList<string> Beers { get; set; }
     }
 }

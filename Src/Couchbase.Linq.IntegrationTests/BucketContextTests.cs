@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Couchbase.Linq.IntegrationTests.Documents;
+using Couchbase.Linq.Proxies;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.IntegrationTests
@@ -56,6 +57,200 @@ namespace Couchbase.Linq.IntegrationTests
                 Console.WriteLine(beer.Name);
             }
         }
+
+        #region Proxies
+
+        [Test]
+        public void Query_EnableProxyGeneration_ReturnsProxyBeer()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"))
+            {
+                EnableChangeTracking = true
+            };
+
+            var query = from x in db.Query<Beer>()
+                        where x.Type == "beer"
+                        select x;
+
+            var beer = query.First();
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = beer as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.IsFalse(status.IsDirty);
+        }
+
+        [Test]
+        public void Query_EnableProxyGenerationChanges_FlagAsDirty()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"))
+            {
+                EnableChangeTracking = true
+            };
+
+            var query = from x in db.Query<Beer>()
+                        where x.Type == "beer"
+                        select x;
+
+            var beer = query.First();
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = beer as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.False(status.IsDirty);
+
+            beer.Name = "New Name";
+
+            Assert.True(status.IsDirty);
+        }
+
+        [Test]
+        public void Query_EnableProxyGenerationChangesInSubDocuments_FlagAsDirty()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"))
+            {
+                EnableChangeTracking = true
+            };
+
+            var query = from x in db.Query<Brewery>()
+                        where x.Type == "brewery" && N1QlFunctions.IsValued(x.Geo)
+                        select x;
+
+            var beer = query.First();
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = beer as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.False(status.IsDirty);
+
+            beer.Geo.Latitude = 90M;
+
+            Assert.True(status.IsDirty);
+        }
+
+        [Test]
+        public void Query_EnableProxyGeneration_ReturnsProxyBreweryAddressCollection()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"))
+            {
+                EnableChangeTracking = true
+            };
+
+            var query = from x in db.Query<Brewery>()
+                        where x.Type == "brewery"
+                        select x;
+
+            var brewery = query.First();
+            var addresses = brewery.Address;
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = addresses as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.IsFalse(status.IsDirty);
+        }
+
+        [Test]
+        public void Query_EnableProxyGenerationClearAddresses_FlagAsDirty()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"))
+            {
+                EnableChangeTracking = true
+            };
+
+            var query = from x in db.Query<Brewery>()
+                        where x.Type == "brewery" && x.Address.Any()
+                        select x;
+
+            var brewery = query.First();
+            var addresses = brewery.Address;
+
+            addresses.Clear();
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = addresses as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.IsTrue(status.IsDirty);
+        }
+
+        [Test]
+        public void Query_EnableProxyGenerationAddAddress_FlagAsDirty()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"))
+            {
+                EnableChangeTracking = true
+            };
+
+            var query = from x in db.Query<Brewery>()
+                        where x.Type == "brewery" && x.Address.Any()
+                        select x;
+
+            var brewery = query.First();
+            var addresses = brewery.Address;
+
+            addresses.Add("Test");
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = addresses as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.IsTrue(status.IsDirty);
+        }
+
+        [Test]
+        public void Query_EnableProxyGenerationRemoveAddress_FlagAsDirty()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"))
+            {
+                EnableChangeTracking = true
+            };
+
+            var query = from x in db.Query<Brewery>()
+                        where x.Type == "brewery" && x.Address.Any()
+                        select x;
+
+            var brewery = query.First();
+            var addresses = brewery.Address;
+
+            addresses.RemoveAt(0);
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = addresses as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.IsTrue(status.IsDirty);
+        }
+
+        [Test]
+        public void Query_EnableProxyGenerationSetAddress_FlagAsDirty()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"))
+            {
+                EnableChangeTracking = true
+            };
+
+            var query = from x in db.Query<Brewery>()
+                        where x.Type == "brewery" && x.Address.Any()
+                        select x;
+
+            var brewery = query.First();
+            var addresses = brewery.Address;
+
+            addresses[0] = "Test";
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = addresses as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.IsTrue(status.IsDirty);
+        }
+
+        #endregion
+
     }
 }
 
