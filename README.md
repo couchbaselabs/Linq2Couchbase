@@ -46,6 +46,19 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 - [Testing For NULL And MISSING Attributes](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/null-missing-valued.md)
 - [The META Keyword](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/meta-keyword.md)
 
+##Building From Source##
+
+The 1.0 release of Linq2Couchbase uses the NuGet package manager for handling dependencies.  However, the release currently in development is making use of some Couchbase SDK features that are not yet released.  Therefore, if working with the latest code the Couchbase SDK must be downloaded separately.
+
+You may clone the SDK repository from https://github.com/couchbase/couchbase-net-client.  This repository should be placed beside the Linq2Couchbase repository, so your folder structure looks like this:
+
+    <somepath>/couchbase-net-client
+    <somepath>/Linq2Couchbase
+
+Make sure you have the master branch of the SDK.  Then compile the couchbase-net-client solution in the Debug configuration.  This will create the libraries needed for Linq2Couchcbase to compile.
+
+This will be changed to use NuGet once the new SDK changes have been released, and before the next version of Linq2Couchbase is available.
+
 
 ##Project management##
 
