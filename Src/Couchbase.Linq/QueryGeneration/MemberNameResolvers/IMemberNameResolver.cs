@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Couchbase.Linq.QueryGeneration
+namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
 {
     internal interface IMemberNameResolver
     {

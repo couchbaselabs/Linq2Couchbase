@@ -60,7 +60,7 @@ namespace Couchbase.Linq.UnitTests
         {
             var queryGenerationContext = new N1QlQueryGenerationContext()
             {
-                MemberNameResolver = new JsonNetMemberNameResolver(Test.ContractResolver),
+                MemberNameResolver = Test.MemberNameResolver,
                 MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
                 Serializer = new Core.Serialization.DefaultSerializer()
             };

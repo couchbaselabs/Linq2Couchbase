@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Core.Serialization;
+using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Newtonsoft.Json.Serialization;
 using Remotion.Linq.Clauses.Expressions;
 

@@ -6,6 +6,7 @@ using Couchbase.Core.Serialization;
 using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
+using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
