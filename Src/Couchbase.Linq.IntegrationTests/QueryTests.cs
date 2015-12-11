@@ -61,6 +61,26 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void Map2PocoTests_StronglyTyped_Projections()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var context = new BucketContext(bucket);
+
+                    var beers = from b in context.Query<Beer>()
+                                select new Beer() { Name = b.Name, Abv = b.Abv };
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("{0} has {1} ABV", b.Name, b.Abv);
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void Map2PocoTests_Simple_Projections_Where()
         {
             using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
@@ -893,7 +913,7 @@ namespace Couchbase.Linq.IntegrationTests
                         where beer.Type == "beer"
                         group beer by beer.BreweryId
                         into g
-                        orderby g.Count() descending 
+                        orderby g.Count() descending
                         select new { breweryid = g.Key, count = g.Count(), avgAbv = g.Average(p => p.Abv) };
 
                     foreach (var brewery in breweries)
