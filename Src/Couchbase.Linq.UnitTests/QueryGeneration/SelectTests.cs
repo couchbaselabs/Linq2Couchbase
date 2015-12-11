@@ -28,6 +28,23 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_Select_WithStronglyTypedProjection()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Select(e => new Contact() { Age = e.Age, FirstName = e.FirstName });
+
+            const string expected = "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `fname` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_Select_All_Properties()
         {
             var mockBucket = new Mock<IBucket>();
