@@ -1,6 +1,8 @@
 Linq2Couchbase
 ==================
 
+[![Join the chat at https://gitter.im/couchbaselabs/Linq2Couchbase](https://badges.gitter.im/couchbaselabs/Linq2Couchbase.svg)](https://gitter.im/couchbaselabs/Linq2Couchbase?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 The official Language Integrated Query (LINQ) provider for querying Couchbase Server 4.0 with [N1QL](http://developer.couchbase.com/documentation/server/4.0/n1ql/n1ql-intro/data-access-using-n1ql.html) using the Couchbase .NET SDK. The goal of Linq2Couchbase is to create a lightweight ORM/ODM for querying Couchbase Buckets using LINQ as the lingua-franca between your application and Couchbase Server 4.0 using N1QL, a SQL-like query language for JSON documents. It also provides a write API for performing CRUD operations on JSON documents.
 
 ##Getting started##
