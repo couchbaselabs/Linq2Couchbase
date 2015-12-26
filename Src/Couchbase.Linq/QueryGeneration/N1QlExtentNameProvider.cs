@@ -100,6 +100,25 @@ namespace Couchbase.Linq.QueryGeneration
             return GetNextExtentName();
         }
 
+        /// <summary>
+        /// Change the extent name of a query source to a newly generated name, replacing any previously generated name.
+        /// </summary>
+        /// <param name="querySource">IQuerySource for which to get a new extent name</param>
+        /// <returns>The escaped extent name for the N1QL query</returns>
+        public string GenerateNewExtentName(IQuerySource querySource)
+        {
+            if (querySource == null)
+            {
+                throw new ArgumentNullException("querySource");
+            }
+
+            // Remove the extent name, if already generated
+            _extentDictionary.Remove(querySource);
+
+            // Generate and return a new extent name
+            return GetExtentName(querySource);
+        }
+
         private string GetNextExtentName()
         {
             return N1QlHelpers.EscapeIdentifier(string.Format(ExtentNameFormat, ++_extentIndex));

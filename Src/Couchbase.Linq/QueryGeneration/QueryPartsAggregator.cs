@@ -22,11 +22,11 @@ namespace Couchbase.Linq.QueryGeneration
         public string SelectPart { get; set; }
         public List<N1QlFromQueryPart> FromParts { get; set; }
         public string UseKeysPart { get; set; }
-        public List<N1QlLetQueryPart> LetParts { get; set; } 
+        public List<N1QlLetQueryPart> LetParts { get; set; }
         public List<string> WhereParts { get; set; }
         public List<string> OrderByParts { get; set; }
-        public List<string> GroupByParts { get; set; } 
-        public List<string> HavingParts { get; set; } 
+        public List<string> GroupByParts { get; set; }
+        public List<string> HavingParts { get; set; }
         public string LimitPart { get; set; }
         public string OffsetPart { get; set; }
         public string DistinctPart { get; set; }
@@ -173,7 +173,7 @@ namespace Couchbase.Linq.QueryGeneration
         private string BuildSelectQuery()
         {
             var sb = new StringBuilder();
-            
+
             if (QueryType == N1QlQueryType.Subquery)
             {
                 if (!string.IsNullOrEmpty(PropertyExtractionPart))
@@ -419,21 +419,28 @@ namespace Couchbase.Linq.QueryGeneration
                 throw new InvalidOperationException("N1QL Any Subquery Missing From Part");
             }
 
-            var source = mainFrom.Source;
-            if ((QueryType == N1QlQueryType.ArrayAll) && WhereParts.Any())
-            {
-                // WhereParts should be used to filter the source before the EVERY query
-                // This is done using the ARRAY operator with a WHEN clause
+            var extentName = mainFrom.ItemName;
 
-                source = String.Format("(ARRAY {1} FOR {1} IN {0} WHEN {2} END)",
-                    source,
-                    mainFrom.ItemName,
-                    String.Join(" AND ", WhereParts));
+            var source = mainFrom.Source;
+            if (QueryType == N1QlQueryType.ArrayAll)
+            {
+                extentName = PropertyExtractionPart;
+
+                if (WhereParts.Any())
+                {
+                    // WhereParts should be used to filter the source before the EVERY query
+                    // This is done using the ARRAY operator with a WHEN clause
+
+                    source = string.Format("(ARRAY {1} FOR {1} IN {0} WHEN {2} END)",
+                        source,
+                        mainFrom.ItemName,
+                        string.Join(" AND ", WhereParts));
+                }
             }
 
             sb.AppendFormat("{0} {1} IN {2} ",
                 QueryType == N1QlQueryType.ArrayAny ? "ANY" : "EVERY",
-                mainFrom.ItemName,
+                extentName,
                 source);
 
             if (QueryType == N1QlQueryType.ArrayAny)
