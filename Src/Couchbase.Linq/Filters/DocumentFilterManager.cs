@@ -7,7 +7,7 @@ namespace Couchbase.Linq.Filters
     /// <summary>
     /// Static class to cache and execute <see cref="IDocumentFilter{T}">IDocumentFilter</see> objects based on the type being queried
     /// </summary>
-    class DocumentFilterManager
+    public class DocumentFilterManager
     {
 
         /// <summary>
