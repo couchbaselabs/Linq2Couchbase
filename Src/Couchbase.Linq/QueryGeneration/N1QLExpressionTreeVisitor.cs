@@ -47,10 +47,10 @@ namespace Couchbase.Linq.QueryGeneration
             return visitor.GetN1QlExpression();
         }
 
-        public static string GetN1QlSelectNewExpression(NewExpression expression, N1QlQueryGenerationContext queryGenerationContext)
+        public static string GetN1QlSelectNewExpression(Expression expression, N1QlQueryGenerationContext queryGenerationContext)
         {
             // Ensure that any date/time expressions are properly converted to Unix milliseconds as needed
-            expression = (NewExpression)TransformingExpressionVisitor.Transform(expression,
+            expression = TransformingExpressionVisitor.Transform(expression,
                 ExpressionTransformers.DateTimeTransformationRegistry.Default);
 
             var visitor = new N1QlExpressionTreeVisitor(queryGenerationContext);
@@ -105,9 +105,35 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitNew(NewExpression expression)
         {
-            var arguments = expression.Arguments;
-            var members = expression.Members;
+            VisitNewObject(expression.Members, expression.Arguments);
 
+            return expression;
+        }
+
+        protected override Expression VisitMemberInit(MemberInitExpression expression)
+        {
+            if (expression.NewExpression.Arguments.Count > 0)
+            {
+                throw new NotSupportedException("New Objects Must Be Initialized With A Parameterless Constructor");
+            }
+            if (expression.Bindings.Any(p => p.BindingType != MemberBindingType.Assignment))
+            {
+                throw new NotSupportedException("New Objects Must Be Initialized With Assignments Only");
+            }
+
+            var arguments = expression.Bindings.Cast<MemberAssignment>().Select(p => p.Expression).ToList();
+            var members = expression.Bindings.Select(p => p.Member).ToList();
+
+            VisitNewObject(members, arguments);
+
+            return expression;
+        }
+
+        /// <summary>
+        /// Shared logic for NewExpression and MemberInitExpression
+        /// </summary>
+        private void VisitNewObject(IList<MemberInfo> members, IList<Expression> arguments)
+        {
             _expression.Append('{');
 
             for (var i = 0; i < members.Count; i++)
@@ -119,7 +145,13 @@ namespace Couchbase.Linq.QueryGeneration
                     _expression.Append(", ");
                 }
 
-                _expression.AppendFormat("\"{0}\": ", members[i].Name);
+                string memberName;
+                if (!_queryGenerationContext.MemberNameResolver.TryResolveMemberName(members[i], out memberName))
+                {
+                    memberName = members[i].Name;
+                }
+
+                _expression.AppendFormat("\"{0}\": ", memberName);
 
                 var beforeSubExpressionLength = _expression.Length;
 
@@ -133,17 +165,43 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             _expression.Append('}');
-
-            return expression;
         }
 
         /// <summary>
-        /// Parses the new object that is part of the select expression with "as" based formatting
+        /// Parses the new object that is part of the select expression with "as" based formatting.
+        /// Can accept either a NewExpression or MemberInitExpression
         /// </summary>
-        private Expression VisitSelectNewExpression(NewExpression expression)
+        private Expression VisitSelectNewExpression(Expression expression)
         {
-            var arguments = expression.Arguments;
-            var members = expression.Members;
+            IList<Expression> arguments;
+            IList<MemberInfo> members;
+
+            var memberInitExpression = expression as MemberInitExpression;
+            if (memberInitExpression != null)
+            {
+                if (memberInitExpression.NewExpression.Arguments.Count > 0)
+                {
+                    throw new NotSupportedException("New Objects Must Be Initialized With A Parameterless Constructor");
+                }
+                if (memberInitExpression.Bindings.Any(p => p.BindingType != MemberBindingType.Assignment))
+                {
+                    throw new NotSupportedException("New Objects Must Be Initialized With Assignments Only");
+                }
+
+                arguments = memberInitExpression.Bindings.Cast<MemberAssignment>().Select(p => p.Expression).ToList();
+                members = memberInitExpression.Bindings.Select(p => p.Member).ToList();
+            }
+            else
+            {
+                var newExpression = expression as NewExpression;
+                if (newExpression == null)
+                {
+                    throw new NotSupportedException("Unsupported Select Clause Expression");
+                }
+
+                arguments = newExpression.Arguments;
+                members = newExpression.Members;
+            }
 
             for (var i = 0; i < members.Count; i++)
             {
@@ -159,7 +217,13 @@ namespace Couchbase.Linq.QueryGeneration
                 //only add 'as' part if the  previous visitexpression has generated something.
                 if (_expression.Length > expressionLength)
                 {
-                    _expression.AppendFormat(" as {0}", N1QlHelpers.EscapeIdentifier(members[i].Name));
+                    string memberName;
+                    if (!_queryGenerationContext.MemberNameResolver.TryResolveMemberName(members[i], out memberName))
+                    {
+                        memberName = members[i].Name;
+                    }
+
+                    _expression.AppendFormat(" as {0}", N1QlHelpers.EscapeIdentifier(memberName));
                 }
                 else if (i > 0)
                 {
