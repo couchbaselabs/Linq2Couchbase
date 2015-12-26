@@ -9,11 +9,11 @@ The official Language Integrated Query (LINQ) provider for querying Couchbase Se
 The Linq2Couchbase project has the following dependencies:
 
 - Couchbase Server 4.0 or greater with the query service enabled on at least one node
-- Couchbase .NET SDK 2.2.0 or greater
+- Couchbase .NET SDK 2.2.2 or greater
 - Common.Logging 3.3.0 or greater
 - Common.Logging.Core 3.3.0 or greater
 - JSON.NET 7.0.1 or greater
-- re-linq 1.15.15.0 (re-linq 2.0 is not currently supported!)
+- re-linq 2.0.1
 
 If you are using NuGet, then the dependencies (other than Couchbase server) will be installed for you via the package manager. 
 
@@ -50,17 +50,7 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 
 ##Building From Source##
 
-The 1.0 release of Linq2Couchbase uses the NuGet package manager for handling dependencies.  However, the release currently in development is making use of some Couchbase SDK features that are not yet released.  Therefore, if working with the latest code the Couchbase SDK must be downloaded separately.
-
-You may clone the SDK repository from https://github.com/couchbase/couchbase-net-client.  This repository should be placed beside the Linq2Couchbase repository, so your folder structure looks like this:
-
-    <somepath>/couchbase-net-client
-    <somepath>/Linq2Couchbase
-
-Make sure you have the master branch of the SDK.  Then compile the couchbase-net-client solution in the Debug configuration.  This will create the libraries needed for Linq2Couchcbase to compile.
-
-This will be changed to use NuGet once the new SDK changes have been released, and before the next version of Linq2Couchbase is available.
-
+Linq2Couchbase uses the NuGet package manager for handling dependencies.  To build from the source, simply clone the GitHub repository and build in Visual Studio.  The NuGet package manager should download all required dependencies.
 
 ##Project management##
 
