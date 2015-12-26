@@ -34,9 +34,9 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("POSITION(");
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object);
             expression.Append(", ");
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Arguments[0]);
+            expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
             expression.Append(")");
 
             return methodCallExpression;

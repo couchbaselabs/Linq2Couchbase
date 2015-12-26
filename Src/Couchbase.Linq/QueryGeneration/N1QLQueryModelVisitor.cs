@@ -11,8 +11,8 @@ using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Clauses.ResultOperators;
-using Remotion.Linq.Parsing.ExpressionTreeVisitors;
-using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
+using Remotion.Linq.Parsing.ExpressionVisitors;
+using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -156,7 +156,7 @@ namespace Couchbase.Linq.QueryGeneration
                 // This is an Array type subquery, since we're querying against a member not a bucket
                 _queryPartsAggregator.QueryType = N1QlQueryType.Array;
             }
-            else if (fromClause.FromExpression.NodeType == SubQueryExpression.ExpressionType)
+            else if (fromClause.FromExpression is SubQueryExpression)
             {
                 var subQuery = (SubQueryExpression) fromClause.FromExpression;
                 if (!subQuery.QueryModel.ResultOperators.Any(p => p is GroupResultOperator))
@@ -171,7 +171,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 _groupingStatus = GroupingStatus.AfterGroupSubquery;
             }
-            else if (fromClause.FromExpression.NodeType == QuerySourceReferenceExpression.ExpressionType)
+            else if (fromClause.FromExpression is QuerySourceReferenceExpression)
             {
                 if (!fromClause.FromExpression.Equals(_queryGenerationContext.GroupingQuerySource))
                 {
@@ -253,7 +253,7 @@ namespace Couchbase.Linq.QueryGeneration
                         // SELECT clauses must be remapped to refer directly to the extents in the grouping subquery
                         // rather than refering to the output of the grouping subquery
 
-                        selector = (NewExpression) TransformingExpressionTreeVisitor.Transform(selector, _groupingExpressionTransformerRegistry);
+                        selector = (NewExpression) TransformingExpressionVisitor.Transform(selector, _groupingExpressionTransformerRegistry);
                     }
 
                     expression =
@@ -469,10 +469,11 @@ namespace Couchbase.Linq.QueryGeneration
 
             // Add transformations for any references to the element selector
 
-            if (groupResultOperator.ElementSelector.NodeType == QuerySourceReferenceExpression.ExpressionType)
+            var querySource = groupResultOperator.ElementSelector as QuerySourceReferenceExpression;
+            if (querySource != null)
             {
                 _queryGenerationContext.ExtentNameProvider.LinkExtents(
-                    ((QuerySourceReferenceExpression) groupResultOperator.ElementSelector).ReferencedQuerySource,
+                    querySource.ReferencedQuerySource,
                     _queryGenerationContext.GroupingQuerySource.ReferencedQuerySource);
             }
             else
@@ -567,21 +568,19 @@ namespace Couchbase.Linq.QueryGeneration
 
             var handled = false;
 
-            switch (fromClause.FromExpression.NodeType)
+            if (fromClause.FromExpression.NodeType == ExpressionType.MemberAccess)
             {
-                case ExpressionType.MemberAccess:
-                    // Unnest operation
+                // Unnest operation
 
-                    var fromPart = VisitMemberFromExpression(fromClause, fromClause.FromExpression as MemberExpression);
-                    _queryPartsAggregator.AddFromPart(fromPart);
-                    handled = true;
-                    break;
+                var fromPart = VisitMemberFromExpression(fromClause, fromClause.FromExpression as MemberExpression);
+                _queryPartsAggregator.AddFromPart(fromPart);
+                handled = true;
+            }
+            else if (fromClause.FromExpression is SubQueryExpression)
+            {
+                // Might be an unnest or a join to another bucket
 
-                case SubQueryExpression.ExpressionType:
-                    // Might be an unnest or a join to another bucket
-
-                    handled = VisitSubQueryFromExpression(fromClause, fromClause.FromExpression as SubQueryExpression);
-                    break;
+                handled = VisitSubQueryFromExpression(fromClause, (SubQueryExpression) fromClause.FromExpression);
             }
 
             if (!handled)
@@ -602,32 +601,33 @@ namespace Couchbase.Linq.QueryGeneration
         {
             var mainFromExpression = subQuery.QueryModel.MainFromClause.FromExpression;
 
-            switch (mainFromExpression.NodeType)
+            if (mainFromExpression is QuerySourceReferenceExpression)
             {
-                case QuerySourceReferenceExpression.ExpressionType:
-                    // Joining to another bucket using a previous group join operation
+                // Joining to another bucket using a previous group join operation
 
-                    return VisitSubQuerySourceReferenceExpression(fromClause, subQuery, mainFromExpression as QuerySourceReferenceExpression);
+                return VisitSubQuerySourceReferenceExpression(fromClause, subQuery,
+                    (QuerySourceReferenceExpression) mainFromExpression);
+            }
+            else if (mainFromExpression.NodeType == ExpressionType.MemberAccess)
+            {
+                // Unnest operation
 
-                case ExpressionType.MemberAccess:
-                    // Unnest operation
+                var fromPart = VisitMemberFromExpression(fromClause, mainFromExpression as MemberExpression);
 
-                    var fromPart = VisitMemberFromExpression(fromClause, mainFromExpression as MemberExpression);
+                if (subQuery.QueryModel.ResultOperators.OfType<DefaultIfEmptyResultOperator>().Any())
+                {
+                    fromPart.JoinType = "OUTER UNNEST";
+                }
 
-                    if (subQuery.QueryModel.ResultOperators.OfType<DefaultIfEmptyResultOperator>().Any())
-                    {
-                        fromPart.JoinType = "OUTER UNNEST";
-                    }
+                _queryPartsAggregator.AddFromPart(fromPart);
 
-                    _queryPartsAggregator.AddFromPart(fromPart);
+                // be sure the subquery clauses use the same extent name
+                _queryGenerationContext.ExtentNameProvider.LinkExtents(fromClause, subQuery.QueryModel.MainFromClause);
 
-                    // be sure the subquery clauses use the same extent name
-                    _queryGenerationContext.ExtentNameProvider.LinkExtents(fromClause, subQuery.QueryModel.MainFromClause);
+                // Apply where filters in the subquery to the main query
+                VisitBodyClauses(subQuery.QueryModel.BodyClauses, subQuery.QueryModel);
 
-                    // Apply where filters in the subquery to the main query
-                    VisitBodyClauses(subQuery.QueryModel.BodyClauses, subQuery.QueryModel);
-
-                    return true;
+                return true;
             }
 
             return false;
@@ -732,31 +732,33 @@ namespace Couchbase.Linq.QueryGeneration
         /// <remarks>The InnerKeySelector must be selecting the N1QlFunctions.Key of the InnerSequence</remarks>
         private N1QlFromQueryPart ParseJoinClause(JoinClause joinClause)
         {
-            switch (joinClause.InnerSequence.NodeType)
+            if (joinClause.InnerSequence.NodeType == ExpressionType.Constant)
             {
-                case ExpressionType.Constant:
-                    return VisitConstantExpressionJoinClause(joinClause, joinClause.InnerSequence as ConstantExpression);
-
-                case SubQueryExpression.ExpressionType:
-                    var subQuery = joinClause.InnerSequence as SubQueryExpression;
-                    if ((subQuery == null) || subQuery.QueryModel.ResultOperators.Any() || subQuery.QueryModel.MainFromClause.FromExpression.NodeType != ExpressionType.Constant)
-                    {
-                        throw new NotSupportedException("Unsupported Join Inner Sequence");
-                    }
-
-                    // be sure the subquery clauses use the same name
-                    _queryGenerationContext.ExtentNameProvider.LinkExtents(joinClause,
-                        subQuery.QueryModel.MainFromClause);
-
-                    var fromPart = VisitConstantExpressionJoinClause(joinClause,
-                        subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression);
-
-                    VisitBodyClauses(subQuery.QueryModel.BodyClauses, subQuery.QueryModel);
-
-                    return fromPart;
-
-                default:
+                return VisitConstantExpressionJoinClause(joinClause, joinClause.InnerSequence as ConstantExpression);
+            }
+            else if (joinClause.InnerSequence is SubQueryExpression)
+            {
+                var subQuery = (SubQueryExpression) joinClause.InnerSequence;
+                if (subQuery.QueryModel.ResultOperators.Any() ||
+                    subQuery.QueryModel.MainFromClause.FromExpression.NodeType != ExpressionType.Constant)
+                {
                     throw new NotSupportedException("Unsupported Join Inner Sequence");
+                }
+
+                // be sure the subquery clauses use the same name
+                _queryGenerationContext.ExtentNameProvider.LinkExtents(joinClause,
+                    subQuery.QueryModel.MainFromClause);
+
+                var fromPart = VisitConstantExpressionJoinClause(joinClause,
+                    subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression);
+
+                VisitBodyClauses(subQuery.QueryModel.BodyClauses, subQuery.QueryModel);
+
+                return fromPart;
+            }
+            else
+            {
+                throw new NotSupportedException("Unsupported Join Inner Sequence");
             }
         }
 
@@ -825,55 +827,57 @@ namespace Couchbase.Linq.QueryGeneration
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator</returns>
         private N1QlFromQueryPart ParseNestClause(NestClause nestClause)
         {
-            switch (nestClause.InnerSequence.NodeType)
+            if (nestClause.InnerSequence.NodeType == ExpressionType.Constant)
             {
-                case ExpressionType.Constant:
-                    return VisitConstantExpressionNestClause(nestClause, nestClause.InnerSequence as ConstantExpression,
-                        GetExtentName(nestClause));
-
-                case SubQueryExpression.ExpressionType: // SubQueryExpression
-                    var subQuery = nestClause.InnerSequence as SubQueryExpression;
-                    if ((subQuery == null) || subQuery.QueryModel.ResultOperators.Any() || subQuery.QueryModel.MainFromClause.FromExpression.NodeType != ExpressionType.Constant)
-                    {
-                        throw new NotSupportedException("Unsupported Nest Inner Sequence");
-                    }
-
-                    // Generate a temporary item name to use on the NEST statement, which we can then reference in the LET statement
-
-                    var genItemName = _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName();
-                    var fromPart = VisitConstantExpressionNestClause(nestClause,
-                        subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression, genItemName);
-
-                    // Put any where clauses in the sub query in an ARRAY filtering clause using a LET statement
-
-                    var whereClauseString = string.Join(" AND ",
-                        subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
-                            .Select(p => GetN1QlExpression(p.Predicate)));
-
-                    var letPart = new N1QlLetQueryPart()
-                    {
-                        ItemName = GetExtentName(nestClause),
-                        Value =
-                            string.Format("ARRAY {0} FOR {0} IN {1} WHEN {2} END",
-                                GetExtentName(subQuery.QueryModel.MainFromClause),
-                                genItemName,
-                                whereClauseString)
-                    };
-
-                    _queryPartsAggregator.AddLetPart(letPart);
-
-                    if (!nestClause.IsLeftOuterNest)
-                    {
-                        // This is an INNER NEST, but the inner sequence filter is being applied after the NEST operation is done
-                        // So we need to put an additional filter to drop rows with an empty array result
-
-                        _queryPartsAggregator.AddWherePart("(ARRAY_LENGTH({0}) > 0)", letPart.ItemName);
-                    }
-
-                    return fromPart;
-
-                default:
+                return VisitConstantExpressionNestClause(nestClause, nestClause.InnerSequence as ConstantExpression,
+                    GetExtentName(nestClause));
+            }
+            else if (nestClause.InnerSequence is SubQueryExpression)
+            {
+                var subQuery = (SubQueryExpression) nestClause.InnerSequence;
+                if (subQuery.QueryModel.ResultOperators.Any() ||
+                    subQuery.QueryModel.MainFromClause.FromExpression.NodeType != ExpressionType.Constant)
+                {
                     throw new NotSupportedException("Unsupported Nest Inner Sequence");
+                }
+
+                // Generate a temporary item name to use on the NEST statement, which we can then reference in the LET statement
+
+                var genItemName = _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName();
+                var fromPart = VisitConstantExpressionNestClause(nestClause,
+                    subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression, genItemName);
+
+                // Put any where clauses in the sub query in an ARRAY filtering clause using a LET statement
+
+                var whereClauseString = string.Join(" AND ",
+                    subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
+                        .Select(p => GetN1QlExpression(p.Predicate)));
+
+                var letPart = new N1QlLetQueryPart()
+                {
+                    ItemName = GetExtentName(nestClause),
+                    Value =
+                        string.Format("ARRAY {0} FOR {0} IN {1} WHEN {2} END",
+                            GetExtentName(subQuery.QueryModel.MainFromClause),
+                            genItemName,
+                            whereClauseString)
+                };
+
+                _queryPartsAggregator.AddLetPart(letPart);
+
+                if (!nestClause.IsLeftOuterNest)
+                {
+                    // This is an INNER NEST, but the inner sequence filter is being applied after the NEST operation is done
+                    // So we need to put an additional filter to drop rows with an empty array result
+
+                    _queryPartsAggregator.AddWherePart("(ARRAY_LENGTH({0}) > 0)", letPart.ItemName);
+                }
+
+                return fromPart;
+            }
+            else
+            {
+                throw new NotSupportedException("Unsupported Nest Inner Sequence");
             }
         }
 
@@ -920,7 +924,7 @@ namespace Couchbase.Linq.QueryGeneration
                 // SELECT, HAVING, and ORDER BY clauses must be remapped to refer directly to the extents in the grouping subquery
                 // rather than refering to the output of the grouping subquery
 
-                expression = TransformingExpressionTreeVisitor.Transform(expression, _groupingExpressionTransformerRegistry);
+                expression = TransformingExpressionVisitor.Transform(expression, _groupingExpressionTransformerRegistry);
             }
 
             return N1QlExpressionTreeVisitor.GetN1QlExpression(expression, _queryGenerationContext);

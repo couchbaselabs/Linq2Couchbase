@@ -34,7 +34,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append(methodCallExpression.Method.Name == "ToLower" ? "LOWER(" : "UPPER(");
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object);
             expression.Append(")");
 
             return methodCallExpression;

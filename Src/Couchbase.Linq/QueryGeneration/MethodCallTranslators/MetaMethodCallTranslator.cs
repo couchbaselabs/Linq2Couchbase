@@ -32,7 +32,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("META(");
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Arguments[0]);
+            expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
             expression.Append(')');
 
             return methodCallExpression;

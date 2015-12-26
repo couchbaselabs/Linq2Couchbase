@@ -37,7 +37,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
             expression.Append(methodCallExpression.Method.Name == "TrimStart" ? "LTRIM(" :
                 methodCallExpression.Method.Name == "TrimEnd" ? "RTRIM(" : "TRIM(");
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object);
 
             if (methodCallExpression.Arguments.Count > 0)
             {
@@ -55,7 +55,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                     {
                         expression.Append(", ");
 
-                        expressionTreeVisitor.VisitExpression(Expression.Constant(new String(chars), typeof (string)));
+                        expressionTreeVisitor.Visit(Expression.Constant(new String(chars), typeof (string)));
                     }
                 }
                 catch (NotSupportedException ex)

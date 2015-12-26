@@ -33,7 +33,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("SPLIT(");
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object);
 
             if (methodCallExpression.Arguments[0].Type != typeof(char[]))
             {
@@ -54,7 +54,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
                     expression.Append(", ");
 
-                    expressionTreeVisitor.VisitExpression(Expression.Constant(chars[0], typeof(char)));
+                    expressionTreeVisitor.Visit(Expression.Constant(chars[0], typeof(char)));
                 }
             }
             catch (NotSupportedException ex)

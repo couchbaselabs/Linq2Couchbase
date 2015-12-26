@@ -34,7 +34,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
             // Do not process ToArray, ToList, or AsEnumerable.  Instead just visit the list in the first argument.
 
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Arguments[0]);
+            expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
 
             return methodCallExpression;
         }

@@ -40,7 +40,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             {
                 // Two method calls are reversing each other, so just skip them both
 
-                return expressionTreeVisitor.VisitExpression(methodCallArgument.Arguments[0]);
+                return expressionTreeVisitor.Visit(methodCallArgument.Arguments[0]);
             }
 
             var expression = expressionTreeVisitor.Expression;
@@ -54,9 +54,9 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                 expression.Append("MILLIS_TO_STR(");
             }
 
-            expressionTreeVisitor.VisitExpression(argument);
+            expressionTreeVisitor.Visit(argument);
 
-            expression.Append(')');            
+            expression.Append(')');
 
             return methodCallExpression;
         }
