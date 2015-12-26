@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Couchbase.Annotations;
 using Couchbase.Core.Serialization;
 using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Operators;
@@ -242,18 +243,18 @@ namespace Couchbase.Linq.QueryGeneration
                     expression = "*";
                 }
             }
-            else if (selectClause.Selector.NodeType == ExpressionType.New)
+            else if ((selectClause.Selector.NodeType == ExpressionType.New) || (selectClause.Selector.NodeType == ExpressionType.MemberInit))
             {
                 if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
                 {
-                    var selector = selectClause.Selector as NewExpression;
+                    var selector = selectClause.Selector;
 
                     if (_groupingStatus == GroupingStatus.AfterGroupSubquery)
                     {
                         // SELECT clauses must be remapped to refer directly to the extents in the grouping subquery
                         // rather than refering to the output of the grouping subquery
 
-                        selector = (NewExpression) TransformingExpressionVisitor.Transform(selector, _groupingExpressionTransformerRegistry);
+                        selector = TransformingExpressionVisitor.Transform(selector, _groupingExpressionTransformerRegistry);
                     }
 
                     expression =
