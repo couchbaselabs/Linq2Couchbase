@@ -322,5 +322,30 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             Assert.Throws<NotSupportedException>(() => CreateN1QlQuery(mockBucket.Object, query.Expression));
         }
+
+        [Test]
+        public void Test_ArraySubqueryAllWithPrefilter()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                where brewery.Address.Where(p => p == "563 Second Street").All(p => p == "101 Fake Street")
+                select new { name = brewery.Name, addresses = brewery.Address };
+
+            const string expected =
+                "SELECT `Extent1`.`name` as `name`, `Extent1`.`address` as `addresses` " +
+                "FROM `default` as `Extent1` " +
+                "WHERE EVERY `Extent3` IN " +
+                "(ARRAY `Extent2` FOR `Extent2` IN `Extent1`.`address` WHEN (`Extent2` = '563 Second Street') END) " +
+                "SATISFIES (`Extent3` = '101 Fake Street') END";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
     }
 }

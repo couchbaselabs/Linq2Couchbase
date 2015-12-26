@@ -395,6 +395,16 @@ namespace Couchbase.Linq.QueryGeneration
                     prefixedExtents = true;
                     _queryGenerationContext.ExtentNameProvider.Prefix = _queryPartsAggregator.PropertyExtractionPart + ".";
                 }
+                else if (_queryPartsAggregator.QueryType == N1QlQueryType.ArrayAll)
+                {
+                    // We're dealing with an array-type subquery
+                    // If there is any pre-filtering on the array using a Where clause, these statements will be
+                    // referencing the query source using the default extent name.  When we apply the SATISFIES clause
+                    // we'll need to use a new extent name to reference the results of the internal WHERE clause.
+
+                    _queryPartsAggregator.PropertyExtractionPart =
+                        _queryGenerationContext.ExtentNameProvider.GenerateNewExtentName(queryModel.MainFromClause);
+                }
 
                 var allResultOperator = (AllResultOperator) resultOperator;
                 _queryPartsAggregator.WhereAllPart = GetN1QlExpression(allResultOperator.Predicate);
