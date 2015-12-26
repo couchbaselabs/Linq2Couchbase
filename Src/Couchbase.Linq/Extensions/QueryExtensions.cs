@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Couchbase.Linq.Metadata;
-using Remotion.Linq.Parsing.ExpressionTreeVisitors;
+using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Couchbase.Linq.Extensions
 {
@@ -27,8 +27,8 @@ namespace Couchbase.Linq.Extensions
         /// <returns>Modified IQueryable</returns>
         public static IQueryable<TResult> Nest<TOuter, TInner, TResult>(
             this IQueryable<TOuter> outer,
-            IEnumerable<TInner> inner, 
-            Expression<Func<TOuter, IEnumerable<string>>> keySelector, 
+            IEnumerable<TInner> inner,
+            Expression<Func<TOuter, IEnumerable<string>>> keySelector,
             Expression<Func<TOuter, IEnumerable<TInner>, TResult>> resultSelector)
         {
             if (inner == null)
@@ -58,7 +58,7 @@ namespace Couchbase.Linq.Extensions
                     throw new NotSupportedException("Inner Sequence Items Must Implement IDocumentMetadataProvider To Function With EnumerableQuery<T>");
                 }
 
-                var methodCall = 
+                var methodCall =
                     Expression.Call(
                         typeof(EnumerableExtensions).GetMethod("Nest")
                             .MakeGenericMethod(typeof(TOuter), typeof(TInner), typeof(TResult)),
@@ -251,7 +251,7 @@ namespace Couchbase.Linq.Extensions
         private static IQueryable<T> CreateQuery<T, TR>(
             this IQueryable<T> source, Expression<Func<IQueryable<T>, TR> > expression)
         {
-            var queryExpression = ReplacingExpressionTreeVisitor.Replace(
+            var queryExpression = ReplacingExpressionVisitor.Replace(
                 expression.Parameters[0],
                 source.Expression,
                 expression.Body);

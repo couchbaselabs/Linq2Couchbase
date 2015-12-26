@@ -55,9 +55,9 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                     expression.Append(" || ");
                 }
 
-                expressionTreeVisitor.VisitExpression(argument);
+                expressionTreeVisitor.Visit(argument);
             }
-            
+
             expression.Append(')');
 
             return methodCallExpression;

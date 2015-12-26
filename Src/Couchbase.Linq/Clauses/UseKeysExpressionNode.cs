@@ -11,7 +11,7 @@ namespace Couchbase.Linq.Clauses
     {
         public static readonly MethodInfo[] SupportedMethods =
         {
-            GetSupportedMethod(() => QueryExtensions.UseKeys<object>(null, null))
+            typeof (QueryExtensions).GetMethod("UseKeys")
         };
 
         public UseKeysExpressionNode(MethodCallExpressionParseInfo parseInfo, Expression keys)
@@ -33,12 +33,10 @@ namespace Couchbase.Linq.Clauses
             return Source.Resolve(inputParameter, expressionToBeResolved, clauseGenerationContext);
         }
 
-        protected override QueryModel ApplyNodeSpecificSemantics(QueryModel queryModel,
+        protected override void ApplyNodeSpecificSemantics(QueryModel queryModel,
             ClauseGenerationContext clauseGenerationContext)
         {
             queryModel.BodyClauses.Add(new UseKeysClause(Keys));
-
-            return queryModel;
         }
     }
 }

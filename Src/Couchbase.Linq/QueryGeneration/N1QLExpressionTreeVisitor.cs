@@ -6,14 +6,12 @@ using System.Reflection;
 using System.Text;
 using Couchbase.Linq.QueryGeneration.Expressions;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Clauses.ExpressionTreeVisitors;
 using Remotion.Linq.Parsing;
-using Remotion.Linq.Parsing.ExpressionTreeVisitors;
-using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
+using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    internal class N1QlExpressionTreeVisitor : ThrowingExpressionTreeVisitor
+    internal class N1QlExpressionTreeVisitor : ThrowingExpressionVisitor
     {
         private static readonly MethodInfo[] StringCompareMethods = {
            typeof(string).GetMethod("Compare", new[] { typeof(string), typeof(string) }),
@@ -41,18 +39,18 @@ namespace Couchbase.Linq.QueryGeneration
         public static string GetN1QlExpression(Expression expression, N1QlQueryGenerationContext queryGenerationContext)
         {
             // Ensure that any date/time expressions are properly converted to Unix milliseconds as needed
-            expression = TransformingExpressionTreeVisitor.Transform(expression,
+            expression = TransformingExpressionVisitor.Transform(expression,
                 ExpressionTransformers.DateTimeTransformationRegistry.Default);
 
             var visitor = new N1QlExpressionTreeVisitor(queryGenerationContext);
-            visitor.VisitExpression(expression);
+            visitor.Visit(expression);
             return visitor.GetN1QlExpression();
         }
 
         public static string GetN1QlSelectNewExpression(NewExpression expression, N1QlQueryGenerationContext queryGenerationContext)
         {
             // Ensure that any date/time expressions are properly converted to Unix milliseconds as needed
-            expression = (NewExpression)TransformingExpressionTreeVisitor.Transform(expression,
+            expression = (NewExpression)TransformingExpressionVisitor.Transform(expression,
                 ExpressionTransformers.DateTimeTransformationRegistry.Default);
 
             var visitor = new N1QlExpressionTreeVisitor(queryGenerationContext);
@@ -62,14 +60,13 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
         {
-            var expression = unhandledItem as Expression;
-            var text = expression != null
-                ? FormattingExpressionTreeVisitor.Format(expression)
-                : unhandledItem.ToString();
+            // No longer using FormattingExpressionTreeVisitor to format unhandledItem if it is an Expression
+            // This visitor was removed in Relinq 2.0 as obsolete because ToString is now sufficient in .Net 4
+            // https://www.re-motion.org/jira/browse/RMLNQ-56
 
             var message = string.Format(
                 "The expression '{0}' (type: {1}) is not supported by this LINQ provider."
-                , text
+                , unhandledItem
                 , typeof (T));
 
             return new NotSupportedException(message);
@@ -80,7 +77,7 @@ namespace Couchbase.Linq.QueryGeneration
             return _expression.ToString();
         }
 
-        public override Expression VisitExpression(Expression expression)
+        public override Expression Visit(Expression expression)
         {
             switch (expression.NodeType)
             {
@@ -90,15 +87,12 @@ namespace Couchbase.Linq.QueryGeneration
                 case ExpressionType.ArrayIndex:
                     return VisitArrayIndexExpression((BinaryExpression) expression);
 
-                case ExpressionType.Extension:
-                    return VisitExtensionExpression(expression);
-
                 default:
-                    return base.VisitExpression(expression);
+                    return base.Visit(expression);
             }
         }
 
-        protected Expression VisitExtensionExpression(Expression expression)
+        protected override Expression VisitExtension(Expression expression)
         {
             var stringComparison = expression as StringComparisonExpression;
             if (stringComparison != null)
@@ -106,10 +100,10 @@ namespace Couchbase.Linq.QueryGeneration
                 return VisitStringComparisonExpression(stringComparison);
             }
 
-            throw CreateUnhandledItemException(expression, "VisitExtensionExpression");
+            return base.VisitExtension(expression);
         }
 
-        protected override Expression VisitNewExpression(NewExpression expression)
+        protected override Expression VisitNew(NewExpression expression)
         {
             var arguments = expression.Arguments;
             var members = expression.Members;
@@ -129,7 +123,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 var beforeSubExpressionLength = _expression.Length;
 
-                VisitExpression(arguments[i]);
+                Visit(arguments[i]);
 
                 if (_expression.Length == beforeSubExpressionLength)
                 {
@@ -160,7 +154,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 var expressionLength = _expression.Length;
 
-                VisitExpression(arguments[i]);
+                Visit(arguments[i]);
 
                 //only add 'as' part if the  previous visitexpression has generated something.
                 if (_expression.Length > expressionLength)
@@ -177,7 +171,7 @@ namespace Couchbase.Linq.QueryGeneration
             return expression;
         }
 
-        protected override Expression VisitNewArrayExpression(NewArrayExpression expression)
+        protected override Expression VisitNewArray(NewArrayExpression expression)
         {
             if (expression.NodeType == ExpressionType.NewArrayInit)
             {
@@ -190,20 +184,20 @@ namespace Couchbase.Linq.QueryGeneration
                         _expression.Append(", ");
                     }
 
-                    VisitExpression(expression.Expressions[i]);
-            }
+                    Visit(expression.Expressions[i]);
+                }
 
                 _expression.Append(']');
 
-            return expression;
-        }
+                return expression;
+            }
             else
             {
-                return base.VisitNewArrayExpression(expression);
+                return base.VisitNewArray(expression);
             }
         }
 
-        protected override Expression VisitBinaryExpression(BinaryExpression expression)
+        protected override Expression VisitBinary(BinaryExpression expression)
         {
             var binaryExpression = expression as BinaryExpression;
             if (binaryExpression != null)
@@ -212,7 +206,7 @@ namespace Couchbase.Linq.QueryGeneration
                 if (newExpression != expression)
                 {
                     // Stop processing the current expression, visit the new expression instead
-                    return VisitExpression(newExpression);
+                    return Visit(newExpression);
                 }
             }
 
@@ -220,7 +214,7 @@ namespace Couchbase.Linq.QueryGeneration
 
             _expression.Append("(");
 
-            VisitExpression(expression.Left);
+            Visit(expression.Left);
 
             //TODO: Refactor this to work in a nicer way. Maybe use lookup tables
             switch (expression.NodeType)
@@ -307,11 +301,11 @@ namespace Couchbase.Linq.QueryGeneration
                     break;
 
                 default:
-                    base.VisitBinaryExpression(expression);
+                    base.VisitBinary(expression);
                     break;
             }
 
-            VisitExpression(expression.Right);
+            Visit(expression.Right);
             _expression.Append(")");
 
             return expression;
@@ -468,7 +462,7 @@ namespace Couchbase.Linq.QueryGeneration
         protected virtual Expression VisitStringComparisonExpression(StringComparisonExpression expression)
         {
             _expression.Append('(');
-            VisitExpression(expression.Left);
+            Visit(expression.Left);
 
             switch (expression.Operation)
             {
@@ -492,7 +486,7 @@ namespace Couchbase.Linq.QueryGeneration
                     break;
             }
 
-            VisitExpression(expression.Right);
+            Visit(expression.Right);
             _expression.Append(')');
 
             return expression;
@@ -506,7 +500,7 @@ namespace Couchbase.Linq.QueryGeneration
         private Expression VisitCoalesceExpression(BinaryExpression expression)
         {
             _expression.Append("IFMISSINGORNULL(");
-            VisitExpression(expression.Left);
+            Visit(expression.Left);
 
             var rightExpression = expression.Right;
             while (rightExpression != null)
@@ -516,13 +510,13 @@ namespace Couchbase.Linq.QueryGeneration
                 if (rightExpression.NodeType == ExpressionType.Coalesce)
                 {
                     var subExpression = (BinaryExpression) rightExpression;
-                    VisitExpression(subExpression.Left);
+                    Visit(subExpression.Left);
 
                     rightExpression = subExpression.Right;
                 }
                 else
                 {
-                    VisitExpression(rightExpression);
+                    Visit(rightExpression);
                     rightExpression = null;
                 }
             }
@@ -537,9 +531,9 @@ namespace Couchbase.Linq.QueryGeneration
         /// </summary>
         protected virtual Expression VisitArrayIndexExpression(BinaryExpression expression)
         {
-            VisitExpression(expression.Left);
+            Visit(expression.Left);
             _expression.Append('[');
-            VisitExpression(expression.Right);
+            Visit(expression.Right);
             _expression.Append(']');
 
             return expression;
@@ -550,7 +544,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// </summary>
         /// <param name="expression"></param>
         /// <returns></returns>
-        protected override Expression VisitMethodCallExpression(MethodCallExpression expression)
+        protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
             IMethodCallTranslator methodCallTranslator = _queryGenerationContext.MethodCallTranslatorProvider.GetTranslator(expression);
 
@@ -559,10 +553,10 @@ namespace Couchbase.Linq.QueryGeneration
                 return methodCallTranslator.Translate(expression, this);
             }
 
-            return base.VisitMethodCallExpression(expression);
+            return base.VisitMethodCall(expression);
         }
 
-        protected override Expression VisitConstantExpression(ConstantExpression expression)
+        protected override Expression VisitConstant(ConstantExpression expression)
         {
             var namedParameter = _queryGenerationContext.ParameterAggregator.AddNamedParameter(expression.Value);
 
@@ -605,7 +599,7 @@ namespace Couchbase.Linq.QueryGeneration
                         _expression.Append(", ");
                     }
 
-                    VisitConstantExpression(System.Linq.Expressions.Expression.Constant(element));
+                    VisitConstant(System.Linq.Expressions.Expression.Constant(element));
                 }
 
                 _expression.Append(']');
@@ -618,27 +612,27 @@ namespace Couchbase.Linq.QueryGeneration
             return expression;
         }
 
-        protected override Expression VisitConditionalExpression(ConditionalExpression expression)
+        protected override Expression VisitConditional(ConditionalExpression expression)
         {
             _expression.Append("CASE WHEN ");
-            VisitExpression(expression.Test);
+            Visit(expression.Test);
             _expression.Append(" THEN ");
-            VisitExpression(expression.IfTrue);
+            Visit(expression.IfTrue);
             _expression.Append(" ELSE ");
-            VisitExpression(expression.IfFalse);
+            Visit(expression.IfFalse);
             _expression.Append(" END");
 
             return expression;
         }
 
-        protected override Expression VisitQuerySourceReferenceExpression(QuerySourceReferenceExpression expression)
+        protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
             _expression.Append(_queryGenerationContext.ExtentNameProvider.GetExtentName(expression.ReferencedQuerySource));
 
             return expression;
         }
 
-        protected override Expression VisitMemberExpression(MemberExpression expression)
+        protected override Expression VisitMember(MemberExpression expression)
         {
             if (expression.Expression.Type.Assembly.GetName().Name == "mscorlib")
             {
@@ -655,7 +649,7 @@ namespace Couchbase.Linq.QueryGeneration
                         expression.Expression,
                         propInfo.GetMethod);
 
-                    return VisitExpression(newExpression);
+                    return Visit(newExpression);
                 }
             }
 
@@ -663,36 +657,36 @@ namespace Couchbase.Linq.QueryGeneration
 
             if (_queryGenerationContext.MemberNameResolver.TryResolveMemberName(expression.Member, out memberName))
             {
-                VisitExpression(expression.Expression);
+                Visit(expression.Expression);
                 _expression.AppendFormat(".{0}", N1QlHelpers.EscapeIdentifier(memberName));
             }
 
             return expression;
         }
 
-        protected override Expression VisitUnaryExpression(UnaryExpression expression)
+        protected override Expression VisitUnary(UnaryExpression expression)
         {
             switch (expression.NodeType)
             {
                 case ExpressionType.Not:
                     _expression.Append("NOT ");
-                    VisitExpression(expression.Operand);
+                    Visit(expression.Operand);
                     break;
 
                 case ExpressionType.Negate:
                 case ExpressionType.NegateChecked:
                     _expression.Append('-');
-                    VisitExpression(expression.Operand);
+                    Visit(expression.Operand);
                     break;
 
                 default:
-                    VisitExpression(expression.Operand);
+                    Visit(expression.Operand);
                     break;
             }
             return expression;
         }
 
-        protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
+        protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
             var modelVisitor = new N1QlQueryModelVisitor(_queryGenerationContext, true);
 

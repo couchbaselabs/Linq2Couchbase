@@ -113,7 +113,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                     expression.Append(", ");
                 }
 
-                expressionTreeVisitor.VisitExpression(methodCallExpression.Arguments[i]);
+                expressionTreeVisitor.Visit(methodCallExpression.Arguments[i]);
             }
             
             expression.Append(')');

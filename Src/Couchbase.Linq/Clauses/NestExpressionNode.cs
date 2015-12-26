@@ -11,8 +11,8 @@ namespace Couchbase.Linq.Clauses
     {
         public static readonly MethodInfo[] SupportedMethods =
         {
-            GetSupportedMethod(() => QueryExtensions.Nest<object, object, object>(null, null, o => null, (o, p) => null)),
-            GetSupportedMethod(() => QueryExtensions.LeftOuterNest<object, object, object>(null, null, o => null, (o, p) => null))
+            typeof(QueryExtensions).GetMethod("Nest"),
+            typeof(QueryExtensions).GetMethod("LeftOuterNest")
         };
 
         private readonly ResolvedExpressionCache<Expression> _cachedKeySelector;
@@ -88,13 +88,13 @@ namespace Couchbase.Linq.Clauses
             return Source.Resolve(inputParameter, expressionToBeResolved, clauseGenerationContext);
         }
 
-        protected override QueryModel ApplyNodeSpecificSemantics(QueryModel queryModel,
+        protected override void ApplyNodeSpecificSemantics(QueryModel queryModel,
             ClauseGenerationContext clauseGenerationContext)
         {
             var nestClause = new NestClause(
-                ResultSelector.Parameters[1].Name, 
-                ResultSelector.Parameters[1].Type, 
-                InnerSequence, 
+                ResultSelector.Parameters[1].Name,
+                ResultSelector.Parameters[1].Type,
+                InnerSequence,
                 GetResolvedKeySelector(clauseGenerationContext),
                 IsLeftOuterNest);
 
@@ -103,8 +103,6 @@ namespace Couchbase.Linq.Clauses
 
             var selectClause = queryModel.SelectClause;
             selectClause.Selector = GetResolvedResultSelector(clauseGenerationContext);
-
-            return queryModel;
         }
     }
 }

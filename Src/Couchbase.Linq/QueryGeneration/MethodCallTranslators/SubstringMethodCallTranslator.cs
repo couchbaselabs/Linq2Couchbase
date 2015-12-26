@@ -35,14 +35,14 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("SUBSTR(");
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object);
             expression.Append(", ");
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Arguments[0]);
+            expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
 
             if (methodCallExpression.Arguments.Count > 1)
             {
                 expression.Append(", ");
-                expressionTreeVisitor.VisitExpression(methodCallExpression.Arguments[1]);
+                expressionTreeVisitor.Visit(methodCallExpression.Arguments[1]);
             }
             else if (methodCallExpression.Method.Name == "get_Chars")
             {

@@ -20,7 +20,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                 return SupportedMethodsStatic;
             }
         }
-            
+
         public Expression Translate(MethodCallExpression methodCallExpression, N1QlExpressionTreeVisitor expressionTreeVisitor)
         {
             if (methodCallExpression == null)
@@ -30,7 +30,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
             var expression = expressionTreeVisitor.Expression;
 
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Arguments[0]);
+            expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
 
             if (methodCallExpression.Arguments.Count > 1)
             {

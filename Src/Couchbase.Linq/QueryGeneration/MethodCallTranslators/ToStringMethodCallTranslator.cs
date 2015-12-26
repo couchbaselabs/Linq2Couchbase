@@ -36,14 +36,14 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
             if (methodCallExpression.Object.Type == typeof (string))
             {
-                expressionTreeVisitor.VisitExpression(methodCallExpression.Object);
+                expressionTreeVisitor.Visit(methodCallExpression.Object);
             }
             else
             {
                 var expression = expressionTreeVisitor.Expression;
 
                 expression.Append("TOSTRING(");
-                expressionTreeVisitor.VisitExpression(methodCallExpression.Object);
+                expressionTreeVisitor.Visit(methodCallExpression.Object);
                 expression.Append(")");
             }
 

@@ -33,7 +33,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("LENGTH(");
-            expressionTreeVisitor.VisitExpression(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object);
             expression.Append(")");
 
             return methodCallExpression;

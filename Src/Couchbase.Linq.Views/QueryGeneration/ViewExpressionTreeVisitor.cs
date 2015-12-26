@@ -7,7 +7,7 @@ using Remotion.Linq.Parsing;
 
 namespace Couchbase.Linq.Views.QueryGeneration
 {
-    public class ViewExpressionTreeVisitor : ThrowingExpressionTreeVisitor
+    public class ViewExpressionTreeVisitor : ThrowingExpressionVisitor
     {
         protected override Exception CreateUnhandledItemException<T>(T unhandledItem, string visitMethod)
         {

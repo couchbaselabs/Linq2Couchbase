@@ -6,7 +6,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Remotion.Linq.Clauses.Expressions;
-using Remotion.Linq.Parsing.ExpressionTreeVisitors.Transformation;
+using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 
 namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
 {
