@@ -144,6 +144,32 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void Map2PocoTests_Simple_Projections_WhereEnum()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var context = new BucketContext(bucket);
+
+                    var beers = (from b in context.Query<BeerWithEnum>()
+                                 where (b.Type == "beer") && (b.Style == BeerStyle.OatmealStout)
+                                 select new { name = b.Name, style = b.Style })
+                                .Take(10).ToList();
+
+                    Assert.IsNotEmpty(beers);
+
+                    foreach (var b in beers)
+                    {
+                        Assert.AreEqual(BeerStyle.OatmealStout, b.style);
+
+                        Console.WriteLine("{0} has style {1}", b.name, b.style);
+                    }
+                }
+            }
+        }
+
+        [Test]
         public void Map2PocoTests_Simple_Projections_Limit()
         {
             using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))

@@ -668,6 +668,18 @@ namespace Couchbase.Linq.QueryGeneration
 
                 _expression.Append(']');
             }
+            else if (namedParameter.Value.GetType().IsEnum)
+            {
+                // Use the type serializer to format the value as JSON.
+                // This allows different serialization converters to work on the value.
+                // Then convert back to get the raw type being stored, such as a string or integer.
+                // Then we can write this value to N1QL by visiting it as a constant expression.
+
+                var jsonString = _queryGenerationContext.Serializer.Serialize(namedParameter.Value);
+                var jsonValue = _queryGenerationContext.Serializer.Deserialize<object>(jsonString, 0, jsonString.Length);
+
+                return Visit(System.Linq.Expressions.Expression.Constant(jsonValue));
+            }
             else
             {
                 _expression.AppendFormat("{0}", namedParameter.Value);

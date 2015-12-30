@@ -1,6 +1,7 @@
 ﻿using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Operators;
+using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.Structure;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
@@ -34,6 +35,10 @@ namespace Couchbase.Linq
 
 
             var transformerRegistry = ExpressionTransformerRegistry.CreateDefault();
+
+            //Register transformer to handle enum == and != comparisons
+            transformerRegistry.Register(new EnumComparisonExpressionTransformer());
+
             var processor = ExpressionTreeParser.CreateDefaultProcessor(transformerRegistry);
             var expressionTreeParser = new ExpressionTreeParser(nodeTypeProvider, processor);
             var queryParser = new QueryParser(expressionTreeParser);

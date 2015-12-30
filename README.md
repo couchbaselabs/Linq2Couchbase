@@ -47,6 +47,7 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 - [Any and All](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/any-all.md)
 - [Testing For NULL And MISSING Attributes](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/null-missing-valued.md)
 - [The META Keyword](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/meta-keyword.md)
+- [Working With Enumerations](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/enum.md)
 
 ##Building From Source##
 
