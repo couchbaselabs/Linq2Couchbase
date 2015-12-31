@@ -33,10 +33,6 @@ namespace Couchbase.Linq.QueryGeneration
 
         public static string GetN1QlExpression(Expression expression, N1QlQueryGenerationContext queryGenerationContext)
         {
-            // Ensure that any date/time expressions are properly converted to Unix milliseconds as needed
-            expression = TransformingExpressionVisitor.Transform(expression,
-                ExpressionTransformers.DateTimeTransformationRegistry.Default);
-
             var visitor = new N1QlExpressionTreeVisitor(queryGenerationContext);
             visitor.Visit(expression);
             return visitor.GetN1QlExpression();
@@ -44,10 +40,6 @@ namespace Couchbase.Linq.QueryGeneration
 
         public static string GetN1QlSelectNewExpression(Expression expression, N1QlQueryGenerationContext queryGenerationContext)
         {
-            // Ensure that any date/time expressions are properly converted to Unix milliseconds as needed
-            expression = TransformingExpressionVisitor.Transform(expression,
-                ExpressionTransformers.DateTimeTransformationRegistry.Default);
-
             var visitor = new N1QlExpressionTreeVisitor(queryGenerationContext);
             visitor.VisitSelectNewExpression(expression);
             return visitor.GetN1QlExpression();
