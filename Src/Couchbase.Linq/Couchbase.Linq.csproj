@@ -95,6 +95,7 @@
     <Compile Include="QueryGeneration\Expressions\StringComparisonExpression.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\DateTimeComparisonExpressionTransformer.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\DateTimeTransformationRegistry.cs" />
+    <Compile Include="QueryGeneration\ExpressionTransformers\StringComparisonExpressionTransformer.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\EnumComparisonExpressionTransformer.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\MultiKeyExpressionTransfomer.cs" />
     <Compile Include="QueryGeneration\ExpressionTransformers\KeyExpressionTransfomer.cs" />

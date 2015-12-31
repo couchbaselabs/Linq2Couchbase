@@ -39,6 +39,9 @@ namespace Couchbase.Linq
             //Register transformer to handle enum == and != comparisons
             transformerRegistry.Register(new EnumComparisonExpressionTransformer());
 
+            //Register transformer to handle string comparisons
+            transformerRegistry.Register(new StringComparisonExpressionTransformer());
+
             var processor = ExpressionTreeParser.CreateDefaultProcessor(transformerRegistry);
             var expressionTreeParser = new ExpressionTreeParser(nodeTypeProvider, processor);
             var queryParser = new QueryParser(expressionTreeParser);
