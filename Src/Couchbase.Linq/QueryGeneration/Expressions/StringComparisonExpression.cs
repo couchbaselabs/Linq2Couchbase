@@ -23,6 +23,8 @@ namespace Couchbase.Linq.QueryGeneration.Expressions
             ExpressionType.GreaterThanOrEqual
         };
 
+        private Type _type;
+
         public ExpressionType Operation { get; private set; }
         public Expression Left { get; private set; }
         public Expression Right { get; private set; }
@@ -33,6 +35,11 @@ namespace Couchbase.Linq.QueryGeneration.Expressions
             {
                 return ExpressionType.Extension;
             }
+        }
+
+        public override Type Type
+        {
+            get { return typeof (bool); }
         }
 
         public static StringComparisonExpression Create(ExpressionType operation, Expression left, Expression right)
@@ -49,6 +56,14 @@ namespace Couchbase.Linq.QueryGeneration.Expressions
             {
                 throw new ArgumentNullException("right");
             }
+            if (left.Type != typeof(string))
+            {
+                throw new ArgumentException("Expressions must be strings.", "left");
+            }
+            if (right.Type != typeof(string))
+            {
+                throw new ArgumentException("Expressions must be strings.", "right");
+            }
 
             return new StringComparisonExpression(operation, left, right);
         }
@@ -60,9 +75,24 @@ namespace Couchbase.Linq.QueryGeneration.Expressions
             Right = right;
         }
 
+        protected override Expression VisitChildren(ExpressionVisitor visitor)
+        {
+            var newLeft = visitor.Visit(Left);
+            var newRight = visitor.Visit(Right);
+
+            if ((Left != newLeft) || (Right != newRight))
+            {
+                return Create(Operation, newLeft, newRight);
+            }
+            else
+            {
+                return this;
+            }
+        }
+
         public override string ToString()
         {
-            return String.Format("{0} {1} {2}",
+            return string.Format("{0} {1} {2}",
                 Left,
                 Operation,
                 Right);
