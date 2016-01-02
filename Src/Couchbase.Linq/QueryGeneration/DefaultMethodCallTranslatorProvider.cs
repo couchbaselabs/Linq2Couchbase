@@ -3,13 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Couchbase.Linq.QueryGeneration.MethodCallTranslators;
 
 namespace Couchbase.Linq.QueryGeneration
 {
 
     /// <summary>
     /// Provides default method call translator provider for N1QL expressions.
-    /// Uses classes implementing IMethodCallTranslator defined in Couchbase.Linq assembly
+    /// Uses classes implementing <see cref="IMethodCallTranslator" /> defined in Couchbase.Linq assembly,
+    /// as well as any method which implements <see cref="N1QlFunctionAttribute" />.
     /// </summary>
     internal class DefaultMethodCallTranslatorProvider : IMethodCallTranslatorProvider
     {
@@ -20,16 +22,18 @@ namespace Couchbase.Linq.QueryGeneration
 
         private static Dictionary<MethodInfo, IMethodCallTranslator> CreateDefaultRegistry()
         {
-            var query =
-                Assembly.GetExecutingAssembly()
-                    .GetTypes()
-                    .Where(type => type.IsClass && !type.IsAbstract && typeof (IMethodCallTranslator).IsAssignableFrom(type))
-                    .SelectMany(type =>
-                    {
-                        var instance = (IMethodCallTranslator) Activator.CreateInstance(type);
+            var query = Assembly.GetExecutingAssembly()
+                .GetTypes()
+                .Where(
+                    type =>
+                        type.IsClass && !type.IsAbstract && typeof (IMethodCallTranslator).IsAssignableFrom(type) &&
+                        type.GetConstructor(Type.EmptyTypes) != null)
+                .SelectMany(type =>
+                {
+                    var instance = (IMethodCallTranslator) Activator.CreateInstance(type);
 
-                        return instance.SupportMethods.Select(method => new {instance, method});
-                    });
+                    return instance.SupportMethods.Select(method => new {instance, method});
+                });
 
             return query.ToDictionary(p => p.method, p => p.instance);
         }
@@ -48,48 +52,61 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected virtual IMethodCallTranslator GetItem(MethodInfo key)
         {
-            if (key == null)
+            lock (Registry)
             {
-                throw new ArgumentNullException("key");
-            }
+                if (key == null)
+                {
+                    throw new ArgumentNullException("key");
+                }
 
-            IMethodCallTranslator translator;
-            if (Registry.TryGetValue(key, out translator))
-            {
-                return translator;
-            }
-
-            if (key.IsGenericMethod && !key.IsGenericMethodDefinition)
-            {
-                if (Registry.TryGetValue(key.GetGenericMethodDefinition(), out translator))
+                IMethodCallTranslator translator;
+                if (Registry.TryGetValue(key, out translator))
                 {
                     return translator;
                 }
-            }
 
-            // Check if the generic form of the declaring type matches
-            translator = GetItemFromGenericType(key);
-            if (translator != null)
-            {
-                return translator;
-            }
+                if (key.IsGenericMethod && !key.IsGenericMethodDefinition)
+                {
+                    if (Registry.TryGetValue(key.GetGenericMethodDefinition(), out translator))
+                    {
+                        return translator;
+                    }
+                }
 
-            // Check any interfaces that may have a matching method
-            translator = GetItemFromInterfaces(key);
-            if (translator != null)
-            {
-                return translator;
-            }
+                // Check if the generic form of the declaring type matches
+                translator = GetItemFromGenericType(key);
+                if (translator != null)
+                {
+                    return translator;
+                }
 
-            // Finally, check base method if this is a virtual method
-            var baseMethod = key.GetBaseDefinition();
-            if ((baseMethod != null) && (baseMethod != key))
-            {
-                return GetItem(baseMethod);
-            }
+                // Check any interfaces that may have a matching method
+                translator = GetItemFromInterfaces(key);
+                if (translator != null)
+                {
+                    return translator;
+                }
 
-            // No match found
-            return null;
+                // If no preregistered method is found, check to see if the method is decorated with N1QlFunctionAttribute
+                translator = CreateFromN1QlFunctionAttribute(key);
+                if (translator != null)
+                {
+                    // Save this translator for reuse
+                    Registry.Add(key, translator);
+
+                    return translator;
+                }
+
+                // Finally, check base method if this is a virtual method
+                var baseMethod = key.GetBaseDefinition();
+                if ((baseMethod != null) && (baseMethod != key))
+                {
+                    return GetItem(baseMethod);
+                }
+
+                // No match found
+                return null;
+            }
         }
 
         /// <summary>
@@ -126,16 +143,19 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 IMethodCallTranslator translator;
 
-                if (Registry.TryGetValue(genericTypeKey, out translator))
+                lock (Registry)
                 {
-                    return translator;
-                }
-
-                if (genericTypeKey.IsGenericMethod && !genericTypeKey.IsGenericMethodDefinition)
-                {
-                    if (Registry.TryGetValue(genericTypeKey.GetGenericMethodDefinition(), out translator))
+                    if (Registry.TryGetValue(genericTypeKey, out translator))
                     {
                         return translator;
+                    }
+
+                    if (genericTypeKey.IsGenericMethod && !genericTypeKey.IsGenericMethodDefinition)
+                    {
+                        if (Registry.TryGetValue(genericTypeKey.GetGenericMethodDefinition(), out translator))
+                        {
+                            return translator;
+                        }
                     }
                 }
             }
@@ -216,5 +236,22 @@ namespace Couchbase.Linq.QueryGeneration
             return true;
         }
 
+        /// <summary>
+        /// Checks for <see cref="N1QlFunctionAttribute" /> and creates a new <see cref="N1QlFunctionMethodCallTranslator" />
+        /// if it is found.  If not found, returns null.
+        /// </summary>
+        protected virtual IMethodCallTranslator CreateFromN1QlFunctionAttribute(MethodInfo key)
+        {
+            if (key == null)
+            {
+                throw new ArgumentNullException("key");
+            }
+
+            var attribute = key.GetCustomAttribute<N1QlFunctionAttribute>(true);
+
+            return attribute == null
+                ? null
+                : new N1QlFunctionMethodCallTranslator(key, attribute);
+        }
     }
 }
