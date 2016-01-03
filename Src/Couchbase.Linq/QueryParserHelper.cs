@@ -42,6 +42,9 @@ namespace Couchbase.Linq
             //Register transformer to handle string comparisons
             transformerRegistry.Register(new StringComparisonExpressionTransformer());
 
+            //Register transformer to handle DateTime comparisons
+            transformerRegistry.Register(new DateTimeComparisonExpressionTransformer());
+
             var processor = ExpressionTreeParser.CreateDefaultProcessor(transformerRegistry);
             var expressionTreeParser = new ExpressionTreeParser(nodeTypeProvider, processor);
             var queryParser = new QueryParser(expressionTreeParser);
