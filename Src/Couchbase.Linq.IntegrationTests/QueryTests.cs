@@ -1176,5 +1176,93 @@ namespace Couchbase.Linq.IntegrationTests
                 }
             }
         }
+
+        #region "Date/time functions"
+
+        [Test()]
+        public void DateTime_DateAdd()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
+                                where (beer.Type == "beer")
+                                select new { beer.Name, Updated = N1QlFunctions.DateAdd(beer.Updated, -10, N1QlDatePart.Day) };
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("Beer {0} was updated 10 days after {1:g}", b.Name, b.Updated);
+                    }
+                }
+            }
+        }
+
+        [Test()]
+        public void DateTime_DateDiff()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
+                                where (beer.Type == "beer")
+                                select new { beer.Name, DaysOld = N1QlFunctions.DateDiff(DateTime.Now, beer.Updated, N1QlDatePart.Day) };
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("Beer {0} is {1} days old", b.Name, b.DaysOld);
+                    }
+                }
+            }
+        }
+
+        [Test()]
+        public void DateTime_DatePart()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
+                                where (beer.Type == "beer")
+                                select new { beer.Name, Year = N1QlFunctions.DatePart(beer.Updated, N1QlDatePart.Year) };
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("Beer {0} was updated in {1:0000}", b.Name, b.Year);
+                    }
+                }
+            }
+        }
+
+        [Test()]
+        public void DateTime_DateTrunc()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var context = new BucketContext(bucket);
+
+                    var beers = from beer in context.Query<Beer>()
+                                where (beer.Type == "beer")
+                                select new { beer.Name, Updated = N1QlFunctions.DateTrunc(beer.Updated, N1QlDatePart.Month) };
+
+                    foreach (var b in beers.Take(10))
+                    {
+                        Console.WriteLine("Beer {0} is in {1:MMMM yyyy}", b.Name, b.Updated);
+                    }
+                }
+            }
+        }
+
+        #endregion
     }
 }

@@ -68,6 +68,7 @@
     <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Net.Http" />
+    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -83,6 +84,10 @@
     <Compile Include="Extensions\EnumerableExtensions.cs" />
     <Compile Include="IBucketContext.cs" />
     <Compile Include="KeyAttributeMissingException.cs" />
+    <Compile Include="N1QlDatePart.cs" />
+    <Compile Include="N1QlFunctions.Core.cs" />
+    <Compile Include="N1QlFunctions.DateTime.cs" />
+    <Compile Include="N1QlFunctions.Metadata.cs" />
     <Compile Include="Proxies\DocumentCollection.cs" />
     <Compile Include="Proxies\DocumentNode.cs" />
     <Compile Include="Proxies\DocumentProxyTypeCreator.cs" />
@@ -130,6 +135,8 @@
     <Compile Include="QueryGeneration\MethodCallTranslators\KeyMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\MetaMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\DefaultMethodCallTranslatorProvider.cs" />
+    <Compile Include="N1QlFunctionAttribute.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\N1QlFunctionMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\ToStringMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\StringSplitMethodCallTranslator.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\StringIndexOfMethodCallTranslator.cs" />
@@ -153,7 +160,7 @@
     <Compile Include="QueryGeneration\ParameterAggregator.cs" />
     <Compile Include="QueryGeneration\QueryPartsAggregator.cs" />
     <Compile Include="Metadata\DocumentMetadata.cs" />
-    <Compile Include="N1QlFunctions.cs" />
+    <Compile Include="N1QlFunctions.Missing.cs" />
     <Compile Include="QueryGeneration\UnclaimedGroupJoin.cs" />
     <Compile Include="QueryParserHelper.cs" />
     <Compile Include="UnixMillisecondsDateTime.cs" />
