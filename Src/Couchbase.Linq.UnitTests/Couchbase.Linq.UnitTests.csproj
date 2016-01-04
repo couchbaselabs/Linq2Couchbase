@@ -116,6 +116,7 @@
     <Compile Include="Proxies\DocumentProxyTypeCreatorTests.cs" />
     <Compile Include="Proxies\DocumentProxyDataMapperTests.cs" />
     <Compile Include="Proxies\DocumentProxyTests.cs" />
+    <Compile Include="QueryGeneration\ArrayOperatorTests.cs" />
     <Compile Include="QueryGeneration\EnumTests.cs" />
     <Compile Include="QueryGeneration\ArrayIndexTests.cs" />
     <Compile Include="QueryGeneration\AggregateTests.cs" />

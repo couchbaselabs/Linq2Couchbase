@@ -414,6 +414,19 @@ namespace Couchbase.Linq.QueryGeneration
                     _queryGenerationContext.ExtentNameProvider.Prefix = null;
                 }
             }
+            else if (resultOperator is ContainsResultOperator)
+            {
+                if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
+                {
+                    throw new NotSupportedException("Contains is only supported in N1QL against nested arrays.");
+                }
+
+                var containsResultOperator = (ContainsResultOperator) resultOperator;
+
+                // Use a wrapping function to wrap the subquery with an IN statement
+
+                _queryPartsAggregator.AddWrappingFunction(GetN1QlExpression(containsResultOperator.Item) + " IN ");
+            }
             else if (resultOperator is GroupResultOperator)
             {
                 VisitGroupResultOperator((GroupResultOperator)resultOperator, queryModel);
@@ -437,6 +450,10 @@ namespace Couchbase.Linq.QueryGeneration
             else if (resultOperator is SumResultOperator)
             {
                 _queryPartsAggregator.AggregateFunction = "SUM";
+            }
+            else
+            {
+                throw new NotSupportedException(string.Format("{0} is not supported.", resultOperator.GetType().Name));
             }
 
             base.VisitResultOperator(resultOperator, queryModel, index);
