@@ -61,7 +61,7 @@ It is also valid to extend the query with multiple where clauses.
 	}
 
 ##Document Type Filters
-Some where clauses may be automatically applied to your query based on the document type you are querying.  For example, it is common to use `DocumentTypeFilter` attributes on your document objects so they are automatically limited to documents with a certain "type" attribute.  For more information, see [Mapping JSON documents to POCOs with DocumentFilters](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/document-filters.md).
+Some where clauses may be automatically applied to your query based on the document type you are querying.  For example, it is common to use `DocumentTypeFilter` attributes on your document objects so they are automatically limited to documents with a certain "type" attribute.  For more information, see [Mapping JSON documents to POCOs with DocumentFilters](document-filters.md).
 
 ##Supported Operators
 The following operators are supported by Linq2Couchbase.

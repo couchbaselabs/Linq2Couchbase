@@ -88,7 +88,7 @@ The second is to register the filter using the DocumentFilterManager for each do
 
 Typically this would done when the application starts up, or you could do it in the ctor of a class which extends `BucketContext`.
 
-For an example of a dynamic document filter attribute inherited from DocumentFilterAttribute, see the source code for [DocumentTypeFilterAttribute](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/Src/Couchbase.Linq/Filters/DocumentTypeFilterAttribute.cs).
+For an example of a dynamic document filter attribute inherited from DocumentFilterAttribute, see the source code for [DocumentTypeFilterAttribute](../Src/Couchbase.Linq/Filters/DocumentTypeFilterAttribute.cs).
 
 
 	
