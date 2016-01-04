@@ -797,6 +797,28 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test()]
+        public void SubqueryTests_ArraySubqueryContains()
+        {
+            using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
+            {
+                using (var bucket = cluster.OpenBucket("beer-sample"))
+                {
+                    var context = new BucketContext(bucket);
+
+                    var breweries = from brewery in context.Query<Brewery>()
+                                    where brewery.Type == "brewery" && brewery.Address.Contains("563 Second Street")
+                                    orderby brewery.Name
+                                    select new { name = brewery.Name, addresses = brewery.Address };
+
+                    foreach (var b in breweries.Take(10))
+                    {
+                        Console.WriteLine("Brewery {0} has address {1}", b.name, string.Join(", ", b.addresses));
+                    }
+                }
+            }
+        }
+
+        [Test()]
         public void SubqueryTests_ArraySubquerySelectNewObject()
         {
             using (var cluster = new Cluster(TestConfigurations.DefaultConfig()))
