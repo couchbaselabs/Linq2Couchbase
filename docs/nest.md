@@ -1,6 +1,6 @@
 NESTing Documents
 =================
-Nesting documents is somewhat similar to [JOINing Documents](https://github.com/couchbaselabs/Linq2Couchbase/blob/master/docs/joins.md).  It has some of the same behaviors and limitations.
+Nesting documents is somewhat similar to [JOINing Documents](joins.md).  It has some of the same behaviors and limitations.
 
 However, nesting returns the data in a different format.  Nests expect the document on the left to have a list of document keys in an array.  Each key on the document is then loaded from the bucket, and a array of documents is provided.  This array may then be manipulated and used elsewhere in the query, such as the select projection or where clause. 
 
