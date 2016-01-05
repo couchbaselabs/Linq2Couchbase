@@ -10,12 +10,6 @@ namespace Couchbase.Linq.IntegrationTests
     // ReSharper disable once InconsistentNaming
     public class BucketContextTests
     {
-        [TestFixtureSetUp]
-        public void TestFixtureSetUp()
-        {
-            ClusterHelper.Initialize(TestConfigurations.DefaultConfig());
-        }
-
         [Test]
         public void Test_Basic_Query()
         {
@@ -24,7 +18,7 @@ namespace Couchbase.Linq.IntegrationTests
                 where x.Type == "beer"
                 select x;
 
-            foreach (var beer in query)
+            foreach (var beer in query.Take(1))
             {
                 Console.WriteLine(beer.Name);
             }
@@ -37,7 +31,7 @@ namespace Couchbase.Linq.IntegrationTests
             var beers = from b in db.Beers
                 select b;
 
-            foreach (var beer in beers)
+            foreach (var beer in beers.Take(1))
             {
                 Console.WriteLine(beer.Name);
             }
@@ -52,7 +46,7 @@ namespace Couchbase.Linq.IntegrationTests
                         on beer.BreweryId equals N1QlFunctions.Key(brewery)
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
-            foreach (var beer in query)
+            foreach (var beer in query.Take(1))
             {
                 Console.WriteLine(beer.Name);
             }
