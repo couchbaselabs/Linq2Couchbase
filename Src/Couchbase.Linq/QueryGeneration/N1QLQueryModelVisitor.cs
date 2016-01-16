@@ -185,6 +185,18 @@ namespace Couchbase.Linq.QueryGeneration
                 // Ensure that we use the same extent name as the grouping
                 _queryGenerationContext.ExtentNameProvider.LinkExtents(_queryGenerationContext.GroupingQuerySource.ReferencedQuerySource, fromClause);
             }
+            else if (fromClause.FromExpression is ConstantExpression)
+            {
+                // From clause for this subquery is a constant array
+
+                _queryPartsAggregator.QueryType = N1QlQueryType.Array;
+
+                _queryPartsAggregator.AddFromPart(new N1QlFromQueryPart()
+                {
+                    Source = GetN1QlExpression(fromClause.FromExpression),
+                    ItemName = GetExtentName(fromClause)
+                });
+            }
 
             base.VisitMainFromClause(fromClause, queryModel);
         }
@@ -418,7 +430,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
                 {
-                    throw new NotSupportedException("Contains is only supported in N1QL against nested arrays.");
+                    throw new NotSupportedException("Contains is only supported in N1QL against nested or constant arrays.");
                 }
 
                 var containsResultOperator = (ContainsResultOperator) resultOperator;
