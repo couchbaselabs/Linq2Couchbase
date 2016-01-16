@@ -563,8 +563,20 @@ namespace Couchbase.Linq.QueryGeneration
 
             if (_queryGenerationContext.MemberNameResolver.TryResolveMemberName(expression.Member, out memberName))
             {
-                Visit(expression.Expression);
-                _expression.AppendFormat(".{0}", N1QlHelpers.EscapeIdentifier(memberName));
+                var querySourceExpression = expression.Expression as QuerySourceReferenceExpression;
+                if ((querySourceExpression != null) &&
+                    (_queryGenerationContext.ExtentNameProvider.GetExtentName(
+                        querySourceExpression.ReferencedQuerySource) == ""))
+                {
+                    // This query source has a blank extent name, so we don't need to reference the extent to access the member
+
+                    _expression.Append(N1QlHelpers.EscapeIdentifier(memberName));
+                }
+                else
+                {
+                    Visit(expression.Expression);
+                    _expression.AppendFormat(".{0}", N1QlHelpers.EscapeIdentifier(memberName));
+                }
             }
 
             return expression;

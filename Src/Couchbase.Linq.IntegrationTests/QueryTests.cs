@@ -771,6 +771,52 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void SubqueryTests_Union()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var names = (from brewery in context.Query<Brewery>()
+                where brewery.Type == "brewery"
+                select new { AnyName = brewery.Name })
+                .Union(from beer in context.Query<Beer>()
+                    where beer.Type == "beer"
+                    select new { AnyName = beer.Name })
+                .OrderBy(p => p.AnyName);
+
+            var results = names.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine(b.AnyName);
+            }
+        }
+
+        [Test]
+        public void SubqueryTests_UnionAll()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var names = (from brewery in context.Query<Brewery>()
+                         where brewery.Type == "brewery"
+                         select new { AnyName = brewery.Name })
+                .Concat(from beer in context.Query<Beer>()
+                        where beer.Type == "beer"
+                        select new { AnyName = beer.Name })
+                .OrderBy(p => p.AnyName);
+
+            var results = names.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine(b.AnyName);
+            }
+        }
+
+        [Test]
         public void AggregateTests_SimpleAverage()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");

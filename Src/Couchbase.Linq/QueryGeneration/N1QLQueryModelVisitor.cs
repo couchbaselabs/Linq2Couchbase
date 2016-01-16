@@ -20,11 +20,21 @@ namespace Couchbase.Linq.QueryGeneration
     internal class N1QlQueryModelVisitor : QueryModelVisitorBase, IN1QlQueryModelVisitor
     {
         #region Constants
-        private enum GroupingStatus
+
+        private enum VisitStatus
         {
             None,
+
+            // Group subqueries are used when clauses are applied after a group operation, such as .Where clauses
+            // which are treated as HAVING statements.
             InGroupSubquery,
-            AfterGroupSubquery
+            AfterGroupSubquery,
+
+            // Union sort subquerys are used if .OrderBy clauses are applied after performing a union
+            // The require special handling because the sorting is now on the generic name of the columns being returned
+            // Not on the original column names
+            InUnionSortSubquery,
+            AfterUnionSortSubquery
         }
 
         #endregion
@@ -36,11 +46,11 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly bool _isSubQuery = false;
 
         /// <summary>
-        /// When != GroupingStatus.None, indicates this query is actually an outer wrapper for a GroupBy clause.
-        /// The GroupBy subquery is flattened into this query, and behaviors change.  For example, Where clauses
-        /// are interpreted as Having clauses instead.
+        /// Tracks special status related to the visiting process, which may alter the behavior as query model
+        /// clauses are being visited.  For example, .Where clauses are treating as HAVING statements if
+        /// _visitStatus == AfterGroupSubquery.
         /// </summary>
-        private GroupingStatus _groupingStatus = GroupingStatus.None;
+        private VisitStatus _visitStatus = VisitStatus.None;
 
         /// <summary>
         /// Stores the mappings between expressions outside the group query to the extents inside
@@ -100,13 +110,15 @@ namespace Couchbase.Linq.QueryGeneration
             VisitBodyClauses(queryModel.BodyClauses, queryModel);
             VisitResultOperators(queryModel.ResultOperators, queryModel);
 
-            if (_groupingStatus != GroupingStatus.InGroupSubquery)
+            if ((_visitStatus != VisitStatus.InGroupSubquery) && (_visitStatus != VisitStatus.AfterUnionSortSubquery))
             {
-                // Select clause should not be visited for grouping subqueries
+                // Select clause should not be visited for grouping subqueries or for the outer query when sorting unions
+
                 // Select clause must be visited after the from clause and body clauses
                 // This ensures that any extents are linked before being referenced in the select statement
                 // Select clause must be visited after result operations because Any and All operators
                 // May change how we handle the select clause
+
                 queryModel.SelectClause.Accept(this, queryModel);
             }
 
@@ -159,18 +171,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
             else if (fromClause.FromExpression is SubQueryExpression)
             {
-                var subQuery = (SubQueryExpression) fromClause.FromExpression;
-                if (!subQuery.QueryModel.ResultOperators.Any(p => p is GroupResultOperator))
-                {
-                    throw new NotSupportedException("Subqueries In The Main From Clause Are Only Supported For Grouping");
-                }
-
-                _groupingStatus = GroupingStatus.InGroupSubquery;
-                _queryGenerationContext.GroupingQuerySource = new QuerySourceReferenceExpression(fromClause);
-
-                VisitQueryModel(subQuery.QueryModel);
-
-                _groupingStatus = GroupingStatus.AfterGroupSubquery;
+                VisitSubQueryFromClause(fromClause, (SubQueryExpression) fromClause.FromExpression);
             }
             else if (fromClause.FromExpression is QuerySourceReferenceExpression)
             {
@@ -199,6 +200,39 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             base.VisitMainFromClause(fromClause, queryModel);
+        }
+
+        private void VisitSubQueryFromClause(MainFromClause fromClause, SubQueryExpression subQuery)
+        {
+            if (subQuery.QueryModel.ResultOperators.Any(p => p is GroupResultOperator))
+            {
+                // We're applying functions like HAVING clauses after grouping
+
+                _visitStatus = VisitStatus.InGroupSubquery;
+                _queryGenerationContext.GroupingQuerySource = new QuerySourceReferenceExpression(fromClause);
+
+                VisitQueryModel(subQuery.QueryModel);
+
+                _visitStatus = VisitStatus.AfterGroupSubquery;
+            }
+            else if (subQuery.QueryModel.ResultOperators.Any(p => p is UnionResultOperator || p is ConcatResultOperator))
+            {
+                // We're applying ORDER BY clauses after a UNION statement is completed
+
+                _visitStatus = VisitStatus.InUnionSortSubquery;
+
+                VisitQueryModel(subQuery.QueryModel);
+
+                _visitStatus = VisitStatus.AfterUnionSortSubquery;
+
+                // When visiting the order by clauses after a union, member references shouldn't include extent names.
+                // Instead, they should reference the name of the columns without an extent qualifier.
+                _queryGenerationContext.ExtentNameProvider.SetBlankExtentName(fromClause);
+            }
+            else
+            {
+                throw new NotSupportedException("Subqueries In The Main From Clause Are Only Supported For Grouping And Unions");
+            }
         }
 
         public virtual void VisitUseKeysClause(UseKeysClause clause, QueryModel queryModel, int index)
@@ -261,7 +295,7 @@ namespace Couchbase.Linq.QueryGeneration
                 {
                     var selector = selectClause.Selector;
 
-                    if (_groupingStatus == GroupingStatus.AfterGroupSubquery)
+                    if (_visitStatus == VisitStatus.AfterGroupSubquery)
                     {
                         // SELECT clauses must be remapped to refer directly to the extents in the grouping subquery
                         // rather than refering to the output of the grouping subquery
@@ -323,7 +357,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)
         {
-            if (_groupingStatus != GroupingStatus.AfterGroupSubquery)
+            if (_visitStatus != VisitStatus.AfterGroupSubquery)
             {
                 _queryPartsAggregator.AddWherePart(GetN1QlExpression(whereClause.Predicate));
             }
@@ -463,12 +497,46 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _queryPartsAggregator.AggregateFunction = "SUM";
             }
+            else if (resultOperator is UnionResultOperator)
+            {
+                EnsureNotArraySubquery();
+
+                var source = ((UnionResultOperator) resultOperator).Source2 as SubQueryExpression;
+                if (source == null)
+                {
+                    throw new NotSupportedException("Union is only support against query sources.");
+                }
+
+                VisitUnion(source, true);
+            }
+            else if (resultOperator is ConcatResultOperator)
+            {
+                EnsureNotArraySubquery();
+
+                var source = ((ConcatResultOperator)resultOperator).Source2 as SubQueryExpression;
+                if (source == null)
+                {
+                    throw new NotSupportedException("Concat is only support against query sources.");
+                }
+
+                VisitUnion(source, false);
+            }
             else
             {
                 throw new NotSupportedException(string.Format("{0} is not supported.", resultOperator.GetType().Name));
             }
 
             base.VisitResultOperator(resultOperator, queryModel, index);
+        }
+
+        private void VisitUnion(SubQueryExpression source, bool distinct)
+        {
+            var queryModelVisitor = new N1QlQueryModelVisitor(_queryGenerationContext.CloneForUnion());
+
+            queryModelVisitor.VisitQueryModel(source.QueryModel);
+            var unionQuery = queryModelVisitor.GetQuery();
+
+            _queryPartsAggregator.AddUnionPart((distinct ? " UNION " : " UNION ALL ") + unionQuery);
         }
 
         #region Grouping
@@ -528,7 +596,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         public override void VisitOrderByClause(OrderByClause orderByClause, QueryModel queryModel, int index)
         {
-            if (_groupingStatus == GroupingStatus.InGroupSubquery)
+            if (_visitStatus == VisitStatus.InGroupSubquery)
             {
                 // Just ignore sorting before grouping takes place
                 return;
@@ -959,7 +1027,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         private string GetN1QlExpression(Expression expression)
         {
-            if (_groupingStatus == GroupingStatus.AfterGroupSubquery)
+            if (_visitStatus == VisitStatus.AfterGroupSubquery)
             {
                 // SELECT, HAVING, and ORDER BY clauses must be remapped to refer directly to the extents in the grouping subquery
                 // rather than refering to the output of the grouping subquery
@@ -979,7 +1047,7 @@ namespace Couchbase.Linq.QueryGeneration
         {
             if (_queryPartsAggregator.IsArraySubquery)
             {
-                throw new NotSupportedException("N1QL Array Subqueries Do Not Support Joins, Nests, Or Additional From Statements");
+                throw new NotSupportedException("N1QL Array Subqueries Do Not Support Joins, Nests, Union, Concat, Or Additional From Statements");
             }
         }
     }

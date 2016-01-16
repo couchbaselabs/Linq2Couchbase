@@ -100,6 +100,11 @@ namespace Couchbase.Linq.QueryGeneration
             return GetNextExtentName();
         }
 
+        public void SetBlankExtentName(IQuerySource querySource)
+        {
+            _extentDictionary[querySource] = "";
+        }
+
         /// <summary>
         /// Change the extent name of a query source to a newly generated name, replacing any previously generated name.
         /// </summary>
