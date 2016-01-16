@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Couchbase.Core;
+using Couchbase.Linq.UnitTests.Documents;
 using Moq;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
@@ -43,6 +44,66 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Where(e => e.List.Contains("abc"));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE 'abc' IN (`Extent1`.`List`)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StaticArrayContains()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var staticArray = new[] {"abc", "def"};
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .Where(e => staticArray.Contains(e.Name));
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (['abc', 'def'])";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_AlteredStaticArrayContains()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var staticArray = new[] { "abc", "def" };
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .Where(e => staticArray.Select(p => "a" + p).Contains(e.Name));
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (ARRAY ('a' || `Extent2`) FOR `Extent2` IN ['abc', 'def'] END)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StaticListContains()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var staticArray = new List<string> { "abc", "def" };
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .Where(e => staticArray.Contains(e.Name));
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (['abc', 'def'])";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

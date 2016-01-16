@@ -477,7 +477,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 _expression.Append(Encoding.UTF8.GetString(serializedDateTime));
             }
-            else if (namedParameter.Value is Array)
+            else if (namedParameter.Value is System.Collections.IEnumerable)
             {
                 _expression.Append('[');
 

@@ -708,6 +708,27 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void SubqueryTests_StaticArraySubqueryContains()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var breweryNames = new[] { "21st Amendment Brewery Cafe", "357" };
+            var breweries = from brewery in context.Query<Brewery>()
+                            where brewery.Type == "brewery" && breweryNames.Contains(brewery.Name)
+                            orderby brewery.Name
+                            select new { name = brewery.Name, addresses = brewery.Address };
+
+            var results = breweries.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Brewery {0} has address {1}", b.name, string.Join(", ", b.addresses));
+            }
+        }
+
+        [Test]
         public void SubqueryTests_ArraySubquerySelectNewObject()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
