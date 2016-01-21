@@ -31,6 +31,24 @@ namespace Couchbase.Linq.QueryGeneration
         {
             ExtentNameProvider = new N1QlExtentNameProvider();
             ParameterAggregator = new ParameterAggregator();
-        } 
+        }
+
+        /// <summary>
+        /// Clones this N1QlQueryGenerationContext for use within a union secondary query
+        /// </summary>
+        public N1QlQueryGenerationContext CloneForUnion()
+        {
+            // In the future we may want some properties get new values when working in a union
+            // This method provides a simple point for this extension
+
+            return new N1QlQueryGenerationContext()
+            {
+                ExtentNameProvider = ExtentNameProvider,
+                MemberNameResolver = MemberNameResolver,
+                MethodCallTranslatorProvider = MethodCallTranslatorProvider,
+                ParameterAggregator = ParameterAggregator,
+                Serializer = Serializer
+            };
+        }
     }
 }

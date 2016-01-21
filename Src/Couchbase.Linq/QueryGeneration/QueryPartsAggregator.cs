@@ -45,6 +45,10 @@ namespace Couchbase.Linq.QueryGeneration
         /// For aggregates, wraps the SelectPart with this function call
         /// </summary>
         public string AggregateFunction { get; set; }
+        /// <summary>
+        /// UNION statements appended to the end of this query
+        /// </summary>
+        public List<string> UnionParts { get; set; }
 
         /// <summary>
         /// Indicates the type of query or subquery being generated
@@ -166,6 +170,16 @@ namespace Couchbase.Linq.QueryGeneration
             WrappingFunctions.Add(function);
         }
 
+        public void AddUnionPart(string unionPart)
+        {
+            if (UnionParts == null)
+            {
+                UnionParts = new List<string>();
+            }
+
+            UnionParts.Add(unionPart);
+        }
+
         /// <summary>
         /// Builds a primary select query
         /// </summary>
@@ -262,6 +276,12 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 sb.AppendFormat(" HAVING {0}", string.Join(" AND ", HavingParts));
             }
+
+            if (UnionParts != null)
+            {
+                sb.Append(string.Join("", UnionParts));
+            }
+
             if (OrderByParts.Any())
             {
                 sb.AppendFormat(" ORDER BY {0}", String.Join(", ", OrderByParts));
