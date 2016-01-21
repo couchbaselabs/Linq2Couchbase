@@ -46,6 +46,21 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_CountAfterSelectProjection()
+        {
+            // ReSharper disable once UnusedVariable
+            var temp = CreateQueryable<Beer>("default")
+                .Select(p => new { p.Name, p.Description})
+                .Count();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT COUNT({\"Name\": `Extent1`.`name`, \"Description\": `Extent1`.`description`}) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_CountProperty()
         {
             // ReSharper disable once UnusedVariable
@@ -133,7 +148,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
-            var query = 
+            var query =
                 from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
                 group beer by beer.BreweryId
                 into g
@@ -155,14 +170,14 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
-            var query = 
+            var query =
                 from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
                 group beer by new {beer.BreweryId, beer.Category}
                 into g
                 select new {g.Key.BreweryId, g.Key.Category};
 
             const string expected =
-                "SELECT `Extent1`.`brewery_id` as `BreweryId`, `Extent1`.`category` as `Category` " + 
+                "SELECT `Extent1`.`brewery_id` as `BreweryId`, `Extent1`.`category` as `Category` " +
                 "FROM `default` as `Extent1` " +
                 "GROUP BY `Extent1`.`brewery_id`, `Extent1`.`category`";
 
@@ -177,7 +192,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
-            var query = 
+            var query =
                 from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
                 group beer by beer.BreweryId
                 into g
@@ -199,7 +214,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
-            var query = 
+            var query =
                 from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
                 group beer by new { beer.BreweryId, beer.Category }
                 into g
@@ -281,7 +296,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals N1QlFunctions.Key(brewery)
                 group beer by brewery.Name
                 into g
-                orderby g.Average(p => p.Abv) descending 
+                orderby g.Average(p => p.Abv) descending
                 select new { breweryName = g.Key, avgAbv = g.Average(p => p.Abv) };
 
             const string expected =
@@ -311,7 +326,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object) on beer.BreweryId equals N1QlFunctions.Key(brewery)
                 group beer by brewery.Name
                 into g
-                where string.Compare(g.Key, "N") >= 0 
+                where string.Compare(g.Key, "N") >= 0
                 select new { breweryName = g.Key, avgAbv = g.Average(p => p.Abv) };
 
             const string expected =

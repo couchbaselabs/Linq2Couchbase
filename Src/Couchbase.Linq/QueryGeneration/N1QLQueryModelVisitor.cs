@@ -46,6 +46,11 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly bool _isSubQuery = false;
 
         /// <summary>
+        /// Indicates if an aggregate has been applied, which may change select clause handling
+        /// </summary>
+        private bool _isAggregated = false;
+
+        /// <summary>
         /// Tracks special status related to the visiting process, which may alter the behavior as query model
         /// clauses are being visited.  For example, .Where clauses are treating as HAVING statements if
         /// _visitStatus == AfterGroupSubquery.
@@ -271,7 +276,7 @@ namespace Couchbase.Linq.QueryGeneration
 
             if (selectClause.Selector.GetType() == typeof (QuerySourceReferenceExpression))
             {
-                if (_queryPartsAggregator.AggregateFunction == null)
+                if (!_isAggregated)
                 {
                     expression = GetN1QlExpression(selectClause.Selector);
 
@@ -303,8 +308,19 @@ namespace Couchbase.Linq.QueryGeneration
                         selector = TransformingExpressionVisitor.Transform(selector, _groupingExpressionTransformerRegistry);
                     }
 
-                    expression =
-                        N1QlExpressionTreeVisitor.GetN1QlSelectNewExpression(selector, _queryGenerationContext);
+                    if (!_isAggregated)
+                    {
+                        expression = N1QlExpressionTreeVisitor.GetN1QlSelectNewExpression(selector,
+                            _queryGenerationContext);
+                    }
+                    else
+                    {
+                        ResultExtractionRequired = true;
+                        _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+
+                        // Don't use special "x as y" syntax inside an aggregate function, just make a new object with {y: x}
+                        expression = GetN1QlExpression(selectClause.Selector);
+                    }
                 }
                 else
                 {
@@ -480,22 +496,27 @@ namespace Couchbase.Linq.QueryGeneration
             else if (resultOperator is AverageResultOperator)
             {
                 _queryPartsAggregator.AggregateFunction = "AVG";
+                _isAggregated = true;
             }
             else if ((resultOperator is CountResultOperator) || (resultOperator is LongCountResultOperator))
             {
                 _queryPartsAggregator.AggregateFunction = "COUNT";
+                _isAggregated = true;
             }
             else if (resultOperator is MaxResultOperator)
             {
                 _queryPartsAggregator.AggregateFunction = "MAX";
+                _isAggregated = true;
             }
             else if (resultOperator is MinResultOperator)
             {
                 _queryPartsAggregator.AggregateFunction = "MIN";
+                _isAggregated = true;
             }
             else if (resultOperator is SumResultOperator)
             {
                 _queryPartsAggregator.AggregateFunction = "SUM";
+                _isAggregated = true;
             }
             else if (resultOperator is UnionResultOperator)
             {
