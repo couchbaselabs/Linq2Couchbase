@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Configuration.Client;
 using Couchbase.Linq.Proxies;
+using Moq;
 using NUnit.Framework;
 
 // ReSharper disable SuspiciousTypeConversion.Global
@@ -48,7 +49,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
             // Arrange
 
             var configuration = new ClientConfiguration();
-            var dataMapper = new DocumentProxyDataMapper(configuration);
+            var dataMapper = new DocumentProxyDataMapper(configuration, null);
 
             DocumentRoot proxy;
             using (var stream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes("{\"stringProperty\":\"value\",\"__metadata\":{\"id\":\"test\"}}")))

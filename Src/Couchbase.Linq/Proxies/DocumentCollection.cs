@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Dynamic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Linq.Metadata;
@@ -20,6 +22,8 @@ namespace Couchbase.Linq.Proxies
         #region ITrackedDocumentNode
 
         // Redirect all ITrackedDocumentNode calls to the DocumentNode
+
+        public bool IsDeleted { get; set; }
 
         public bool IsDeserializing
         {
@@ -63,7 +67,7 @@ namespace Couchbase.Linq.Proxies
                 base.ClearItems();
 
                 _documentNode.RemoveAllChildren();
-                _documentNode.DocumentModified();
+                _documentNode.DocumentModified(this);
             }
         }
 
@@ -77,7 +81,7 @@ namespace Couchbase.Linq.Proxies
                 _documentNode.AddChild(status);
             }
 
-            _documentNode.DocumentModified();
+            _documentNode.DocumentModified(this);
         }
 
         protected override void RemoveItem(int index)
@@ -90,7 +94,7 @@ namespace Couchbase.Linq.Proxies
 
             base.RemoveItem(index);
 
-            _documentNode.DocumentModified();
+            _documentNode.DocumentModified(this);
         }
 
         protected override void SetItem(int index, T item)
@@ -111,7 +115,7 @@ namespace Couchbase.Linq.Proxies
                 _documentNode.AddChild(status);
             }
 
-            _documentNode.DocumentModified();
+            _documentNode.DocumentModified(this);
         }
     }
 }

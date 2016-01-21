@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 using Castle.DynamicProxy;
 using Couchbase.Linq.Metadata;
 
@@ -80,7 +74,7 @@ namespace Couchbase.Linq.Proxies
                     _documentNode.AddChild(status);
                 }
 
-                _documentNode.DocumentModified();
+                _documentNode.DocumentModified(status);
             }
         }
     }

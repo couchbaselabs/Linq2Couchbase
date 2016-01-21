@@ -12,7 +12,11 @@ namespace Couchbase.Linq.Proxies
     internal interface ITrackedDocumentNode
     {
         [IgnoreDataMember]
+        bool IsDeleted { get; set; }
+
+        [IgnoreDataMember]
         bool IsDeserializing { get; set; }
+
         [IgnoreDataMember]
         bool IsDirty { get; set; }
 
@@ -23,6 +27,7 @@ namespace Couchbase.Linq.Proxies
         DocumentMetadata Metadata { get; set; }
 
         void RegisterChangeTracking(ITrackedDocumentNodeCallback callback);
+
         void UnregisterChangeTracking(ITrackedDocumentNodeCallback callback);
 
         /// <summary>

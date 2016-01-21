@@ -51,7 +51,7 @@ namespace Couchbase.Linq.Proxies
             // Only proxy getters and setters for properties on the document
             // We must proxy getters or serializing the document back to Couchbase has problems
 
-            return methodInfo.IsSpecialName;
+            return methodInfo.IsSpecialName && (methodInfo.Name.StartsWith("set_") || methodInfo.Name.StartsWith("get_"));
         }
     }
 }
