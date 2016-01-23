@@ -56,7 +56,7 @@ namespace Couchbase.Linq
         /// <param name="queryModel">Query model.</param>
         /// <returns>Returns true if proxies should be generated, based on the given query model and return type.</returns>
         /// <remarks>
-        /// Queries with select projections don't need change tracking, because there is no original source document be
+        /// Queries with select projections don't need change tracking, because there is no original source document to be
         /// updated if their properties are changed.  So only create proxies if the rows being returned by the query are
         /// plain instances of the document type being queried, without select projections.
         /// </remarks>
@@ -75,25 +75,26 @@ namespace Couchbase.Linq
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
             bool resultExtractionRequired;
+            bool generateProxies = ShouldGenerateProxies<T>(queryModel);
 
-            var commandData = ExecuteCollection(queryModel, out resultExtractionRequired);
+            var commandData = ExecuteCollection(queryModel, generateProxies, out resultExtractionRequired);
 
             if (!resultExtractionRequired)
             {
-                return ExecuteCollection<T>(commandData, queryModel);
+                return ExecuteCollection<T>(commandData, generateProxies);
             }
             else
             {
-                return ExecuteCollection<SimpleResult<T>>(commandData, queryModel)
+                return ExecuteCollection<SimpleResult<T>>(commandData, generateProxies)
                     .Select(p => p.result);
             }
         }
 
-        private IEnumerable<T> ExecuteCollection<T>(string commandData, QueryModel queryModel)
+        private IEnumerable<T> ExecuteCollection<T>(string commandData, bool generateProxies)
         {
             var queryRequest = new QueryRequest(commandData);
 
-            if (ShouldGenerateProxies<T>(queryModel))
+            if (generateProxies)
             {
                 // Proxy generation was requested, and the
                 queryRequest.DataMapper = new Proxies.DocumentProxyDataMapper(_configuration);
@@ -155,7 +156,7 @@ namespace Couchbase.Linq
                 : ExecuteCollection<T>(queryModel).Single();
         }
 
-        public string ExecuteCollection(QueryModel queryModel, out bool resultExtractionRequired)
+        public string ExecuteCollection(QueryModel queryModel, bool selectDocumentId, out bool resultExtractionRequired)
         {
             // If ITypeSerializer is an IExtendedTypeSerializer, use it as the member name resolver
             // Otherwise fallback to the legacy behavior which assumes we're using Newtonsoft.Json
@@ -171,7 +172,15 @@ namespace Couchbase.Linq
 
             var methodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider();
 
-            var visitor = new N1QlQueryModelVisitor(memberNameResolver, methodCallTranslatorProvider, _configuration.Serializer.Invoke());
+            var queryGenerationContext = new N1QlQueryGenerationContext
+            {
+                MemberNameResolver = memberNameResolver,
+                MethodCallTranslatorProvider = methodCallTranslatorProvider,
+                Serializer = serializer,
+                SelectDocumentId = selectDocumentId
+            };
+
+            var visitor = new N1QlQueryModelVisitor(queryGenerationContext);
             visitor.VisitQueryModel(queryModel);
 
             var query = visitor.GetQuery();

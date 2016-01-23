@@ -36,13 +36,19 @@ namespace Couchbase.Linq.UnitTests
 
         protected string CreateN1QlQuery(IBucket bucket, Expression expression)
         {
+            return CreateN1QlQuery(bucket, expression, false);
+        }
+
+        protected string CreateN1QlQuery(IBucket bucket, Expression expression, bool selectDocumentId)
+        {
             var queryModel = QueryParserHelper.CreateQueryParser().GetParsedQuery(expression);
 
             var queryGenerationContext = new N1QlQueryGenerationContext()
             {
                 MemberNameResolver = MemberNameResolver,
                 MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
-                Serializer = new Core.Serialization.DefaultSerializer()
+                Serializer = new Core.Serialization.DefaultSerializer(),
+                SelectDocumentId = selectDocumentId
             };
 
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);
