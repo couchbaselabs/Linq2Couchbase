@@ -32,7 +32,7 @@ namespace Couchbase.Linq
         /// <param name="document">Document being tested</param>
         /// <param name="propertyName">Property name to test</param>
         /// <returns>True if the property is missing from the document</returns>
-        /// <remarks><see cref="propertyName">propertyName</see> must be a constant when used in a LINQ expression</remarks>
+        /// <remarks>propertyName must be a constant when used in a LINQ expression</remarks>
         public static bool IsMissing<T>(T document, string propertyName)
         {
             // Implementation will only be called when unit testing
@@ -63,7 +63,7 @@ namespace Couchbase.Linq
         /// <param name="document">Document being tested</param>
         /// <param name="propertyName">Property name to test</param>
         /// <returns>True if the property is present on the document</returns>
-        /// <remarks><see cref="propertyName">propertyName</see> must be a constant when used in a LINQ expression</remarks>
+        /// <remarks>propertyName must be a constant when used in a LINQ expression</remarks>
         public static bool IsNotMissing<T>(T document, string propertyName)
         {
             // Implementation will only be called when unit testing
@@ -98,7 +98,7 @@ namespace Couchbase.Linq
         /// <param name="document">Document being tested</param>
         /// <param name="propertyName">Property name to test</param>
         /// <returns>True if the property is present on the document and not null</returns>
-        /// <remarks><see cref="propertyName">propertyName</see> must be a constant when used in a LINQ expression</remarks>
+        /// <remarks>propertyName must be a constant when used in a LINQ expression</remarks>
         public static bool IsValued<T>(T document, string propertyName)
         {
             // Implementation will only be called when unit testing
@@ -140,7 +140,7 @@ namespace Couchbase.Linq
         /// <param name="document">Document being tested</param>
         /// <param name="propertyName">Property name to test</param>
         /// <returns>True if the property is missing from the document or null</returns>
-        /// <remarks><see cref="propertyName">propertyName</see> must be a constant when used in a LINQ expression</remarks>
+        /// <remarks>propertyName must be a constant when used in a LINQ expression</remarks>
         public static bool IsNotValued<T>(T document, string propertyName)
         {
             // Implementation will only be called when unit testing

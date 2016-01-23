@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Couchbase.Linq.Utils
 {
-    public class ExceptionMsgs
+    internal class ExceptionMsgs
     {
         public const string DocumentNotFound = "Document not found for Id: ";
 

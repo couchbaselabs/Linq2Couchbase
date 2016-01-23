@@ -32,8 +32,10 @@ namespace Couchbase.Linq.IntegrationTests
             }
 
             var config = TestConfigurations.DefaultConfig();
+#pragma warning disable CS0618 // Type or member is obsolete
             config.DeserializationSettings.ContractResolver = _contractResolver;
             config.SerializationSettings.ContractResolver = _contractResolver;
+#pragma warning restore CS0618 // Type or member is obsolete
             ClusterHelper.Initialize(config);
         }
 
@@ -42,8 +44,10 @@ namespace Couchbase.Linq.IntegrationTests
             _contractResolver = contractResolver;
 
             var cluster = ClusterHelper.Get();
+#pragma warning disable CS0618 // Type or member is obsolete
             cluster.Configuration.DeserializationSettings.ContractResolver = contractResolver;
             cluster.Configuration.SerializationSettings.ContractResolver = contractResolver;
+#pragma warning restore CS0618 // Type or member is obsolete
         }
     }
 }

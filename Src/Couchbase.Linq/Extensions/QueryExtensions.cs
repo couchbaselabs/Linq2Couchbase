@@ -9,6 +9,9 @@ using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Couchbase.Linq.Extensions
 {
+    /// <summary>
+    /// Extentions to <see cref="IQueryable{T}" /> for use in queries against a <see cref="BucketContext"/>.
+    /// </summary>
     public static class QueryExtensions
     {
         #region Nest
@@ -166,7 +169,7 @@ namespace Couchbase.Linq.Extensions
         /// <summary>
         ///     Filters documents based on a list of keys
         /// </summary>
-        /// <typeparam name="items">Type of the items being filtered<typeparam>
+        /// <typeparam name="T">Type of the items being filtered</typeparam>
         /// <param name="items">Items being filtered</param>
         /// <param name="keys">Keys to be selected</param>
         /// <returns>Modified IQueryable</returns>

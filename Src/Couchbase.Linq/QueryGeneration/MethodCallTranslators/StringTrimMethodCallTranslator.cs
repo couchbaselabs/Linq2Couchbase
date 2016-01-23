@@ -58,7 +58,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                         expressionTreeVisitor.Visit(Expression.Constant(new String(chars), typeof (string)));
                     }
                 }
-                catch (NotSupportedException ex)
+                catch (NotSupportedException)
                 {
                     throw;
                 }

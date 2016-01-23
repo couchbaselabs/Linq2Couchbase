@@ -162,9 +162,12 @@ namespace Couchbase.Linq
             // Note that DefaultSerializer implements IExtendedTypeSerializer, but has the same logic as JsonNetMemberNameResolver
 
             var serializer = _configuration.Serializer.Invoke() as IExtendedTypeSerializer;
+
+#pragma warning disable CS0618 // Type or member is obsolete
             var memberNameResolver = serializer != null ?
                 (IMemberNameResolver)new ExtendedTypeSerializerMemberNameResolver(serializer) :
                 (IMemberNameResolver)new JsonNetMemberNameResolver(_configuration.SerializationSettings.ContractResolver);
+#pragma warning restore CS0618 // Type or member is obsolete
 
             var methodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider();
 

@@ -9,7 +9,7 @@ namespace Couchbase.Linq.QueryGeneration
 {
     internal class QueryPartsAggregator
     {
-        private static readonly ILog Log = LogManager.GetCurrentClassLogger();
+        private static readonly ILog Log = LogManager.GetLogger<QueryPartsAggregator>();
 
         public QueryPartsAggregator()
         {

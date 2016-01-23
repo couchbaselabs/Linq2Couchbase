@@ -15,6 +15,7 @@ namespace Couchbase.Linq.Clauses
         /// <param name="itemType">Type of the item returned by the nest clause</param>
         /// <param name="inner">The inner sequence being nested</param>
         /// <param name="keySelector">Expression used to get the keys from each item in the outer sequence</param>
+        /// <param name="isLeftOuterNest">If true, indicates this is a LEFT OUTER NEST.  If false, this is an INNER NEST.</param>
         public NestClause(string itemName, Type itemType, Expression inner, Expression keySelector, bool isLeftOuterNest)
         {
             ItemName = itemName;
