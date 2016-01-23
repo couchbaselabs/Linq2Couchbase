@@ -9,6 +9,10 @@ using Couchbase.Linq.Metadata;
 
 namespace Couchbase.Linq.Extensions
 {
+    /// <summary>
+    /// Extensions to <see cref="IEnumerable{T}"/> which emulate query extensions in <see cref="QueryExtensions"/>.
+    /// This helps to provide support for unit tests against a fake <see cref="BucketContext"/>.
+    /// </summary>
     public static class EnumerableExtensions
     {
 

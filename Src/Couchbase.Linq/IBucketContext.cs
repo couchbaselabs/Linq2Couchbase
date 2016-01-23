@@ -40,11 +40,11 @@ namespace Couchbase.Linq
         void FlushChanges();
 
         /// <summary>
-        /// Queries the current <see cref="IBucket"/> for entities of type <see cref="T"/>. This is the target of
-        /// the Linq query requires that the associated JSON document have a type property that is the same as <see cref="T"/>.
+        /// Queries the current <see cref="IBucket" /> for entities of type T. This is the target of
+        /// a LINQ query and requires that the associated JSON document have a type property that is the same as T.
         /// </summary>
         /// <typeparam name="T">An entity or POCO representing the object graph of a JSON document.</typeparam>
-        /// <returns></returns>
+        /// <returns><see cref="IQueryable{T}" /> which can be used to query the bucket.</returns>
         IQueryable<T> Query<T>();
 
         /// <summary>

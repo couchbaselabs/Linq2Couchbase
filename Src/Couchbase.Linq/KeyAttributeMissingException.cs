@@ -8,6 +8,10 @@ namespace Couchbase.Linq
     /// </summary>
     public class KeyAttributeMissingException : Exception
     {
+        /// <summary>
+        /// Creates a new KeyAttributeMissingException.
+        /// </summary>
+        /// <param name="message">Exception message.</param>
         public KeyAttributeMissingException(string message)
             : base(message)
         {

@@ -23,8 +23,6 @@ namespace Couchbase.Linq.QueryGeneration.Expressions
             ExpressionType.GreaterThanOrEqual
         };
 
-        private Type _type;
-
         public ExpressionType Operation { get; private set; }
         public Expression Left { get; private set; }
         public Expression Right { get; private set; }

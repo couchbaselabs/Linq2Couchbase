@@ -7,6 +7,10 @@ namespace Couchbase.Linq
     /// </summary>
     public class DocumentNotFoundException : Exception
     {
+        /// <summary>
+        /// Creates a new DocumentNotFoundException.
+        /// </summary>
+        /// <param name="message">Exception message.</param>
         public DocumentNotFoundException(string message)
             : base(message)
         {

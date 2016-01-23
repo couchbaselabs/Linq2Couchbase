@@ -13,7 +13,12 @@ namespace Couchbase.Linq.Filters
         /// </summary>
         public int Priority { get; set; }
 
-        public abstract IDocumentFilter<T> GetFilter<T>(); 
+        /// <summary>
+        /// Returns the <see cref="IDocumentFilter{T}"/> to be applied by this attribute.
+        /// </summary>
+        /// <typeparam name="T">Type of the document being filtered.</typeparam>
+        /// <returns>The <see cref="IDocumentFilter{T}"/> to be applied by this attribute.</returns>
+        public abstract IDocumentFilter<T> GetFilter<T>();
 
     }
 }

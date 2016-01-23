@@ -17,14 +17,18 @@ namespace Couchbase.Linq
     public class BucketContext : IBucketContext
     {
         private readonly IBucket _bucket;
-        protected BucketConfiguration BucketConfig;
-        private Dictionary<Type, PropertyInfo>_cachedKeyProperties = new Dictionary<Type, PropertyInfo>();
+
+        private readonly Dictionary<Type, PropertyInfo>_cachedKeyProperties = new Dictionary<Type, PropertyInfo>();
 
         /// <summary>
         /// If true, generate change tracking proxies for documents during deserialization.  Defaults to false for higher performance queries.
         /// </summary>
         public virtual bool EnableChangeTracking { get; set; }
 
+        /// <summary>
+        /// Creates a new BucketContext for a given Couchbase bucket.
+        /// </summary>
+        /// <param name="bucket">Bucket referenced by the new BucketContext.</param>
         public BucketContext(IBucket bucket)
         {
             _bucket = bucket;
@@ -42,11 +46,11 @@ namespace Couchbase.Linq
         }
 
         /// <summary>
-        /// Queries the current <see cref="IBucket" /> for entities of type <see cref="T" />. This is the target of
-        /// the Linq query requires that the associated JSON document have a type property that is the same as <see cref="T" />.
+        /// Queries the current <see cref="IBucket" /> for entities of type T. This is the target of
+        /// a LINQ query and requires that the associated JSON document have a type property that is the same as T.
         /// </summary>
         /// <typeparam name="T">An entity or POCO representing the object graph of a JSON document.</typeparam>
-        /// <returns></returns>
+        /// <returns><see cref="IQueryable{T}" /> which can be used to query the bucket.</returns>
         public IQueryable<T> Query<T>()
         {
             return DocumentFilterManager.ApplyFilters(new BucketQueryable<T>(_bucket, Configuration, EnableChangeTracking));
