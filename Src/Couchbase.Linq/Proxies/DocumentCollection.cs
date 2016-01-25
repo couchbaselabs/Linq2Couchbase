@@ -32,6 +32,12 @@ namespace Couchbase.Linq.Proxies
             set { _documentNode.IsDirty = value; }
         }
 
+        public string __id
+        {
+            get { return _documentNode.__id; }
+            set { _documentNode.__id = value; }
+        }
+
         public void RegisterChangeTracking(ITrackedDocumentNodeCallback callback)
         {
             _documentNode.RegisterChangeTracking(callback);

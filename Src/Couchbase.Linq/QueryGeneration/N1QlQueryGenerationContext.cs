@@ -27,6 +27,11 @@ namespace Couchbase.Linq.QueryGeneration
         /// </summary>
         public QuerySourceReferenceExpression GroupingQuerySource { get; set; }
 
+        /// <summary>
+        /// If true, indicates that the document ID should also be included in the select projection as "__id"
+        /// </summary>
+        public bool SelectDocumentId { get; set; }
+
         public N1QlQueryGenerationContext()
         {
             ExtentNameProvider = new N1QlExtentNameProvider();

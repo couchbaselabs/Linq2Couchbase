@@ -282,7 +282,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                     if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
                     {
-                        expression = string.Concat(expression, ".*");
+                        expression = string.Concat(expression, ".*", SelectDocumentIdIfRequired(queryModel));
                     }
                 }
                 else
@@ -369,6 +369,27 @@ namespace Couchbase.Linq.QueryGeneration
                 extents = extents.Concat(_queryPartsAggregator.LetParts.Select(p => p.ItemName));
             }
             return string.Join(", ", extents);
+        }
+
+        /// <summary>
+        /// Provides the string to append to the SELECT list if we need to select the document ID.
+        /// Otherwise returns an empty string.
+        /// </summary>
+        /// <param name="queryModel">Query model being visited.  Used to extract the MainFromClause.</param>
+        private string SelectDocumentIdIfRequired(QueryModel queryModel)
+        {
+            if (_queryGenerationContext.SelectDocumentId && (_queryPartsAggregator.QueryType == N1QlQueryType.Select))
+            {
+                // The query generator must be requesting the document ID
+                // And this must be the main query, not a sub query
+
+                return string.Format(", META({0}).id as `__id`",
+                    GetN1QlExpression(new QuerySourceReferenceExpression(queryModel.MainFromClause)));
+            }
+            else
+            {
+                return "";
+            }
         }
 
         public override void VisitWhereClause(WhereClause whereClause, QueryModel queryModel, int index)

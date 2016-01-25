@@ -15,6 +15,7 @@ namespace Couchbase.Linq.Proxies
     {
         public bool IsDeserializing { get; set; }
         public bool IsDirty { get; set; }
+        public string __id { get; set; }
 
         #region Child Document Tracking
 

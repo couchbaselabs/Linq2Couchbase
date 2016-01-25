@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Couchbase.Linq.Extensions;
 using Couchbase.Linq.IntegrationTests.Documents;
 using Couchbase.Linq.Proxies;
 using NUnit.Framework;
@@ -73,6 +74,29 @@ namespace Couchbase.Linq.IntegrationTests
 
             Assert.NotNull(status);
             Assert.IsFalse(status.IsDirty);
+        }
+
+        [Test]
+        public void Query_EnableProxyGeneration_ReturnsProxyBeerWithId()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"))
+            {
+                EnableChangeTracking = true
+            };
+
+            const string documentId = "21st_amendment_brewery_cafe-21a_ipa";
+
+            var query = from x in db.Query<Beer>().UseKeys(new[] { documentId })
+                        where x.Type == "beer"
+                        select x;
+
+            var beer = query.First();
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = beer as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.AreEqual(documentId, status.__id);
         }
 
         [Test]
