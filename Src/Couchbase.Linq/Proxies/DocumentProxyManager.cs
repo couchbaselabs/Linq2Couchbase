@@ -54,7 +54,7 @@ namespace Couchbase.Linq.Proxies
         /// <summary>
         /// Creates a new DocumentProxyManager with a default <see cref="Castle.DynamicProxy.ProxyGenerator"/>.
         /// </summary>
-        public DocumentProxyManager() : this(new ProxyGenerator())
+        public DocumentProxyManager() : this(new ProxyGenerator(new DocumentProxyBuilder()))
         {
         }
 
