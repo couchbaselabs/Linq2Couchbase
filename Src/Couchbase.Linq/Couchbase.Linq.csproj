@@ -103,6 +103,8 @@
     <Compile Include="N1QlFunctions.Metadata.cs" />
     <Compile Include="Proxies\DocumentCollection.cs" />
     <Compile Include="Proxies\DocumentNode.cs" />
+    <Compile Include="Proxies\DocumentProxyBuilder.cs" />
+    <Compile Include="Proxies\DocumentProxyGenerator.cs" />
     <Compile Include="Proxies\DocumentProxyTypeCreator.cs" />
     <Compile Include="Proxies\DocumentProxyDataMapper.cs" />
     <Compile Include="Proxies\DocumentProxyGenerationHook.cs" />

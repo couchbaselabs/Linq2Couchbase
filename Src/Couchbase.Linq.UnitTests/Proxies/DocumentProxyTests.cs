@@ -28,6 +28,19 @@ namespace Couchbase.Linq.UnitTests.Proxies
         }
 
         [Test]
+        public void InterceptorsAreNotSerialized()
+        {
+            // Act
+
+            var result = Newtonsoft.Json.JsonConvert.SerializeObject(DocumentProxyManager.Default.CreateProxy(typeof(DocumentRoot)));
+
+            // Assert
+
+            Assert.NotNull(result);
+            Assert.False(result.Contains("__interceptors"));
+        }
+
+        [Test]
         public void NoAction_IsNotDirty()
         {
             // Arrange
