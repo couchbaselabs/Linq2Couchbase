@@ -104,6 +104,7 @@
     <Compile Include="Documents\Beer.cs" />
     <Compile Include="Documents\Brewery.cs" />
     <Compile Include="Documents\BreweryFilter.cs" />
+    <Compile Include="Documents\Car.cs" />
     <Compile Include="Documents\ChildWithContract.cs" />
     <Compile Include="Documents\Child.cs" />
     <Compile Include="Documents\Contact.cs" />

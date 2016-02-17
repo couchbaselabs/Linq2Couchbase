@@ -231,5 +231,26 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public void Test_Where_With_Guid()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var guid = Guid.NewGuid();
+            var query =
+                QueryFactory.Queryable<Car>(mockBucket.Object)
+                    .Where(e => e.Id == guid)
+                    .Select(e => new { id = e.Id, name = e.Name });
+
+            string expected =
+                "SELECT `Extent1`.`Id` as `id`, `Extent1`.`Name` as `name` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`Id` = '" + guid.ToString() + "')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
     }
 }
