@@ -101,6 +101,7 @@
     <Compile Include="BeerSample.cs" />
     <Compile Include="Documents\BeerStyle.cs" />
     <Compile Include="Documents\BeerWithEnum.cs" />
+    <Compile Include="Extensions\QueryExtensionTests.cs" />
     <Compile Include="QueryTests.cs" />
     <Compile Include="BucketContextTests.cs" />
     <Compile Include="Documents\BeerFiltered.cs" />

@@ -21,7 +21,7 @@ namespace Couchbase.Linq.UnitTests
         }
 
         private BucketQueryExecutorEmulator _queryExecutor;
-        protected virtual BucketQueryExecutorEmulator QueryExecutor
+        internal BucketQueryExecutorEmulator QueryExecutor
         {
             get
             {

@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.Linq.Execution;
 using Remotion.Linq;
 using Remotion.Linq.Parsing.Structure;
 
@@ -12,9 +13,10 @@ namespace Couchbase.Linq
     /// The main entry point and executor of the query.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class BucketQueryable<T> : QueryableBase<T>, IBucketQueryable<T>
+    internal class BucketQueryable<T> : QueryableBase<T>, IBucketQueryable<T>, IBucketQueryExecutorProvider
     {
         private readonly IBucket _bucket;
+        private readonly IBucketQueryExecutor _bucketQueryExecutor;
 
         /// <summary>
         /// Bucket query is run against
@@ -25,6 +27,14 @@ namespace Couchbase.Linq
         }
 
         /// <summary>
+        /// Get the <see cref="IBucketQueryExecutor"/>.
+        /// </summary>
+        public IBucketQueryExecutor BucketQueryExecutor
+        {
+            get { return _bucketQueryExecutor; }
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="BucketQueryable{T}"/> class.
         /// </summary>
         /// <param name="bucket">The bucket.</param>
@@ -32,25 +42,28 @@ namespace Couchbase.Linq
         /// <param name="executor">The executor.</param>
         /// <exception cref="System.ArgumentNullException">bucket</exception>
         /// <exception cref="ArgumentNullException"><paramref name="bucket" /> is <see langword="null" />.</exception>
-        public BucketQueryable(IBucket bucket, IQueryParser queryParser, IQueryExecutor executor)
+        public BucketQueryable(IBucket bucket, IQueryParser queryParser, IBucketQueryExecutor executor)
             : base(queryParser, executor)
         {
             if (bucket == null)
             {
                 throw new ArgumentNullException("bucket");
             }
+
             _bucket = bucket;
+            _bucketQueryExecutor = executor;
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BucketQueryable{T}"/> class.
         /// </summary>
-        /// <remarks>Used by test project.</remarks>
+        /// <remarks>Used to build new expressions as more methods are applied to the query.</remarks>
         /// <param name="provider">The provider.</param>
         /// <param name="expression">The expression.</param>
         public BucketQueryable(IQueryProvider provider, Expression expression)
             : base(provider, expression)
         {
+            _bucketQueryExecutor = (IBucketQueryExecutor) ((DefaultQueryProvider) provider).Executor;
         }
 
         /// <summary>
@@ -68,7 +81,9 @@ namespace Couchbase.Linq
             {
                 throw new ArgumentNullException("bucket");
             }
+
             _bucket = bucket;
+            _bucketQueryExecutor = (IBucketQueryExecutor) ((DefaultQueryProvider) Provider).Executor;
         }
     }
 }

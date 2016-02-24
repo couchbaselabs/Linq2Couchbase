@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Couchbase.Core;
+using System.Threading.Tasks;
+using Couchbase.Linq.Execution;
 using Couchbase.Linq.QueryGeneration;
 using Remotion.Linq;
 
@@ -10,10 +11,10 @@ namespace Couchbase.Linq.UnitTests
 {
     /// <summary>
     /// Used to test query generation for result operators that always execute the query immediately.
-    /// This class fakes the result (always returns null or an empty list), but stores the query that was 
+    /// This class fakes the result (always returns null or an empty list), but stores the query that was
     /// generated in the Query property.
     /// </summary>
-    public class BucketQueryExecutorEmulator : IQueryExecutor
+    internal class BucketQueryExecutorEmulator : IBucketQueryExecutor
     {
         private readonly N1QLTestBase _test;
         public N1QLTestBase Test
@@ -68,6 +69,16 @@ namespace Couchbase.Linq.UnitTests
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);
             visitor.VisitQueryModel(queryModel);
             return visitor.GetQuery();
+        }
+
+        public Task<IEnumerable<T>> ExecuteCollectionAsync<T>(LinqQueryRequest queryResult)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<T> ExecuteSingleAsync<T>(LinqQueryRequest queryRequest)
+        {
+            throw new NotImplementedException();
         }
     }
 }

@@ -27,6 +27,10 @@ namespace Couchbase.Linq
             customNodeTypeRegistry.Register(UseKeysExpressionNode.SupportedMethods,
                 typeof(UseKeysExpressionNode));
 
+            //register the "ToQueryRequest" expression node parser
+            customNodeTypeRegistry.Register(ToQueryRequestExpressionNode.SupportedMethods,
+                typeof(ToQueryRequestExpressionNode));
+
             //This creates all the default node types
             var nodeTypeProvider = ExpressionTreeParser.CreateDefaultNodeTypeProvider();
 
