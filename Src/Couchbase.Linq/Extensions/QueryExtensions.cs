@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Couchbase.Linq.Execution;
 using Couchbase.Linq.Metadata;
+using Couchbase.Linq.QueryGeneration;
 using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Couchbase.Linq.Extensions
@@ -241,6 +243,83 @@ namespace Couchbase.Linq.Extensions
 
             return source.Provider.Execute<dynamic>(newExpression);
         }
+
+        #region Async
+
+        /// <summary>
+        /// Execute a Couchbase query asynchronously.
+        /// </summary>
+        /// <typeparam name="T">Type being queried.</typeparam>
+        /// <param name="source">Query to execute asynchronously.  Must be a Couchbase LINQ query.</param>
+        /// <returns>Task which contains the query result when completed.</returns>
+        /// <example>
+        /// var results = await query.ExecuteAsync();
+        /// </example>
+        public static async Task<IEnumerable<T>> ExecuteAsync<T>(this IQueryable<T> source)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (!(source is IBucketQueryable) || !(source is IBucketQueryExecutorProvider))
+            {
+                throw new ArgumentException("ExecuteAsync is only supported on Couchbase LINQ queries.", "source");
+            }
+
+            var queryRequest = LinqQueryRequest.CreateQueryRequest(source);
+
+            return await
+                ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ExecuteCollectionAsync<T>(queryRequest)
+                    .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Execute a Couchbase query asynchronously.
+        /// </summary>
+        /// <typeparam name="T">Type being queried.</typeparam>
+        /// <typeparam name="TResult">Type returned by <paramref name="additionalExpression"/>.</typeparam>
+        /// <param name="source">Query to execute asynchronously.  Must be a Couchbase LINQ query.</param>
+        /// <param name="additionalExpression">Additional expressions to apply to the query before executing.  Typically used for aggregates.</param>
+        /// <returns>Task which contains the query result when completed.</returns>
+        /// <remarks>
+        /// <para>The expression contained in <paramref name="additionalExpression"/> is applied to the query before
+        /// it is executed asynchrounously.  Typically, this would be used to apply an aggregate, First, Single,
+        /// or other operation to the query that normall  triggers immediate query execution.  Passing these actions
+        /// in <paramref name="additionalExpression"/> delays their execution so that they can be handled asynchronously.</para>
+        /// <para><paramref name="additionalExpression"/> must return a scalar value or a single object.  It should not return another
+        /// instance of <see cref="IQueryable{T}"/>.</para>
+        /// </remarks>
+        /// <example>
+        /// var document = await query.ExecuteAsync(query => query.First());
+        /// </example>
+        /// <example>
+        /// var avg = await query.ExecuteAsync(query => query.Average(p => p.Abv));
+        /// </example>
+        public static async Task<TResult> ExecuteAsync<T, TResult>(this IQueryable<T> source,
+            Expression<Func<IQueryable<T>, TResult>> additionalExpression)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (!(source is IBucketQueryable) || !(source is IBucketQueryExecutorProvider))
+            {
+                throw new ArgumentException("ExecuteAsync is only supported on Couchbase LINQ queries.", "source");
+            }
+            if (typeof (TResult).IsGenericTypeDefinition &&
+                (typeof (TResult).GetGenericTypeDefinition() == typeof (IQueryable<>)))
+            {
+                throw new ArgumentException("additionalExpression must return a scalar value, not IQueryable.", "additionalExpression");
+            }
+
+            var queryRequest = LinqQueryRequest.CreateQueryRequest(source, additionalExpression);
+
+            return await
+                ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ExecuteSingleAsync<TResult>(queryRequest)
+                    .ConfigureAwait(false);
+        }
+
+#endregion
 
         /// <summary>
         /// An expression generation helper for adding additional methods to a Linq provider.

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Common.Logging;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
@@ -14,9 +15,9 @@ using Newtonsoft.Json;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.ResultOperators;
 
-namespace Couchbase.Linq
+namespace Couchbase.Linq.Execution
 {
-    internal class BucketQueryExecutor : IQueryExecutor
+    internal class BucketQueryExecutor : IBucketQueryExecutor
     {
         private static readonly ILog Log = LogManager.GetLogger<BucketQueryExecutor>();
         private readonly IBucket _bucket;
@@ -69,30 +70,17 @@ namespace Couchbase.Linq
 
             var mainFromClauseType = queryModel.MainFromClause.ItemType;
 
-            return (mainFromClauseType == typeof (T)) || (mainFromClauseType == typeof (SimpleResult<T>));
+            return (mainFromClauseType == typeof (T)) || (mainFromClauseType == typeof (ScalarResult<T>));
         }
 
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
-            bool resultExtractionRequired;
+            ScalarResultBehavior scalarResultBehavior;
             bool generateProxies = ShouldGenerateProxies<T>(queryModel);
 
-            var commandData = ExecuteCollection(queryModel, generateProxies, out resultExtractionRequired);
+            var commandData = ExecuteCollection(queryModel, generateProxies, out scalarResultBehavior);
 
-            if (!resultExtractionRequired)
-            {
-                return ExecuteCollection<T>(commandData, generateProxies);
-            }
-            else
-            {
-                return ExecuteCollection<SimpleResult<T>>(commandData, generateProxies)
-                    .Select(p => p.result);
-            }
-        }
-
-        private IEnumerable<T> ExecuteCollection<T>(string commandData, bool generateProxies)
-        {
-            var queryRequest = new QueryRequest(commandData);
+            var queryRequest = new LinqQueryRequest(commandData, scalarResultBehavior);
 
             if (generateProxies)
             {
@@ -100,7 +88,70 @@ namespace Couchbase.Linq
                 queryRequest.DataMapper = new Proxies.DocumentProxyDataMapper(_configuration);
             }
 
-            var result = _bucket.Query<T>(queryRequest);
+            if (queryModel.ResultOperators.Any(p => p is ToQueryRequestResultOperator))
+            {
+                // ToQueryRequest was called on this LINQ query, so we should return the N1QL query in a QueryRequest object
+                // The IEnumerable wrapper will be stripped by ExecuteSingle.
+
+                return new[] { queryRequest } as IEnumerable<T>;
+            }
+
+            return ExecuteCollection<T>(queryRequest);
+        }
+
+        /// <summary>
+        /// Execute a <see cref="LinqQueryRequest"/>.
+        /// </summary>
+        /// <typeparam name="T">Type returned by the query.</typeparam>
+        /// <param name="queryRequest">Request to execute.</param>
+        /// <returns>List of objects returned by the request.</returns>
+        public IEnumerable<T> ExecuteCollection<T>(LinqQueryRequest queryRequest)
+        {
+            if (!queryRequest.ScalarResultBehavior.ResultExtractionRequired)
+            {
+                var result = _bucket.Query<T>(queryRequest);
+
+                return ParseResult(result);
+            }
+            else
+            {
+                var result = _bucket.Query<ScalarResult<T>>(queryRequest);
+
+                return queryRequest.ScalarResultBehavior.ApplyResultExtraction(ParseResult(result));
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously execute a <see cref="LinqQueryRequest"/>.
+        /// </summary>
+        /// <typeparam name="T">Type returned by the query.</typeparam>
+        /// <param name="queryRequest">Request to execute.</param>
+        /// <returns>Task which contains a list of objects returned by the request when complete.</returns>
+        public async Task<IEnumerable<T>> ExecuteCollectionAsync<T>(LinqQueryRequest queryRequest)
+        {
+            if (!queryRequest.ScalarResultBehavior.ResultExtractionRequired)
+            {
+                var result = await _bucket.QueryAsync<T>(queryRequest).ConfigureAwait(false);
+
+                return ParseResult(result);
+            }
+            else
+            {
+                var result = await _bucket.QueryAsync<ScalarResult<T>>(queryRequest).ConfigureAwait(false);
+
+                return queryRequest.ScalarResultBehavior.ApplyResultExtraction(ParseResult(result));
+            }
+        }
+
+        /// <summary>
+        /// Parses a <see cref="IQueryResult{T}"/>, returning the result rows.
+        /// If there are any errors, throws exceptions instead.
+        /// </summary>
+        /// <typeparam name="T">Result type.</typeparam>
+        /// <param name="result">Result to parse.</param>
+        /// <returns>Rows in the result.</returns>
+        private IEnumerable<T> ParseResult<T>(IQueryResult<T> result)
+        {
             if (!result.Success)
             {
                 if (result.Exception != null && (result.Errors == null || result.Errors.Count == 0))
@@ -123,40 +174,28 @@ namespace Couchbase.Linq
 
         public T ExecuteScalar<T>(QueryModel queryModel)
         {
-            if (queryModel.ResultOperators.Any(p => p is AnyResultOperator))
-            {
-                // Need to extract the value from an object
-                var result = ExecuteSingle<SimpleResult<bool>>(queryModel, true);
-
-                // For an Any operation, no result row means that the Any should return false
-                return (T)(object)(result != null ? result.result : false);
-            }
-            else if (queryModel.ResultOperators.Any(p => p is AllResultOperator))
-            {
-                // Need to extract the value from an object
-                var result = ExecuteSingle<SimpleResult<bool>>(queryModel, true);
-
-                // For an All operation, no result row means that the All should return true
-                return (T)(object)(result != null ? result.result : true);
-            }
-            else if (queryModel.ResultOperators.Any(p => p is ExplainResultOperator))
-            {
-                return ExecuteSingle<T>(queryModel, false);
-            }
-            else
-            {
-                return ExecuteSingle<T>(queryModel, false);
-            }
+            return ExecuteSingle<T>(queryModel, false);
         }
 
         public T ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty)
         {
-            return returnDefaultWhenEmpty
+            var result = returnDefaultWhenEmpty
                 ? ExecuteCollection<T>(queryModel).SingleOrDefault()
                 : ExecuteCollection<T>(queryModel).Single();
+
+            return result;
         }
 
-        public string ExecuteCollection(QueryModel queryModel, bool selectDocumentId, out bool resultExtractionRequired)
+        public async Task<T> ExecuteSingleAsync<T>(LinqQueryRequest queryRequest)
+        {
+            var resultSet = await ExecuteCollectionAsync<T>(queryRequest);
+
+            return queryRequest.ReturnDefaultWhenEmpty
+                ? resultSet.SingleOrDefault()
+                : resultSet.Single();
+        }
+
+        public string ExecuteCollection(QueryModel queryModel, bool selectDocumentId, out ScalarResultBehavior scalarResultBehavior)
         {
             // If ITypeSerializer is an IExtendedTypeSerializer, use it as the member name resolver
             // Otherwise fallback to the legacy behavior which assumes we're using Newtonsoft.Json
@@ -186,20 +225,8 @@ namespace Couchbase.Linq
             var query = visitor.GetQuery();
             Log.Debug(m => m("Generated query: {0}", query));
 
-            resultExtractionRequired = visitor.ResultExtractionRequired;
+            scalarResultBehavior = visitor.ScalarResultBehavior;
             return query;
         }
-
-        // ReSharper disable once ClassNeverInstantiated.Local
-        /// <summary>
-        /// Used to extract the result row from an Any or All operation
-        /// </summary>
-        private class SimpleResult<T>
-        {
-            // ReSharper disable once InconsistentNaming
-            // Note: must be virtual to support change tracking for First/Single
-            public virtual T result { get; set; }
-        }
-
     }
 }

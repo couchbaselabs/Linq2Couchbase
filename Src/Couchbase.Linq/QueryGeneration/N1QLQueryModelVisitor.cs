@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using Couchbase.Annotations;
 using Couchbase.Core.Serialization;
 using Couchbase.Linq.Clauses;
+using Couchbase.Linq.Execution;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
@@ -42,6 +43,7 @@ namespace Couchbase.Linq.QueryGeneration
         private readonly N1QlQueryGenerationContext _queryGenerationContext;
         private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
         private readonly List<UnclaimedGroupJoin> _unclaimedGroupJoins = new List<UnclaimedGroupJoin>();
+        private readonly ScalarResultBehavior _scalarResultBehavior = new ScalarResultBehavior();
 
         private readonly bool _isSubQuery = false;
 
@@ -63,11 +65,12 @@ namespace Couchbase.Linq.QueryGeneration
         private ExpressionTransformerRegistry _groupingExpressionTransformerRegistry;
 
         /// <summary>
-        /// Indicates that the result of this query is not the result expected by LINQ, instead it is an array of objects
-        /// which have a property "result" that contains the expected result.  The query executor will need to extract this
-        /// result property as part of the deserialization process.
+        /// Provides information about how scalar results should be extracted from the N1QL query result after execution.
         /// </summary>
-        public bool ResultExtractionRequired { get; set; }
+        public ScalarResultBehavior ScalarResultBehavior
+        {
+            get { return _scalarResultBehavior; }
+        }
 
         public N1QlQueryModelVisitor(IMemberNameResolver memberNameResolver, IMethodCallTranslatorProvider methodCallTranslatorProvider,
             ITypeSerializer serializer)
@@ -131,7 +134,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 // We no longer need to extract the result, because now the query is returning an explanation instead
 
-                ResultExtractionRequired = false;
+                ScalarResultBehavior.ResultExtractionRequired = false;
             }
 
             if (_unclaimedGroupJoins.Any())
@@ -289,7 +292,7 @@ namespace Couchbase.Linq.QueryGeneration
                 {
                     // for aggregates, just use "*" (i.e. AggregateFunction = "COUNT", expression = "*" results in COUNT(*)"
 
-                    ResultExtractionRequired = true;
+                    ScalarResultBehavior.ResultExtractionRequired = true;
                     _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
                     expression = "*";
                 }
@@ -315,7 +318,7 @@ namespace Couchbase.Linq.QueryGeneration
                     }
                     else
                     {
-                        ResultExtractionRequired = true;
+                        ScalarResultBehavior.ResultExtractionRequired = true;
                         _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
 
                         // Don't use special "x as y" syntax inside an aggregate function, just make a new object with {y: x}
@@ -349,7 +352,7 @@ namespace Couchbase.Linq.QueryGeneration
                     // We need to indicate to the BucketQueryExecutor that it will need to extract the properties
 
                     _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
-                    ResultExtractionRequired = true;
+                    ScalarResultBehavior.ResultExtractionRequired = true;
                 }
             }
 
@@ -444,6 +447,10 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _queryPartsAggregator.ExplainPart = "EXPLAIN ";
             }
+            else if (resultOperator is ToQueryRequestResultOperator)
+            {
+                // Do nothing, conversion will be handled by BucketQueryExecutor
+            }
             else if (resultOperator is AnyResultOperator)
             {
                 _queryPartsAggregator.QueryType =
@@ -457,6 +464,14 @@ namespace Couchbase.Linq.QueryGeneration
 
                     _queryPartsAggregator.PropertyExtractionPart =
                         _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName();
+                }
+                else if (_queryPartsAggregator.QueryType == N1QlQueryType.MainQueryAny)
+                {
+                    // Result must be extracted from the result attribute on the returned JSON document
+                    // If no rows are returned, for an Any operation we should return false.
+
+                    ScalarResultBehavior.ResultExtractionRequired = true;
+                    ScalarResultBehavior.NoRowsResult = false;
                 }
             }
             else if (resultOperator is AllResultOperator)
@@ -487,6 +502,14 @@ namespace Couchbase.Linq.QueryGeneration
 
                     _queryPartsAggregator.PropertyExtractionPart =
                         _queryGenerationContext.ExtentNameProvider.GenerateNewExtentName(queryModel.MainFromClause);
+                }
+                else if (_queryPartsAggregator.QueryType == N1QlQueryType.MainQueryAll)
+                {
+                    // Result must be extracted from the result attribute on the returned JSON document
+                    // If no rows are returned, for an All operation we should return true.
+
+                    ScalarResultBehavior.ResultExtractionRequired = true;
+                    ScalarResultBehavior.NoRowsResult = true;
                 }
 
                 var allResultOperator = (AllResultOperator) resultOperator;
