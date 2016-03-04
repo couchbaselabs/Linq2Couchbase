@@ -38,6 +38,17 @@ namespace Couchbase.Linq.Execution
         }
 
         /// <summary>
+        /// Specifies the consistency guarantee/constraint for index scanning.
+        /// </summary>
+        public ScanConsistency? ScanConsistency { get; set; }
+
+        /// <summary>
+        /// Specifies the maximum time the client is willing to wait for an index to catch up to the vector timestamp in the request.
+        /// If an index has to catch up, and the time is exceed doing so, an error is returned.
+        /// </summary>
+        public TimeSpan? ScanWait { get; set; }
+
+        /// <summary>
         /// Creates a new BucketQueryExecutor.
         /// </summary>
         /// <param name="bucket"><see cref="IBucket"/> to query.</param>
@@ -73,6 +84,18 @@ namespace Couchbase.Linq.Execution
             return (mainFromClauseType == typeof (T)) || (mainFromClauseType == typeof (ScalarResult<T>));
         }
 
+        private void ApplyQueryRequestSettings(LinqQueryRequest queryRequest)
+        {
+            if (ScanConsistency.HasValue)
+            {
+                queryRequest.ScanConsistency(ScanConsistency.Value);
+            }
+            if (ScanWait.HasValue)
+            {
+                queryRequest.ScanWait(ScanWait.Value);
+            }
+        }
+
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
             ScalarResultBehavior scalarResultBehavior;
@@ -81,6 +104,7 @@ namespace Couchbase.Linq.Execution
             var commandData = ExecuteCollection(queryModel, generateProxies, out scalarResultBehavior);
 
             var queryRequest = new LinqQueryRequest(commandData, scalarResultBehavior);
+            ApplyQueryRequestSettings(queryRequest);
 
             if (generateProxies)
             {

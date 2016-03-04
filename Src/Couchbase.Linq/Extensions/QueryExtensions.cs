@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Couchbase.Linq.Execution;
 using Couchbase.Linq.Metadata;
 using Couchbase.Linq.QueryGeneration;
+using Couchbase.N1QL;
 using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Couchbase.Linq.Extensions
@@ -257,14 +258,7 @@ namespace Couchbase.Linq.Extensions
         /// </example>
         public static async Task<IEnumerable<T>> ExecuteAsync<T>(this IQueryable<T> source)
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (!(source is IBucketQueryable) || !(source is IBucketQueryExecutorProvider))
-            {
-                throw new ArgumentException("ExecuteAsync is only supported on Couchbase LINQ queries.", "source");
-            }
+            EnsureBucketQueryable(source, "ExecuteAsync", "source");
 
             var queryRequest = LinqQueryRequest.CreateQueryRequest(source);
 
@@ -298,14 +292,8 @@ namespace Couchbase.Linq.Extensions
         public static async Task<TResult> ExecuteAsync<T, TResult>(this IQueryable<T> source,
             Expression<Func<IQueryable<T>, TResult>> additionalExpression)
         {
-            if (source == null)
-            {
-                throw new ArgumentNullException("source");
-            }
-            if (!(source is IBucketQueryable) || !(source is IBucketQueryExecutorProvider))
-            {
-                throw new ArgumentException("ExecuteAsync is only supported on Couchbase LINQ queries.", "source");
-            }
+            EnsureBucketQueryable(source, "ExecuteAsync", "source");
+
             if (typeof (TResult).IsGenericTypeDefinition &&
                 (typeof (TResult).GetGenericTypeDefinition() == typeof (IQueryable<>)))
             {
@@ -319,7 +307,53 @@ namespace Couchbase.Linq.Extensions
                     .ConfigureAwait(false);
         }
 
-#endregion
+        #endregion
+
+        #region Query Request Settings
+
+        /// <summary>
+        /// Specifies the consistency guarantee/constraint for index scanning.
+        /// </summary>
+        /// <param name="source">Sets scan consistency for this query.  Must be a Couchbase LINQ query.</param>
+        /// <param name="scanConsistency">Specify the consistency guarantee/constraint for index scanning.</param>
+        /// <remarks>The default is <see cref="ScanConsistency.NotBounded"/>.</remarks>
+        public static IQueryable<T> ScanConsistency<T>(this IQueryable<T> source, ScanConsistency scanConsistency)
+        {
+            EnsureBucketQueryable(source, "ScanConsistency", "source");
+
+            ((IBucketQueryExecutorProvider) source).BucketQueryExecutor.ScanConsistency = scanConsistency;
+
+            return source;
+        }
+
+        /// <summary>
+        /// Specifies the maximum time the client is willing to wait for an index to catch up to the vector timestamp in the request.
+        /// If an index has to catch up, and the time is exceed doing so, an error is returned.
+        /// </summary>
+        /// <param name="source">Sets scan wait for this query.  Must be a Couchbase LINQ query.</param>
+        /// <param name="scanWait">The maximum time the client is willing to wait for index to catch up to the vector timestamp.</param>
+        public static IQueryable<T> ScanWait<T>(this IQueryable<T> source, TimeSpan scanWait)
+        {
+            EnsureBucketQueryable(source, "ScanWait", "source");
+
+            ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ScanWait = scanWait;
+
+            return source;
+        }
+
+        #endregion
+
+        private static void EnsureBucketQueryable<T>(IQueryable<T> source, string methodName, string paramName)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(paramName);
+            }
+            if (!(source is IBucketQueryable) || !(source is IBucketQueryExecutorProvider))
+            {
+                throw new ArgumentException(string.Format("{0} is only supported on Couchbase LINQ queries.", methodName), paramName);
+            }
+        }
 
         /// <summary>
         /// An expression generation helper for adding additional methods to a Linq provider.

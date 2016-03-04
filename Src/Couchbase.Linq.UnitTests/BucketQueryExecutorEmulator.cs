@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Linq.Execution;
 using Couchbase.Linq.QueryGeneration;
+using Couchbase.N1QL;
 using Remotion.Linq;
 
 namespace Couchbase.Linq.UnitTests
@@ -16,6 +17,9 @@ namespace Couchbase.Linq.UnitTests
     /// </summary>
     internal class BucketQueryExecutorEmulator : IBucketQueryExecutor
     {
+        public ScanConsistency? ScanConsistency { get; set; }
+        public TimeSpan? ScanWait { get; set; }
+
         private readonly N1QLTestBase _test;
         public N1QLTestBase Test
         {

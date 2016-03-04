@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Linq.QueryGeneration;
+using Couchbase.N1QL;
 using Remotion.Linq;
 
 namespace Couchbase.Linq.Execution
@@ -13,6 +14,17 @@ namespace Couchbase.Linq.Execution
     /// </summary>
     internal interface IBucketQueryExecutor : IQueryExecutor
     {
+        /// <summary>
+        /// Specifies the consistency guarantee/constraint for index scanning.
+        /// </summary>
+        ScanConsistency? ScanConsistency { get; set; }
+
+        /// <summary>
+        /// Specifies the maximum time the client is willing to wait for an index to catch up to the vector timestamp in the request.
+        /// If an index has to catch up, and the time is exceed doing so, an error is returned.
+        /// </summary>
+        TimeSpan? ScanWait { get; set; }
+
         /// <summary>
         /// Asynchronously execute a <see cref="LinqQueryRequest"/>.
         /// </summary>
