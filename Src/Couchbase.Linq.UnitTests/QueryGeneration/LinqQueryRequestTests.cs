@@ -1,8 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.Linq.Extensions;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.UnitTests.Documents;
+using Couchbase.N1QL;
 using Moq;
 using NUnit.Framework;
 
@@ -178,6 +181,58 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             Assert.AreEqual(queryStr, result.GetOriginalStatement());
             Assert.True(result.ScalarResultBehavior.ResultExtractionRequired);
             Assert.AreEqual(true, result.ScalarResultBehavior.NoRowsResult);
+        }
+
+        [Test]
+        public void CreateQueryRequest_ScanConsistency_HasSetting()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(m => m.Name).Returns("default");
+            bucket.Setup(m => m.Configuration).Returns(new BucketConfiguration()
+            {
+                PoolConfiguration = new PoolConfiguration(new ClientConfiguration())
+            });
+
+            var context = new BucketContext(bucket.Object);
+            var query = context.Query<Brewery>().ScanConsistency(ScanConsistency.RequestPlus).Where(p => p.Name == "name");
+
+            // Act
+
+            var result = LinqQueryRequest.CreateQueryRequest(query);
+
+            // Assert
+
+            Assert.NotNull(result);
+            Assert.AreEqual("request_plus", result.GetFormValues()["scan_consistency"]);
+        }
+
+        [Test]
+        public void CreateQueryRequest_ScanWait_HasSetting()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(m => m.Name).Returns("default");
+            bucket.Setup(m => m.Configuration).Returns(new BucketConfiguration()
+            {
+                PoolConfiguration = new PoolConfiguration(new ClientConfiguration())
+            });
+
+            var scanWait = TimeSpan.FromMinutes(1);
+
+            var context = new BucketContext(bucket.Object);
+            var query = context.Query<Brewery>().ScanWait(scanWait).Where(p => p.Name == "name");
+
+            // Act
+
+            var result = LinqQueryRequest.CreateQueryRequest(query);
+
+            // Assert
+
+            Assert.NotNull(result);
+            Assert.AreEqual(((uint)scanWait.TotalMilliseconds).ToString(), result.GetFormValues()["scan_wait"]);
         }
     }
 }
