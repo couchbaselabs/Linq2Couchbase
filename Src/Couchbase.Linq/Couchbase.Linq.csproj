@@ -92,6 +92,7 @@
     <Compile Include="Clauses\UseKeysExpressionNode.cs" />
     <Compile Include="Clauses\UseKeysClause.cs" />
     <Compile Include="BucketContext.cs" />
+    <Compile Include="CouchbaseQueryException.cs" />
     <Compile Include="CouchbaseWriteException.cs" />
     <Compile Include="DocumentNotFoundException.cs" />
     <Compile Include="Extensions\EnumerableExtensions.cs" />
