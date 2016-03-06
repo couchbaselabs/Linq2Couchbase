@@ -12,6 +12,14 @@ namespace Couchbase.Linq.Utils
 
         public const string KeyAttributeMissing = "No KeyAttribute could be found for the document. Please " +
                                                   "mark a key property with a KeyAttribute";
+
+        public const string QueryExecutionException = "An error occurred executing the N1QL query.  See the " +
+                                                      "inner exception for details.";
+
+        public const string QueryExecutionUnknownError = "An unknown error occurred executing the N1QL query.";
+
+        public const string QueryExecutionMultipleErrors = "Multiple errors occured executing the N1QL query. " +
+                                                           "See the Errors property for details.";
     }
 }
 #region [ License information          ]

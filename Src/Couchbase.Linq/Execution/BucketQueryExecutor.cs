@@ -10,6 +10,7 @@ using Couchbase.Core.Serialization;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
+using Couchbase.Linq.Utils;
 using Couchbase.N1QL;
 using Newtonsoft.Json;
 using Remotion.Linq;
@@ -178,18 +179,21 @@ namespace Couchbase.Linq.Execution
         {
             if (!result.Success)
             {
-                if (result.Exception != null && (result.Errors == null || result.Errors.Count == 0))
+                if (result.Errors != null && (result.Errors.Count > 0))
                 {
-                    throw result.Exception;
+                    var message = result.Errors.Count == 1 ?
+                        result.Errors[0].Message :
+                        ExceptionMsgs.QueryExecutionMultipleErrors;
+
+                    throw new CouchbaseQueryException(message ?? ExceptionMsgs.QueryExecutionUnknownError, result.Errors);
                 }
-                if (result.Errors != null)
+                else if (result.Exception != null)
                 {
-                    var sb = new StringBuilder();
-                    foreach (var error in result.Errors)
-                    {
-                        sb.AppendLine(JsonConvert.SerializeObject(error));
-                    }
-                    throw new Exception(sb.ToString());
+                    throw new CouchbaseQueryException(ExceptionMsgs.QueryExecutionException, result.Exception);
+                }
+                else
+                {
+                    throw new CouchbaseQueryException(ExceptionMsgs.QueryExecutionUnknownError);
                 }
             }
 
