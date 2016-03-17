@@ -28,12 +28,16 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             {
                 throw new ArgumentNullException("methodCallExpression");
             }
+            if (expressionTreeVisitor == null)
+            {
+                throw new ArgumentNullException("expressionTreeVisitor");
+            }
 
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("META(");
             expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
-            expression.Append(").Id");
+            expression.Append(").id");
 
             return methodCallExpression;
         }
