@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Couchbase.Linq.Metadata;
 
 namespace Couchbase.Linq.Proxies
 {
@@ -32,10 +33,10 @@ namespace Couchbase.Linq.Proxies
             set { _documentNode.IsDirty = value; }
         }
 
-        public string __id
+        public DocumentMetadata __metadata
         {
-            get { return _documentNode.__id; }
-            set { _documentNode.__id = value; }
+            get { return _documentNode.__metadata; }
+            set { _documentNode.__metadata = value; }
         }
 
         public void RegisterChangeTracking(ITrackedDocumentNodeCallback callback)

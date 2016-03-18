@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
+using Couchbase.Linq.Metadata;
 
 namespace Couchbase.Linq.Proxies
 {
@@ -15,7 +16,7 @@ namespace Couchbase.Linq.Proxies
     {
         public bool IsDeserializing { get; set; }
         public bool IsDirty { get; set; }
-        public string __id { get; set; }
+        public DocumentMetadata __metadata { get; set; }
 
         #region Child Document Tracking
 

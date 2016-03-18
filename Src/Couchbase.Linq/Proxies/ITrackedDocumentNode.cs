@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Couchbase.Linq.Metadata;
 using Newtonsoft.Json;
 
 namespace Couchbase.Linq.Proxies
@@ -20,7 +21,7 @@ namespace Couchbase.Linq.Proxies
         /// on JsonProperty attributes for Newtonsoft.Json.
         /// </remarks>
         // ReSharper disable once InconsistentNaming
-        string __id { get; set; }
+        DocumentMetadata __metadata { get; set; }
 
         void RegisterChangeTracking(ITrackedDocumentNodeCallback callback);
         void UnregisterChangeTracking(ITrackedDocumentNodeCallback callback);

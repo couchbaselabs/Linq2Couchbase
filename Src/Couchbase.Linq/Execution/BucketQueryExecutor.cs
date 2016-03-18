@@ -223,7 +223,7 @@ namespace Couchbase.Linq.Execution
                 : resultSet.Single();
         }
 
-        public string ExecuteCollection(QueryModel queryModel, bool selectDocumentId, out ScalarResultBehavior scalarResultBehavior)
+        public string ExecuteCollection(QueryModel queryModel, bool selectDocumentMetadata, out ScalarResultBehavior scalarResultBehavior)
         {
             // If ITypeSerializer is an IExtendedTypeSerializer, use it as the member name resolver
             // Otherwise fallback to the legacy behavior which assumes we're using Newtonsoft.Json
@@ -244,7 +244,7 @@ namespace Couchbase.Linq.Execution
                 MemberNameResolver = memberNameResolver,
                 MethodCallTranslatorProvider = methodCallTranslatorProvider,
                 Serializer = serializer,
-                SelectDocumentId = selectDocumentId
+                SelectDocumentMetadata = selectDocumentMetadata
             };
 
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);

@@ -285,7 +285,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                     if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
                     {
-                        expression = string.Concat(expression, ".*", SelectDocumentIdIfRequired(queryModel));
+                        expression = string.Concat(expression, ".*", SelectDocumentMetadataIfRequired(queryModel));
                     }
                 }
                 else
@@ -375,18 +375,18 @@ namespace Couchbase.Linq.QueryGeneration
         }
 
         /// <summary>
-        /// Provides the string to append to the SELECT list if we need to select the document ID.
+        /// Provides the string to append to the SELECT list if we need to select the document metadata.
         /// Otherwise returns an empty string.
         /// </summary>
         /// <param name="queryModel">Query model being visited.  Used to extract the MainFromClause.</param>
-        private string SelectDocumentIdIfRequired(QueryModel queryModel)
+        private string SelectDocumentMetadataIfRequired(QueryModel queryModel)
         {
-            if (_queryGenerationContext.SelectDocumentId && (_queryPartsAggregator.QueryType == N1QlQueryType.Select))
+            if (_queryGenerationContext.SelectDocumentMetadata && (_queryPartsAggregator.QueryType == N1QlQueryType.Select))
             {
-                // The query generator must be requesting the document ID
+                // The query generator must be requesting the document metadata
                 // And this must be the main query, not a sub query
 
-                return string.Format(", META({0}).id as `__id`",
+                return string.Format(", META({0}) as `__metadata`",
                     GetN1QlExpression(new QuerySourceReferenceExpression(queryModel.MainFromClause)));
             }
             else

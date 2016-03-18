@@ -118,7 +118,7 @@
     <Compile Include="Proxies\DocumentProxyDataMapperTests.cs" />
     <Compile Include="Proxies\DocumentProxyTests.cs" />
     <Compile Include="QueryGeneration\LinqQueryRequestTests.cs" />
-    <Compile Include="QueryGeneration\SelectDocumentIdTests.cs" />
+    <Compile Include="QueryGeneration\SelectDocumentMetadataTests.cs" />
     <Compile Include="QueryGeneration\UnionTests.cs" />
     <Compile Include="QueryGeneration\ArrayOperatorTests.cs" />
     <Compile Include="QueryGeneration\EnumTests.cs" />
