@@ -6,12 +6,23 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using Castle.DynamicProxy;
+using Couchbase.Linq.Metadata;
 
 namespace Couchbase.Linq.Proxies
 {
     internal class DocumentProxyInterceptor : IInterceptor
     {
         private readonly DocumentNode _documentNode = new DocumentNode();
+
+        /// <summary>
+        /// Used by intercepted __metadata property generated on the proxy.  We use this special
+        /// setter so that it isn't serialized back to the data store.
+        /// </summary>
+        /// <param name="metadata"></param>
+        public void SetMetadata(DocumentMetadata metadata)
+        {
+            _documentNode.Metadata = metadata;
+        }
 
         public void Intercept(IInvocation invocation)
         {
@@ -30,7 +41,7 @@ namespace Couchbase.Linq.Proxies
 
             if (property == null)
             {
-                // Not a property, don't intercept
+                // Not a property setter, don't intercept
                 invocation.Proceed();
                 return;
             }

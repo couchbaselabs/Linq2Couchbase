@@ -96,7 +96,7 @@ namespace Couchbase.Linq.IntegrationTests
             var status = beer as ITrackedDocumentNode;
 
             Assert.NotNull(status);
-            Assert.AreEqual(documentId, status.__metadata.Id);
+            Assert.AreEqual(documentId, status.Metadata.Id);
         }
 
         [Test]
@@ -119,7 +119,7 @@ namespace Couchbase.Linq.IntegrationTests
             var status = beer as ITrackedDocumentNode;
 
             Assert.NotNull(status);
-            Assert.Greater(status.__metadata.Cas, 0);
+            Assert.Greater(status.Metadata.Cas, 0);
         }
 
         [Test]

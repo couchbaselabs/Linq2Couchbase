@@ -33,10 +33,10 @@ namespace Couchbase.Linq.Proxies
             set { _documentNode.IsDirty = value; }
         }
 
-        public DocumentMetadata __metadata
+        public DocumentMetadata Metadata
         {
-            get { return _documentNode.__metadata; }
-            set { _documentNode.__metadata = value; }
+            get { return _documentNode.Metadata; }
+            set { _documentNode.Metadata = value; }
         }
 
         public void RegisterChangeTracking(ITrackedDocumentNodeCallback callback)
