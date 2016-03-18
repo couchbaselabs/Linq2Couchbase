@@ -193,6 +193,27 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void Map2PocoTests_Simple_Projections_Key()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var beers = (from b in context.Query<Beer>()
+                         where b.Type == "beer"
+                         select new { name = b.Name, key = N1QlFunctions.Key(b) }).
+                Take(1);
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Assert.NotNull(b.key);
+                Console.WriteLine("{0} has key {1}", b.name, b.key);
+            }
+        }
+
+        [Test]
         public void Map2PocoTests_Explain()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
