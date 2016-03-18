@@ -510,6 +510,10 @@ namespace Couchbase.Linq.QueryGeneration
 
                 return Visit(System.Linq.Expressions.Expression.Constant(jsonValue));
             }
+            else if (namedParameter.Value is Guid)
+            {
+                _expression.AppendFormat("'{0}'", namedParameter.Value.ToString());
+            }
             else
             {
                 _expression.AppendFormat("{0}", namedParameter.Value);

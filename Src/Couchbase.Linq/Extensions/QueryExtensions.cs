@@ -3,8 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using Couchbase.Linq.Execution;
 using Couchbase.Linq.Metadata;
+using Couchbase.Linq.QueryGeneration;
+using Couchbase.N1QL;
 using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Couchbase.Linq.Extensions
@@ -240,6 +243,116 @@ namespace Couchbase.Linq.Extensions
                 source.Expression);
 
             return source.Provider.Execute<dynamic>(newExpression);
+        }
+
+        #region Async
+
+        /// <summary>
+        /// Execute a Couchbase query asynchronously.
+        /// </summary>
+        /// <typeparam name="T">Type being queried.</typeparam>
+        /// <param name="source">Query to execute asynchronously.  Must be a Couchbase LINQ query.</param>
+        /// <returns>Task which contains the query result when completed.</returns>
+        /// <example>
+        /// var results = await query.ExecuteAsync();
+        /// </example>
+        public static async Task<IEnumerable<T>> ExecuteAsync<T>(this IQueryable<T> source)
+        {
+            EnsureBucketQueryable(source, "ExecuteAsync", "source");
+
+            var queryRequest = LinqQueryRequest.CreateQueryRequest(source);
+
+            return await
+                ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ExecuteCollectionAsync<T>(queryRequest)
+                    .ConfigureAwait(false);
+        }
+
+        /// <summary>
+        /// Execute a Couchbase query asynchronously.
+        /// </summary>
+        /// <typeparam name="T">Type being queried.</typeparam>
+        /// <typeparam name="TResult">Type returned by <paramref name="additionalExpression"/>.</typeparam>
+        /// <param name="source">Query to execute asynchronously.  Must be a Couchbase LINQ query.</param>
+        /// <param name="additionalExpression">Additional expressions to apply to the query before executing.  Typically used for aggregates.</param>
+        /// <returns>Task which contains the query result when completed.</returns>
+        /// <remarks>
+        /// <para>The expression contained in <paramref name="additionalExpression"/> is applied to the query before
+        /// it is executed asynchrounously.  Typically, this would be used to apply an aggregate, First, Single,
+        /// or other operation to the query that normall  triggers immediate query execution.  Passing these actions
+        /// in <paramref name="additionalExpression"/> delays their execution so that they can be handled asynchronously.</para>
+        /// <para><paramref name="additionalExpression"/> must return a scalar value or a single object.  It should not return another
+        /// instance of <see cref="IQueryable{T}"/>.</para>
+        /// </remarks>
+        /// <example>
+        /// var document = await query.ExecuteAsync(query => query.First());
+        /// </example>
+        /// <example>
+        /// var avg = await query.ExecuteAsync(query => query.Average(p => p.Abv));
+        /// </example>
+        public static async Task<TResult> ExecuteAsync<T, TResult>(this IQueryable<T> source,
+            Expression<Func<IQueryable<T>, TResult>> additionalExpression)
+        {
+            EnsureBucketQueryable(source, "ExecuteAsync", "source");
+
+            if (typeof (TResult).IsGenericTypeDefinition &&
+                (typeof (TResult).GetGenericTypeDefinition() == typeof (IQueryable<>)))
+            {
+                throw new ArgumentException("additionalExpression must return a scalar value, not IQueryable.", "additionalExpression");
+            }
+
+            var queryRequest = LinqQueryRequest.CreateQueryRequest(source, additionalExpression);
+
+            return await
+                ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ExecuteSingleAsync<TResult>(queryRequest)
+                    .ConfigureAwait(false);
+        }
+
+        #endregion
+
+        #region Query Request Settings
+
+        /// <summary>
+        /// Specifies the consistency guarantee/constraint for index scanning.
+        /// </summary>
+        /// <param name="source">Sets scan consistency for this query.  Must be a Couchbase LINQ query.</param>
+        /// <param name="scanConsistency">Specify the consistency guarantee/constraint for index scanning.</param>
+        /// <remarks>The default is <see cref="ScanConsistency.NotBounded"/>.</remarks>
+        public static IQueryable<T> ScanConsistency<T>(this IQueryable<T> source, ScanConsistency scanConsistency)
+        {
+            EnsureBucketQueryable(source, "ScanConsistency", "source");
+
+            ((IBucketQueryExecutorProvider) source).BucketQueryExecutor.ScanConsistency = scanConsistency;
+
+            return source;
+        }
+
+        /// <summary>
+        /// Specifies the maximum time the client is willing to wait for an index to catch up to the vector timestamp in the request.
+        /// If an index has to catch up, and the time is exceed doing so, an error is returned.
+        /// </summary>
+        /// <param name="source">Sets scan wait for this query.  Must be a Couchbase LINQ query.</param>
+        /// <param name="scanWait">The maximum time the client is willing to wait for index to catch up to the vector timestamp.</param>
+        public static IQueryable<T> ScanWait<T>(this IQueryable<T> source, TimeSpan scanWait)
+        {
+            EnsureBucketQueryable(source, "ScanWait", "source");
+
+            ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ScanWait = scanWait;
+
+            return source;
+        }
+
+        #endregion
+
+        private static void EnsureBucketQueryable<T>(IQueryable<T> source, string methodName, string paramName)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(paramName);
+            }
+            if (!(source is IBucketQueryable) || !(source is IBucketQueryExecutorProvider))
+            {
+                throw new ArgumentException(string.Format("{0} is only supported on Couchbase LINQ queries.", methodName), paramName);
+            }
         }
 
         /// <summary>

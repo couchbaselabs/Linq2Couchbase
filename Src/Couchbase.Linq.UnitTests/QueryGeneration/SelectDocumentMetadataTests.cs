@@ -10,10 +10,10 @@ using NUnit.Framework;
 namespace Couchbase.Linq.UnitTests.QueryGeneration
 {
     [TestFixture]
-    public class SelectDocumentIdTests : N1QLTestBase
+    public class SelectDocumentMetadataTests : N1QLTestBase
     {
         [Test]
-        public void Test_SelectDocumentId_Basic()
+        public void Test_SelectDocumentMetadata_Basic()
         {
             SetContractResolver(new DefaultContractResolver());
 
@@ -23,7 +23,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query =
                 QueryFactory.Queryable<Beer>(mockBucket.Object);
 
-            const string expected = "SELECT `Extent1`.*, META(`Extent1`).id as `__id` FROM `default` as `Extent1`";
+            const string expected = "SELECT `Extent1`.*, META(`Extent1`) as `__metadata` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, true);
 
@@ -31,7 +31,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
-        public void Test_SelectDocumentId_WithPlainSelectProjection()
+        public void Test_SelectDocumentMetadata_WithPlainSelectProjection()
         {
             SetContractResolver(new DefaultContractResolver());
 
@@ -42,7 +42,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Beer>(mockBucket.Object)
                     .Select(p => p);
 
-            const string expected = "SELECT `Extent1`.*, META(`Extent1`).id as `__id` FROM `default` as `Extent1`";
+            const string expected = "SELECT `Extent1`.*, META(`Extent1`) as `__metadata` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, true);
 

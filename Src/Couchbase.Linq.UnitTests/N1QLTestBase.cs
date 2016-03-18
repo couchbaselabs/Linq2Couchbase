@@ -21,7 +21,7 @@ namespace Couchbase.Linq.UnitTests
         }
 
         private BucketQueryExecutorEmulator _queryExecutor;
-        protected virtual BucketQueryExecutorEmulator QueryExecutor
+        internal BucketQueryExecutorEmulator QueryExecutor
         {
             get
             {
@@ -39,7 +39,7 @@ namespace Couchbase.Linq.UnitTests
             return CreateN1QlQuery(bucket, expression, false);
         }
 
-        protected string CreateN1QlQuery(IBucket bucket, Expression expression, bool selectDocumentId)
+        protected string CreateN1QlQuery(IBucket bucket, Expression expression, bool selectDocumentMetadata)
         {
             var queryModel = QueryParserHelper.CreateQueryParser().GetParsedQuery(expression);
 
@@ -48,7 +48,7 @@ namespace Couchbase.Linq.UnitTests
                 MemberNameResolver = MemberNameResolver,
                 MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
                 Serializer = new Core.Serialization.DefaultSerializer(),
-                SelectDocumentId = selectDocumentId
+                SelectDocumentMetadata = selectDocumentMetadata
             };
 
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);

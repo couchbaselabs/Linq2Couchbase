@@ -96,7 +96,30 @@ namespace Couchbase.Linq.IntegrationTests
             var status = beer as ITrackedDocumentNode;
 
             Assert.NotNull(status);
-            Assert.AreEqual(documentId, status.__id);
+            Assert.AreEqual(documentId, status.Metadata.Id);
+        }
+
+        [Test]
+        public void Query_EnableProxyGeneration_ReturnsProxyBeerWithCas()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"))
+            {
+                EnableChangeTracking = true
+            };
+
+            const string documentId = "21st_amendment_brewery_cafe-21a_ipa";
+
+            var query = from x in db.Query<Beer>().UseKeys(new[] { documentId })
+                        where x.Type == "beer"
+                        select x;
+
+            var beer = query.First();
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = beer as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.Greater(status.Metadata.Cas, 0);
         }
 
         [Test]

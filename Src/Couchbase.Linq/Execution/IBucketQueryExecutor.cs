@@ -1,0 +1,44 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Couchbase.Linq.QueryGeneration;
+using Couchbase.N1QL;
+using Remotion.Linq;
+
+namespace Couchbase.Linq.Execution
+{
+    /// <summary>
+    /// Extends <see cref="IQueryExecutor"/> with routines to execute a <see cref="LinqQueryRequest"/> asynchronously.
+    /// </summary>
+    internal interface IBucketQueryExecutor : IQueryExecutor
+    {
+        /// <summary>
+        /// Specifies the consistency guarantee/constraint for index scanning.
+        /// </summary>
+        ScanConsistency? ScanConsistency { get; set; }
+
+        /// <summary>
+        /// Specifies the maximum time the client is willing to wait for an index to catch up to the vector timestamp in the request.
+        /// If an index has to catch up, and the time is exceed doing so, an error is returned.
+        /// </summary>
+        TimeSpan? ScanWait { get; set; }
+
+        /// <summary>
+        /// Asynchronously execute a <see cref="LinqQueryRequest"/>.
+        /// </summary>
+        /// <typeparam name="T">Type returned by the query.</typeparam>
+        /// <param name="queryRequest">Request to execute.</param>
+        /// <returns>Task which contains a list of objects returned by the request when complete.</returns>
+        Task<IEnumerable<T>> ExecuteCollectionAsync<T>(LinqQueryRequest queryRequest);
+
+        /// <summary>
+        /// Asynchronously execute a <see cref="LinqQueryRequest"/> that returns a single result.
+        /// </summary>
+        /// <typeparam name="T">Type returned by the query.</typeparam>
+        /// <param name="queryRequest">Request to execute.</param>
+        /// <returns>Task which contains the object returned by the request when complete.</returns>
+        Task<T> ExecuteSingleAsync<T>(LinqQueryRequest queryRequest);
+    }
+}

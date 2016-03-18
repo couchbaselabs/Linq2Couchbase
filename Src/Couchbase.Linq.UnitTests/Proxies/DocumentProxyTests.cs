@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using Couchbase.Configuration.Client;
 using Couchbase.Linq.Proxies;
 using NUnit.Framework;
 
@@ -25,6 +27,49 @@ namespace Couchbase.Linq.UnitTests.Proxies
             // Assert
 
             Assert.NotNull(result as ITrackedDocumentNode);
+        }
+
+        [Test]
+        public void InterceptorsAreNotSerialized()
+        {
+            // Act
+
+            var result = Newtonsoft.Json.JsonConvert.SerializeObject(DocumentProxyManager.Default.CreateProxy(typeof(DocumentRoot)));
+
+            // Assert
+
+            Assert.NotNull(result);
+            Assert.False(result.Contains("__interceptors"));
+        }
+
+        [Test]
+        public void MetadataIsNotSerialized()
+        {
+            // Arrange
+
+            var configuration = new ClientConfiguration();
+            var dataMapper = new DocumentProxyDataMapper(configuration);
+
+            DocumentRoot proxy;
+            using (var stream = new System.IO.MemoryStream(Encoding.UTF8.GetBytes("{\"stringProperty\":\"value\",\"__metadata\":{\"id\":\"test\"}}")))
+            {
+                proxy = dataMapper.Map<DocumentRoot>(stream);
+            }
+
+            Assert.NotNull(proxy);
+            Assert.NotNull(((ITrackedDocumentNode)proxy).Metadata);
+            Assert.NotNull(((ITrackedDocumentNode)proxy).Metadata.Id);
+
+            // Act
+
+            var result = Encoding.UTF8.GetString(configuration.Serializer.Invoke().Serialize(proxy));
+
+            // Assert
+
+            Assert.NotNull(result);
+            Assert.False(result.Contains("__metadata"));
+            Assert.False(result.Contains("metadata"));
+            Assert.False(result.Contains("Metadata"));
         }
 
         [Test]

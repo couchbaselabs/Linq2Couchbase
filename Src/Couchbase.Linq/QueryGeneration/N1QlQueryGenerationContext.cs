@@ -28,9 +28,9 @@ namespace Couchbase.Linq.QueryGeneration
         public QuerySourceReferenceExpression GroupingQuerySource { get; set; }
 
         /// <summary>
-        /// If true, indicates that the document ID should also be included in the select projection as "__id"
+        /// If true, indicates that the document metadata should also be included in the select projection as "__metadata"
         /// </summary>
-        public bool SelectDocumentId { get; set; }
+        public bool SelectDocumentMetadata { get; set; }
 
         public N1QlQueryGenerationContext()
         {
