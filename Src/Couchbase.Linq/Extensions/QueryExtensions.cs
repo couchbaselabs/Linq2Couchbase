@@ -381,5 +381,58 @@ namespace Couchbase.Linq.Extensions
             if (q != null) return q.Expression;
             return Expression.Constant(source, typeof(IEnumerable<TSource>));
         }
+
+
+        #region UPDATE query clause
+
+        /// <summary>
+        /// Updates some properties <see href="http://developer.couchbase.com/documentation/server/4.0/n1ql/n1ql-language-reference/update.html">see UPDATE query operator reference</see>
+        /// </summary>
+        /// <param name="source">items to update</param>
+        /// <param name="setExpression">Set expressions. ex: x=> x.PropertyToUpdate == "newvalue" &amp;&amp; x.OtherPropertyToUpdate == x.AssignFromValue</param>
+        /// <returns>The update result (to be ignored via .Execute(), or gathered using query)</returns>
+        public static IQueryable<T> Set<T>(this IQueryable<T> source, Expression<Func<T, bool>> setExpression)
+        {
+            EnsureBucketQueryable(source, nameof(Set), nameof(source));
+
+            return source.Provider.CreateQuery<T>(
+                Expression.Call(
+                    ((MethodInfo)MethodBase.GetCurrentMethod())
+                        .MakeGenericMethod(typeof(T)),
+                    source.Expression, Expression.Constant(setExpression)));
+        }
+
+        /// <summary>
+        /// Removes some properties <see href="http://developer.couchbase.com/documentation/server/4.0/n1ql/n1ql-language-reference/update.html">see UPDATE query operator reference</see>
+        /// </summary>
+        /// <param name="source">items to update</param>
+        /// <param name="unsetExpression">Unset expression. ex: x=> x.MyPropertyToRemove</param>
+        /// <returns>The update result (to be ignored via .Execute(), or gathered using query)</returns>
+        public static IQueryable<T> Unset<T>(this IQueryable<T> source, Expression<Func<T, object>> unsetExpression)
+        {
+            EnsureBucketQueryable(source, nameof(Set), nameof(source));
+
+            return source.Provider.CreateQuery<T>(
+                Expression.Call(
+                    ((MethodInfo)MethodBase.GetCurrentMethod())
+                        .MakeGenericMethod(typeof(T)),
+                    source.Expression, Expression.Constant(unsetExpression)));
+        }
+
+
+        /// <summary>
+        /// Executes update, and ignores update result (does not return any data) <see href="http://developer.couchbase.com/documentation/server/4.0/n1ql/n1ql-language-reference/update.html">see UPDATE query operator reference</see>
+        /// </summary>
+        /// <param name="source">update to execute</param>
+        public static dynamic Execute<T>(this IQueryable<T> source)
+        {
+            EnsureBucketQueryable(source, nameof(Set), nameof(source));
+            var call = Expression.Call(
+                    ((MethodInfo)MethodBase.GetCurrentMethod())
+                        .MakeGenericMethod(typeof(T)),
+                    source.Expression);
+            return source.Provider.Execute(call);
+        }
+        #endregion
     }
 }

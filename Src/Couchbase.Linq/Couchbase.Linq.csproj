@@ -89,6 +89,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clauses\ExecuteResultOperator.cs" />
+    <Compile Include="Clauses\UpdateClause.cs" />
+    <Compile Include="Clauses\ExecuteExpressionNode.cs" />
+    <Compile Include="Clauses\UpdateExpressionNode.cs" />
     <Compile Include="Clauses\UseKeysExpressionNode.cs" />
     <Compile Include="Clauses\UseKeysClause.cs" />
     <Compile Include="BucketContext.cs" />

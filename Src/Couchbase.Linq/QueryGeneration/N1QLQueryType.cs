@@ -53,6 +53,11 @@
         /// <summary>
         /// Represents a simple aggregate against a group.  Query returned will be the aggregate function call only.
         /// </summary>
-        Aggregate
+        Aggregate,
+
+        /// <summary>
+        /// Represents an UPDATE query.
+        /// </summary>
+        Update,
     }
 }

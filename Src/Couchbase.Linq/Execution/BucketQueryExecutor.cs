@@ -15,6 +15,7 @@ using Couchbase.N1QL;
 using Newtonsoft.Json;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.ResultOperators;
+using Couchbase.Linq.Clauses;
 
 namespace Couchbase.Linq.Execution
 {
@@ -202,7 +203,7 @@ namespace Couchbase.Linq.Execution
 
         public T ExecuteScalar<T>(QueryModel queryModel)
         {
-            return ExecuteSingle<T>(queryModel, false);
+            return ExecuteSingle<T>(queryModel, queryModel.ResultOperators.OfType<ExecuteResultOperator>().Any());
         }
 
         public T ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty)

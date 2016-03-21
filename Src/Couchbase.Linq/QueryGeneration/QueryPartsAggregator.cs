@@ -22,6 +22,8 @@ namespace Couchbase.Linq.QueryGeneration
         public string SelectPart { get; set; }
         public List<N1QlFromQueryPart> FromParts { get; set; }
         public string UseKeysPart { get; set; }
+        public List<string> SetParts;
+        public List<string> UnsetParts;
         public List<N1QlLetQueryPart> LetParts { get; set; }
         public List<string> WhereParts { get; set; }
         public List<string> OrderByParts { get; set; }
@@ -105,6 +107,19 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             UseKeysPart = useKeysPart;
+        }
+
+        public void AddUpdateSetPart(params string[] setParts)
+        {
+            if (this.SetParts == null)
+                this.SetParts = new List<string>();
+            this.SetParts.AddRange(setParts);
+        }
+        public void AddUpdateUnsetPart(params string[] unsetParts)
+        {
+            if (this.UnsetParts == null)
+                this.UnsetParts = new List<string>();
+            this.UnsetParts.AddRange(unsetParts);
         }
 
         public void AddLetPart(N1QlLetQueryPart letPart)
@@ -494,6 +509,51 @@ namespace Couchbase.Linq.QueryGeneration
             return string.Format("{0}({1})", AggregateFunction, SelectPart);
         }
 
+        private string BuildUpdate()
+        {
+            var sb = new StringBuilder();
+
+            if (FromParts.Any())
+            {
+                var mainFrom = FromParts.First();
+                sb.AppendFormat("UPDATE {0} as {1}",
+                    mainFrom.Source,
+                    mainFrom.ItemName);
+
+                if (!string.IsNullOrEmpty(UseKeysPart))
+                {
+                    sb.AppendFormat(" USE KEYS {0}", UseKeysPart);
+                }
+            }
+
+            if (SetParts?.Count > 0)
+                sb.Append(" SET ").Append(string.Join(", ", SetParts));
+
+            if (UnsetParts?.Count > 0)
+                sb.Append(" UNSET ").Append(string.Join(", ", UnsetParts));
+
+
+            if (WhereParts.Any())
+            {
+                sb.AppendFormat(" WHERE {0}", String.Join(" AND ", WhereParts));
+            }
+
+            if (LimitPart != null)
+            {
+                sb.Append(LimitPart);
+            }
+
+            if(string.IsNullOrWhiteSpace(AggregateFunction))
+                sb.AppendFormat(" RETURNING {0}", SelectPart);
+            else
+            {
+                if (AggregateFunction != "_empty_")
+                    throw new NotSupportedException("Aggregate type not supported on UPDATE clause: " + AggregateFunction);
+            }
+            
+            return sb.ToString();
+        }
+
         public string BuildN1QlQuery()
         {
             string query;
@@ -523,6 +583,10 @@ namespace Couchbase.Linq.QueryGeneration
 
                 case N1QlQueryType.Aggregate:
                     query = BuildAggregate();
+                    break;
+
+                case N1QlQueryType.Update:
+                    query = BuildUpdate();
                     break;
 
                 default:

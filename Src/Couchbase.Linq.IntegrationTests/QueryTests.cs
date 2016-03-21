@@ -1164,5 +1164,35 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         #endregion
+
+
+        [Test]
+        public void Update_Set_Unset_Execute()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var what = context.Query<Beer>().Where(beer => beer.Type == "beer" && beer.Name == "21A IPA");
+
+            Assert.AreEqual("American-Style India Pale Ale", what.First().Style);
+
+            var beers = what.Unset(x => x.Style)
+                            .Select(x => new { x.Name, x.Style })
+                            .ToArray();
+
+            Assert.AreEqual(1, beers.Length);
+            Assert.AreEqual(null, beers[0].Style);
+            Assert.AreEqual("21A IPA", beers[0].Name);
+
+            // re-execute request
+            Assert.AreEqual(null, what.First().Style);
+
+            what.Set(x => x.Style == "American-Style India Pale Ale").Execute();
+
+
+            // re-execute request
+            Assert.AreEqual("American-Style India Pale Ale", what.First().Style);
+        }
+
     }
 }

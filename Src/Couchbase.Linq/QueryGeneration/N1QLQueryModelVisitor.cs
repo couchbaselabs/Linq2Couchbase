@@ -248,6 +248,62 @@ namespace Couchbase.Linq.QueryGeneration
             _queryPartsAggregator.AddUseKeysPart(GetN1QlExpression(clause.Keys));
         }
 
+        static Expression UnwrapExpression(Expression expr)
+        {
+            while (true)
+            {
+                var unary = expr as UnaryExpression;
+                if (unary == null)
+                    break;
+                if (unary.NodeType != ExpressionType.Quote && unary.NodeType != ExpressionType.Convert)
+                    break;
+                expr = unary.Operand;
+            }
+            return expr;
+        }
+
+        public virtual void VisitUpdateClause(UpdateClause clause, QueryModel queryModel, int index)
+        {
+            _queryPartsAggregator.QueryType = N1QlQueryType.Update;
+            var setters = clause.Setters?.SelectMany(set =>
+            {
+                // gets the set body
+                set = UnwrapExpression(set);
+                // unwraps all sets that can be represented as   x=>x.PropertyToSet == value && x.OtherProperty == otherValue && ...
+                List<Expression> sets = new List<Expression>();
+                while (set is BinaryExpression && ((BinaryExpression)set).NodeType == ExpressionType.AndAlso)
+                {
+                    var binary = (BinaryExpression)set;
+                    set = binary.Left;
+                    sets.Add(UnwrapExpression(binary.Right));
+                }
+
+                sets.Add(UnwrapExpression(set));
+                sets.Reverse();
+                var invalid = sets.FirstOrDefault(x => !(x is BinaryExpression) || ((BinaryExpression)x).NodeType != ExpressionType.Equal);
+                if (invalid != null)
+                    throw new NotSupportedException("Expecting Set() expression of the form x=>x.PropertyToSet == value && x.OtherProperty == otherValue && ... Node not supported: " + invalid);
+
+                return sets.Cast<BinaryExpression>().Select(x => {
+                    return string.Format("{0} = {1}", GetN1QlExpression(UnwrapExpression(x.Left)), GetN1QlExpression(UnwrapExpression(x.Right)));
+                });
+            }).ToArray();
+
+            if(setters?.Length>0)
+                _queryPartsAggregator.AddUpdateSetPart(setters);
+
+            var unsetters = clause.Unsetters?.Select(unset =>
+            {
+                unset = UnwrapExpression(unset);
+                if (!(unset is MemberExpression))
+                    throw new NotSupportedException("Expecting member expression (ex: x=>x.MemberToUnset) in Unset() clause: " + unset);
+                return GetN1QlExpression(unset);
+            }).ToArray();
+
+            if (unsetters?.Length > 0)
+                _queryPartsAggregator.AddUpdateUnsetPart(unsetters);
+        }
+
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
         {
             if (_queryPartsAggregator.QueryType == N1QlQueryType.SubqueryAny)
@@ -585,6 +641,11 @@ namespace Couchbase.Linq.QueryGeneration
                 }
 
                 VisitUnion(source, false);
+            }
+            else if(resultOperator is ExecuteResultOperator)
+            {
+                _queryPartsAggregator.AggregateFunction = "_empty_";
+                _isAggregated = true;
             }
             else
             {
