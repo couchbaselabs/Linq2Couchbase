@@ -35,10 +35,18 @@ namespace Couchbase.Linq.Proxies
                 return false;
             }
 
-            if (type.GetInterfaces().Any(p => p.IsGenericType && (p.GetGenericTypeDefinition() == typeof(IQueryResult<>))))
+            var interfaces = type.GetInterfaces();
+
+            if (interfaces.Any(p => p.IsGenericType && (p.GetGenericTypeDefinition() == typeof(IQueryResult<>))))
             {
                 // Don't proxy the QueryResult<T> object
 
+                return false;
+            }
+
+            if (interfaces.Any(p => p.UnderlyingSystemType == typeof (IBucketContext)))
+            {
+                //don't proxy the context
                 return false;
             }
 

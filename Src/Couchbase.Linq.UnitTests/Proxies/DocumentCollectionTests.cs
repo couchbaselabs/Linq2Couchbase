@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Linq.Proxies;
+using Moq;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.UnitTests.Proxies
@@ -34,7 +35,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var collection = new DocumentCollection<SubDocument>
+            var collection = new DocumentCollection<SubDocument>()
             {
                 new SubDocument()
             };
@@ -56,7 +57,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var collection = new DocumentCollection<SubDocument>
+            var collection = new DocumentCollection<SubDocument>()
             {
                 IsDeserializing = true
             };
@@ -82,7 +83,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var collection = new DocumentCollection<SubDocument>
+            var collection = new DocumentCollection<SubDocument>()
             {
                 new SubDocument()
             };
@@ -101,7 +102,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var collection = new DocumentCollection<SubDocument>
+            var collection = new DocumentCollection<SubDocument>()
             {
                 new SubDocument()
             };
@@ -124,7 +125,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var collection = new DocumentCollection<SubDocument>
+            var collection = new DocumentCollection<SubDocument>()
             {
                 new SubDocument()
             };
@@ -147,7 +148,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var collection = new DocumentCollection<SubDocument>
+            var collection = new DocumentCollection<SubDocument>()
             {
                 new SubDocument()
             };
@@ -174,7 +175,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var collection = new DocumentCollection<SubDocument>
+            var collection = new DocumentCollection<SubDocument>()
             {
                 (SubDocument)DocumentProxyManager.Default.CreateProxy(typeof (SubDocument))
             };
@@ -199,7 +200,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
 
             var originalDocument = (SubDocument) DocumentProxyManager.Default.CreateProxy(typeof (SubDocument));
 
-            var collection = new DocumentCollection<SubDocument>
+            var collection = new DocumentCollection<SubDocument>()
             {
                 originalDocument
             };
@@ -225,7 +226,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var collection = new DocumentCollection<SubDocument>
+            var collection = new DocumentCollection<SubDocument>()
             {
                 (SubDocument)DocumentProxyManager.Default.CreateProxy(typeof (SubDocument))
             };
@@ -249,7 +250,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var collection = new DocumentCollection<SubDocument>
+            var collection = new DocumentCollection<SubDocument>()
             {
                 (SubDocument)DocumentProxyManager.Default.CreateProxy(typeof (SubDocument))
             };

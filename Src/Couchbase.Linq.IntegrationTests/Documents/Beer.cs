@@ -6,7 +6,6 @@ namespace Couchbase.Linq.IntegrationTests.Documents
 {
     public class Beer
     {
-        [Key]
         [JsonProperty("name")]
         public virtual string Name { get; set; }
 

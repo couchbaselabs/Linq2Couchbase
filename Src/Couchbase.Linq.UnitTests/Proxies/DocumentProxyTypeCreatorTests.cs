@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Linq.Proxies;
+using Moq;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.UnitTests.Proxies
