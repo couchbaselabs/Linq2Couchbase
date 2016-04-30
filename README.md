@@ -48,6 +48,9 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 - [Testing For NULL And MISSING Attributes](docs/null-missing-valued.md)
 - [The META Keyword](docs/meta-keyword.md)
 - [Working With Enumerations](docs/enum.md)
+- [Asynchronous Queries](docs/async-queries.md)
+- [Custom JSON Serializers](docs/custom-serializers.md)
+- [Change Tracking (Experimental Developer Preview)](docs/change-tracking.md)
 
 ##Building From Source##
 
