@@ -516,7 +516,8 @@ namespace Couchbase.Linq.QueryGeneration
             }
             else
             {
-                _expression.AppendFormat("{0}", namedParameter.Value);
+                // Use the invariant culture so that decimal handling is correct
+                _expression.Append(Convert.ToString(namedParameter.Value, System.Globalization.CultureInfo.InvariantCulture));
             }
 
             return expression;
