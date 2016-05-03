@@ -379,7 +379,7 @@ namespace Couchbase.Linq.IntegrationTests
 
             // execute N1QL to update the beer
             var newBeerName = Guid.NewGuid().ToString();
-            var n1ql = $"UPDATE `beer-sample` USE KEYS '{beer.Id}' SET name = '{newBeerName}';";
+            var n1ql = string.Format("UPDATE `beer-sample` USE KEYS '{0}' SET name = '{1}';", beer.Id, newBeerName);
             db.Bucket.Query<int>(n1ql);
 
             // get the beer back out to make sure it was updated correctly
