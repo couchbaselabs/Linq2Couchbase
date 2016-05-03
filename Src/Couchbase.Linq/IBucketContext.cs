@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.N1QL;
 
 namespace Couchbase.Linq
 {
@@ -61,9 +62,8 @@ namespace Couchbase.Linq
         bool ChangeTrackingEnabled { get; }
 
         /// <summary>
-        /// Access to the underlying Bucket to drop down to lower-level API when necessary.
+        /// Execute a N1QL statement
         /// </summary>
-        IBucket Bucket { get; }
-
+        void Execute(string statement, params object[] parameters);
     }
 }

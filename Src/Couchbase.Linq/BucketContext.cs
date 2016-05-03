@@ -10,6 +10,7 @@ using Couchbase.Linq.Filters;
 using Couchbase.Linq.Metadata;
 using Couchbase.Linq.Proxies;
 using Couchbase.Linq.Utils;
+using Couchbase.N1QL;
 
 namespace Couchbase.Linq
 {
@@ -19,6 +20,7 @@ namespace Couchbase.Linq
     /// </summary>
     public class BucketContext : IBucketContext, IChangeTrackableContext
     {
+        private readonly IBucket _bucket;
         private readonly ConcurrentDictionary<Type, PropertyInfo>_cachedKeyProperties = new ConcurrentDictionary<Type, PropertyInfo>();
         private readonly ConcurrentDictionary<string, object> _tracked = new ConcurrentDictionary<string, object>();
         private readonly ConcurrentDictionary<string, object> _modified = new ConcurrentDictionary<string, object>();
@@ -30,9 +32,20 @@ namespace Couchbase.Linq
         public bool ChangeTrackingEnabled { get { return _beginChangeTrackingCount > 0; } }
 
         /// <summary>
+        /// Execute a N1QL query
+        /// </summary>
+        /// <param name="statement">The N1QL statement</param>
+        /// <param name="parameters">Positional parameters to replace tokens of the form "$1", "$2", etc</param>
+        public void Execute(string statement, params object[] parameters)
+        {
+            var query = new QueryRequest(statement)
+                .AddPositionalParameter(parameters);
+            _bucket.Query<dynamic>(query);
+        }
+
+        /// <summary>
         /// Access to the underlying Bucket to drop down to lower-level API when necessary.
         /// </summary>
-        public IBucket Bucket { get; private set; }
 
         /// <summary>
         /// Creates a new BucketContext for a given Couchbase bucket.
@@ -40,7 +53,7 @@ namespace Couchbase.Linq
         /// <param name="bucket">Bucket referenced by the new BucketContext.</param>
         public BucketContext(IBucket bucket)
         {
-            Bucket = bucket;
+            _bucket = bucket;
         }
 
         /// <summary>
@@ -51,7 +64,7 @@ namespace Couchbase.Linq
         /// </value>
         public ClientConfiguration Configuration
         {
-            get { return Bucket.Configuration.PoolConfiguration.ClientConfiguration; }
+            get { return _bucket.Configuration.PoolConfiguration.ClientConfiguration; }
         }
 
         /// <summary>
@@ -62,7 +75,7 @@ namespace Couchbase.Linq
         /// <returns><see cref="IQueryable{T}" /> which can be used to query the bucket.</returns>
         public IQueryable<T> Query<T>()
         {
-            return DocumentFilterManager.ApplyFilters(new BucketQueryable<T>(Bucket, Configuration, this));
+            return DocumentFilterManager.ApplyFilters(new BucketQueryable<T>(_bucket, Configuration, this));
         }
 
         /// <summary>
@@ -73,7 +86,7 @@ namespace Couchbase.Linq
         /// </value>
         public string BucketName
         {
-            get { return Bucket.Name; }
+            get { return _bucket.Name; }
         }
 
         /// <summary>
@@ -105,7 +118,7 @@ namespace Couchbase.Linq
             }
             else
             {
-                var result = Bucket.Upsert(id, document);
+                var result = _bucket.Upsert(id, document);
                 if (!result.Success)
                 {
                     throw new CouchbaseWriteException(result);
@@ -132,7 +145,7 @@ namespace Couchbase.Linq
             else
             {
                 var id = GetDocumentId(document);
-                var result = Bucket.Remove(id);
+                var result = _bucket.Remove(id);
                 if (!result.Success)
                 {
                     throw new CouchbaseWriteException(result);
@@ -234,7 +247,7 @@ namespace Couchbase.Linq
                         var doc = modified.Value as ITrackedDocumentNode;
                         if (doc != null && doc.IsDeleted)
                         {
-                            var result = Bucket.Remove(modified.Key);
+                            var result = _bucket.Remove(modified.Key);
                             if (!result.Success)
                             {
                                 throw new CouchbaseWriteException(result);
@@ -246,11 +259,11 @@ namespace Couchbase.Linq
                             if (doc is NewDocumentWrapper)
                             {
                                 var newDocument = (doc as NewDocumentWrapper).Value;
-                                result = Bucket.Upsert(modified.Key, newDocument);
+                                result = _bucket.Upsert(modified.Key, newDocument);
                             }
                             else
                             {
-                                result = Bucket.Upsert(modified.Key, modified.Value);
+                                result = _bucket.Upsert(modified.Key, modified.Value);
                             }
                             if (result != null && !result.Success)
                             {
