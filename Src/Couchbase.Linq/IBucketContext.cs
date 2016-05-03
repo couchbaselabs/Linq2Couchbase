@@ -59,5 +59,11 @@ namespace Couchbase.Linq
         /// If true, generate change tracking proxies for documents during deserialization. Defaults to false for higher performance queries.
         /// </summary>
         bool ChangeTrackingEnabled { get; }
+
+        /// <summary>
+        /// Access to the underlying Bucket to drop down to lower-level API when necessary.
+        /// </summary>
+        IBucket Bucket { get; }
+
     }
 }
