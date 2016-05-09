@@ -149,6 +149,7 @@
     <Compile Include="QueryGeneration\TakeAndSkipTests.cs" />
     <Compile Include="QueryGeneration\WhereClauseTests.cs" />
     <Compile Include="TestConfigurations.cs" />
+    <Compile Include="Versioning\DefaultVersionProviderTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Couchbase.Linq\Couchbase.Linq.csproj">

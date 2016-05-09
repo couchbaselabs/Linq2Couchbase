@@ -11,6 +11,7 @@ using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Couchbase.Linq.Utils;
+using Couchbase.Linq.Versioning;
 using Couchbase.N1QL;
 using Newtonsoft.Json;
 using Remotion.Linq;
@@ -244,7 +245,8 @@ namespace Couchbase.Linq.Execution
                 MemberNameResolver = memberNameResolver,
                 MethodCallTranslatorProvider = methodCallTranslatorProvider,
                 Serializer = serializer,
-                SelectDocumentMetadata = selectDocumentMetadata
+                SelectDocumentMetadata = selectDocumentMetadata,
+                ClusterVersion = VersionProvider.Current.GetVersion(_bucket)
             };
 
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);

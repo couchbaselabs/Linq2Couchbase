@@ -53,7 +53,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 "FROM `default` as `Extent1` " +
                 "INNER JOIN `default` as `Extent2` " +
                 "ON KEYS `Extent1`.`brewery_id` " +
-                "WHERE (`Extent2`.`geo`.`lon` > -80) " + 
+                "WHERE (`Extent2`.`geo`.`lon` > -80) " +
                 "ORDER BY `Extent1`.`name` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
@@ -75,7 +75,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
                 "FROM `default` as `Extent1` " +
                 "INNER JOIN `default` as `Extent2` " +
-                "ON KEYS `Extent1`.`brewery_id` " + 
+                "ON KEYS `Extent1`.`brewery_id` " +
                 "WHERE (`Extent1`.`type` = 'beer') AND (`Extent2`.`type` = 'brewery')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
@@ -153,5 +153,83 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        #region index joins
+
+        [Test]
+        public void Test_InnerJoin_IndexJoinVersion41_Exception()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                        join beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
+                        on N1QlFunctions.Key(brewery) equals beer.BreweryId
+                        select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+
+            Assert.Throws<NotSupportedException>(
+                () => CreateN1QlQuery(mockBucket.Object, query.Expression, new Version(4, 1, 0)));
+        }
+
+        [Test]
+        public void Test_InnerJoin_IndexJoinVersion45()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                        join beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
+                        on N1QlFunctions.Key(brewery) equals beer.BreweryId
+                        select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+
+            const string expected = "SELECT `Extent2`.`name` as `Name`, `Extent2`.`abv` as `Abv`, `Extent1`.`name` as `BreweryName` " +
+                "FROM `default` as `Extent1` " +
+                "INNER JOIN `default` as `Extent2` " +
+                "ON KEY `Extent2`.`brewery_id` FOR `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, new Version(4, 5, 0));
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_LeftJoin_IndexJoinVersion41_Exception()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                        join beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
+                        on N1QlFunctions.Key(brewery) equals beer.BreweryId into bg
+                        from beer in bg.DefaultIfEmpty()
+                        select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+
+            Assert.Throws<NotSupportedException>(
+                () => CreateN1QlQuery(mockBucket.Object, query.Expression, new Version(4, 1, 0)));
+        }
+
+        [Test]
+        public void Test_LeftJoin_IndexJoinVersion45()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                        join beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
+                        on N1QlFunctions.Key(brewery) equals beer.BreweryId into bg
+                        from beer in bg.DefaultIfEmpty()
+                        select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+
+            const string expected = "SELECT `Extent2`.`name` as `Name`, `Extent2`.`abv` as `Abv`, `Extent1`.`name` as `BreweryName` " +
+                "FROM `default` as `Extent1` " +
+                "LEFT JOIN `default` as `Extent2` " +
+                "ON KEY `Extent2`.`brewery_id` FOR `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, new Version(4, 5, 0));
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
     }
 }

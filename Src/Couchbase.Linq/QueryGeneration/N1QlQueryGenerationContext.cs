@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Core.Serialization;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
+using Couchbase.Linq.Versioning;
 using Newtonsoft.Json.Serialization;
 using Remotion.Linq.Clauses.Expressions;
 
@@ -21,6 +22,7 @@ namespace Couchbase.Linq.QueryGeneration
         public IMethodCallTranslatorProvider MethodCallTranslatorProvider { get; set; }
         public ParameterAggregator ParameterAggregator { get; set; }
         public ITypeSerializer Serializer { get; set; }
+        public Version ClusterVersion { get; set; }
 
         /// <summary>
         /// Stores a reference to the current grouping subquery
@@ -52,7 +54,8 @@ namespace Couchbase.Linq.QueryGeneration
                 MemberNameResolver = MemberNameResolver,
                 MethodCallTranslatorProvider = MethodCallTranslatorProvider,
                 ParameterAggregator = ParameterAggregator,
-                Serializer = Serializer
+                Serializer = Serializer,
+                ClusterVersion = ClusterVersion
             };
         }
     }
