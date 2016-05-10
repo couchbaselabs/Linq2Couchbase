@@ -250,16 +250,8 @@ namespace Couchbase.Linq.QueryGeneration
 
                 foreach (var joinPart in FromParts.Skip(1))
                 {
-                    sb.AppendFormat(" {0} {1} as {2}",
-                        joinPart.JoinType,
-                        joinPart.Source,
-                        joinPart.ItemName);
-
-                    if (!string.IsNullOrEmpty(joinPart.OnKeys))
-                    {
-                        sb.AppendFormat(" ON KEYS {0}", joinPart.OnKeys);
-                    }
-               }
+                    joinPart.AppendToStringBuilder(sb);
+                }
             }
 
             ApplyLetParts(sb);
@@ -343,15 +335,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 foreach (var joinPart in FromParts.Skip(1))
                 {
-                    sb.AppendFormat(" {0} {1} as {2}",
-                        joinPart.JoinType,
-                        joinPart.Source,
-                        joinPart.ItemName);
-
-                    if (!string.IsNullOrEmpty(joinPart.OnKeys))
-                    {
-                        sb.AppendFormat(" ON KEYS {0}", joinPart.OnKeys);
-                    }
+                    joinPart.AppendToStringBuilder(sb);
                 }
             }
 

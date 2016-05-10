@@ -960,19 +960,37 @@ namespace Couchbase.Linq.QueryGeneration
                 throw new NotSupportedException("N1QL Joins Must Be Against IBucketQueryable");
             }
 
-            var keyExpression = joinClause.InnerKeySelector as MethodCallExpression;
-            if ((keyExpression == null) ||
-                (keyExpression.Method != typeof(N1QlFunctions).GetMethod("Key")) ||
-                (keyExpression.Arguments.Count != 1))
+            IQuerySource keyQuerySource;
+            if (!IsKeyMethodCall(joinClause.InnerKeySelector, out keyQuerySource))
             {
-                throw new NotSupportedException("N1QL Join Selector Must Be A Call To N1QlFunctions.Key");
+                if (_queryGenerationContext.ClusterVersion < Versioning.FeatureVersions.IndexJoin)
+                {
+                    throw new NotSupportedException(
+                        "N1QL Join Selector Must Be A Call To N1QlFunctions.Key Referencing The Inner Sequence");
+                }
+                else
+                {
+                    if (!IsKeyMethodCall(joinClause.OuterKeySelector, out keyQuerySource))
+                    {
+                        throw new NotSupportedException(
+                            "N1QL Join Selector Must Be A Call To N1QlFunctions.Key Referencing One Of The Sequences");
+                    }
+                    else
+                    {
+                        // Index join
+                        return new N1QlFromQueryPart()
+                        {
+                            Source = N1QlHelpers.EscapeIdentifier(bucketName),
+                            ItemName = GetExtentName(joinClause),
+                            OnKeys = GetN1QlExpression(joinClause.InnerKeySelector),
+                            JoinType = "INNER JOIN",
+                            IndexJoinExtentName = GetExtentName(keyQuerySource)
+                        };
+                    }
+                }
             }
 
-            if (!(keyExpression.Arguments[0] is QuerySourceReferenceExpression))
-            {
-                throw new NotSupportedException("N1QL Join Selector Call To N1QlFunctions.Key Must Reference The Inner Sequence");
-            }
-
+            // Regular join
             return new N1QlFromQueryPart()
             {
                 Source = N1QlHelpers.EscapeIdentifier(bucketName),
@@ -1089,6 +1107,35 @@ namespace Couchbase.Linq.QueryGeneration
         }
 
         #endregion
+
+        /// <summary>
+        /// Determines if the expression is a valid call to <see cref="N1QlFunctions.Key"/>, with an
+        /// <see cref="IQuerySource"/> as the parameter.
+        /// </summary>
+        /// <param name="expression">Expression to evaluate.</param>
+        /// <param name="querySource">Returns the <see cref="IQuerySource"/> parameter for the call.</param>
+        /// <returns>True if the call is valid.</returns>
+        private static bool IsKeyMethodCall(Expression expression, out IQuerySource querySource)
+        {
+            querySource = null;
+
+            var keyExpression = expression as MethodCallExpression;
+            if ((keyExpression == null) ||
+                (keyExpression.Method != typeof(N1QlFunctions).GetMethod("Key")) ||
+                (keyExpression.Arguments.Count != 1))
+            {
+                return false;
+            }
+
+            var querySourceReference = keyExpression.Arguments[0] as QuerySourceReferenceExpression;
+            if (querySourceReference == null)
+            {
+                return false;
+            }
+
+            querySource = querySourceReference.ReferencedQuerySource;
+            return true;
+        }
 
         private string GetN1QlExpression(Expression expression)
         {

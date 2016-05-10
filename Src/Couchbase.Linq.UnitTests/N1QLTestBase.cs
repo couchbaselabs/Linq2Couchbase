@@ -39,7 +39,17 @@ namespace Couchbase.Linq.UnitTests
             return CreateN1QlQuery(bucket, expression, false);
         }
 
+        protected string CreateN1QlQuery(IBucket bucket, Expression expression, Version clusterVersion)
+        {
+            return CreateN1QlQuery(bucket, expression, clusterVersion, false);
+        }
+
         protected string CreateN1QlQuery(IBucket bucket, Expression expression, bool selectDocumentMetadata)
+        {
+            return CreateN1QlQuery(bucket, expression, new Version(4, 0, 0), selectDocumentMetadata);
+        }
+
+        protected string CreateN1QlQuery(IBucket bucket, Expression expression, Version clusterVersion, bool selectDocumentMetadata)
         {
             var queryModel = QueryParserHelper.CreateQueryParser().GetParsedQuery(expression);
 
@@ -48,7 +58,8 @@ namespace Couchbase.Linq.UnitTests
                 MemberNameResolver = MemberNameResolver,
                 MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
                 Serializer = new Core.Serialization.DefaultSerializer(),
-                SelectDocumentMetadata = selectDocumentMetadata
+                SelectDocumentMetadata = selectDocumentMetadata,
+                ClusterVersion = clusterVersion
             };
 
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);

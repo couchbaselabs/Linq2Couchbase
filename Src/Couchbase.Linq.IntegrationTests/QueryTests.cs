@@ -5,6 +5,7 @@ using Couchbase.Configuration.Client;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Filters;
 using Couchbase.Linq.IntegrationTests.Documents;
+using Couchbase.Linq.Versioning;
 using Couchbase.N1QL;
 using NUnit.Framework;
 
@@ -583,6 +584,37 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void JoinTests_InnerJoin_IndexJoin()
+        {
+            // To make required index:
+            // CREATE INDEX brewery_id ON `beer-sample` (brewery_id) WHERE type = 'beer'
+
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.IndexJoin)
+            {
+                Assert.Ignore("Cluster does not support index joins, test skipped.");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var beers = from brewery in context.Query<Brewery>()
+                        join beer in context.Query<Beer>()
+                            on N1QlFunctions.Key(brewery) equals beer.BreweryId
+                        where (beer.Type == "beer") && (brewery.Type == "brewery")
+                        select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} with ABV {1} is from {2}", b.Name, b.Abv, b.BreweryName);
+            }
+        }
+
+        [Test]
         public void JoinTests_LeftJoin_Simple()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
@@ -639,6 +671,38 @@ namespace Couchbase.Linq.IntegrationTests
                 where beer.Abv > 4
                 orderby brewery.Name, beer.Name
                 select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} with ABV {1} is from {2}", b.Name, b.Abv, b.BreweryName);
+            }
+        }
+
+        [Test]
+        public void JoinTests_LeftJoin_IndexJoin()
+        {
+            // To make required index:
+            // CREATE INDEX brewery_id ON `beer-sample` (brewery_id) WHERE type = 'beer'
+
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.IndexJoin)
+            {
+                Assert.Ignore("Cluster does not support index joins, test skipped.");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var beers = from brewery in context.Query<Brewery>()
+                        join beer in context.Query<Beer>()
+                            on N1QlFunctions.Key(brewery) equals beer.BreweryId into bg
+                        from beer in bg.DefaultIfEmpty()
+                        where (beer.Type == "beer") && (brewery.Type == "brewery")
+                        select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
             var results = beers.Take(1).ToList();
             Assert.AreEqual(1, results.Count());
