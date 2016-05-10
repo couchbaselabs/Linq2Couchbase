@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.N1QL;
 
 namespace Couchbase.Linq
 {
@@ -59,5 +60,10 @@ namespace Couchbase.Linq
         /// If true, generate change tracking proxies for documents during deserialization. Defaults to false for higher performance queries.
         /// </summary>
         bool ChangeTrackingEnabled { get; }
+
+        /// <summary>
+        /// Execute a N1QL statement
+        /// </summary>
+        void Execute(string statement, params object[] parameters);
     }
 }

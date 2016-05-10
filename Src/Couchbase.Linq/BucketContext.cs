@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +10,7 @@ using Couchbase.Linq.Filters;
 using Couchbase.Linq.Metadata;
 using Couchbase.Linq.Proxies;
 using Couchbase.Linq.Utils;
-using Remotion.Linq.Clauses;
+using Couchbase.N1QL;
 
 namespace Couchbase.Linq
 {
@@ -31,6 +30,22 @@ namespace Couchbase.Linq
         /// If true, generate change tracking proxies for documents during deserialization.  Defaults to false for higher performance queries.
         /// </summary>
         public bool ChangeTrackingEnabled { get { return _beginChangeTrackingCount > 0; } }
+
+        /// <summary>
+        /// Execute a N1QL query
+        /// </summary>
+        /// <param name="statement">The N1QL statement</param>
+        /// <param name="parameters">Positional parameters to replace tokens of the form "$1", "$2", etc</param>
+        public void Execute(string statement, params object[] parameters)
+        {
+            var query = new QueryRequest(statement)
+                .AddPositionalParameter(parameters);
+            _bucket.Query<dynamic>(query);
+        }
+
+        /// <summary>
+        /// Access to the underlying Bucket to drop down to lower-level API when necessary.
+        /// </summary>
 
         /// <summary>
         /// Creates a new BucketContext for a given Couchbase bucket.
