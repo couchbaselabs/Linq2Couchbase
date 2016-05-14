@@ -104,3 +104,33 @@ As you can see, the key "order-1001" is not present on the customer document.  H
 			}
 		}
 	}
+
+##Index Nests
+
+Beginning with Couchbase Server 4.5, it is possible to perform nests where the keys are stored in the child document.  Previously, the parent document needed a list of keys for the child documents being nested.
+
+This kind of nest operation is actually more consistent with LINQ standards, and is represented by the group join construct.  The requirement is that the left hand side of the join equality operator must use N1QlFunctions.Key to get the key from one of the other extents in the query. 
+
+	using (var cluster = new Cluster()) {
+		using (var bucket = cluster.OpenBucket("beer-sample")) {
+			var context = new BucketContext(bucket);
+
+			var query = from brewery in context.Query<Brewery>()
+				join beer in context.Query<Beer>()
+					on N1QlFunctions.Key(brewery) equals beer.BreweryId into beers
+				select new {brewery, beers};
+
+			foreach (var doc in query) {
+				// do work
+
+				// each returned "document" has a brewery property
+				// and a beers property that is an array of beers from that brewery
+
+				// may return breweries with no beers
+			}
+		}
+	}
+
+In order to perform this type of join, there must also be an index created on the key field in the child document.  In the example above, the index must be on the BreweryId field.  More information about this type of join operation can be found [here](http://developer.couchbase.com/documentation/server/4.5-dp/flexible-join-n1ql.html).  Note that, unlike index joins, for index nest operations the index **must not** have a WHERE clause when it is created.
+
+Note that a NotSupportedException will be thrown if you execute this kind of nest operation against a 4.0 or 4.1 Couchbase cluster.
