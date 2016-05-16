@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -11,7 +10,6 @@ using Couchbase.Linq.Filters;
 using Couchbase.Linq.Metadata;
 using Couchbase.Linq.Proxies;
 using Couchbase.Linq.Utils;
-using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq
 {
@@ -32,6 +30,8 @@ namespace Couchbase.Linq
         /// </summary>
         public bool ChangeTrackingEnabled { get { return _beginChangeTrackingCount > 0; } }
 
+        public IDataStore DataStore { get; private set; }
+
         /// <summary>
         /// Creates a new BucketContext for a given Couchbase bucket.
         /// </summary>
@@ -39,6 +39,7 @@ namespace Couchbase.Linq
         public BucketContext(IBucket bucket)
         {
             _bucket = bucket;
+            DataStore = new BucketDataStore(bucket);
         }
 
         /// <summary>

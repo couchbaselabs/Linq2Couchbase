@@ -59,5 +59,10 @@ namespace Couchbase.Linq
         /// If true, generate change tracking proxies for documents during deserialization. Defaults to false for higher performance queries.
         /// </summary>
         bool ChangeTrackingEnabled { get; }
+
+        /// <summary>
+        /// The DataStore is for other operations like executing a N1QL query
+        /// </summary>
+        IDataStore DataStore { get; }
     }
 }

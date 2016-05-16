@@ -90,6 +90,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BucketDataStore.cs" />
     <Compile Include="IChangeTrackableContext.cs" />
     <Compile Include="Clauses\UseKeysExpressionNode.cs" />
     <Compile Include="Clauses\UseKeysClause.cs" />
@@ -101,6 +102,7 @@
     <Compile Include="IBucketContext.cs" />
     <Compile Include="Execution\IBucketQueryExecutor.cs" />
     <Compile Include="Execution\IBucketQueryExecutorProvider.cs" />
+    <Compile Include="IDataStore.cs" />
     <Compile Include="KeyAttributeMissingException.cs" />
     <Compile Include="N1QlDatePart.cs" />
     <Compile Include="N1QlFunctions.Core.cs" />
