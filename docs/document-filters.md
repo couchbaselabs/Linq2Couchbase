@@ -14,7 +14,7 @@ In your application, this would translate to a Linq query that maps the document
     	where x.Type == "airline"
     	select x.Name;	
 
-Now, this is nice and all but becomes a but tedious to do for every query. Instead what you want to do is remove the explicit Type predicate from the query:
+This becomes a bit tedious to do for every query when your bucket has multiple document types. Instead what you want to do is remove the explicit Type predicate from the query:
 
 	var query = from x in db.Query<Airline>()
 		select x.Name;	

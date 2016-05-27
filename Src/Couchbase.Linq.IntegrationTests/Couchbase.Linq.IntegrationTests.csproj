@@ -101,6 +101,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BeerSample.cs" />
+    <Compile Include="BucketDataStoreTests.cs" />
     <Compile Include="Documents\BeerStyle.cs" />
     <Compile Include="Documents\BeerWithEnum.cs" />
     <Compile Include="Extensions\QueryExtensionTests.cs" />
