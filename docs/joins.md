@@ -83,3 +83,31 @@ As you can see, the key "customer-5" is not present on the order document.  Howe
 			}
 		}
 	}
+
+##Index Joins
+
+Beginning with Couchbase Server 4.5, it is possible to perform joins where the key is stored in the document on the right side of the join.  Previously, the key had to be stored on the document on the left side of the join.
+
+This kind of nest operation is actually more consistent with LINQ standards, and is represented by the group join construct.  The requirement is that the left hand side of the join equality operator must use N1QlFunctions.Key to get the key from one of the other extents in the query. 
+
+	using (var cluster = new Cluster()) {
+		using (var bucket = cluster.OpenBucket("beer-sample")) {
+			var context = new BucketContext(bucket);
+
+			var query = from brewery in context.Query<Brewery>()
+						join brewery in context.Query<Beer>()
+						on N1QlFunctions.Key(brewery) equals beer.BreweryId
+						where brewery.Name == "21st Century"
+						select new {beerName = beer.Name};
+
+			foreach (var doc in query) {
+				// do work
+			}
+		}
+	}
+
+Since indexes are only used on the left most document, this approach to joins can improve performance significantly by allowing the use of an index on the document that doesn't have the key for the join.
+
+In order to perform this type of join, there must be an index created on the key field in the child document.  In the example above, the index must be on the BreweryId field.  More information about this type of join operation can be found [here](http://developer.couchbase.com/documentation/server/4.5-dp/flexible-join-n1ql.html).
+
+Note that a NotSupportedException will be thrown if you execute this kind of join operation against a 4.0 or 4.1 Couchbase cluster.

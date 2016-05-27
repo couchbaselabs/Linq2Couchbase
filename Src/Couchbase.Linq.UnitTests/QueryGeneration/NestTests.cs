@@ -126,7 +126,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     QueryFactory.Queryable<NestLevel2>(mockBucket.Object),
                     level1 => level1.NestLevel2Keys,
                     (level1, level2) => new {level1.Value, level2});
-                        
+
             const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent2` as `level2` " +
                 "FROM `default` as `Extent1` " +
                 "INNER NEST `default` as `Extent2` ON KEYS `Extent1`.`NestLevel2Keys`";
@@ -205,6 +205,66 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             Assert.AreEqual(expected, n1QlQuery);
         }
 
+        [Test]
+        public void Test_IndexNest()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from level1 in QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                join level2 in QueryFactory.Queryable<NestLevel2>(mockBucket.Object)
+                    on N1QlFunctions.Key(level1) equals level2.NestLevel1Key into level2List
+                where level1.Type == "level1"
+                select new {level1.Value, level2List};
+
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent2` as `level2List` " +
+                "FROM `default` as `Extent1` " +
+                "LEFT OUTER NEST `default` as `Extent2` ON KEY `Extent2`.`NestLevel1Key` FOR `Extent1` " +
+                "WHERE (`Extent1`.`Type` = 'level1')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, Linq.Versioning.FeatureVersions.IndexJoin);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_IndexNestServer40_ThrowsNotSupportedException()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from level1 in QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                        join level2 in QueryFactory.Queryable<NestLevel2>(mockBucket.Object)
+                            on N1QlFunctions.Key(level1) equals level2.NestLevel1Key into level2List
+                        where level1.Type == "level1"
+                        select new { level1.Value, level2List };
+
+            Assert.Throws<NotSupportedException>(() => CreateN1QlQuery(mockBucket.Object, query.Expression));
+        }
+
+        [Test]
+        public void Test_IndexNest_Prefiltered()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from level1 in QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                        join level2 in QueryFactory.Queryable<NestLevel2>(mockBucket.Object).Where(level2 => level2.Type == "level2")
+                            on N1QlFunctions.Key(level1) equals level2.NestLevel1Key into level2List
+                        where level1.Type == "level1"
+                        select new { level1.Value, level2List };
+
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent4` as `level2List` " +
+                "FROM `default` as `Extent1` " +
+                "LEFT OUTER NEST `default` as `Extent2` ON KEY `Extent2`.`NestLevel1Key` FOR `Extent1` " +
+                "LET `Extent4` = ARRAY `Extent3` FOR `Extent3` IN `Extent2` WHEN (`Extent3`.`Type` = 'level2') END " +
+                "WHERE (`Extent1`.`Type` = 'level1')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, Linq.Versioning.FeatureVersions.IndexJoin);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
         #region Helper Classes
 
         public class UnnestLevel1
@@ -233,6 +293,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         {
             public string Type { get; set; }
             public string Value { get; set; }
+            public string NestLevel1Key { get; set; }
         }
 
         #endregion

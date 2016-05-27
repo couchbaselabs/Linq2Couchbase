@@ -116,6 +116,30 @@ namespace Couchbase.Linq.QueryGeneration
         {
             queryModel.MainFromClause.Accept(this, queryModel);
             VisitBodyClauses(queryModel.BodyClauses, queryModel);
+
+            if (_unclaimedGroupJoins.Any())
+            {
+                if (_queryGenerationContext.ClusterVersion < Versioning.FeatureVersions.IndexJoin)
+                {
+                    throw new NotSupportedException("N1QL Requires All Group Joins Have A Matching From Clause Subquery");
+                }
+
+                // See if any of the unclaimed group joins are really NEST operations
+
+                foreach (var join in _unclaimedGroupJoins)
+                {
+                    IQuerySource querySource;
+                    if (!IsKeyMethodCall(join.JoinClause.OuterKeySelector, out querySource))
+                    {
+                        throw new NotSupportedException(
+                            "N1QL Requires All Group Joins Have A Matching From Clause Subquery Or Use N1QlFunctions.Key For The Outer Key Selector");
+                    }
+
+                    var fromQueryPart = ParseIndexNestJoinClause(join.JoinClause, join.GroupJoinClause);
+                    _queryPartsAggregator.AddFromPart(fromQueryPart);
+                }
+            }
+
             VisitResultOperators(queryModel.ResultOperators, queryModel);
 
             if ((_visitStatus != VisitStatus.InGroupSubquery) && (_visitStatus != VisitStatus.AfterUnionSortSubquery))
@@ -135,11 +159,6 @@ namespace Couchbase.Linq.QueryGeneration
                 // We no longer need to extract the result, because now the query is returning an explanation instead
 
                 ScalarResultBehavior.ResultExtractionRequired = false;
-            }
-
-            if (_unclaimedGroupJoins.Any())
-            {
-                throw new NotSupportedException("N1QL Requires All Group Joins Have A Matching From Clause Subquery");
             }
         }
 
@@ -1104,6 +1123,65 @@ namespace Couchbase.Linq.QueryGeneration
                 OnKeys = GetN1QlExpression(nestClause.KeySelector),
                 JoinType = nestClause.IsLeftOuterNest ? "LEFT OUTER NEST" : "INNER NEST"
             };
+        }
+
+        /// <summary>
+        /// Visits an index nest join against either a constant expression of IBucketQueryable, or a subquery based on an IBucketQueryable
+        /// </summary>
+        /// <param name="joinClause">Join clause being visited</param>
+        /// <param name="groupJoinClause">Group join clause being visited</param>
+        /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to NEST.</returns>
+        /// <remarks>The OuterKeySelector must be selecting the N1QlFunctions.Key of the OuterSequence</remarks>
+        private N1QlFromQueryPart ParseIndexNestJoinClause(JoinClause joinClause, GroupJoinClause groupJoinClause)
+        {
+            if (joinClause.InnerSequence.NodeType == ExpressionType.Constant)
+            {
+                var clause = VisitConstantExpressionJoinClause(joinClause, joinClause.InnerSequence as ConstantExpression);
+                clause.JoinType = "LEFT OUTER NEST";
+
+                _queryGenerationContext.ExtentNameProvider.LinkExtents(joinClause, groupJoinClause);
+
+                return clause;
+            }
+            else if (joinClause.InnerSequence is SubQueryExpression)
+            {
+                var subQuery = (SubQueryExpression)joinClause.InnerSequence;
+                if (subQuery.QueryModel.ResultOperators.Any() ||
+                    subQuery.QueryModel.MainFromClause.FromExpression.NodeType != ExpressionType.Constant)
+                {
+                    throw new NotSupportedException("Unsupported Join Inner Sequence");
+                }
+
+                // Generate a temporary item name to use on the NEST statement, which we can then reference in the LET statement
+
+                var fromPart = VisitConstantExpressionJoinClause(joinClause,
+                    subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression);
+                fromPart.JoinType = "LEFT OUTER NEST";
+
+                // Put any where clauses in the sub query in an ARRAY filtering clause using a LET statement
+
+                var whereClauseString = string.Join(" AND ",
+                    subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
+                        .Select(p => GetN1QlExpression(p.Predicate)));
+
+                var letPart = new N1QlLetQueryPart()
+                {
+                    ItemName = GetExtentName(groupJoinClause),
+                    Value =
+                        string.Format("ARRAY {0} FOR {0} IN {1} WHEN {2} END",
+                            GetExtentName(subQuery.QueryModel.MainFromClause),
+                            GetExtentName(joinClause),
+                            whereClauseString)
+                };
+
+                _queryPartsAggregator.AddLetPart(letPart);
+
+                return fromPart;
+            }
+            else
+            {
+                throw new NotSupportedException("Unsupported Join Inner Sequence");
+            }
         }
 
         #endregion
