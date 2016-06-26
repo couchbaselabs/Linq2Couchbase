@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Linq;
 using Couchbase.Linq.Extensions;
+using Couchbase.Linq.Filters;
 using Couchbase.Linq.IntegrationTests.Documents;
 using Couchbase.Linq.Proxies;
+using Couchbase.Linq.Versioning;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.IntegrationTests
@@ -367,6 +369,144 @@ namespace Couchbase.Linq.IntegrationTests
             var doc = ClusterHelper.GetBucket("beer-sample").GetDocument<Beer>(((ITrackedDocumentNode)beer).Metadata.Id);
             Assert.AreNotEqual(beer.Abv, doc.Content.Abv);
         }
+
+        #region Consistentency Tests
+
+        [Test]
+        public void Save_ThenQuery_ReturnsChanges()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.ReadYourOwnWrite)
+            {
+                Assert.Ignore("Cluster does not support RYOW, test skipped.");
+            }
+
+            var db = new BucketContext(bucket);
+            var testValue = new Random().Next(0, 100000);
+            var testKey = "Save_ThenQuery_ReturnsChanges_" + testValue;
+
+            var testDocument = new Sample
+            {
+                Id = testKey,
+                Value = testValue
+            };
+
+            db.Save(testDocument);
+
+            try
+            {
+                Assert.NotNull(db.MutationState);
+
+                var result = db.Query<Sample>()
+                    .ConsistentWith(db.MutationState)
+                    .FirstOrDefault(p => p.Id == testKey);
+
+                Assert.NotNull(result);
+                Assert.AreEqual(testValue, result.Value);
+            }
+            finally
+            {
+                db.Remove(testDocument);
+            }
+        }
+
+        [Test]
+        public void Remove_ThenQuery_ReturnsChanges()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.ReadYourOwnWrite)
+            {
+                Assert.Ignore("Cluster does not support RYOW, test skipped.");
+            }
+
+            var db = new BucketContext(bucket);
+            var testValue = new Random().Next(0, 100000);
+            var testKey = "Remove_ThenQuery_ReturnsChanges_" + testValue;
+
+            var testDocument = new Sample
+            {
+                Id = testKey,
+                Value = testValue
+            };
+
+            db.Save(testDocument);
+            db.Remove(testDocument);
+
+            Assert.NotNull(db.MutationState);
+
+            var result = db.Query<Sample>()
+                .ConsistentWith(db.MutationState)
+                .Select(p => p.Id)
+                .FirstOrDefault(p => p == testKey);
+
+            Assert.Null(result);
+        }
+
+        [Test]
+        public void SubmitChanges_ThenQuery_ReturnsChanges()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.ReadYourOwnWrite)
+            {
+                Assert.Ignore("Cluster does not support RYOW, test skipped.");
+            }
+
+            var db = new BucketContext(bucket);
+            var testValue = new Random().Next(0, 100000);
+            var testKey = "SubmitChanges_ThenQuery_ReturnsChanges_" + testValue;
+
+            var testDocument = new Sample
+            {
+                Id = testKey,
+                Value = testValue
+            };
+
+            db.BeginChangeTracking();
+            db.Save(testDocument);
+            db.SubmitChanges();
+
+            try
+            {
+                Assert.NotNull(db.MutationState);
+
+                var result = db.Query<Sample>()
+                    .ConsistentWith(db.MutationState)
+                    .FirstOrDefault(p => p.Id == testKey);
+
+                Assert.NotNull(result);
+                Assert.AreEqual(testValue, result.Value);
+            }
+            finally
+            {
+                db.Remove(testDocument);
+            }
+        }
+
+        #endregion
+
+        #region Helper Classes
+
+        [DocumentTypeFilter("BucketContextTests_Sample")]
+        public class Sample
+        {
+            [System.ComponentModel.DataAnnotations.Key]
+            public string Id { get; set; }
+
+            public string Type
+            {
+                get { return "BucketContextTests_Sample"; }
+            }
+
+            public int Value { get; set; }
+        }
+
+        #endregion
     }
 }
 

@@ -1,7 +1,10 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.Core.Buckets;
 using Couchbase.IO;
+using Couchbase.Linq.Metadata;
 using Couchbase.Linq.Proxies;
 using Couchbase.Linq.UnitTests.Documents;
 using Moq;
@@ -378,6 +381,371 @@ namespace Couchbase.Linq.UnitTests
             //assert
             Assert.AreEqual(0, ctx.ModifiedCount);
         }
+
+        #region Mutation State Updates
+
+        [Test]
+        public void Save_NotTrackingChanges_AddsToMutationState()
+        {
+            // Arrange
+
+            var token = new MutationToken("default", 1, 2, 3);
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+            bucket
+                .Setup(m => m.Upsert(It.IsAny<string>(), It.IsAny<Beer>()))
+                .Returns(() =>
+                {
+                    var result = new Mock<IOperationResult<Beer>>();
+                    result.SetupGet(p => p.Success).Returns(true);
+                    result.SetupGet(p => p.Token).Returns(token);
+
+                    return result.Object;
+                });
+
+            var db = new Mock<BucketContext>(bucket.Object)
+            {
+                CallBase = true
+            };
+            db.Setup(m => m.GetDocumentId(It.IsAny<Beer>())).Returns("id");
+
+            // Act
+
+            db.Object.Save(new Beer());
+
+            // Assert
+
+            db.Verify(m => m.AddToMutationState(token), Times.Once);
+        }
+
+        [Test]
+        public void Remove_NotTrackingChanges_AddsToMutationState()
+        {
+            // Arrange
+
+            var token = new MutationToken("default", 1, 2, 3);
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+            bucket
+                .Setup(m => m.Remove(It.IsAny<string>()))
+                .Returns(() =>
+                {
+                    var result = new Mock<IOperationResult<Beer>>();
+                    result.SetupGet(p => p.Success).Returns(true);
+                    result.SetupGet(p => p.Token).Returns(token);
+
+                    return result.Object;
+                });
+
+            var db = new Mock<BucketContext>(bucket.Object)
+            {
+                CallBase = true
+            };
+            db.Setup(m => m.GetDocumentId(It.IsAny<Beer>())).Returns("id");
+
+            // Act
+
+            db.Object.Remove(new Beer());
+
+            // Assert
+
+            db.Verify(m => m.AddToMutationState(token), Times.Once);
+        }
+
+        [Test]
+        public void SubmitChanges_WithSave_AddsToMutationState()
+        {
+            // Arrange
+
+            var token = new MutationToken("default", 1, 2, 3);
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+            bucket
+                .Setup(m => m.Upsert(It.IsAny<string>(), It.IsAny<object>()))
+                .Returns(() =>
+                {
+                    var result = new Mock<IOperationResult<Beer>>();
+                    result.SetupGet(p => p.Success).Returns(true);
+                    result.SetupGet(p => p.Token).Returns(token);
+
+                    return result.Object;
+                });
+
+            var db = new Mock<BucketContext>(bucket.Object)
+            {
+                CallBase = true
+            };
+            db.Setup(m => m.GetDocumentId(It.IsAny<Beer>())).Returns("id");
+
+            db.Object.BeginChangeTracking();
+            db.Object.Save(new Beer());
+
+            // Act
+
+            db.Object.SubmitChanges();
+
+            // Assert
+
+            db.Verify(m => m.AddToMutationState(token), Times.Once);
+        }
+
+        [Test]
+        public void SubmitChanges_WithRemove_AddsToMutationState()
+        {
+            // Arrange
+
+            var token = new MutationToken("default", 1, 2, 3);
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+            bucket
+                .Setup(m => m.Remove(It.IsAny<string>()))
+                .Returns(() =>
+                {
+                    var result = new Mock<IOperationResult<Beer>>();
+                    result.SetupGet(p => p.Success).Returns(true);
+                    result.SetupGet(p => p.Token).Returns(token);
+
+                    return result.Object;
+                });
+
+            var db = new Mock<BucketContext>(bucket.Object)
+            {
+                CallBase = true
+            };
+            db.Setup(m => m.GetDocumentId(It.IsAny<object>())).Returns("id");
+
+            var document = new Mock<ITrackedDocumentNode>();
+            document.SetupGet(m => m.Metadata).Returns(new DocumentMetadata()
+            {
+                Id = "id"
+            });
+            document.SetupAllProperties();
+
+            db.Object.BeginChangeTracking();
+            ((IChangeTrackableContext) db.Object).Track(document.Object);
+            db.Object.Remove(document.Object);
+
+            // Act
+
+            db.Object.SubmitChanges();
+
+            // Assert
+
+            db.Verify(m => m.AddToMutationState(token), Times.Once);
+        }
+
+        #endregion
+
+        #region AddToMutationState
+
+        [Test]
+        public void AddToMutationState_NullToken_DoesNothing()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+
+            var db = new BucketContext(bucket.Object);
+
+            // Act
+
+            db.AddToMutationState(null);
+
+            // Assert
+
+            Assert.IsNull(db.MutationState);
+        }
+
+        [Test]
+        public void AddToMutationState_DefaultToken_DoesNothing()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+
+            var db = new BucketContext(bucket.Object);
+
+            // Act
+
+            db.AddToMutationState(new MutationToken("default", -1, -1, 1));
+
+            // Assert
+
+            Assert.IsNull(db.MutationState);
+        }
+
+        [Test]
+        public void AddToMutationState_FirstRealToken_CreatesMutationState()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+
+            var db = new BucketContext(bucket.Object);
+
+            var token = new MutationToken("default", 1, 2, 3);
+
+            // Act
+
+            db.AddToMutationState(token);
+
+            // Assert
+
+            Assert.IsNotNull(db.MutationState);
+
+            var tokens = MutationStateToList(db.MutationState);
+            Assert.AreEqual(1, tokens.Count);
+            Assert.Contains(token, tokens);
+        }
+
+        [Test]
+        public void AddToMutationState_FirstRealTokenThenNull_DoesNothing()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+
+            var db = new BucketContext(bucket.Object);
+
+            var token = new MutationToken("default", 1, 2, 3);
+            db.AddToMutationState(token);
+
+            // Act
+
+            db.AddToMutationState(null);
+
+            // Assert
+
+            Assert.IsNotNull(db.MutationState);
+
+            var tokens = MutationStateToList(db.MutationState);
+            Assert.AreEqual(1, tokens.Count);
+            Assert.Contains(token, tokens);
+        }
+
+        [Test]
+        public void AddToMutationState_FirstRealTokenThenDefaultToken_DoesNothing()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+
+            var db = new BucketContext(bucket.Object);
+
+            var token = new MutationToken("default", 1, 2, 3);
+            db.AddToMutationState(token);
+
+            // Act
+
+            db.AddToMutationState(new MutationToken("default", -1, -1, -1));
+
+            // Assert
+
+            Assert.IsNotNull(db.MutationState);
+
+            var tokens = MutationStateToList(db.MutationState);
+            Assert.AreEqual(1, tokens.Count);
+            Assert.Contains(token, tokens);
+        }
+
+        [Test]
+        public void AddToMutationState_TwoRealTokens_CombinesTokens()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+
+            var db = new BucketContext(bucket.Object);
+
+            var token1 = new MutationToken("default", 1, 2, 3);
+            var token2 = new MutationToken("default", 4, 5, 6);
+
+            // Act
+
+            db.AddToMutationState(token1);
+            db.AddToMutationState(token2);
+
+            // Assert
+
+            Assert.IsNotNull(db.MutationState);
+
+            var tokens = MutationStateToList(db.MutationState);
+            Assert.AreEqual(2, tokens.Count);
+            Assert.Contains(token1, tokens);
+            Assert.Contains(token2, tokens);
+        }
+
+        private static List<MutationToken> MutationStateToList(N1QL.MutationState state)
+        {
+            var result = new List<MutationToken>();
+            using (var enumerator = state.GetEnumerator())
+            {
+                while (enumerator.MoveNext())
+                {
+                    result.Add(enumerator.Current);
+                }
+            }
+
+            return result;
+        }
+
+        #endregion
+
+        #region ResetMutationState
+
+        [Test]
+        public void ResetMutationState_NoState_StillNull()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+
+            var db = new BucketContext(bucket.Object);
+            Assert.Null(db.MutationState);
+
+            // Act
+
+            db.ResetMutationState();
+
+            // Assert
+
+            Assert.Null(db.MutationState);
+        }
+
+        [Test]
+        public void ResetMutationState_HasState_SetsToNull()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+
+            var db = new BucketContext(bucket.Object);
+
+            db.AddToMutationState(new MutationToken("default", 1, 2, 3));
+            Assert.NotNull(db.MutationState);
+
+            // Act
+
+            db.ResetMutationState();
+
+            // Assert
+
+            Assert.Null(db.MutationState);
+        }
+
+        #endregion
     }
 }
 

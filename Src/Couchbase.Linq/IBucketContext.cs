@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.N1QL;
 
 namespace Couchbase.Linq
 {
@@ -59,5 +60,31 @@ namespace Couchbase.Linq
         /// If true, generate change tracking proxies for documents during deserialization. Defaults to false for higher performance queries.
         /// </summary>
         bool ChangeTrackingEnabled { get; }
+
+        #region Mutation State
+
+        /// <summary>
+        /// The current <see cref="N1QL.MutationState"/>.  May return null if there
+        /// have been no mutations.
+        /// </summary>
+        /// <remarks>
+        /// This value is updated as mutations are applied via <see cref="Save{T}"/>.  It may be used
+        /// to enable read-your-own-write by passing the value to <see cref="Extensions.QueryExtensions.ConsistentWith{T}"/>.
+        /// If you are using change tracking, this value won't be valid until after a call to <see cref="SubmitChanges"/>.
+        /// This function is only supported on Couchbase Server 4.5 or later.
+        /// </remarks>
+        MutationState MutationState { get; }
+
+        /// <summary>
+        /// Resets the <see cref="MutationState"/> to start a new set of mutations.
+        /// </summary>
+        /// <remarks>
+        /// If you are using an <see cref="IBucketContext"/> over and extended period of time,
+        /// performing a reset regularly is recommend.  This will help keep the size of the
+        /// <see cref="MutationState"/> to a minimum.
+        /// </remarks>
+        void ResetMutationState();
+
+        #endregion
     }
 }
