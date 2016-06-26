@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
+using Couchbase.Core.Buckets;
 using Couchbase.Linq.Execution;
 using Couchbase.Linq.Metadata;
 using Couchbase.Linq.QueryGeneration;
@@ -327,7 +328,7 @@ namespace Couchbase.Linq.Extensions
         }
 
         /// <summary>
-        /// Specifies the maximum time the client is willing to wait for an index to catch up to the vector timestamp in the request.
+        /// Specifies the maximum time the client is willing to wait for an index to catch up to the consistency requirement in the request.
         /// If an index has to catch up, and the time is exceed doing so, an error is returned.
         /// </summary>
         /// <param name="source">Sets scan wait for this query.  Must be a Couchbase LINQ query.</param>
@@ -337,6 +338,29 @@ namespace Couchbase.Linq.Extensions
             EnsureBucketQueryable(source, "ScanWait", "source");
 
             ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ScanWait = scanWait;
+
+            return source;
+        }
+
+        /// <summary>
+        /// Requires that the indexes but up to date with a <see cref="MutationState"/> before the query is executed.
+        /// </summary>
+        /// <param name="source">Sets consistency requirement for this query.  Must be a Couchbase LINQ query.</param>
+        /// <param name="state"><see cref="MutationState"/> used for conistency controls.</param>
+        /// <remarks>If called multiple times, the states from the calls are combined.</remarks>
+        public static IQueryable<T> ConsistentWith<T>(this IQueryable<T> source, MutationState state)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (!(source is IBucketQueryExecutorProvider))
+            {
+                // do nothing if this isn't a Couchbase LINQ query
+                return source;
+            }
+
+            ((IBucketQueryExecutorProvider) source).BucketQueryExecutor.ConsistentWith(state);
 
             return source;
         }

@@ -20,10 +20,17 @@ namespace Couchbase.Linq.Execution
         ScanConsistency? ScanConsistency { get; set; }
 
         /// <summary>
-        /// Specifies the maximum time the client is willing to wait for an index to catch up to the vector timestamp in the request.
+        /// Specifies the maximum time the client is willing to wait for an index to catch up to the consistency requirement in the request.
         /// If an index has to catch up, and the time is exceed doing so, an error is returned.
         /// </summary>
         TimeSpan? ScanWait { get; set; }
+
+        /// <summary>
+        /// Requires that the indexes but up to date with a <see cref="MutationState"/> before the query is executed.
+        /// </summary>
+        /// <param name="state"><see cref="MutationState"/> used for conistency controls.</param>
+        /// <remarks>If called multiple times, the states from the calls are combined.</remarks>
+        void ConsistentWith(MutationState state);
 
         /// <summary>
         /// Asynchronously execute a <see cref="LinqQueryRequest"/>.

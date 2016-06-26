@@ -56,7 +56,7 @@ namespace Couchbase.Linq.Proxies
         /// <typeparam name="T">The type of document to deserialize.</typeparam>
         /// <param name="stream">The <see cref="Stream"/> results of the query.</param>
         /// <returns>An object deserialized to it's T type.</returns>
-        public T Map<T>(Stream stream)
+        public T Map<T>(Stream stream) where T : class
         {
             var queryResults = _serializer.Deserialize<T>(stream);
 

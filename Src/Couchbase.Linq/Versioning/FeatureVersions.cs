@@ -16,5 +16,10 @@ namespace Couchbase.Linq.Versioning
         /// is on the left instead of the right.
         /// </summary>
         public static readonly Version IndexJoin = new Version(4, 5, 0);
+
+        /// <summary>
+        /// Version where support was added for RYOW consistency.
+        /// </summary>
+        public static readonly Version ReadYourOwnWrite = new Version(4, 5, 0);
     }
 }

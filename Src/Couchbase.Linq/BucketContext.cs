@@ -7,10 +7,12 @@ using System.Reflection;
 using System.Threading;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.Core.Buckets;
 using Couchbase.Linq.Filters;
 using Couchbase.Linq.Metadata;
 using Couchbase.Linq.Proxies;
 using Couchbase.Linq.Utils;
+using Couchbase.N1QL;
 using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq
@@ -108,6 +110,8 @@ namespace Couchbase.Linq
                 {
                     throw new CouchbaseWriteException(result);
                 }
+
+                AddToMutationState(result.Token);
             }
         }
 
@@ -135,6 +139,8 @@ namespace Couchbase.Linq
                 {
                     throw new CouchbaseWriteException(result);
                 }
+
+                AddToMutationState(result.Token);
             }
         }
 
@@ -148,7 +154,7 @@ namespace Couchbase.Linq
         /// <exception cref="KeyAttributeMissingException">The document document key could not be found.</exception>
         /// <exception cref="AmbiguousMatchException">More than one of the requested attributes was found.</exception>
         /// <exception cref="TypeLoadException">A custom attribute type cannot be loaded.</exception>
-        internal string GetDocumentId<T>(T document)
+        internal virtual string GetDocumentId<T>(T document)
         {
             var type = document.GetType();
 
@@ -237,6 +243,8 @@ namespace Couchbase.Linq
                             {
                                 throw new CouchbaseWriteException(result);
                             }
+
+                            AddToMutationState(result.Token);
                         }
                         else if (doc != null && doc.IsDirty)
                         {
@@ -250,9 +258,17 @@ namespace Couchbase.Linq
                             {
                                 result = _bucket.Upsert(modified.Key, modified.Value);
                             }
-                            if (result != null && !result.Success)
+
+                            if (result != null)
                             {
-                                throw new CouchbaseWriteException(result);
+                                if (!result.Success)
+                                {
+                                    throw new CouchbaseWriteException(result);
+                                }
+                                else
+                                {
+                                    AddToMutationState(result.Token);
+                                }
                             }
                         }
                     }
@@ -263,6 +279,8 @@ namespace Couchbase.Linq
                 }
             }
         }
+
+        #region IChangeTrackableContext
 
         /// <summary>
         /// Adds a document to the list of tracked documents if change tracking is enabled.
@@ -335,6 +353,67 @@ namespace Couchbase.Linq
                 _modified.AddOrUpdate(((DocumentNode)mutatedDocument).Metadata.Id, document, (k, v) => document);
             }
         }
+
+        #endregion
+
+        #region IMutationStateProvider
+
+        /// <summary>
+        /// The current <see cref="N1QL.MutationState"/>.  May return null if there
+        /// have been no mutations.
+        /// </summary>
+        /// <remarks>
+        /// This value is updated as mutations are applied via <see cref="Save{T}"/>.  It may be used
+        /// to enable read-your-own-write by passing the value to <see cref="Extensions.QueryExtensions.ConsistentWith{T}"/>.
+        /// If you are using change tracking, this value won't be valid until after a call to <see cref="SubmitChanges"/>.
+        /// This function is only supported on Couchbase Server 4.5 or later.
+        /// </remarks>
+        public MutationState MutationState { get; private set; }
+
+        /// <summary>
+        /// Resets the <see cref="MutationState"/> to start a new set of mutations.
+        /// </summary>
+        /// <remarks>
+        /// If you are using an <see cref="BucketContext"/> over and extended period of time,
+        /// performing a reset regularly is recommend.  This will help keep the size of the
+        /// <see cref="MutationState"/> to a minimum.
+        /// </remarks>
+        public void ResetMutationState()
+        {
+            MutationState = null;
+        }
+
+        internal virtual void AddToMutationState(MutationToken token)
+        {
+            if ((token == null) || (token.VBucketId < 0))
+            {
+                // No token was returned, so don't add to the mutation state
+                return;
+            }
+
+            if (MutationState == null)
+            {
+                MutationState = new MutationState();
+            }
+
+            MutationState.Add(new TempDocument()
+            {
+                Token = token
+            });
+        }
+
+        /// <summary>
+        /// Provides a temporary, faked IDocument to return a Token for adding to MutationState
+        /// </summary>
+        private class TempDocument : IDocument
+        {
+            public string Id { get; set; }
+            public ulong Cas { get; set; }
+            public uint Expiry { get; set; }
+            public MutationToken Token { get; set; }
+        }
+
+        #endregion
     }
 }
 

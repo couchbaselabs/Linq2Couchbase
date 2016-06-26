@@ -42,6 +42,10 @@ namespace Couchbase.Linq.UnitTests
             _test = test;
         }
 
+        public void ConsistentWith(MutationState state)
+        {
+        }
+
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
             _query = ExecuteCollection(queryModel);

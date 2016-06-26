@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Common.Logging;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.Core.Buckets;
 using Couchbase.Core.Serialization;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration;
@@ -45,10 +46,12 @@ namespace Couchbase.Linq.Execution
         public ScanConsistency? ScanConsistency { get; set; }
 
         /// <summary>
-        /// Specifies the maximum time the client is willing to wait for an index to catch up to the vector timestamp in the request.
+        /// Specifies the maximum time the client is willing to wait for an index to catch up to the consistency requirement in the request.
         /// If an index has to catch up, and the time is exceed doing so, an error is returned.
         /// </summary>
         public TimeSpan? ScanWait { get; set; }
+
+        public MutationState MutationState { get; private set; }
 
         /// <summary>
         /// Creates a new BucketQueryExecutor.
@@ -61,6 +64,26 @@ namespace Couchbase.Linq.Execution
             _bucket = bucket;
             _configuration = configuration;
             _bucketContext = bucketContext;
+        }
+
+        /// <summary>
+        /// Requires that the indexes but up to date with a <see cref="N1QL.MutationState"/> before the query is executed.
+        /// </summary>
+        /// <param name="state"><see cref="N1QL.MutationState"/> used for conistency controls.</param>
+        /// <remarks>If called multiple times, the states from the calls are combined.</remarks>
+        public void ConsistentWith(MutationState state)
+        {
+            if (state == null)
+            {
+                return;
+            }
+
+            if (MutationState == null)
+            {
+                MutationState = new MutationState();
+            }
+
+            MutationState.Add(state);
         }
 
         /// <summary>
@@ -95,6 +118,10 @@ namespace Couchbase.Linq.Execution
             if (ScanWait.HasValue)
             {
                 queryRequest.ScanWait(ScanWait.Value);
+            }
+            if (MutationState != null)
+            {
+                queryRequest.ConsistentWith(MutationState);
             }
         }
 

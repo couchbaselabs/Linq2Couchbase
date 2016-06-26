@@ -14,7 +14,8 @@ namespace Couchbase.Linq.IntegrationTests
         private static ClientConfiguration DefaultLocalhostConfig()
         {
             var section = (CouchbaseClientSection)ConfigurationManager.GetSection("couchbaseClients/couchbase");
-            return new ClientConfiguration(section);
+            var config = new ClientConfiguration(section);
+            return config;
         }
     }
 }
