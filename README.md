@@ -50,6 +50,7 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 - [Working With Enumerations](docs/enum.md)
 - [Asynchronous Queries](docs/async-queries.md)
 - [Custom JSON Serializers](docs/custom-serializers.md)
+- [Using Read Your Own Write (RYOW) Consistency](docs/ryow.md)
 - [Change Tracking (Experimental Developer Preview)](docs/change-tracking.md)
 
 ##Building From Source##
