@@ -153,6 +153,45 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void Map2PocoTests_Simple_Projections_StartsWith()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var beers = from b in context.Query<Beer>()
+                        where b.Type == "beer" && b.Name.StartsWith("563")
+                        select new { name = b.Name, abv = b.Abv };
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("{0} has {1} ABV", b.name, b.abv);
+            }
+        }
+
+        [Test]
+        public void Map2PocoTests_Simple_Projections_EndsWithExpression()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            // This query is not useful, but tests more advanced string contains use cases
+            var beers = from b in context.Query<Beer>()
+                        where b.Type == "beer" && b.Name.EndsWith(b.Name.Substring(b.Name.Length - 3))
+                        select new { name = b.Name, abv = b.Abv };
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("{0} has {1} ABV", b.name, b.abv);
+            }
+        }
+
+        [Test]
         public void Map2PocoTests_Simple_Projections_Limit()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");

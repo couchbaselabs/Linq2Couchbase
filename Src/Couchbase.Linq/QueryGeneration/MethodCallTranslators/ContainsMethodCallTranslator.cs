@@ -10,8 +10,15 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
     internal class ContainsMethodCallTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo[] SupportedMethodsStatic = {
-            typeof (string).GetMethod("Contains")
+        private const string Contains = "Contains";
+        private const string StartsWith = "StartsWith";
+        private const string EndsWith = "EndsWith";
+
+        private static readonly MethodInfo[] SupportedMethodsStatic =
+        {
+            typeof(string).GetMethod(Contains, new[] {typeof(string)}),
+            typeof(string).GetMethod(StartsWith, new[] {typeof(string)}),
+            typeof(string).GetMethod(EndsWith, new[] {typeof(string)})
         };
 
         public IEnumerable<MethodInfo> SupportMethods
@@ -28,24 +35,48 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             {
                 throw new ArgumentNullException("methodCallExpression");
             }
+            if (expressionTreeVisitor == null)
+            {
+                throw new ArgumentNullException("expressionTreeVisitor");
+            }
 
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("(");
             expressionTreeVisitor.Visit(methodCallExpression.Object);
-            expression.Append(" LIKE '%");
+            expression.Append(" LIKE ");
 
-            var indexInsertStarted = expression.Length;
+            var constantExpression = methodCallExpression.Arguments[0] as ConstantExpression;
+            if ((constantExpression != null) && (constantExpression.Type == typeof(string)) &&
+                (constantExpression.Value != null))
+            {
+                // This is a string constant, so we can build the literal in advance
 
-            expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
+                var newExpression = Expression.Constant(
+                    (methodCallExpression.Method.Name != StartsWith ? "%" : "") +
+                    constantExpression.Value +
+                    (methodCallExpression.Method.Name != EndsWith ? "%" : ""));
 
-            var indexInsertEnded = expression.Length;
+                expressionTreeVisitor.Visit(newExpression);
+            }
+            else
+            {
+                // The argument is dynamic, so we must build the comparison in N1QL
 
-            expression.Append("%')");
+                if (methodCallExpression.Method.Name != StartsWith)
+                {
+                    expression.Append("'%' || ");
+                }
 
-            //Remove extra quote marks which have been added due to the string in the clause, these aren't needed as they have been added already in this case.
-            expression.Remove(indexInsertStarted, 1);
-            expression.Remove(indexInsertEnded - 2, 1);
+                expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
+
+                if (methodCallExpression.Method.Name != EndsWith)
+                {
+                    expression.Append(" || '%'");
+                }
+            }
+
+            expression.Append(')');
 
             return methodCallExpression;
         }

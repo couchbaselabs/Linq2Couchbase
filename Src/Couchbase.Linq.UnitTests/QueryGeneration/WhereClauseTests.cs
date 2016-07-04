@@ -72,6 +72,44 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_Where_With_StartsWith()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Where(e => e.Age > 10 && e.FirstName == "Sam" && e.LastName.StartsWith("a"))
+                    .Select(e => new { age = e.Age, name = e.FirstName });
+
+            const string expected =
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) AND (`Extent1`.`lname` LIKE 'a%'))";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Where_With_EndsWith()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Where(e => e.Age > 10 && e.FirstName == "Sam" && e.LastName.EndsWith("a"))
+                    .Select(e => new { age = e.Age, name = e.FirstName });
+
+            const string expected =
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) AND (`Extent1`.`lname` LIKE '%a'))";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_Where()
         {
             var mockBucket = new Mock<IBucket>();

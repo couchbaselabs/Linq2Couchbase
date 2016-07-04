@@ -121,6 +121,7 @@
     <Compile Include="Proxies\DocumentProxyTests.cs" />
     <Compile Include="QueryGeneration\LinqQueryRequestTests.cs" />
     <Compile Include="QueryGeneration\MethodCallTranslators\KeyMethodCallTranslatorTests.cs" />
+    <Compile Include="QueryGeneration\MethodCallTranslators\ContainsMethodCallTranslatorTests.cs" />
     <Compile Include="QueryGeneration\SelectDocumentMetadataTests.cs" />
     <Compile Include="QueryGeneration\UnionTests.cs" />
     <Compile Include="QueryGeneration\ArrayOperatorTests.cs" />
