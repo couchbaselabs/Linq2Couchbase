@@ -12,7 +12,7 @@ using NUnit.Framework;
 namespace Couchbase.Linq.IntegrationTests
 {
     [TestFixture]
-    public class QueryTests
+    public class QueryTests : N1QlTestBase
     {
         [SetUp]
         public void TestSetUp()
@@ -369,6 +369,33 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void UseIndex_SelectDocuments()
+        {
+            // This test simply confirms that the USE INDEX clause generated is valid N1QL.  There's not much point
+            // in the actual USE INDEX clause itself in this query, since the index isn't used in the predicate.
+            // In a real world query, this should be a specific index helpful to the query.
+
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            EnsureIndexExists(bucket, "brewery_id", "brewery_id");
+
+            var context = new BucketContext(bucket);
+
+            var query =
+                from brewery in
+                    context.Query<Brewery>().UseIndex("brewery_id")
+                select new { name = brewery.Name };
+
+            var results = query.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var brewery in results)
+            {
+                Console.WriteLine("Brewery {0}", brewery.name);
+            }
+        }
+
+        [Test]
         public void AnyAllTests_AnyNestedArrayWithFilter()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
@@ -625,10 +652,9 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_InnerJoin_IndexJoin()
         {
-            // To make required index:
-            // CREATE INDEX brewery_id ON `beer-sample` (brewery_id)
-
             var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            EnsureIndexExists(bucket, "brewery_id", "brewery_id");
 
             var clusterVersion = VersionProvider.Current.GetVersion(bucket);
             if (clusterVersion < FeatureVersions.IndexJoin)
@@ -723,10 +749,9 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_LeftJoin_IndexJoin()
         {
-            // To make required index:
-            // CREATE INDEX brewery_id ON `beer-sample` (brewery_id)
-
             var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            EnsureIndexExists(bucket, "brewery_id", "brewery_id");
 
             var clusterVersion = VersionProvider.Current.GetVersion(bucket);
             if (clusterVersion < FeatureVersions.IndexJoin)
@@ -794,10 +819,9 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NestTests_Nest_IndexJoin()
         {
-            // To make required index:
-            // CREATE INDEX brewery_id ON `beer-sample` (brewery_id)
-
             var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            EnsureIndexExists(bucket, "brewery_id", "brewery_id");
 
             var clusterVersion = VersionProvider.Current.GetVersion(bucket);
             if (clusterVersion < FeatureVersions.IndexJoin)
@@ -827,10 +851,9 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NestTests_Nest_IndexJoinPrefiltered()
         {
-            // To make required index:
-            // CREATE INDEX brewery_id ON `beer-sample` (brewery_id)
-
             var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            EnsureIndexExists(bucket, "brewery_id", "brewery_id");
 
             var clusterVersion = VersionProvider.Current.GetVersion(bucket);
             if (clusterVersion < FeatureVersions.IndexJoin)

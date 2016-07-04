@@ -267,6 +267,26 @@ namespace Couchbase.Linq.QueryGeneration
             _queryPartsAggregator.AddUseKeysPart(GetN1QlExpression(clause.Keys));
         }
 
+        public virtual void VisitUseIndexClause(UseIndexClause clause, QueryModel queryModel, int index)
+        {
+            if (_queryPartsAggregator.UseIndexPart != null)
+            {
+                throw new NotSupportedException("Only one UseIndex clause is allowed per query.");
+            }
+
+            var indexType = clause.IndexType.ToString().ToUpper();
+            if (!N1QlHelpers.IsValidKeyword(indexType))
+            {
+                throw new InvalidOperationException("Invalid index type for the UseIndex clause");
+            }
+
+            _queryPartsAggregator.UseIndexPart = new N1QlUseIndexPart()
+            {
+                IndexName = N1QlHelpers.EscapeIdentifier(clause.IndexName),
+                IndexType = indexType
+            };
+        }
+
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
         {
             if (_queryPartsAggregator.QueryType == N1QlQueryType.SubqueryAny)

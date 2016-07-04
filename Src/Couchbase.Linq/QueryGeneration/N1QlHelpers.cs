@@ -35,5 +35,31 @@ namespace Couchbase.Linq.QueryGeneration
             return string.Concat("`", identifier, "`");
         }
 
+        /// <summary>
+        /// Checks to see if the identifier may be a valid keyword.
+        /// </summary>
+        /// <param name="identifier">Identifier to check.</param>
+        /// <returns>True if the identifier may be a valid keyword.</returns>
+        /// <remarks>This method doesn't guarantee that they identifier is a currently known N1QL keyword, as this list
+        /// may change over time.  It merely confirms that it is formatted as a plain string of alphabetic characters which
+        /// may be a single keyword.  This provides security control against N1QL injection attacks where a single keyword
+        /// is known to be safe but additional characters could be malicious.</remarks>
+        public static bool IsValidKeyword(string identifier)
+        {
+            if (string.IsNullOrWhiteSpace(identifier))
+            {
+                return false;
+            }
+
+            for (var i = 0; i < identifier.Length; i++)
+            {
+                if (!char.IsLetter(identifier, i))
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
     }
 }

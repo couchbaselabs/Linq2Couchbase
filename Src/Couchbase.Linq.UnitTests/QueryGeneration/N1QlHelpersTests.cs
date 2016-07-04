@@ -33,5 +33,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             Assert.Throws<ArgumentNullException>(() => N1QlHelpers.EscapeIdentifier(null));
         }
 
+        [TestCase("index")]
+        [TestCase("INDEX")]
+        public void IsValidKeyword_ReturnsTrue(string identifier)
+        {
+            var result = N1QlHelpers.IsValidKeyword(identifier);
+
+            Assert.IsTrue(result);
+        }
+
+        [TestCase(null)]
+        [TestCase("")]
+        [TestCase("ABC1")]
+        [TestCase("a-b")]
+        [TestCase("`ABC`")]
+        [TestCase("/*ABC*/")]
+        [TestCase("TWO WORDS")]
+        public void IsValidKeyword_ReturnsFalse(string identifier)
+        {
+            var result = N1QlHelpers.IsValidKeyword(identifier);
+
+            Assert.IsFalse(result);
+        }
     }
 }

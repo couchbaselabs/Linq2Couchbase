@@ -93,6 +93,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Clauses\UseIndexClause.cs" />
+    <Compile Include="Clauses\UseIndexExpressionNode.cs" />
     <Compile Include="IChangeTrackableContext.cs" />
     <Compile Include="Clauses\UseKeysExpressionNode.cs" />
     <Compile Include="Clauses\UseKeysClause.cs" />
@@ -105,6 +107,7 @@
     <Compile Include="Execution\IBucketQueryExecutor.cs" />
     <Compile Include="Execution\IBucketQueryExecutorProvider.cs" />
     <Compile Include="KeyAttributeMissingException.cs" />
+    <Compile Include="N1QlIndexType.cs" />
     <Compile Include="N1QlDatePart.cs" />
     <Compile Include="N1QlFunctions.Core.cs" />
     <Compile Include="N1QlFunctions.DateTime.cs" />
@@ -185,6 +188,7 @@
     <Compile Include="QueryGeneration\N1QlQueryGenerationContext.cs" />
     <Compile Include="QueryGeneration\N1QLQueryModelVisitor.cs" />
     <Compile Include="QueryGeneration\N1QLQueryType.cs" />
+    <Compile Include="QueryGeneration\N1QlUseIndexPart.cs" />
     <Compile Include="QueryGeneration\NamedParameter.cs" />
     <Compile Include="QueryGeneration\ParameterAggregator.cs" />
     <Compile Include="QueryGeneration\QueryPartsAggregator.cs" />

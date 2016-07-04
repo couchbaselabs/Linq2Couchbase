@@ -14,5 +14,7 @@ namespace Couchbase.Linq.QueryGeneration
         void VisitNestClause(NestClause clause, QueryModel queryModel, int index);
 
         void VisitUseKeysClause(UseKeysClause clause, QueryModel queryModel, int index);
+
+        void VisitUseIndexClause(UseIndexClause clause, QueryModel queryModel, int index);
     }
 }

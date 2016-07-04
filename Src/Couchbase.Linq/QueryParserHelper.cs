@@ -27,6 +27,10 @@ namespace Couchbase.Linq
             customNodeTypeRegistry.Register(UseKeysExpressionNode.SupportedMethods,
                 typeof(UseKeysExpressionNode));
 
+            //register the "UseIndex" expression node parser
+            customNodeTypeRegistry.Register(UseIndexExpressionNode.SupportedMethods,
+                typeof(UseIndexExpressionNode));
+
             //register the "ToQueryRequest" expression node parser
             customNodeTypeRegistry.Register(ToQueryRequestExpressionNode.SupportedMethods,
                 typeof(ToQueryRequestExpressionNode));

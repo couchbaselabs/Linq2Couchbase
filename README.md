@@ -41,6 +41,7 @@ NuGet will install the package and all dependencies. Once you have the resolved 
 - [Array Filtering, Projections, and Sorting](docs/array-filtering-projections.md)
 - [Grouping and Aggregation](docs/grouping-aggregation.md)
 - [The UseKeys Method](docs/use-keys.md)
+- [The UseIndex Method](docs/use-index.md)
 - [JOINing Documents](docs/joins.md)
 - [NESTing Documents](docs/nest.md)
 - [UNNESTing Documents](docs/unnest.md)
