@@ -246,6 +246,50 @@ namespace Couchbase.Linq.Extensions
             return source.Provider.Execute<dynamic>(newExpression);
         }
 
+        #region Use Index
+
+        /// <summary>
+        /// Provides an index hint to the query engine.
+        /// </summary>
+        /// <typeparam name="T">Type of items being queried.</typeparam>
+        /// <param name="source">Items being queried.</param>
+        /// <param name="indexName">Name of the index to use.</param>
+        /// <returns>Modified IQueryable</returns>
+        public static IQueryable<T> UseIndex<T>(this IQueryable<T> source, string indexName)
+        {
+            return source.UseIndex(indexName, N1QlIndexType.Gsi);
+        }
+
+        /// <summary>
+        /// Provides an index hint to the query engine.
+        /// </summary>
+        /// <typeparam name="T">Type of items being queried.</typeparam>
+        /// <param name="source">Items being queried.</param>
+        /// <param name="indexName">Name of the index to use.</param>
+        /// <param name="indexType">Type of the index to use.</param>
+        /// <returns>Modified IQueryable</returns>
+        public static IQueryable<T> UseIndex<T>(this IQueryable<T> source, string indexName, N1QlIndexType indexType)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (!Enum.IsDefined(typeof(N1QlIndexType), indexType))
+            {
+                throw new ArgumentOutOfRangeException("indexType");
+            }
+
+            return source.Provider.CreateQuery<T>(
+                    Expression.Call(
+                        ((MethodInfo)MethodBase.GetCurrentMethod())
+                            .MakeGenericMethod(typeof(T)),
+                        source.Expression,
+                        Expression.Constant(indexName),
+                        Expression.Constant(indexType)));
+        }
+
+        #endregion
+
         #region Async
 
         /// <summary>

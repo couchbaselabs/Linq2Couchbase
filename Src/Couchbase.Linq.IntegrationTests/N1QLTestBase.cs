@@ -1,53 +1,50 @@
 ﻿using System;
+using System.Configuration;
 using System.Linq;
-using System.Linq.Expressions;
-using Couchbase.Configuration.Client;
 using Couchbase.Core;
-using Couchbase.Linq.QueryGeneration;
-using Moq;
-using Newtonsoft.Json.Serialization;
-using Remotion.Linq;
+using Couchbase.Management;
+using NUnit.Framework;
 
 namespace Couchbase.Linq.IntegrationTests
 {
-// ReSharper disable once InconsistentNaming
-    public class N1QLTestBase
+    public class N1QlTestBase
     {
-        private IContractResolver _contractResolver = new DefaultContractResolver();
-        public IContractResolver ContractResolver
+        public IBucketManager GetBucketManager(IBucket bucket)
         {
-            get { return _contractResolver; }
+            return bucket.CreateManager(ConfigurationManager.AppSettings["adminusername"],
+                ConfigurationManager.AppSettings["adminpassword"]);
         }
 
-        public N1QLTestBase()
+        public void EnsureIndexExists(IBucket bucket, string indexName, params string[] fields)
         {
-            InitializeCluster();
-        }
+            var manager = GetBucketManager(bucket);
 
-        protected void InitializeCluster(IContractResolver contractResolver = null)
-        {
-            if (contractResolver != null)
+            var indexes = manager.ListN1qlIndexes();
+            Assert.True(indexes.Success);
+
+            if (indexes.All(p => p.Name != indexName))
             {
-                _contractResolver = contractResolver;
-            }
+                // We need to create the index
 
-            var config = TestConfigurations.DefaultConfig();
-#pragma warning disable CS0618 // Type or member is obsolete
-            config.DeserializationSettings.ContractResolver = _contractResolver;
-            config.SerializationSettings.ContractResolver = _contractResolver;
-#pragma warning restore CS0618 // Type or member is obsolete
-            ClusterHelper.Initialize(config);
+                var result = manager.CreateN1qlIndex(indexName, false, fields);
+                Assert.True(result.Success);
+            }
         }
 
-        protected void SetContractResolver(IContractResolver contractResolver)
+        public void EnsurePrimaryIndexExists(IBucket bucket)
         {
-            _contractResolver = contractResolver;
+            var manager = GetBucketManager(bucket);
 
-            var cluster = ClusterHelper.Get();
-#pragma warning disable CS0618 // Type or member is obsolete
-            cluster.Configuration.DeserializationSettings.ContractResolver = contractResolver;
-            cluster.Configuration.SerializationSettings.ContractResolver = contractResolver;
-#pragma warning restore CS0618 // Type or member is obsolete
+            var indexes = manager.ListN1qlIndexes();
+            Assert.True(indexes.Success);
+
+            if (indexes.All(p => !p.IsPrimary))
+            {
+                // We need to create the index
+
+                var result = manager.CreateN1qlPrimaryIndex(false);
+                Assert.True(result.Success);
+            }
         }
     }
 }

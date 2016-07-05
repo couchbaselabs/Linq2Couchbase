@@ -78,5 +78,73 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public void Test_Select_UseIndex()
+        {
+            // ReSharper disable once UnusedVariable
+            var temp = CreateQueryable<Contact>("default")
+                    .UseIndex("IndexName")
+                    .Where(e => e.Type == "contact")
+                    .ToArray();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "SELECT `Extent1`.* " +
+                "FROM `default` as `Extent1` USE INDEX (`IndexName` USING GSI) " +
+                "WHERE (`Extent1`.`type` = 'contact')";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Select_UseIndexWithType()
+        {
+            // ReSharper disable once UnusedVariable
+            var temp = CreateQueryable<Contact>("default")
+                    .UseIndex("IndexName", N1QlIndexType.View)
+                    .Where(e => e.Type == "contact")
+                    .ToArray();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "SELECT `Extent1`.* " +
+                "FROM `default` as `Extent1` USE INDEX (`IndexName` USING VIEW) " +
+                "WHERE (`Extent1`.`type` = 'contact')";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Select_UseIndex_Any()
+        {
+            // ReSharper disable once UnusedVariable
+            var temp = CreateQueryable<Contact>("default")
+                    .UseIndex("IndexName")
+                    .Any(e => e.Type == "contact");
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "SELECT true as result " +
+                "FROM `default` as `Extent1` USE INDEX (`IndexName` USING GSI) " +
+                "WHERE (`Extent1`.`type` = 'contact') " +
+                "LIMIT 1";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Select_UseIndexWithType_Any()
+        {
+            // ReSharper disable once UnusedVariable
+            var query = CreateQueryable<Contact>("default")
+                    .UseIndex("IndexName", N1QlIndexType.View)
+                    .Any(e => e.Type == "contact");
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "SELECT true as result " +
+                "FROM `default` as `Extent1` USE INDEX (`IndexName` USING VIEW) " +
+                "WHERE (`Extent1`.`type` = 'contact') " +
+                "LIMIT 1";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
     }
 }
