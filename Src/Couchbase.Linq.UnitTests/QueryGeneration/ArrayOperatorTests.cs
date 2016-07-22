@@ -6,6 +6,7 @@ using Couchbase.Linq.UnitTests.Documents;
 using Moq;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
+using Couchbase.Linq.Extensions;
 
 namespace Couchbase.Linq.UnitTests.QueryGeneration
 {
@@ -32,6 +33,26 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_ArrayAnyWithExtentName()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<DocumentWithArray>(mockBucket.Object)
+                    .Where(e => e.Array.AsQueryable("ExtentName").Any(p => p == "abc"));
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` " +
+                "WHERE ANY `ExtentName` IN `Extent1`.`Array` SATISFIES (`ExtentName` = 'abc') END";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_ListContains()
         {
             SetContractResolver(new DefaultContractResolver());
@@ -44,6 +65,26 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Where(e => e.List.Contains("abc"));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE 'abc' IN (`Extent1`.`List`)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ListAnyWithExtentName()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<DocumentWithIList>(mockBucket.Object)
+                    .Where(e => e.List.AsQueryable("ExtentName").Any(p => p == "abc"));
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` " +
+                "WHERE ANY `ExtentName` IN `Extent1`.`List` SATISFIES (`ExtentName` = 'abc') END";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

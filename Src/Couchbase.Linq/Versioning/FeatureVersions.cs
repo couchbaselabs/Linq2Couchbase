@@ -21,5 +21,10 @@ namespace Couchbase.Linq.Versioning
         /// Version where support was added for RYOW consistency.
         /// </summary>
         public static readonly Version ReadYourOwnWrite = new Version(4, 5, 0);
+
+        /// <summary>
+        /// Version where support was added for array indexes.
+        /// </summary>
+        public static readonly Version ArrayIndexes = new Version(4, 5, 0);
     }
 }
