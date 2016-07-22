@@ -94,6 +94,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Clauses\UseIndexClause.cs" />
+    <Compile Include="Clauses\ExtentNameExpressionNode.cs" />
     <Compile Include="Clauses\UseIndexExpressionNode.cs" />
     <Compile Include="IChangeTrackableContext.cs" />
     <Compile Include="Clauses\UseKeysExpressionNode.cs" />

@@ -105,6 +105,25 @@ namespace Couchbase.Linq.QueryGeneration
             _extentDictionary[querySource] = "";
         }
 
+        public void SetExtentName(IQuerySource querySource, string extentName)
+        {
+            if (querySource == null)
+            {
+                throw new ArgumentNullException("extentName");
+            }
+            if (string.IsNullOrEmpty(extentName))
+            {
+                return;
+            }
+
+            if (_extentDictionary.ContainsKey(querySource))
+            {
+                throw new InvalidOperationException("Cannot set the extent name on a query source which already has a name.");
+            }
+
+            _extentDictionary[querySource] = N1QlHelpers.EscapeIdentifier(extentName);
+        }
+
         /// <summary>
         /// Change the extent name of a query source to a newly generated name, replacing any previously generated name.
         /// </summary>

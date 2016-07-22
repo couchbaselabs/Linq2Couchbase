@@ -157,5 +157,33 @@ namespace Couchbase.Linq.Extensions
 
         #endregion
 
+        #region AsQueryable
+
+        /// <summary>
+        /// Converts a nested array into a queryable array, specifying the extent name to use in the generated N1QL query.
+        /// This may be important to ensure that array indexes are used for query optimization.
+        /// </summary>
+        /// <typeparam name="T">Type of items being queried.</typeparam>
+        /// <param name="source">Items being queried.</param>
+        /// <param name="extentName">Name of the extent to use.</param>
+        /// <returns></returns>
+        public static IQueryable<T> AsQueryable<T>(this IEnumerable<T> source, string extentName)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+
+            var queryable = source.AsQueryable();
+
+            return queryable.Provider.CreateQuery<T>(
+                Expression.Call(
+                    ((MethodInfo)MethodBase.GetCurrentMethod())
+                        .MakeGenericMethod(typeof(T)),
+                    queryable.Expression,
+                    Expression.Constant(extentName)));
+        }
+
+        #endregion
     }
 }
