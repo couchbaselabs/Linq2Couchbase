@@ -27,6 +27,27 @@ Once you have a Couchbase Server 4.0 instance or cluster setup, open Visual Stud
 
 NuGet will install the package and all dependencies. Once you have the resolved the dependencies, you will initialize a ClusterHelper object which will manage the bucket resources needed by the Linq provider.
 
+## Quick Start ##
+Query the 'travel-sample' bucket and return 10 airlines in any order:
+
+    ClusterHelper.Initialize(new ClientConfiguration
+    {
+         Servers = new List<Uri> {new Uri("http://localhost:8091/")}
+    });
+
+    var context = new BucketContext(ClusterHelper.GetBucket("travel-sample"));
+    var query = (from a in context.Query<AirLine>()
+			     where a.Country == "United Kingdom"
+			     select a).
+			     Take(10);
+
+    query.ToList().ForEach(Console.WriteLine);
+    ClusterHelper.Close();
+
+Full code list available [here](https://gist.github.com/jeffrymorris/c3bf85d73a1e7dfcc5f25f4e581d689a "Linq2Couchbase quick start!").
+
+
+
 ##Developer Guide##
 
 - [The BucketContext: how to use with ASP.NET and Owin/Katana applications](docs/bucket-context.md)
