@@ -138,7 +138,7 @@ namespace Couchbase.Linq.Execution
             if (generateProxies)
             {
                 // Proxy generation was requested, and the
-                queryRequest.DataMapper = new Proxies.DocumentProxyDataMapper(_configuration, (IChangeTrackableContext)_bucketContext);
+                queryRequest.DataMapper = new Proxies.DocumentProxyDataMapper<T>(_configuration, (IChangeTrackableContext)_bucketContext);
             }
 
             if (queryModel.ResultOperators.Any(p => p is ToQueryRequestResultOperator))

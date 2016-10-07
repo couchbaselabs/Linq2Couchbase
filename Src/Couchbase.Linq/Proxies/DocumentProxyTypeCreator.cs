@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,6 +17,9 @@ namespace Couchbase.Linq.Proxies
     /// </summary>
     internal class DocumentProxyTypeCreator : ICustomObjectCreator
     {
+        private static readonly Assembly Mscorlib = Assembly.GetAssembly(typeof(string));
+        private static readonly Assembly Couchbase = Assembly.GetAssembly(typeof(Couchbase.Core.IBucket));
+
         public bool CanCreateObject(Type type)
         {
             if (type == null)
@@ -36,22 +40,14 @@ namespace Couchbase.Linq.Proxies
             }
 
             var interfaces = type.GetInterfaces();
-
-            if (interfaces.Any(p => p.IsGenericType && (p.GetGenericTypeDefinition() == typeof(IQueryResult<>))))
-            {
-                // Don't proxy the QueryResult<T> object
-
-                return false;
-            }
-
             if (interfaces.Any(p => p.UnderlyingSystemType == typeof (IBucketContext)))
             {
                 //don't proxy the context
                 return false;
             }
 
-            // Don't proxy classes from mscorlib, but proxy everything else
-            return type.Assembly.GetName().Name != "mscorlib";
+            // Don't proxy classes from mscorlib or Couchbase SDK, but proxy everything else
+            return type.Assembly != Mscorlib && type.Assembly != Couchbase;
         }
 
         public object CreateObject(Type type)
