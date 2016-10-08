@@ -31,7 +31,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
             // Act/Assert
 
             // ReSharper disable once ObjectCreationAsStatement
-            Assert.Throws<NotSupportedException>(() => new DocumentProxyDataMapper(configuration, new Mock<IChangeTrackableContext>().Object));
+            Assert.Throws<NotSupportedException>(() => new DocumentProxyDataMapper<Document>(configuration, new Mock<IChangeTrackableContext>().Object));
         }
 
         [Test]
@@ -53,7 +53,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
             // Act/Assert
 
             // ReSharper disable once ObjectCreationAsStatement
-            Assert.Throws<NotSupportedException>(() => new DocumentProxyDataMapper(configuration, new Mock<IChangeTrackableContext>().Object));
+            Assert.Throws<NotSupportedException>(() => new DocumentProxyDataMapper<Document>(configuration, new Mock<IChangeTrackableContext>().Object));
         }
 
         [Test]
@@ -66,7 +66,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
                 Serializer = () => new FakeSerializer()
             };
 
-            var dataMapper = new DocumentProxyDataMapper(configuration, new Mock<IChangeTrackableContext>().Object);
+            var dataMapper = new DocumentProxyDataMapper<Document>(configuration, new Mock<IChangeTrackableContext>().Object);
 
             // Act
 
@@ -88,7 +88,7 @@ namespace Couchbase.Linq.UnitTests.Proxies
                 Serializer = () => new FakeSerializer()
             };
 
-            var dataMapper = new DocumentProxyDataMapper(configuration, new Mock<IChangeTrackableContext>().Object);
+            var dataMapper = new DocumentProxyDataMapper<Document>(configuration, new Mock<IChangeTrackableContext>().Object);
 
             // Act
 

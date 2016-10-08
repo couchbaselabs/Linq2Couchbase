@@ -18,7 +18,8 @@ namespace Couchbase.Linq.Proxies
     /// Requires that <see cref="ClientConfiguration.Serializer"/> be an instance of <see cref="IExtendedTypeSerializer"/>.  The serializer
     /// must also support <see cref="SupportedDeserializationOptions.CustomObjectCreator"/>.
     /// </summary>
-    internal class DocumentProxyDataMapper : IDataMapper
+    /// <typeparam name="TRow">Type of data row being proxied</typeparam>
+    internal class DocumentProxyDataMapper<TRow> : IDataMapper
     {
         private readonly IExtendedTypeSerializer _serializer;
         private readonly IChangeTrackableContext _context;
@@ -63,31 +64,27 @@ namespace Couchbase.Linq.Proxies
             // The use of reflection here isn't terribly efficient.  However, for a N1QL query this method will
             // only be called once for a single IQueryResult<T>, so the performance penalty is very negligible.
 
-            var queryResultInterface = typeof (T).GetInterfaces()
-                .FirstOrDefault(p => p.IsGenericType && (p.GetGenericTypeDefinition() == typeof (IQueryResult<>)));
-            if (queryResultInterface != null)
+            // Find a property returning IEnumerable<T>, this will be the rows of the result
+            var property = queryResults.GetType().GetProperties()
+                .FirstOrDefault(p => typeof(IEnumerable<TRow>).IsAssignableFrom(p.PropertyType));
+            if (property != null)
             {
                 // Map was called for an IQueryResult<T> object, so go through all of the rows and call
                 // ITrackedDocumentNode.ClearStatus to indicate that deserialization is complete.
 
-                var methodInfo =
-                    ClearStatusOnQueryRequestRowsMethodInfo.MakeGenericMethod(
-                        queryResultInterface.GenericTypeArguments[0]);
-
-                methodInfo.Invoke(this, new object[] {queryResults, _context});
+                ClearStatusOnQueryRequestRows(
+                    (IEnumerable<TRow>) property.GetMethod.Invoke(queryResults, null),
+                    _context);
             }
 
             return queryResults;
         }
 
-        private static readonly MethodInfo ClearStatusOnQueryRequestRowsMethodInfo =
-            typeof (DocumentProxyDataMapper).GetMethod("ClearStatusOnQueryRequestRows");
-
-        public static void ClearStatusOnQueryRequestRows<T>(IQueryResult<T> result, IChangeTrackableContext context)
+        public static void ClearStatusOnQueryRequestRows(IEnumerable<TRow> rows, IChangeTrackableContext context)
         {
-            if (result.Rows != null)
+            if (rows != null)
             {
-                foreach (var row in result.Rows)
+                foreach (var row in rows)
                 {
                     var status = row as ITrackedDocumentNode;
                     if (status != null)
