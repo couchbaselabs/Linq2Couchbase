@@ -13,6 +13,9 @@ namespace Couchbase.Linq.Utils
         public const string KeyAttributeMissing = "No KeyAttribute could be found for the document. Please " +
                                                   "mark a key property with a KeyAttribute";
 
+        public const string KeyNull = "KeyAttribute marks a property which returned null.  Please " +
+                                      "be sure the key property is non-null.";
+
         public const string QueryExecutionException = "An error occurred executing the N1QL query.  See the " +
                                                       "inner exception for details.";
 

@@ -107,6 +107,7 @@
     <Compile Include="IBucketContext.cs" />
     <Compile Include="Execution\IBucketQueryExecutor.cs" />
     <Compile Include="Execution\IBucketQueryExecutorProvider.cs" />
+    <Compile Include="KeyNullException.cs" />
     <Compile Include="KeyAttributeMissingException.cs" />
     <Compile Include="N1QlIndexType.cs" />
     <Compile Include="N1QlDatePart.cs" />
