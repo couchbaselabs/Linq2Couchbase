@@ -185,7 +185,14 @@ namespace Couchbase.Linq
                         return (string)metadataPi.GetValue(((ITrackedDocumentNode)document).Metadata);
                     }
                     _cachedKeyProperties.TryAdd(type, pi);
-                    return (string)pi.GetValue(document);
+
+                    var value = pi.GetValue(document);
+                    if (value == null)
+                    {
+                        throw new KeyNullException(ExceptionMsgs.KeyNull);
+                    }
+
+                    return value.ToString();
                 }
             }
             throw new KeyAttributeMissingException(ExceptionMsgs.KeyAttributeMissing);

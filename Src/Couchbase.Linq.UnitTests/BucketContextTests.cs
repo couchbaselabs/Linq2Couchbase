@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
@@ -7,6 +8,7 @@ using Couchbase.IO;
 using Couchbase.Linq.Metadata;
 using Couchbase.Linq.Proxies;
 using Couchbase.Linq.UnitTests.Documents;
+using Couchbase.Linq.Utils;
 using Moq;
 using NUnit.Framework;
 
@@ -43,10 +45,40 @@ namespace Couchbase.Linq.UnitTests
         }
 
         [Test]
+        public void GetDocumentId_NonString_ConvertsToString()
+        {
+            //arrange
+            var document = new IntegerIdDocument { Id = 2 };
+            var bucket = new Mock<IBucket>();
+            var ctx = new BucketContext(bucket.Object);
+
+            //act
+            var id = ctx.GetDocumentId(document);
+
+            //assert
+            Assert.AreEqual("2", id);
+        }
+
+        [Test]
+        public void GetDocumentId_NullKey_ThrowsKeyNullException()
+        {
+            //arrange
+            var document = new Beer { Name = null };
+            var bucket = new Mock<IBucket>();
+            var ctx = new BucketContext(bucket.Object);
+
+            //act
+            var ex = Assert.Throws<KeyNullException>(() => ctx.GetDocumentId(document));
+
+            //assert
+            Assert.AreEqual(ExceptionMsgs.KeyNull, ex.Message);
+        }
+
+        [Test]
         public void Save_When_Write_Is_Succesful_Return_Success()
         {
             //arrange
-            var beer = new Beer();
+            var beer = new Beer { Name = "beer1" };
             var bucket = new Mock<IBucket>();
             var result = new Mock<IOperationResult<Beer>>();
             result.Setup(x => x.Status).Returns(ResponseStatus.Success);
@@ -64,7 +96,7 @@ namespace Couchbase.Linq.UnitTests
         public void Save_When_Write_Is_Not_Succesful_Throw_CouchbaseWriteException()
         {
             //arrange
-            var beer = new Beer();
+            var beer = new Beer { Name = "beer1" };
             var bucket = new Mock<IBucket>();
             var result = new Mock<IOperationResult<Beer>>();
             result.Setup(x => x.Success).Returns(false);
@@ -79,7 +111,7 @@ namespace Couchbase.Linq.UnitTests
         public void Remove_When_Write_Is_Not_Succesful_Throw_CouchbaseWriteException()
         {
             //arrange
-            var beer = new Beer();
+            var beer = new Beer { Name = "beer1"};
             var bucket = new Mock<IBucket>();
             var result = new Mock<IOperationResult<Beer>>();
             result.Setup(x => x.Success).Returns(false);
@@ -109,7 +141,7 @@ namespace Couchbase.Linq.UnitTests
         public void Remove_When_Write_Is_Succesful_Return_Success()
         {
             //arrange
-            var beer = new Beer();
+            var beer = new Beer { Name = "beer1" };
             var bucket = new Mock<IBucket>();
             var result = new Mock<IOperationResult<Beer>>();
             result.Setup(x => x.Status).Returns(ResponseStatus.Success);
@@ -743,6 +775,16 @@ namespace Couchbase.Linq.UnitTests
             // Assert
 
             Assert.Null(db.MutationState);
+        }
+
+        #endregion
+
+        #region Helpers
+
+        private class IntegerIdDocument
+        {
+            [Key]
+            public int Id { get; set; }
         }
 
         #endregion
