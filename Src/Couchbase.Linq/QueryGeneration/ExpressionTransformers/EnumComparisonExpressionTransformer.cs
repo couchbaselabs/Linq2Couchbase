@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
@@ -63,12 +64,12 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             var type = convertExpression.Operand.Type;
 
             // If type is Nullable<T>, extract the inner type to see if it is an enumeration
-            if (type.IsGenericType && (type.GetGenericTypeDefinition() == typeof(Nullable<>)))
+            if (type.GetTypeInfo().IsGenericType && (type.GetGenericTypeDefinition() == typeof(Nullable<>)))
             {
                 type = type.GetGenericArguments()[0];
             }
 
-            return type.IsEnum;
+            return type.GetTypeInfo().IsEnum;
         }
 
         private BinaryExpression MakeEnumComparisonExpression(Expression operand, object enumValue,
@@ -78,7 +79,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             var enumType = operand.Type;
 
             // If type is Nullable<T>, the inner type is the enumeration type
-            if (enumType.IsGenericType && (enumType.GetGenericTypeDefinition() == typeof (Nullable<>)))
+            if (enumType.GetTypeInfo().IsGenericType && (enumType.GetGenericTypeDefinition() == typeof (Nullable<>)))
             {
                 enumType = enumType.GetGenericArguments()[0];
                 isNullable = true;

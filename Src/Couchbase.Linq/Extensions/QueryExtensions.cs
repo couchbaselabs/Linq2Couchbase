@@ -84,7 +84,7 @@ namespace Couchbase.Linq.Extensions
             {
                 return outer.Provider.CreateQuery<TResult>(
                     Expression.Call(
-                        ((MethodInfo)MethodBase.GetCurrentMethod())
+                        typeof(QueryExtensions).GetMethod("Nest")
                             .MakeGenericMethod(typeof(TOuter), typeof(TInner), typeof(TResult)),
                         outer.Expression,
                         GetSourceExpression(inner),
@@ -157,7 +157,7 @@ namespace Couchbase.Linq.Extensions
             {
                 return outer.Provider.CreateQuery<TResult>(
                     Expression.Call(
-                        ((MethodInfo)MethodBase.GetCurrentMethod())
+                        typeof(QueryExtensions).GetMethod("LeftOuterNest")
                             .MakeGenericMethod(typeof(TOuter), typeof(TInner), typeof(TResult)),
                         outer.Expression,
                         GetSourceExpression(inner),
@@ -217,7 +217,7 @@ namespace Couchbase.Linq.Extensions
             {
                 return items.Provider.CreateQuery<T>(
                     Expression.Call(
-                        ((MethodInfo)MethodBase.GetCurrentMethod())
+                        typeof(QueryExtensions).GetMethod("UseKeys")
                             .MakeGenericMethod(typeof(T)),
                         items.Expression,
                         GetSourceExpression(keys)));
@@ -240,13 +240,18 @@ namespace Couchbase.Linq.Extensions
             }
 
             var newExpression = Expression.Call(null,
-                ((MethodInfo) MethodBase.GetCurrentMethod()).MakeGenericMethod(typeof (T)),
+                typeof(QueryExtensions).GetMethod("Explain")
+                    .MakeGenericMethod(typeof (T)),
                 source.Expression);
 
             return source.Provider.Execute<dynamic>(newExpression);
         }
 
         #region Use Index
+
+        private static readonly MethodInfo UseIndexMethod =
+            typeof(QueryExtensions).GetMethods()
+            .First(p => p.Name == "UseIndex" && p.GetParameters().Length == 3);
 
         /// <summary>
         /// Provides an index hint to the query engine.
@@ -281,7 +286,7 @@ namespace Couchbase.Linq.Extensions
 
             return source.Provider.CreateQuery<T>(
                     Expression.Call(
-                        ((MethodInfo)MethodBase.GetCurrentMethod())
+                        UseIndexMethod
                             .MakeGenericMethod(typeof(T)),
                         source.Expression,
                         Expression.Constant(indexName),
@@ -339,7 +344,7 @@ namespace Couchbase.Linq.Extensions
         {
             EnsureBucketQueryable(source, "ExecuteAsync", "source");
 
-            if (typeof (TResult).IsGenericTypeDefinition &&
+            if (typeof (TResult).GetTypeInfo().IsGenericTypeDefinition &&
                 (typeof (TResult).GetGenericTypeDefinition() == typeof (IQueryable<>)))
             {
                 throw new ArgumentException("additionalExpression must return a scalar value, not IQueryable.", "additionalExpression");

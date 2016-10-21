@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Couchbase.Annotations;
 using Couchbase.Core.Serialization;
 using Couchbase.Linq.Clauses;
@@ -176,7 +177,7 @@ namespace Couchbase.Linq.QueryGeneration
 
             var bucketConstantExpression = fromClause.FromExpression as ConstantExpression;
             if ((bucketConstantExpression != null) &&
-                typeof(IBucketQueryable).IsAssignableFrom(bucketConstantExpression.Type))
+                typeof(IBucketQueryable).GetTypeInfo().IsAssignableFrom(bucketConstantExpression.Type))
             {
                 if (_isSubQuery && !queryModel.BodyClauses.Any(p => p is UseKeysClause))
                 {

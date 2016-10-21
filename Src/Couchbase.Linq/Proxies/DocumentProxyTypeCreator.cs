@@ -17,8 +17,8 @@ namespace Couchbase.Linq.Proxies
     /// </summary>
     internal class DocumentProxyTypeCreator : ICustomObjectCreator
     {
-        private static readonly Assembly Mscorlib = Assembly.GetAssembly(typeof(string));
-        private static readonly Assembly Couchbase = Assembly.GetAssembly(typeof(Couchbase.Core.IBucket));
+        private static readonly Assembly Mscorlib = typeof(string).GetTypeInfo().Assembly;
+        private static readonly Assembly Couchbase = typeof(Couchbase.Core.IBucket).GetTypeInfo().Assembly;
 
         public bool CanCreateObject(Type type)
         {
@@ -34,20 +34,20 @@ namespace Couchbase.Linq.Proxies
                 return true;
             }
 
-            if (!type.IsClass || type.IsSealed || typeof(Delegate).IsAssignableFrom(type))
+            if (!type.GetTypeInfo().IsClass || type.GetTypeInfo().IsSealed || typeof(Delegate).IsAssignableFrom(type))
             {
                 return false;
             }
 
             var interfaces = type.GetInterfaces();
-            if (interfaces.Any(p => p.UnderlyingSystemType == typeof (IBucketContext)))
+            if (interfaces.Any(p => p.GetTypeInfo().UnderlyingSystemType == typeof (IBucketContext)))
             {
                 //don't proxy the context
                 return false;
             }
 
             // Don't proxy classes from mscorlib or Couchbase SDK, but proxy everything else
-            return type.Assembly != Mscorlib && type.Assembly != Couchbase;
+            return !type.GetTypeInfo().Assembly.Equals(Mscorlib) && !type.GetTypeInfo().Assembly.Equals(Couchbase);
         }
 
         public object CreateObject(Type type)
@@ -97,7 +97,7 @@ namespace Couchbase.Linq.Proxies
 
             // Check to see if the documentType is ICollection<T> or IList<T>, and extract the element type
 
-            if (documentType.IsInterface && documentType.IsGenericType)
+            if (documentType.GetTypeInfo().IsInterface && documentType.GetTypeInfo().IsGenericType)
             {
                 Type genericDefinition = documentType.GetGenericTypeDefinition();
 

@@ -22,11 +22,12 @@ namespace Couchbase.Linq.QueryGeneration
 
         private static Dictionary<MethodInfo, IMethodCallTranslator> CreateDefaultRegistry()
         {
-            var query = Assembly.GetExecutingAssembly()
+            var query = typeof(DefaultMethodCallTranslatorProvider).GetTypeInfo().Assembly
                 .GetTypes()
                 .Where(
                     type =>
-                        type.IsClass && !type.IsAbstract && typeof (IMethodCallTranslator).IsAssignableFrom(type) &&
+                        type.GetTypeInfo().IsClass && !type.GetTypeInfo().IsAbstract &&
+                        typeof (IMethodCallTranslator).IsAssignableFrom(type) &&
                         type.GetConstructor(Type.EmptyTypes) != null)
                 .SelectMany(type =>
                 {
@@ -122,7 +123,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             if ((key.DeclaringType == null) ||
-                (!key.DeclaringType.IsGenericType || key.DeclaringType.IsGenericTypeDefinition))
+                (!key.DeclaringType.GetTypeInfo().IsGenericType || key.DeclaringType.GetTypeInfo().IsGenericTypeDefinition))
             {
                 return null;
             }
@@ -175,14 +176,14 @@ namespace Couchbase.Linq.QueryGeneration
                 throw new ArgumentNullException("key");
             }
 
-            if (key.IsStatic || (key.DeclaringType == null) || (!key.DeclaringType.IsClass))
+            if (key.IsStatic || (key.DeclaringType == null) || (!key.DeclaringType.GetTypeInfo().IsClass))
             {
                 return null;
             }
 
             foreach (var interfaceType in key.DeclaringType.GetInterfaces())
             {
-                var interfaceMap = key.DeclaringType.GetInterfaceMap(interfaceType);
+                var interfaceMap = key.DeclaringType.GetTypeInfo().GetRuntimeInterfaceMap(interfaceType);
 
                 var interfaceMethod = interfaceMap.TargetMethods
                     .Where(p => p == key)

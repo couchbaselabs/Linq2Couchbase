@@ -33,7 +33,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
         {
             // Arrange
 
-            var method = typeof (string).GetMethod("Clone");
+            var method = typeof(string).GetMethod("Substring", new[] {typeof(int)});
 
             // Act/Assert
 

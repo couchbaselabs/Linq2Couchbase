@@ -13,6 +13,8 @@ namespace Couchbase.Linq.QueryGeneration
 {
     internal class N1QlExpressionTreeVisitor : ThrowingExpressionVisitor
     {
+        private static readonly Assembly Mscorlib = typeof(string).GetTypeInfo().Assembly;
+
         private readonly StringBuilder _expression = new StringBuilder();
         public StringBuilder Expression
         {
@@ -498,7 +500,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 _expression.Append(']');
             }
-            else if (namedParameter.Value.GetType().IsEnum)
+            else if (namedParameter.Value.GetType().GetTypeInfo().IsEnum)
             {
                 // Use the type serializer to format the value as JSON.
                 // This allows different serialization converters to work on the value.
@@ -545,7 +547,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitMember(MemberExpression expression)
         {
-            if (expression.Expression.Type.Assembly.GetName().Name == "mscorlib")
+            if (expression.Expression.Type.GetTypeInfo().Assembly.Equals(Mscorlib))
             {
                 // For property getters on the core .Net classes, we don't want to just recurse through the .Net object model
                 // Instead, convert to a MethodCallExpression

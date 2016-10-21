@@ -1,0 +1,7 @@
+{
+  "projects": [
+    "Couchbase.Linq.NetStandard",
+    "Couchbase.Linq.IntegrationTests.NetCore",
+    "Couchbase.Linq.UnitTests.NetCore"
+  ]
+}

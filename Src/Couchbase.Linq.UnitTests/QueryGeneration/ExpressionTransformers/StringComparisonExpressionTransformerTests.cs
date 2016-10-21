@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Linq.QueryGeneration.Expressions;
@@ -23,7 +24,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.ExpressionTransformers
 
             BinaryExpression expression = Expression.LessThan(
                 Expression.Call(
-                    typeof(string).GetMethod("Compare", new[] { typeof(string), typeof(string) }),
+                    typeof(string).GetTypeInfo().GetMethod("Compare", new[] { typeof(string), typeof(string) }),
                     string1,
                     string2
                 ),

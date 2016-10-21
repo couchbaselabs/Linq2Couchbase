@@ -173,8 +173,7 @@ namespace Couchbase.Linq
             var properties = type.GetProperties();
             foreach (var pi in properties)
             {
-                var attribute = (KeyAttribute)Attribute.
-                    GetCustomAttribute(pi, typeof(KeyAttribute));
+                var attribute = pi.GetCustomAttribute<KeyAttribute>();
 
                 if (attribute != null || pi.Name == "Metadata")
                 {

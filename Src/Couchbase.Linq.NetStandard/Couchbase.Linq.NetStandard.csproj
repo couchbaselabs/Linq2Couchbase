@@ -1,0 +1,393 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{32B165DF-B516-4E52-A73C-D8D12AB34067}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Couchbase.Linq</RootNamespace>
+    <AssemblyName>Couchbase.Linq</AssemblyName>
+    <DefaultLanguage>en-US</DefaultLanguage>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{786C830F-07A1-408B-BD7F-6EE04809D6DB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
+    <TargetFrameworkVersion>v5.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\Couchbase.Linq.XML</DocumentationFile>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\Couchbase.Linq\Clauses\UseIndexClause.cs">
+      <Link>Clauses\UseIndexClause.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Clauses\ExtentNameExpressionNode.cs">
+      <Link>Clauses\ExtentNameExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Clauses\UseIndexExpressionNode.cs">
+      <Link>Clauses\UseIndexExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\IChangeTrackableContext.cs">
+      <Link>IChangeTrackableContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Clauses\UseKeysExpressionNode.cs">
+      <Link>Clauses\UseKeysExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Clauses\UseKeysClause.cs">
+      <Link>Clauses\UseKeysClause.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\BucketContext.cs">
+      <Link>BucketContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\CouchbaseQueryException.cs">
+      <Link>CouchbaseQueryException.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\CouchbaseWriteException.cs">
+      <Link>CouchbaseWriteException.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\DocumentNotFoundException.cs">
+      <Link>DocumentNotFoundException.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Extensions\EnumerableExtensions.cs">
+      <Link>Extensions\EnumerableExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\IBucketContext.cs">
+      <Link>IBucketContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Execution\IBucketQueryExecutor.cs">
+      <Link>Execution\IBucketQueryExecutor.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Execution\IBucketQueryExecutorProvider.cs">
+      <Link>Execution\IBucketQueryExecutorProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\KeyNullException.cs">
+      <Link>KeyNullException.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\KeyAttributeMissingException.cs">
+      <Link>KeyAttributeMissingException.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\N1QlIndexType.cs">
+      <Link>N1QlIndexType.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\N1QlDatePart.cs">
+      <Link>N1QlDatePart.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\N1QlFunctions.Core.cs">
+      <Link>N1QlFunctions.Core.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\N1QlFunctions.DateTime.cs">
+      <Link>N1QlFunctions.DateTime.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\N1QlFunctions.Metadata.cs">
+      <Link>N1QlFunctions.Metadata.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Operators\LinqQueryRequestDataInfo.cs">
+      <Link>Operators\LinqQueryRequestDataInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Operators\LinqQueryRequestValue.cs">
+      <Link>Operators\LinqQueryRequestValue.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Operators\ToQueryRequestExpressionNode.cs">
+      <Link>Operators\ToQueryRequestExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Operators\ToQueryRequestResultOperator.cs">
+      <Link>Operators\ToQueryRequestResultOperator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\DocumentCollection.cs">
+      <Link>Proxies\DocumentCollection.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\DocumentNode.cs">
+      <Link>Proxies\DocumentNode.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\DocumentProxyBuilder.cs">
+      <Link>Proxies\DocumentProxyBuilder.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\DocumentProxyGenerator.cs">
+      <Link>Proxies\DocumentProxyGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\DocumentProxyTypeCreator.cs">
+      <Link>Proxies\DocumentProxyTypeCreator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\DocumentProxyDataMapper.cs">
+      <Link>Proxies\DocumentProxyDataMapper.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\DocumentProxyGenerationHook.cs">
+      <Link>Proxies\DocumentProxyGenerationHook.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\DocumentProxyInterceptor.cs">
+      <Link>Proxies\DocumentProxyInterceptor.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\DocumentProxyManager.cs">
+      <Link>Proxies\DocumentProxyManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\ITrackedDocumentNode.cs">
+      <Link>Proxies\ITrackedDocumentNode.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\ITrackedDocumentNodeCallback.cs">
+      <Link>Proxies\ITrackedDocumentNodeCallback.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Proxies\NewDocumentWrapper.cs">
+      <Link>Proxies\NewDocumentWrapper.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\Expressions\StringComparisonExpression.cs">
+      <Link>QueryGeneration\Expressions\StringComparisonExpression.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\ExpressionTransformers\DateTimeComparisonExpressionTransformer.cs">
+      <Link>QueryGeneration\ExpressionTransformers\DateTimeComparisonExpressionTransformer.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\ExpressionTransformers\StringComparisonExpressionTransformer.cs">
+      <Link>QueryGeneration\ExpressionTransformers\StringComparisonExpressionTransformer.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\ExpressionTransformers\EnumComparisonExpressionTransformer.cs">
+      <Link>QueryGeneration\ExpressionTransformers\EnumComparisonExpressionTransformer.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\ExpressionTransformers\MultiKeyExpressionTransfomer.cs">
+      <Link>QueryGeneration\ExpressionTransformers\MultiKeyExpressionTransfomer.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\ExpressionTransformers\KeyExpressionTransfomer.cs">
+      <Link>QueryGeneration\ExpressionTransformers\KeyExpressionTransfomer.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\IN1QlQueryModelVisitor.cs">
+      <Link>QueryGeneration\IN1QlQueryModelVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Clauses\NestClause.cs">
+      <Link>Clauses\NestClause.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Clauses\NestExpressionNode.cs">
+      <Link>Clauses\NestExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Filters\AttributeDocumentFilterSetGenerator.cs">
+      <Link>Filters\AttributeDocumentFilterSetGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Filters\DocumentFilterAttribute.cs">
+      <Link>Filters\DocumentFilterAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Filters\DocumentFilterManager.cs">
+      <Link>Filters\DocumentFilterManager.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Filters\DocumentFilterSet.cs">
+      <Link>Filters\DocumentFilterSet.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Filters\IDocumentFilter.cs">
+      <Link>Filters\IDocumentFilter.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Filters\DocumentTypeFilterAttribute.cs">
+      <Link>Filters\DocumentTypeFilterAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Extensions\QueryExtensions.cs">
+      <Link>Extensions\QueryExtensions.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Filters\IDocumentFilterSetGenerator.cs">
+      <Link>Filters\IDocumentFilterSetGenerator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\IBucketQueryable.cs">
+      <Link>IBucketQueryable.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Metadata\IDocumentMetadataProvider.cs">
+      <Link>Metadata\IDocumentMetadataProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Operators\ExplainExpressionNode.cs">
+      <Link>Operators\ExplainExpressionNode.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Operators\ExplainResultOperator.cs">
+      <Link>Operators\ExplainResultOperator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\BucketQueryable.cs">
+      <Link>BucketQueryable.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Execution\BucketQueryExecutor.cs">
+      <Link>Execution\BucketQueryExecutor.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Properties\AssemblyInfo.cs">
+      <Link>Properties\AssemblyInfo.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryFactory.cs">
+      <Link>QueryFactory.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\LinqQueryRequest.cs">
+      <Link>QueryGeneration\LinqQueryRequest.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MemberNameResolvers\IMemberNameResolver.cs">
+      <Link>QueryGeneration\MemberNameResolvers\IMemberNameResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\IMethodCallTranslator.cs">
+      <Link>QueryGeneration\IMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\IMethodCallTranslatorProvider.cs">
+      <Link>QueryGeneration\IMethodCallTranslatorProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MemberNameResolvers\ExtendedTypeSerializerMemberNameResolver.cs">
+      <Link>QueryGeneration\MemberNameResolvers\ExtendedTypeSerializerMemberNameResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MemberNameResolvers\JsonNetMemberNameResolver.cs">
+      <Link>QueryGeneration\MemberNameResolvers\JsonNetMemberNameResolver.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\ConcatMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\ConcatMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\ListIndexMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\ListIndexMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\ContainsMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\ContainsMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\IsValuedMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\IsValuedMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\IsMissingMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\IsMissingMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\KeyMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\KeyMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\MetaMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\MetaMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\DefaultMethodCallTranslatorProvider.cs">
+      <Link>QueryGeneration\DefaultMethodCallTranslatorProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\N1QlFunctionAttribute.cs">
+      <Link>N1QlFunctionAttribute.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\N1QlFunctionMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\N1QlFunctionMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\ToStringMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\ToStringMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\StringSplitMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\StringSplitMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\StringIndexOfMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\StringIndexOfMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\StringReplaceMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\StringReplaceMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\StringTrimMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\StringTrimMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\StringCapitalizationMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\StringCapitalizationMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\StringLengthMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\StringLengthMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\MathMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\MathMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\SubqueryMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\SubqueryMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\SubstringMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\SubstringMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\MethodCallTranslators\UnixMillisecondsMethodCallTranslator.cs">
+      <Link>QueryGeneration\MethodCallTranslators\UnixMillisecondsMethodCallTranslator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\N1QLExpressionTreeVisitor.cs">
+      <Link>QueryGeneration\N1QLExpressionTreeVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\N1QlExtentNameProvider.cs">
+      <Link>QueryGeneration\N1QlExtentNameProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\N1QLFromQueryPart.cs">
+      <Link>QueryGeneration\N1QLFromQueryPart.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\N1QlHelpers.cs">
+      <Link>QueryGeneration\N1QlHelpers.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\N1QLLetQueryPart.cs">
+      <Link>QueryGeneration\N1QLLetQueryPart.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\N1QlQueryGenerationContext.cs">
+      <Link>QueryGeneration\N1QlQueryGenerationContext.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\N1QLQueryModelVisitor.cs">
+      <Link>QueryGeneration\N1QLQueryModelVisitor.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\N1QLQueryType.cs">
+      <Link>QueryGeneration\N1QLQueryType.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\N1QlUseIndexPart.cs">
+      <Link>QueryGeneration\N1QlUseIndexPart.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\NamedParameter.cs">
+      <Link>QueryGeneration\NamedParameter.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\ParameterAggregator.cs">
+      <Link>QueryGeneration\ParameterAggregator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\QueryPartsAggregator.cs">
+      <Link>QueryGeneration\QueryPartsAggregator.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Metadata\DocumentMetadata.cs">
+      <Link>Metadata\DocumentMetadata.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\N1QlFunctions.Missing.cs">
+      <Link>N1QlFunctions.Missing.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Execution\ScalarResultBehavior.cs">
+      <Link>Execution\ScalarResultBehavior.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Execution\ScalarResult.cs">
+      <Link>Execution\ScalarResult.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryGeneration\UnclaimedGroupJoin.cs">
+      <Link>QueryGeneration\UnclaimedGroupJoin.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\QueryParserHelper.cs">
+      <Link>QueryParserHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\UnixMillisecondsDateTime.cs">
+      <Link>UnixMillisecondsDateTime.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Utils\ExceptionMsgs.cs">
+      <Link>Utils\ExceptionMsgs.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Versioning\DefaultVersionProvider.cs">
+      <Link>Versioning\DefaultVersionProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Versioning\FeatureVersions.cs">
+      <Link>Versioning\FeatureVersions.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Versioning\IVersionProvider.cs">
+      <Link>Versioning\IVersionProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\Versioning\VersionProvider.cs">
+      <Link>Versioning\VersionProvider.cs</Link>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <!-- A reference to the entire .NET Framework is automatically included -->
+    <None Include="project.json" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Reflection;
 using Castle.DynamicProxy;
 using Couchbase.Linq.Metadata;
 
@@ -31,7 +32,7 @@ namespace Couchbase.Linq.Proxies
 
             // ReSharper disable once PossibleNullReferenceException
             var property = invocation.Method.DeclaringType.GetProperties()
-                .FirstOrDefault(prop => prop.GetSetMethod() == invocation.Method);
+                .FirstOrDefault(prop => prop.CanWrite && prop.GetSetMethod().Equals(invocation.Method));
 
             if (property == null)
             {

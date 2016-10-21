@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Core;
@@ -24,7 +25,8 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Select(c => new {age = c.Age});
 
-            var explainQuery = Expression.Call(null, typeof(QueryExtensions).GetMethod("Explain").MakeGenericMethod(query.ElementType), query.Expression);
+            var explainQuery = Expression.Call(null, 
+                typeof(QueryExtensions).GetTypeInfo().GetMethod("Explain").MakeGenericMethod(query.ElementType), query.Expression);
 
             const string expected = "EXPLAIN SELECT `Extent1`.`age` as `age` FROM `default` as `Extent1`";
 
