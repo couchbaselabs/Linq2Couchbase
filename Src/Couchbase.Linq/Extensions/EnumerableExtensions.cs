@@ -178,7 +178,7 @@ namespace Couchbase.Linq.Extensions
 
             return queryable.Provider.CreateQuery<T>(
                 Expression.Call(
-                    ((MethodInfo)MethodBase.GetCurrentMethod())
+                    typeof(EnumerableExtensions).GetMethod("AsQueryable")
                         .MakeGenericMethod(typeof(T)),
                     queryable.Expression,
                     Expression.Constant(extentName)));

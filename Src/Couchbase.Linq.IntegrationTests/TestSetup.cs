@@ -6,7 +6,7 @@ namespace Couchbase.Linq.IntegrationTests
     [SetUpFixture]
     public class TestSetup : N1QlTestBase
     {
-        [SetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             ClusterHelper.Initialize(TestConfigurations.DefaultConfig());

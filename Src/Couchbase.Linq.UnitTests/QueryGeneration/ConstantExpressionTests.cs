@@ -195,33 +195,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             Assert.AreEqual(expected, n1QlQuery);
         }
 
+#if NET45
         [Test]
+        [SetCulture("da-DK")]
         public void Test_DecimalInCommaCulture()
         {
-            var currentCulture = System.Threading.Thread.CurrentThread.CurrentCulture;
-            System.Threading.Thread.CurrentThread.CurrentCulture = new CultureInfo("da-DK");
-            try
-            {
-                Assert.AreEqual(",", System.Threading.Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
+            Assert.AreEqual(",", CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator);
 
-                var mockBucket = new Mock<IBucket>();
-                mockBucket.SetupGet(e => e.Name).Returns("default");
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
 
-                var query =
-                    QueryFactory.Queryable<Beer>(mockBucket.Object)
-                        .Where(e => e.Abv == 0.5M);
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .Where(e => e.Abv == 0.5M);
 
-                const string expected =
-                    "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 0.5)";
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 0.5)";
 
-                var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
-                Assert.AreEqual(expected, n1QlQuery);
-            }
-            finally
-            {
-                System.Threading.Thread.CurrentThread.CurrentCulture = currentCulture;
-            }
+            Assert.AreEqual(expected, n1QlQuery);
         }
+#endif
     }
 }

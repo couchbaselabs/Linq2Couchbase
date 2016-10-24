@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Configuration;
 using System.Linq;
 using Couchbase.Core;
 using Couchbase.Management;
@@ -11,8 +10,8 @@ namespace Couchbase.Linq.IntegrationTests
     {
         public IBucketManager GetBucketManager(IBucket bucket)
         {
-            return bucket.CreateManager(ConfigurationManager.AppSettings["adminusername"],
-                ConfigurationManager.AppSettings["adminpassword"]);
+            return bucket.CreateManager(TestConfigurations.Settings.AdminUsername,
+                TestConfigurations.Settings.AdminPassword);
         }
 
         public void EnsureIndexExists(IBucket bucket, string indexName, params string[] fields)

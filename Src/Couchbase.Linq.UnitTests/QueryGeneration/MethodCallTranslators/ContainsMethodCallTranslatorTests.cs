@@ -8,6 +8,7 @@ using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MethodCallTranslators;
 using Moq;
 using NUnit.Framework;
+using System.Reflection;
 
 namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
 {

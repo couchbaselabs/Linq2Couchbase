@@ -101,10 +101,22 @@ namespace Couchbase.Linq.Versioning
         {
             try
             {
+#if NET45
                 using (var handler = new WebRequestHandler())
                 {
                     handler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
-
+#else
+                using (var handler = new HttpClientHandler())
+                {
+                    try
+                    {
+                        handler.ServerCertificateCustomValidationCallback += ServerCertificateValidationCallback;
+                    }
+                    catch (NotImplementedException)
+                    {
+                        Log.Debug("Cannot set ServerCertificateCustomValidationCallback, not supported on this platform");
+                    }
+#endif
                     using (var httpClient = new HttpClient(handler))
                     {
                         httpClient.Timeout = TimeSpan.FromSeconds(5);
@@ -124,7 +136,11 @@ namespace Couchbase.Linq.Versioning
             }
         }
 
+#if NET45
         private static bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+#else
+        private static bool ServerCertificateValidationCallback(HttpRequestMessage sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+#endif
         {
             Log.Info(m => m("Validating certificate: {0}", sslPolicyErrors));
             return sslPolicyErrors == SslPolicyErrors.None;

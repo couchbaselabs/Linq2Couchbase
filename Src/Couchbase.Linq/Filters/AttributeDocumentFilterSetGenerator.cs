@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection;
 
 namespace Couchbase.Linq.Filters
 {
@@ -15,7 +16,7 @@ namespace Couchbase.Linq.Filters
         /// <returns>Returns null if there are no filters.  This is to improve efficieny.</returns>
         public DocumentFilterSet<T> GenerateDocumentFilterSet<T>()
         {
-            var filters = (DocumentFilterAttribute[])typeof(T).GetCustomAttributes(typeof (DocumentFilterAttribute), true);
+            var filters = (DocumentFilterAttribute[])typeof(T).GetTypeInfo().GetCustomAttributes(typeof (DocumentFilterAttribute), true);
 
             if (filters.Length == 0)
             {

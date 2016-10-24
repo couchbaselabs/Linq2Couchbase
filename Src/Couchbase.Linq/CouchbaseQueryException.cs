@@ -11,7 +11,7 @@ namespace Couchbase.Linq
     /// <summary>
     /// Thrown if an error occurs during the execution of a LINQ N1QL query.
     /// </summary>
-    public class CouchbaseQueryException : ApplicationException
+    public class CouchbaseQueryException : Exception
     {
         private readonly ReadOnlyCollection<Error> _errors;
 
