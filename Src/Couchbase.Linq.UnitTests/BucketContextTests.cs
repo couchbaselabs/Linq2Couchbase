@@ -329,6 +329,269 @@ namespace Couchbase.Linq.UnitTests
         }
 
         [Test]
+        public void SubmitChanges_RemovedDoc_NoConsistencyCheck_DoesntPassCas()
+        {
+            //arrange
+
+            var fakeResult = new Mock<IOperationResult>();
+            fakeResult.Setup(m => m.Status).Returns(ResponseStatus.Success);
+            fakeResult.Setup(m => m.Success).Returns(true);
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+            bucket
+                .Setup(x => x.Remove(It.IsAny<string>()))
+                .Returns(fakeResult.Object);
+            bucket
+                .Setup(x => x.Remove(It.IsAny<string>(), It.IsAny<ulong>()))
+                .Returns(fakeResult.Object);
+
+            var ctx = new BucketContext(bucket.Object);
+            ctx.BeginChangeTracking();
+
+            var metadata = new DocumentMetadata()
+            {
+                Cas = 100,
+                Id = "Test"
+            };
+
+            var beer = new Mock<Beer>();
+            beer.SetupAllProperties();
+
+            var trackedDoc = beer.As<ITrackedDocumentNode>();
+            trackedDoc.Setup(m => m.Metadata).Returns(metadata);
+            trackedDoc.Setup(m => m.IsDeleted).Returns(true);
+
+            ((IChangeTrackableContext) ctx).Track(beer.Object);
+            ((IChangeTrackableContext) ctx).Modified(beer.Object);
+
+            //act
+            ctx.SubmitChanges(new SaveOptions()
+            {
+                PerformConsistencyCheck = false
+            });
+
+            //assert
+            bucket.Verify(x => x.Remove(It.IsAny<string>()), Times.Once);
+            bucket.Verify(x => x.Remove(It.IsAny<string>(), It.IsAny<ulong>()), Times.Never);
+        }
+
+        [Test]
+        public void SubmitChanges_RemovedDoc_WithConsistencyCheck_PassesCas()
+        {
+            //arrange
+
+            var fakeResult = new Mock<IOperationResult>();
+            fakeResult.Setup(m => m.Status).Returns(ResponseStatus.Success);
+            fakeResult.Setup(m => m.Success).Returns(true);
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+            bucket
+                .Setup(x => x.Remove(It.IsAny<string>()))
+                .Returns(fakeResult.Object);
+            bucket
+                .Setup(x => x.Remove(It.IsAny<string>(), It.IsAny<ulong>()))
+                .Returns(fakeResult.Object);
+
+            var ctx = new BucketContext(bucket.Object);
+            ctx.BeginChangeTracking();
+
+            var metadata = new DocumentMetadata()
+            {
+                Cas = 100,
+                Id = "Test"
+            };
+
+            var beer = new Mock<Beer>();
+            beer.SetupAllProperties();
+
+            var trackedDoc = beer.As<ITrackedDocumentNode>();
+            trackedDoc.Setup(m => m.Metadata).Returns(metadata);
+            trackedDoc.Setup(m => m.IsDeleted).Returns(true);
+
+            ((IChangeTrackableContext)ctx).Track(beer.Object);
+            ((IChangeTrackableContext)ctx).Modified(beer.Object);
+
+            //act
+            ctx.SubmitChanges(new SaveOptions());
+
+            //assert
+            bucket.Verify(x => x.Remove(It.IsAny<string>()), Times.Never);
+            bucket.Verify(x => x.Remove(It.IsAny<string>(), (ulong) trackedDoc.Object.Metadata.Cas), Times.Once);
+        }
+
+        [Test]
+        public void SubmitChanges_ModifiedDoc_NoConsistencyCheck_DoesntPassCas()
+        {
+            //arrange
+
+            var fakeResult = new Mock<IOperationResult<object>>();
+            fakeResult.Setup(m => m.Status).Returns(ResponseStatus.Success);
+            fakeResult.Setup(m => m.Success).Returns(true);
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+            bucket
+                .Setup(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>()))
+                .Returns(fakeResult.Object);
+            bucket
+                .Setup(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<ulong>()))
+                .Returns(fakeResult.Object);
+
+            var ctx = new BucketContext(bucket.Object);
+            ctx.BeginChangeTracking();
+
+            var metadata = new DocumentMetadata()
+            {
+                Cas = 100,
+                Id = "Test"
+            };
+
+            var beer = new Mock<Beer>();
+            beer.SetupAllProperties();
+
+            var trackedDoc = beer.As<ITrackedDocumentNode>();
+            trackedDoc.Setup(m => m.Metadata).Returns(metadata);
+            trackedDoc.Setup(m => m.IsDeleted).Returns(false);
+            trackedDoc.Setup(m => m.IsDirty).Returns(true);
+
+            ((IChangeTrackableContext)ctx).Track(beer.Object);
+            ((IChangeTrackableContext)ctx).Modified(beer.Object);
+
+            //act
+            ctx.SubmitChanges(new SaveOptions()
+            {
+                PerformConsistencyCheck = false
+            });
+
+            //assert
+            bucket.Verify(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
+            bucket.Verify(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<ulong>()), Times.Never);
+        }
+
+        [Test]
+        public void SubmitChanges_ModifiedDoc_WithConsistencyCheck_PassesCas()
+        {
+            //arrange
+
+            var fakeResult = new Mock<IOperationResult<object>>();
+            fakeResult.Setup(m => m.Status).Returns(ResponseStatus.Success);
+            fakeResult.Setup(m => m.Success).Returns(true);
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+            bucket
+                .Setup(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>()))
+                .Returns(fakeResult.Object);
+            bucket
+                .Setup(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>(), It.IsAny<ulong>()))
+                .Returns(fakeResult.Object);
+
+            var ctx = new BucketContext(bucket.Object);
+            ctx.BeginChangeTracking();
+
+            var metadata = new DocumentMetadata()
+            {
+                Cas = 100,
+                Id = "Test"
+            };
+
+            var beer = new Mock<Beer>();
+            beer.SetupAllProperties();
+
+            var trackedDoc = beer.As<ITrackedDocumentNode>();
+            trackedDoc.Setup(m => m.Metadata).Returns(metadata);
+            trackedDoc.Setup(m => m.IsDeleted).Returns(false);
+            trackedDoc.Setup(m => m.IsDirty).Returns(true);
+
+            ((IChangeTrackableContext)ctx).Track(beer.Object);
+            ((IChangeTrackableContext)ctx).Modified(beer.Object);
+
+            //act
+            ctx.SubmitChanges(new SaveOptions());
+
+            //assert
+            bucket.Verify(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>()), Times.Never);
+            bucket.Verify(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>(), (ulong) trackedDoc.Object.Metadata.Cas), Times.Once);
+        }
+
+        [Test]
+        public void SubmitChanges_NewDoc_NoConsistencyCheck_UsesUpsert()
+        {
+            //arrange
+
+            var fakeResult = new Mock<IOperationResult<object>>();
+            fakeResult.Setup(m => m.Status).Returns(ResponseStatus.Success);
+            fakeResult.Setup(m => m.Success).Returns(true);
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+            bucket
+                .Setup(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>()))
+                .Returns(fakeResult.Object);
+            bucket
+                .Setup(x => x.Insert(It.IsAny<string>(), It.IsAny<object>()))
+                .Returns(fakeResult.Object);
+
+            var ctx = new BucketContext(bucket.Object);
+            ctx.BeginChangeTracking();
+
+            var beer = new Beer()
+            {
+                Name = "Test"
+            };
+
+            ctx.Save(beer);
+
+            //act
+            ctx.SubmitChanges(new SaveOptions()
+            {
+                PerformConsistencyCheck = false
+            });
+
+            //assert
+            bucket.Verify(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
+            bucket.Verify(x => x.Insert(It.IsAny<string>(), It.IsAny<object>()), Times.Never);
+        }
+
+        [Test]
+        public void SubmitChanges_NewDoc_WithConsistencyCheck_UsesInsert()
+        {
+            //arrange
+
+            var fakeResult = new Mock<IOperationResult<object>>();
+            fakeResult.Setup(m => m.Status).Returns(ResponseStatus.Success);
+            fakeResult.Setup(m => m.Success).Returns(true);
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+            bucket
+                .Setup(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>()))
+                .Returns(fakeResult.Object);
+            bucket
+                .Setup(x => x.Insert(It.IsAny<string>(), It.IsAny<object>()))
+                .Returns(fakeResult.Object);
+
+            var ctx = new BucketContext(bucket.Object);
+            ctx.BeginChangeTracking();
+
+            var beer = new Beer()
+            {
+                Name = "Test"
+            };
+
+            ctx.Save(beer);
+
+            //act
+            ctx.SubmitChanges(new SaveOptions());
+
+            //assert
+            bucket.Verify(x => x.Upsert(It.IsAny<string>(), It.IsAny<object>()), Times.Never);
+            bucket.Verify(x => x.Insert(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
+        }
+
+        [Test]
         public void EndChangeTracking_WhenCalled_ClearsTrackedList()
         {
             //arrange
@@ -496,7 +759,7 @@ namespace Couchbase.Linq.UnitTests
             var bucket = new Mock<IBucket>();
             bucket.SetupGet(m => m.Name).Returns("default");
             bucket
-                .Setup(m => m.Upsert(It.IsAny<string>(), It.IsAny<object>()))
+                .Setup(m => m.Insert(It.IsAny<string>(), It.IsAny<object>()))
                 .Returns(() =>
                 {
                     var result = new Mock<IOperationResult<Beer>>();

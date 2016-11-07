@@ -47,6 +47,9 @@
     <Compile Include="..\Couchbase.Linq\Clauses\UseIndexExpressionNode.cs">
       <Link>Clauses\UseIndexExpressionNode.cs</Link>
     </Compile>
+    <Compile Include="..\Couchbase.Linq\CouchbaseConsistencyException.cs">
+      <Link>CouchbaseConsistencyException.cs</Link>
+    </Compile>
     <Compile Include="..\Couchbase.Linq\IChangeTrackableContext.cs">
       <Link>IChangeTrackableContext.cs</Link>
     </Compile>
@@ -358,6 +361,9 @@
     </Compile>
     <Compile Include="..\Couchbase.Linq\QueryParserHelper.cs">
       <Link>QueryParserHelper.cs</Link>
+    </Compile>
+    <Compile Include="..\Couchbase.Linq\SaveOptions.cs">
+      <Link>SaveOptions.cs</Link>
     </Compile>
     <Compile Include="..\Couchbase.Linq\UnixMillisecondsDateTime.cs">
       <Link>UnixMillisecondsDateTime.cs</Link>

@@ -97,6 +97,7 @@
     <Compile Include="Clauses\UseIndexClause.cs" />
     <Compile Include="Clauses\ExtentNameExpressionNode.cs" />
     <Compile Include="Clauses\UseIndexExpressionNode.cs" />
+    <Compile Include="CouchbaseConsistencyException.cs" />
     <Compile Include="IChangeTrackableContext.cs" />
     <Compile Include="Clauses\UseKeysExpressionNode.cs" />
     <Compile Include="Clauses\UseKeysClause.cs" />
@@ -201,6 +202,7 @@
     <Compile Include="Execution\ScalarResult.cs" />
     <Compile Include="QueryGeneration\UnclaimedGroupJoin.cs" />
     <Compile Include="QueryParserHelper.cs" />
+    <Compile Include="SaveOptions.cs" />
     <Compile Include="UnixMillisecondsDateTime.cs" />
     <Compile Include="Utils\ExceptionMsgs.cs" />
     <Compile Include="Versioning\DefaultVersionProvider.cs" />
