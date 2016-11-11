@@ -75,6 +75,102 @@ namespace Couchbase.Linq.UnitTests
         }
 
         [Test]
+        public void GetDocumentId_DocumentProxyVirtualA_UsesMetadataNotProperty()
+        {
+            //arrange
+            var document = (VirtualKeyA) DocumentProxyManager.Default.CreateProxy(typeof(VirtualKeyA));
+            document.A = "Key1";
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var trackedDoc = (ITrackedDocumentNode) document;
+            trackedDoc.Metadata = new DocumentMetadata()
+            {
+                Id = "Key2"
+            };
+
+            var bucket = new Mock<IBucket>();
+            var ctx = new BucketContext(bucket.Object);
+
+            //act
+            var result = ctx.GetDocumentId(document);
+
+            //assert
+            Assert.AreEqual("Key2", result);
+        }
+
+        [Test]
+        public void GetDocumentId_DocumentProxyNonVirtualA_UsesMetadataNotProperty()
+        {
+            //arrange
+            var document = (NonVirtualKeyA)DocumentProxyManager.Default.CreateProxy(typeof(NonVirtualKeyA));
+            document.A = "Key1";
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var trackedDoc = (ITrackedDocumentNode)document;
+            trackedDoc.Metadata = new DocumentMetadata()
+            {
+                Id = "Key2"
+            };
+
+            var bucket = new Mock<IBucket>();
+            var ctx = new BucketContext(bucket.Object);
+
+            //act
+            var result = ctx.GetDocumentId(document);
+
+            //assert
+            Assert.AreEqual("Key2", result);
+        }
+
+        [Test]
+        public void GetDocumentId_DocumentProxyVirtualZ_UsesMetadataNotProperty()
+        {
+            //arrange
+            var document = (VirtualKeyZ)DocumentProxyManager.Default.CreateProxy(typeof(VirtualKeyZ));
+            document.Z = "Key1";
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var trackedDoc = (ITrackedDocumentNode)document;
+            trackedDoc.Metadata = new DocumentMetadata()
+            {
+                Id = "Key2"
+            };
+
+            var bucket = new Mock<IBucket>();
+            var ctx = new BucketContext(bucket.Object);
+
+            //act
+            var result = ctx.GetDocumentId(document);
+
+            //assert
+            Assert.AreEqual("Key2", result);
+        }
+
+        [Test]
+        public void GetDocumentId_DocumentProxyNonVirtualZ_UsesMetadataNotProperty()
+        {
+            //arrange
+            var document = (NonVirtualKeyZ)DocumentProxyManager.Default.CreateProxy(typeof(NonVirtualKeyZ));
+            document.Z = "Key1";
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var trackedDoc = (ITrackedDocumentNode)document;
+            trackedDoc.Metadata = new DocumentMetadata()
+            {
+                Id = "Key2"
+            };
+
+            var bucket = new Mock<IBucket>();
+            var ctx = new BucketContext(bucket.Object);
+
+            //act
+            var result = ctx.GetDocumentId(document);
+
+            //assert
+            Assert.AreEqual("Key2", result);
+        }
+
+        [Test]
         public void Save_When_Write_Is_Succesful_Return_Success()
         {
             //arrange
@@ -785,6 +881,30 @@ namespace Couchbase.Linq.UnitTests
         {
             [Key]
             public int Id { get; set; }
+        }
+
+        public class VirtualKeyA
+        {
+            [Key]
+            public virtual string A { get; set; }
+        }
+
+        public class NonVirtualKeyA
+        {
+            [Key]
+            public string A { get; set; }
+        }
+
+        public class VirtualKeyZ
+        {
+            [Key]
+            public virtual string Z { get; set; }
+        }
+
+        public class NonVirtualKeyZ
+        {
+            [Key]
+            public string Z { get; set; }
         }
 
         #endregion

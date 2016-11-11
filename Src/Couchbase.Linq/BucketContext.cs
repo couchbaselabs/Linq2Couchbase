@@ -156,44 +156,37 @@ namespace Couchbase.Linq
         /// <exception cref="TypeLoadException">A custom attribute type cannot be loaded.</exception>
         internal virtual string GetDocumentId<T>(T document)
         {
+            var trackedNode = document as ITrackedDocumentNode;
+            if ((trackedNode != null) && (trackedNode.Metadata != null))
+            {
+                return trackedNode.Metadata.Id;
+            }
+
             var type = document.GetType();
 
             PropertyInfo propertyInfo;
-            if (_cachedKeyProperties.TryGetValue(type, out propertyInfo))
+            if (!_cachedKeyProperties.TryGetValue(type, out propertyInfo))
             {
-                if (propertyInfo.Name == "Metadata")
+                propertyInfo = type.GetProperties()
+                    .FirstOrDefault(p => p.GetCustomAttribute<KeyAttribute>() != null);
+
+                if (propertyInfo != null)
                 {
-                    return (string)propertyInfo.GetValue(((ITrackedDocumentNode)document).Metadata);
-                }
-                if (document is ITrackedDocumentNode)
-                {
-                    return (string) propertyInfo.GetValue(((ITrackedDocumentNode) document).Metadata);
+                    _cachedKeyProperties.AddOrUpdate(type, propertyInfo, (key, value) => propertyInfo);
                 }
             }
-            var properties = type.GetProperties();
-            foreach (var pi in properties)
+
+            if (propertyInfo != null)
             {
-                var attribute = pi.GetCustomAttribute<KeyAttribute>();
-
-                if (attribute != null || pi.Name == "Metadata")
+                var value = propertyInfo.GetValue(document);
+                if (value == null)
                 {
-                    if (pi.Name == "Metadata")
-                    {
-                        var metadataPi = pi.PropertyType.GetProperty("Id");
-                        _cachedKeyProperties.TryAdd(type, metadataPi);
-                        return (string)metadataPi.GetValue(((ITrackedDocumentNode)document).Metadata);
-                    }
-                    _cachedKeyProperties.TryAdd(type, pi);
-
-                    var value = pi.GetValue(document);
-                    if (value == null)
-                    {
-                        throw new KeyNullException(ExceptionMsgs.KeyNull);
-                    }
-
-                    return value.ToString();
+                    throw new KeyNullException(ExceptionMsgs.KeyNull);
                 }
+
+                return value.ToString();
             }
+
             throw new KeyAttributeMissingException(ExceptionMsgs.KeyAttributeMissing);
         }
 
