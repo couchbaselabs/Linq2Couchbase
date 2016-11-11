@@ -20,7 +20,7 @@ namespace Couchbase.Linq
         ClientConfiguration Configuration { get; }
 
         /// <summary>
-        /// Begins change tracking for the current request. To complete and save the changes call <see cref="SubmitChanges"/>.
+        /// Begins change tracking for the current request. To complete and save the changes call <see cref="SubmitChanges()"/>.
         /// </summary>
         void BeginChangeTracking();
 
@@ -33,6 +33,12 @@ namespace Couchbase.Linq
         /// Submits the changes.
         /// </summary>
         void SubmitChanges();
+
+        /// <summary>
+        /// Submits the changes with options.
+        /// </summary>
+        /// <param name="options">Options to control how changes are submitted.</param>
+        void SubmitChanges(SaveOptions options);
 
         /// <summary>
         /// Queries the current <see cref="IBucket" /> for entities of type T. This is the target of
@@ -70,7 +76,7 @@ namespace Couchbase.Linq
         /// <remarks>
         /// This value is updated as mutations are applied via <see cref="Save{T}"/>.  It may be used
         /// to enable read-your-own-write by passing the value to <see cref="Extensions.QueryExtensions.ConsistentWith{T}"/>.
-        /// If you are using change tracking, this value won't be valid until after a call to <see cref="SubmitChanges"/>.
+        /// If you are using change tracking, this value won't be valid until after a call to <see cref="SubmitChanges()"/>.
         /// This function is only supported on Couchbase Server 4.5 or later.
         /// </remarks>
         MutationState MutationState { get; }

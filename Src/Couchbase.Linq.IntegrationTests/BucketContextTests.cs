@@ -488,6 +488,86 @@ namespace Couchbase.Linq.IntegrationTests
             }
         }
 
+        [Test]
+        public void SubmitChanges_WithConsistencyCheck_Succeeds()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.ReadYourOwnWrite)
+            {
+                Assert.Ignore("Cluster does not support RYOW, test skipped.");
+            }
+
+            var db = new BucketContext(bucket);
+
+            // Make doc to test
+            db.Save(new BeerFiltered
+            {
+                Name = "TestBeer",
+                BreweryId = "TestBrewery",
+                Type = "beer",
+                Abv = 1,
+                Updated = DateTime.Now
+            });
+
+            db.BeginChangeTracking();
+
+            var beer = db.Query<BeerFiltered>()
+                .ConsistentWith(db.MutationState)
+                .First(p => p.Name == "TestBeer");
+
+            beer.Abv = 5;
+
+            db.SubmitChanges();
+        }
+
+        [Test]
+        public void SubmitChanges_WithConsistencyCheck_FailsOnCasMismatch()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.ReadYourOwnWrite)
+            {
+                Assert.Ignore("Cluster does not support RYOW, test skipped.");
+            }
+
+            var db = new BucketContext(bucket);
+
+            // Make doc to test
+            db.Save(new BeerFiltered
+            {
+                Name = "TestBeer",
+                BreweryId = "TestBrewery",
+                Type = "beer",
+                Abv = 1,
+                Updated = DateTime.Now
+            });
+
+            db.BeginChangeTracking();
+
+            var beer = db.Query<BeerFiltered>()
+                .ConsistentWith(db.MutationState)
+                .First(p => p.Name == "TestBeer" && p.BreweryId == "TestBrewery");
+
+            // Alter document in separate context
+            var db2 = new BucketContext(bucket);
+            db2.Save(new BeerFiltered
+            {
+                Name = "TestBeer",
+                BreweryId = "TestBrewery",
+                Type = "beer",
+                Abv = 2,
+                Updated = DateTime.Now
+            });
+
+            // Alter document in tracked context
+            beer.Abv = 5;
+
+            Assert.Throws<CouchbaseConsistencyException>(() => db.SubmitChanges());
+        }
+
         #endregion
 
         #region Helper Classes

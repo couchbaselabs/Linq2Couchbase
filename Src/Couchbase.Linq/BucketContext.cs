@@ -8,6 +8,7 @@ using System.Threading;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
 using Couchbase.Core.Buckets;
+using Couchbase.IO;
 using Couchbase.Linq.Filters;
 using Couchbase.Linq.Metadata;
 using Couchbase.Linq.Proxies;
@@ -78,7 +79,7 @@ namespace Couchbase.Linq
 
         /// <summary>
         /// Saves the specified document to a Couchbase server cluster. If change tracking is enabled via <see cref="BeginChangeTracking"/>
-        /// then the document will be added to the modified list and then saved when <see cref="SubmitChanges"/> is called.
+        /// then the document will be added to the modified list and then saved when <see cref="SubmitChanges()"/> is called.
         /// </summary>
         /// <typeparam name="T">The <see cref="Type"/> of the document being saved.</typeparam>
         /// <param name="document">The document.</param>
@@ -116,7 +117,7 @@ namespace Couchbase.Linq
         }
 
         /// Removes a document from a Couchbase server cluster. If change tracking is enabled, the document will be flagged for deletion
-        /// and deleted when <see cref="SubmitChanges"/> is called on the current <see cref="BucketContext"/>.
+        /// and deleted when <see cref="SubmitChanges()"/> is called on the current <see cref="BucketContext"/>.
         /// <exception cref="KeyAttributeMissingException">The document id could not be found.</exception>
         /// <exception cref="AmbiguousMatchException">More than one of the requested attributes was found. </exception>
         /// <exception cref="TypeLoadException">A custom attribute type cannot be loaded. </exception>
@@ -191,7 +192,7 @@ namespace Couchbase.Linq
         }
 
         /// <summary>
-        /// Begins change tracking for the current request. To complete and save the changes call <see cref="SubmitChanges" />.
+        /// Begins change tracking for the current request. To complete and save the changes call <see cref="SubmitChanges()" />.
         /// </summary>
         /// <exception cref="System.NotImplementedException"></exception>
         public void BeginChangeTracking()
@@ -222,11 +223,27 @@ namespace Couchbase.Linq
 
         /// <summary>
         /// Submits any changes to documents that have been modified if change tracking is enabled via a call to <see cref="BeginChangeTracking"/>.
-        /// Internally a counter is kept so that if n threads call <see cref="BeginChangeTracking"/>, then n threads must call <see cref="SubmitChanges"/>.
+        /// Internally a counter is kept so that if n threads call <see cref="BeginChangeTracking"/>, then n threads must call <see cref="SubmitChanges()"/>.
         /// After submit changes is called, the modified list will be cleared.
         /// </summary>
         public void SubmitChanges()
         {
+            SubmitChanges(new SaveOptions());
+        }
+
+        /// <summary>
+        /// Submits any changes to documents that have been modified if change tracking is enabled via a call to <see cref="BeginChangeTracking"/>.
+        /// Internally a counter is kept so that if n threads call <see cref="BeginChangeTracking"/>, then n threads must call <see cref="SubmitChanges()"/>.
+        /// After submit changes is called, the modified list will be cleared.
+        /// </summary>
+        /// <param name="options">Options to control how changes are submitted.</param>
+        public void SubmitChanges(SaveOptions options)
+        {
+            if (options == null)
+            {
+                throw new ArgumentNullException("options");
+            }
+
             Interlocked.Decrement(ref _beginChangeTrackingCount);
             if(_beginChangeTrackingCount < 1)
             {
@@ -237,38 +254,44 @@ namespace Couchbase.Linq
                         var doc = modified.Value as ITrackedDocumentNode;
                         if (doc != null && doc.IsDeleted)
                         {
-                            var result = _bucket.Remove(modified.Key);
-                            if (!result.Success)
+                            IOperationResult result;
+                            if (options.PerformConsistencyCheck && (doc.Metadata != null))
                             {
-                                throw new CouchbaseWriteException(result);
+                                result = _bucket.Remove(modified.Key, (ulong) doc.Metadata.Cas);
+                            }
+                            else
+                            {
+                                result = _bucket.Remove(modified.Key);
                             }
 
-                            AddToMutationState(result.Token);
+                            HandleSubmitChangesResult(result);
                         }
                         else if (doc != null && doc.IsDirty)
                         {
-                            IOperationResult result = null;
+                            IOperationResult result;
                             if (doc is NewDocumentWrapper)
                             {
                                 var newDocument = (doc as NewDocumentWrapper).Value;
-                                result = _bucket.Upsert(modified.Key, newDocument);
+
+                                if (options.PerformConsistencyCheck)
+                                {
+                                    result = _bucket.Insert(modified.Key, newDocument);
+                                }
+                                else
+                                {
+                                    result = _bucket.Upsert(modified.Key, newDocument);
+                                }
+                            }
+                            else if (options.PerformConsistencyCheck && (doc.Metadata != null))
+                            {
+                                result = _bucket.Upsert(modified.Key, modified.Value, (ulong) doc.Metadata.Cas);
                             }
                             else
                             {
                                 result = _bucket.Upsert(modified.Key, modified.Value);
                             }
 
-                            if (result != null)
-                            {
-                                if (!result.Success)
-                                {
-                                    throw new CouchbaseWriteException(result);
-                                }
-                                else
-                                {
-                                    AddToMutationState(result.Token);
-                                }
-                            }
+                            HandleSubmitChangesResult(result);
                         }
                     }
                 }
@@ -277,6 +300,26 @@ namespace Couchbase.Linq
                     _modified.Clear();
                 }
             }
+        }
+
+        private void HandleSubmitChangesResult(IOperationResult result)
+        {
+            if (result == null)
+            {
+                return;
+            }
+
+            if (!result.Success)
+            {
+                if (result.Status == ResponseStatus.KeyExists)
+                {
+                    throw new CouchbaseConsistencyException(result);
+                }
+
+                throw new CouchbaseWriteException(result);
+            }
+
+            AddToMutationState(result.Token);
         }
 
         #region IChangeTrackableContext
@@ -364,7 +407,7 @@ namespace Couchbase.Linq
         /// <remarks>
         /// This value is updated as mutations are applied via <see cref="Save{T}"/>.  It may be used
         /// to enable read-your-own-write by passing the value to <see cref="Extensions.QueryExtensions.ConsistentWith{T}"/>.
-        /// If you are using change tracking, this value won't be valid until after a call to <see cref="SubmitChanges"/>.
+        /// If you are using change tracking, this value won't be valid until after a call to <see cref="SubmitChanges()"/>.
         /// This function is only supported on Couchbase Server 4.5 or later.
         /// </remarks>
         public MutationState MutationState { get; private set; }

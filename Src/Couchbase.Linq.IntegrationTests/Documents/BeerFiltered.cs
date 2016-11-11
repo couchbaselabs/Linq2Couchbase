@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel.DataAnnotations;
 using Newtonsoft.Json;
 
 namespace Couchbase.Linq.IntegrationTests.Documents
@@ -7,36 +8,39 @@ namespace Couchbase.Linq.IntegrationTests.Documents
     public class BeerFiltered
     {
         [JsonProperty("name")]
-        public string Name { get; set; }
+        public virtual string Name { get; set; }
 
         [JsonProperty("abv")]
-        public decimal Abv { get; set; }
+        public virtual decimal Abv { get; set; }
 
         [JsonProperty("ibu")]
-        public decimal Ibu { get; set; }
+        public virtual decimal Ibu { get; set; }
 
         [JsonProperty("srm")]
         public decimal Srm { get; set; }
 
         [JsonProperty("upc")]
-        public decimal Upc { get; set; }
+        public virtual decimal Upc { get; set; }
 
         [JsonProperty("type")]
-        public string Type { get; set; }
+        public virtual string Type { get; set; }
 
         [JsonProperty("brewery_id")]
-        public string BreweryId { get; set; }
+        public virtual string BreweryId { get; set; }
 
         [JsonProperty("description")]
-        public string Description { get; set; }
+        public virtual string Description { get; set; }
 
         [JsonProperty("style")]
-        public string Style { get; set; }
+        public virtual string Style { get; set; }
 
         [JsonProperty("category")]
-        public string Category { get; set; }
+        public virtual string Category { get; set; }
 
         [JsonProperty("updated")]
-        public DateTime Updated { get; set; }
+        public virtual DateTime Updated { get; set; }
+
+        [Key]
+        public string Key { get { return BreweryId + "-" + Name.ToLower().Replace(' ', '_'); } }
     }
 }
