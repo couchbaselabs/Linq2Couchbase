@@ -1,6 +1,8 @@
 version: 1.0.{build}
 platform: Any CPU
 configuration: Release
+install:
+  - cmd: appveyor DownloadFile https://dist.nuget.org/win-x86-commandline/v3.5.0/NuGet.exe
 before_build:
   - nuget restore
 build:
