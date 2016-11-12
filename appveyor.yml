@@ -5,3 +5,6 @@ before_build:
   - nuget restore Src/couchbase-net-linq.sln
 build:
   verbosity: minimal
+test:
+  assemblies:
+    - **\bin\Debug\Couchbase.Linq.UnitTests.dll
