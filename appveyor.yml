@@ -7,4 +7,4 @@ build:
   verbosity: minimal
 test:
   assemblies:
-    - **\bin\Debug\Couchbase.Linq.UnitTests.dll
+    - '**\bin\Debug\Couchbase.Linq.UnitTests.dll'
