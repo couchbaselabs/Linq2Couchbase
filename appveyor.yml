@@ -1,0 +1,10 @@
+version: 1.0.{build}
+install:
+  - cmd: appveyor DownloadFile https://dist.nuget.org/win-x86-commandline/v3.5.0/NuGet.exe
+before_build:
+  - nuget restore Src/couchbase-net-linq.sln
+build:
+  verbosity: minimal
+test:
+  assemblies:
+    - '**\bin\Debug\Couchbase.Linq.UnitTests.dll'

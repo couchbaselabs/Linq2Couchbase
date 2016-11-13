@@ -1,7 +1,11 @@
 {
   "projects": [
+    "Couchbase.Linq",
+    "Couchbase.Linq.Views",
     "Couchbase.Linq.NetStandard",
+    "Couchbase.Linq.IntegrationTests",
     "Couchbase.Linq.IntegrationTests.NetCore",
+    "Couchbase.Linq.UnitTests",
     "Couchbase.Linq.UnitTests.NetCore"
   ]
 }
