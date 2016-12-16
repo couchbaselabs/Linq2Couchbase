@@ -232,7 +232,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             // Assert
 
             Assert.NotNull(result);
-            Assert.AreEqual(((uint)scanWait.TotalMilliseconds).ToString(), result.GetFormValues()["scan_wait"]);
+            Assert.AreEqual(scanWait.TotalMilliseconds + "ms", result.GetFormValues()["scan_wait"]);
         }
     }
 }
