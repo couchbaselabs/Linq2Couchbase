@@ -10,11 +10,11 @@ The official Language Integrated Query (LINQ) provider for querying Couchbase Se
 The Linq2Couchbase project has the following dependencies:
 
 - Couchbase Server 4.0 or greater with the query service enabled on at least one node
-- Couchbase .NET SDK 2.2.2 or greater
-- Common.Logging 3.3.0 or greater
-- Common.Logging.Core 3.3.0 or greater
-- JSON.NET 7.0.1 or greater
-- re-linq 2.0.1
+- Couchbase .NET SDK 2.3.10 or greater
+- Common.Logging 3.3.1 or greater
+- Common.Logging.Core 3.3.1 or greater
+- JSON.NET 9.0.1 or greater
+- re-linq 2.1.1
 
 If you are using NuGet, then the dependencies (other than Couchbase server) will be installed for you via the package manager.
 
