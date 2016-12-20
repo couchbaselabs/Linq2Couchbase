@@ -322,29 +322,56 @@ namespace Couchbase.Linq.QueryGeneration
             }
         }
 
+        /// <summary>
+        /// Builds select clause when we're directly referencing elements of a query extent.
+        /// Could represent an array of documents or an array subdocument.
+        /// </summary>
+        private string GetQuerySourceSelectParameters(SelectClause selectClause, QueryModel queryModel)
+        {
+            if (_isAggregated)
+            {
+                // for aggregates, just use "*" (i.e. AggregateFunction = "COUNT", expression = "*" results in COUNT(*)"
+
+                ScalarResultBehavior.ResultExtractionRequired = true;
+                _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+
+                return "*";
+            }
+
+            if (_queryPartsAggregator.IsArraySubquery)
+            {
+                // For unaggregated array subqueries, just select the array element directly
+                // i.e. ARRAY p FOR p IN someArray WHEN p.x = 1 END
+                // The select clause being the first "p" in the ARRAY
+
+                return GetN1QlExpression(selectClause.Selector);
+            }
+
+            if (IsScalarType(selectClause.Selector.Type))
+            {
+                // We unnested an array of scalars
+                // So don't apply .*, instead extract the scalars as a `result` property on the object
+                // i.e. SELECT Extent2 as result FROM bucket as Extent1 UNNEST Extent1.array as Extent2
+
+                ScalarResultBehavior.ResultExtractionRequired = true;
+                _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+
+                return GetN1QlExpression(selectClause.Selector);
+            }
+
+            // This is a simple object selection, so give us all of the properties of the object
+            // i.e. SELECT Extent1.* FROM bucket as Extent1
+
+            return string.Concat(GetN1QlExpression(selectClause.Selector), ".*", SelectDocumentMetadataIfRequired(queryModel));
+        }
+
         private string GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
         {
             string expression;
 
-            if (selectClause.Selector.GetType() == typeof (QuerySourceReferenceExpression))
+            if (selectClause.Selector is QuerySourceReferenceExpression)
             {
-                if (!_isAggregated)
-                {
-                    expression = GetN1QlExpression(selectClause.Selector);
-
-                    if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
-                    {
-                        expression = string.Concat(expression, ".*", SelectDocumentMetadataIfRequired(queryModel));
-                    }
-                }
-                else
-                {
-                    // for aggregates, just use "*" (i.e. AggregateFunction = "COUNT", expression = "*" results in COUNT(*)"
-
-                    ScalarResultBehavior.ResultExtractionRequired = true;
-                    _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
-                    expression = "*";
-                }
+                expression = GetQuerySourceSelectParameters(selectClause, queryModel);
             }
             else if ((selectClause.Selector.NodeType == ExpressionType.New) || (selectClause.Selector.NodeType == ExpressionType.MemberInit))
             {
@@ -1269,6 +1296,11 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 throw new NotSupportedException("N1QL Array Subqueries Do Not Support Joins, Nests, Union, Concat, Or Additional From Statements");
             }
+        }
+
+        private static bool IsScalarType(Type type)
+        {
+            return type.GetTypeInfo().IsValueType || type == typeof(string);
         }
     }
 }

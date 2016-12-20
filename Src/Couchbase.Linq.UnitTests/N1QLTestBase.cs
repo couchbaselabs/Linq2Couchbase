@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.Linq.Execution;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Moq;
@@ -14,6 +15,8 @@ namespace Couchbase.Linq.UnitTests
 // ReSharper disable once InconsistentNaming
     public class N1QLTestBase
     {
+        protected static readonly Version DefaultClusterVersion = new Version(4, 0, 0);
+
         private IMemberNameResolver _memberNameResolver = new JsonNetMemberNameResolver(new DefaultContractResolver());
         internal IMemberNameResolver MemberNameResolver
         {
@@ -46,10 +49,18 @@ namespace Couchbase.Linq.UnitTests
 
         protected string CreateN1QlQuery(IBucket bucket, Expression expression, bool selectDocumentMetadata)
         {
-            return CreateN1QlQuery(bucket, expression, new Version(4, 0, 0), selectDocumentMetadata);
+            return CreateN1QlQuery(bucket, expression, DefaultClusterVersion, selectDocumentMetadata);
         }
 
-        protected string CreateN1QlQuery(IBucket bucket, Expression expression, Version clusterVersion, bool selectDocumentMetadata)
+        protected string CreateN1QlQuery(IBucket bucket, Expression expression, Version clusterVersion,
+            bool selectDocumentMetadata)
+        {
+            ScalarResultBehavior resultBehavior;
+            return CreateN1QlQuery(bucket, expression, clusterVersion, selectDocumentMetadata, out resultBehavior);
+        }
+
+        internal string CreateN1QlQuery(IBucket bucket, Expression expression, Version clusterVersion,
+            bool selectDocumentMetadata, out ScalarResultBehavior resultBehavior)
         {
             var queryModel = QueryParserHelper.CreateQueryParser().GetParsedQuery(expression);
 
@@ -64,6 +75,8 @@ namespace Couchbase.Linq.UnitTests
 
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);
             visitor.VisitQueryModel(queryModel);
+
+            resultBehavior = visitor.ScalarResultBehavior;
             return visitor.GetQuery();
         }
 

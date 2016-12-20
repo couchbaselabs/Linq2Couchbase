@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Core;
+using Couchbase.Linq.Execution;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.UnitTests.Documents;
 using Moq;
@@ -76,6 +77,28 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_Unnest_Scalar()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                        from address in brewery.Address
+                        select address;
+
+            const string expected = "SELECT `Extent2` as `result` " +
+                "FROM `default` as `Extent1` " +
+                "INNER UNNEST `Extent1`.`address` as `Extent2`";
+
+            ScalarResultBehavior resultBehavior;
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, DefaultClusterVersion, false,
+                out resultBehavior);
+
+            Assert.AreEqual(expected, n1QlQuery);
+            Assert.IsTrue(resultBehavior.ResultExtractionRequired);
+        }
+
+        [Test]
         public void Test_LeftUnnest_Simple()
         {
             var mockBucket = new Mock<IBucket>();
@@ -92,6 +115,28 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_LeftUnnest_Scalar()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                        from address in brewery.Address.DefaultIfEmpty()
+                        select address;
+
+            const string expected = "SELECT `Extent2` as `result` " +
+                "FROM `default` as `Extent1` " +
+                "OUTER UNNEST `Extent1`.`address` as `Extent2`";
+
+            ScalarResultBehavior resultBehavior;
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, DefaultClusterVersion, false,
+                out resultBehavior);
+
+            Assert.AreEqual(expected, n1QlQuery);
+            Assert.IsTrue(resultBehavior.ResultExtractionRequired);
         }
 
         [Test]

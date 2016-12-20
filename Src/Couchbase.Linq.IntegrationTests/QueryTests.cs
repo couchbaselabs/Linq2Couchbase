@@ -846,6 +846,25 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void NestTests_Unnest_Scalar()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var breweries = from brewery in context.Query<Brewery>()
+                            from address in brewery.Address
+                            select address;
+
+            var results = breweries.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine(b);
+            }
+        }
+
+        [Test]
         public void NestTests_Nest_IndexJoin()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
