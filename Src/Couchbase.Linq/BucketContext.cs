@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Reflection;
@@ -14,7 +13,6 @@ using Couchbase.Linq.Metadata;
 using Couchbase.Linq.Proxies;
 using Couchbase.Linq.Utils;
 using Couchbase.N1QL;
-using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq
 {
@@ -24,11 +22,10 @@ namespace Couchbase.Linq
     /// </summary>
     public class BucketContext : IBucketContext, IChangeTrackableContext
     {
-        private readonly IBucket _bucket;
         private readonly ConcurrentDictionary<Type, PropertyInfo>_cachedKeyProperties = new ConcurrentDictionary<Type, PropertyInfo>();
         private readonly ConcurrentDictionary<string, object> _tracked = new ConcurrentDictionary<string, object>();
         private readonly ConcurrentDictionary<string, object> _modified = new ConcurrentDictionary<string, object>();
-        private int _beginChangeTrackingCount = 0;
+        private int _beginChangeTrackingCount;
 
         /// <summary>
         /// If true, generate change tracking proxies for documents during deserialization.  Defaults to false for higher performance queries.
@@ -41,8 +38,14 @@ namespace Couchbase.Linq
         /// <param name="bucket">Bucket referenced by the new BucketContext.</param>
         public BucketContext(IBucket bucket)
         {
-            _bucket = bucket;
+            Bucket = bucket;
         }
+
+        /// <summary>
+        /// Gets the bucket the <see cref="IBucketContext"/> was created against.
+        /// </summary>
+        /// <value>The <see cref="IBucket"/>.</value>
+        public IBucket Bucket { get; private set; }
 
         /// <summary>
         /// Gets the configuration for the current <see cref="Cluster" />.
@@ -52,7 +55,7 @@ namespace Couchbase.Linq
         /// </value>
         public ClientConfiguration Configuration
         {
-            get { return _bucket.Configuration.PoolConfiguration.ClientConfiguration; }
+            get { return Bucket.Configuration.PoolConfiguration.ClientConfiguration; }
         }
 
         /// <summary>
@@ -63,7 +66,7 @@ namespace Couchbase.Linq
         /// <returns><see cref="IQueryable{T}" /> which can be used to query the bucket.</returns>
         public IQueryable<T> Query<T>()
         {
-            return DocumentFilterManager.ApplyFilters(new BucketQueryable<T>(_bucket, Configuration, this));
+            return DocumentFilterManager.ApplyFilters(new BucketQueryable<T>(Bucket, Configuration, this));
         }
 
         /// <summary>
@@ -74,7 +77,7 @@ namespace Couchbase.Linq
         /// </value>
         public string BucketName
         {
-            get { return _bucket.Name; }
+            get { return Bucket.Name; }
         }
 
         /// <summary>
@@ -106,7 +109,7 @@ namespace Couchbase.Linq
             }
             else
             {
-                var result = _bucket.Upsert(id, document);
+                var result = Bucket.Upsert(id, document);
                 if (!result.Success)
                 {
                     throw new CouchbaseWriteException(result);
@@ -135,7 +138,7 @@ namespace Couchbase.Linq
             else
             {
                 var id = GetDocumentId(document);
-                var result = _bucket.Remove(id);
+                var result = Bucket.Remove(id);
                 if (!result.Success)
                 {
                     throw new CouchbaseWriteException(result);
@@ -257,11 +260,11 @@ namespace Couchbase.Linq
                             IOperationResult result;
                             if (options.PerformConsistencyCheck && (doc.Metadata != null))
                             {
-                                result = _bucket.Remove(modified.Key, (ulong) doc.Metadata.Cas);
+                                result = Bucket.Remove(modified.Key, (ulong) doc.Metadata.Cas);
                             }
                             else
                             {
-                                result = _bucket.Remove(modified.Key);
+                                result = Bucket.Remove(modified.Key);
                             }
 
                             HandleSubmitChangesResult(result);
@@ -275,20 +278,20 @@ namespace Couchbase.Linq
 
                                 if (options.PerformConsistencyCheck)
                                 {
-                                    result = _bucket.Insert(modified.Key, newDocument);
+                                    result = Bucket.Insert(modified.Key, newDocument);
                                 }
                                 else
                                 {
-                                    result = _bucket.Upsert(modified.Key, newDocument);
+                                    result = Bucket.Upsert(modified.Key, newDocument);
                                 }
                             }
                             else if (options.PerformConsistencyCheck && (doc.Metadata != null))
                             {
-                                result = _bucket.Upsert(modified.Key, modified.Value, (ulong) doc.Metadata.Cas);
+                                result = Bucket.Upsert(modified.Key, modified.Value, (ulong) doc.Metadata.Cas);
                             }
                             else
                             {
-                                result = _bucket.Upsert(modified.Key, modified.Value);
+                                result = Bucket.Upsert(modified.Key, modified.Value);
                             }
 
                             HandleSubmitChangesResult(result);
