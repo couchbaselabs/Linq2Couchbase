@@ -18,6 +18,15 @@ namespace Couchbase.Linq.UnitTests
     public class BucketContextTests
     {
         [Test]
+        public void Can_Get_The_Bucket_The_Context_Was_Created_With()
+        {
+            var bucket = new Mock<IBucket>();
+            var context = new BucketContext(bucket.Object);
+
+            Assert.AreSame(bucket.Object, context.Bucket);
+        }
+
+        [Test]
         public void GetDocumentId_When_Id_Field_DoesNotExist_Throw_KeyAttributeMissingException()
         {
             //arrange
