@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Common.Logging;
+using Couchbase.Logging;
 using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration
 {
     internal class QueryPartsAggregator
     {
-        private static readonly ILog Log = LogManager.GetLogger<QueryPartsAggregator>();
+        private readonly ILog _log = LogManager.GetLogger<QueryPartsAggregator>();
 
         public QueryPartsAggregator()
         {
@@ -522,7 +522,7 @@ namespace Couchbase.Linq.QueryGeneration
                     throw new InvalidOperationException(string.Format("Unsupported N1QlQueryType: {0}", QueryType));
             }
 
-            Log.Debug(query);
+            _log.Debug(query);
             return query;
         }
 

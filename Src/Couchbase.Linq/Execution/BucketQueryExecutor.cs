@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Common.Logging;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
 using Couchbase.Core.Buckets;
@@ -13,6 +12,7 @@ using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Couchbase.Linq.Utils;
 using Couchbase.Linq.Versioning;
+using Couchbase.Logging;
 using Couchbase.N1QL;
 using Newtonsoft.Json;
 using Remotion.Linq;
@@ -22,7 +22,7 @@ namespace Couchbase.Linq.Execution
 {
     internal class BucketQueryExecutor : IBucketQueryExecutor
     {
-        private static readonly ILog Log = LogManager.GetLogger<BucketQueryExecutor>();
+        private readonly ILog _log = LogManager.GetLogger<BucketQueryExecutor>();
         private readonly IBucket _bucket;
         private readonly ClientConfiguration _configuration;
         private readonly IBucketContext _bucketContext;
@@ -280,7 +280,7 @@ namespace Couchbase.Linq.Execution
             visitor.VisitQueryModel(queryModel);
 
             var query = visitor.GetQuery();
-            Log.Debug(m => m("Generated query: {0}", query));
+            _log.Debug("Generated query: {0}", query);
 
             scalarResultBehavior = visitor.ScalarResultBehavior;
             return query;

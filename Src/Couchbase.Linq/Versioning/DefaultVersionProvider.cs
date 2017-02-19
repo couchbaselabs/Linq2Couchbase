@@ -6,8 +6,8 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
-using Common.Logging;
 using Couchbase.Core;
+using Couchbase.Logging;
 using Newtonsoft.Json;
 
 namespace Couchbase.Linq.Versioning
@@ -19,8 +19,8 @@ namespace Couchbase.Linq.Versioning
     internal class DefaultVersionProvider : IVersionProvider
     {
         private static readonly Random Random = new Random();
-        private static readonly ILog Log = LogManager.GetLogger<DefaultVersionProvider>();
 
+        private readonly ILog _log = LogManager.GetLogger<DefaultVersionProvider>();
         private readonly ConcurrentDictionary<Uri, Version> _versionsByUri = new ConcurrentDictionary<Uri, Version>();
         private readonly object _lock = new object();
 
@@ -78,7 +78,7 @@ namespace Couchbase.Linq.Versioning
                         }
                         catch (Exception e)
                         {
-                            Log.ErrorFormat("Unable to load config from {0}", e, server);
+                            _log.Error(string.Format("Unable to load config from {0}", server), e);
                         }
                     }
 
@@ -114,7 +114,7 @@ namespace Couchbase.Linq.Versioning
                     }
                     catch (NotImplementedException)
                     {
-                        Log.Debug("Cannot set ServerCertificateCustomValidationCallback, not supported on this platform");
+                        _log.Debug("Cannot set ServerCertificateCustomValidationCallback, not supported on this platform");
                     }
 #endif
                     using (var httpClient = new HttpClient(handler))
@@ -137,12 +137,12 @@ namespace Couchbase.Linq.Versioning
         }
 
 #if NET45
-        private static bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        private bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 #else
-        private static bool ServerCertificateValidationCallback(HttpRequestMessage sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+        private bool ServerCertificateValidationCallback(HttpRequestMessage sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
 #endif
         {
-            Log.Info(m => m("Validating certificate: {0}", sslPolicyErrors));
+            _log.Info("Validating certificate: {0}", sslPolicyErrors);
             return sslPolicyErrors == SslPolicyErrors.None;
         }
 
@@ -162,7 +162,7 @@ namespace Couchbase.Linq.Versioning
             }
             else
             {
-                Log.ErrorFormat("Invalid version string {0}", versionStr);
+                _log.Error("Invalid version string {0}", versionStr);
                 return null;
             }
         }
