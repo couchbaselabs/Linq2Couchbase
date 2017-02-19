@@ -53,6 +53,9 @@ namespace Couchbase.Linq.Execution
 
         public MutationState MutationState { get; private set; }
 
+        /// <inheritdoc cref="IBucketQueryExecutor.UseStreaming"/>
+        public bool UseStreaming { get; set; }
+
         /// <summary>
         /// Creates a new BucketQueryExecutor.
         /// </summary>
@@ -64,6 +67,8 @@ namespace Couchbase.Linq.Execution
             _bucket = bucket;
             _configuration = configuration;
             _bucketContext = bucketContext;
+
+            UseStreaming = true;
         }
 
         /// <summary>
@@ -109,7 +114,7 @@ namespace Couchbase.Linq.Execution
             return (mainFromClauseType == typeof (T)) || (mainFromClauseType == typeof (ScalarResult<T>));
         }
 
-        private void ApplyQueryRequestSettings(LinqQueryRequest queryRequest)
+        private void ApplyQueryRequestSettings(LinqQueryRequest queryRequest, bool generateProxies)
         {
             if (ScanConsistency.HasValue)
             {
@@ -123,6 +128,18 @@ namespace Couchbase.Linq.Execution
             {
                 queryRequest.ConsistentWith(MutationState);
             }
+
+            if (UseStreaming)
+            {
+                if (generateProxies)
+                {
+                    _log.Info("Query result streaming is not supported with change tracking, streaming disabled");
+                }
+                else
+                {
+                    queryRequest.UseStreaming(true);
+                }
+            }
         }
 
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
@@ -130,10 +147,10 @@ namespace Couchbase.Linq.Execution
             ScalarResultBehavior scalarResultBehavior;
             bool generateProxies = ShouldGenerateProxies<T>(queryModel);
 
-            var commandData = ExecuteCollection(queryModel, generateProxies, out scalarResultBehavior);
+            var commandData = GenerateQuery(queryModel, generateProxies, out scalarResultBehavior);
 
             var queryRequest = new LinqQueryRequest(commandData, scalarResultBehavior);
-            ApplyQueryRequestSettings(queryRequest);
+            ApplyQueryRequestSettings(queryRequest, generateProxies);
 
             if (generateProxies)
             {
@@ -225,7 +242,7 @@ namespace Couchbase.Linq.Execution
                 }
             }
 
-            return result.Rows ?? new List<T>(); //need to figure out how to return more data
+            return result;
         }
 
         public T ExecuteScalar<T>(QueryModel queryModel)
@@ -251,7 +268,7 @@ namespace Couchbase.Linq.Execution
                 : resultSet.Single();
         }
 
-        public string ExecuteCollection(QueryModel queryModel, bool selectDocumentMetadata, out ScalarResultBehavior scalarResultBehavior)
+        public string GenerateQuery(QueryModel queryModel, bool selectDocumentMetadata, out ScalarResultBehavior scalarResultBehavior)
         {
             // If ITypeSerializer is an IExtendedTypeSerializer, use it as the member name resolver
             // Otherwise fallback to the legacy behavior which assumes we're using Newtonsoft.Json
