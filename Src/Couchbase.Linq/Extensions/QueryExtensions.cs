@@ -414,6 +414,32 @@ namespace Couchbase.Linq.Extensions
             return source;
         }
 
+        /// <summary>
+        /// Specifies if the query results should be streamed, reducing memory utilzation for large result sets.
+        /// </summary>
+        /// <param name="source">Sets scan consistency for this query.  Must be a Couchbase LINQ query.</param>
+        /// <param name="useStreaming">Specifies if query results should be streamed.</param>
+        /// <remarks>
+        /// Streaming is not supported in combination with change tracking.  If change tracking is enabled,
+        /// this setting will be ignored.  Streaming is enabled by default.
+        /// </remarks>
+        public static IQueryable<T> UseStreaming<T>(this IQueryable<T> source, bool useStreaming)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException("source");
+            }
+            if (!(source is IBucketQueryExecutorProvider))
+            {
+                // do nothing if this isn't a Couchbase LINQ query
+                return source;
+            }
+
+            ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.UseStreaming = useStreaming;
+
+            return source;
+        }
+
         #endregion
 
         private static void EnsureBucketQueryable<T>(IQueryable<T> source, string methodName, string paramName)

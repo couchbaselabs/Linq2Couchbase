@@ -32,6 +32,8 @@ namespace Couchbase.Linq.UnitTests
             get { return _query; }
         }
 
+        public bool UseStreaming { get; set; }
+
         public BucketQueryExecutorEmulator(N1QLTestBase test)
         {
             if (test == null)

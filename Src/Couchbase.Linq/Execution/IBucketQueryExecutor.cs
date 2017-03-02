@@ -26,6 +26,12 @@ namespace Couchbase.Linq.Execution
         TimeSpan? ScanWait { get; set; }
 
         /// <summary>
+        /// Specifies if the query results should be streamed, reducing memory utilzation for large result sets.
+        /// </summary>
+        /// <remarks>The default is true.</remarks>
+        bool UseStreaming { get; set; }
+
+        /// <summary>
         /// Requires that the indexes but up to date with a <see cref="MutationState"/> before the query is executed.
         /// </summary>
         /// <param name="state"><see cref="MutationState"/> used for conistency controls.</param>

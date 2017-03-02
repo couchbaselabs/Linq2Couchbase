@@ -116,6 +116,27 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void Query_EnableProxyGenerationAndStreaming_ReturnsProxyBeerWithCas()
+        {
+            var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"));
+            db.BeginChangeTracking();
+
+            const string documentId = "21st_amendment_brewery_cafe-21a_ipa";
+
+            var query = from x in db.Query<Beer>().UseStreaming(true).UseKeys(new[] { documentId })
+                        where x.Type == "beer"
+                        select x;
+
+            var beer = query.First();
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var status = beer as ITrackedDocumentNode;
+
+            Assert.NotNull(status);
+            Assert.Greater(status.Metadata.Cas, 0);
+        }
+
+        [Test]
         public void Query_DisableProxyGeneration_ReturnsNoProxy()
         {
             var db = new BucketContext(ClusterHelper.GetBucket("beer-sample"));
