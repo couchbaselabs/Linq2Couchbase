@@ -95,16 +95,28 @@ namespace Couchbase.Linq
             var id = GetDocumentId(document);
             if (ChangeTrackingEnabled)
             {
-                var documentWrapper = new NewDocumentWrapper
-                {
-                    Value = document,
-                    Metadata = new DocumentMetadata {Id = id},
-                    IsDirty = true
-                };
-                documentWrapper.RegisterChangeTracking(this); //overkill with no effect
-
                 var context = this as IChangeTrackableContext;
-                context.Track(documentWrapper);
+
+                ITrackedDocumentNode documentWrapper = document as ITrackedDocumentNode;
+                if (documentWrapper == null)
+                {
+                    // This is a new document, so wrap in NewDocumentWrapper
+
+                    documentWrapper = new NewDocumentWrapper
+                    {
+                        Value = document,
+                        Metadata = new DocumentMetadata {Id = id},
+                        IsDirty = true
+                    };
+
+                    context.Track(documentWrapper);
+                }
+                else
+                {
+                    documentWrapper.IsDeleted = false;
+                    documentWrapper.IsDirty = true;
+                }
+
                 context.Modified(documentWrapper);
             }
             else
@@ -339,6 +351,14 @@ namespace Couchbase.Linq
                 var id = GetDocumentId(document);
 
                 _tracked.AddOrUpdate(id, document, (k, v) => document);
+
+                // If this is a node that triggers callbacks when modified,
+                // register the context so that it can handle the changed document
+                var documentNode = document as ITrackedDocumentNode;
+                if (documentNode != null)
+                {
+                    documentNode.RegisterChangeTracking(this);
+                }
             }
         }
 
@@ -357,6 +377,14 @@ namespace Couchbase.Linq
                 if (_tracked.TryRemove(id, out temp))
                 {
                    //add logging
+                }
+
+                // If this is a node that triggers callbacks when modified,
+                // unregister the context so that it doesn't handle the changed document
+                var documentNode = document as ITrackedDocumentNode;
+                if (documentNode != null)
+                {
+                    documentNode.UnregisterChangeTracking(this);
                 }
             }
         }

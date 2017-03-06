@@ -386,6 +386,105 @@ namespace Couchbase.Linq.UnitTests
         }
 
         [Test]
+        public void Save_ExistingDocument_SetsDirtyAndAddsToModified()
+        {
+            //arrange
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+
+            var ctx = new BucketContext(bucket.Object);
+            ctx.BeginChangeTracking();
+
+            var beer = (Beer)DocumentProxyManager.Default.CreateProxy(typeof(Beer));
+            beer.Name = "doc1";
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var trackedDoc = (ITrackedDocumentNode)beer;
+            trackedDoc.Metadata = new DocumentMetadata()
+            {
+                Id = "doc1"
+            };
+
+            trackedDoc.ClearStatus();
+            (ctx as IChangeTrackableContext).Track(beer);
+
+            //act
+            ctx.Save(beer);
+
+            //assert
+            Assert.True(trackedDoc.IsDirty);
+            Assert.AreEqual(1, ctx.ModifiedCount);
+        }
+
+        [Test]
+        public void Save_AlreadyModifiedDocument_NoChange()
+        {
+            //arrange
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+
+            var ctx = new BucketContext(bucket.Object);
+            ctx.BeginChangeTracking();
+
+            var beer = (Beer)DocumentProxyManager.Default.CreateProxy(typeof(Beer));
+            beer.Name = "doc1";
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var trackedDoc = (ITrackedDocumentNode)beer;
+            trackedDoc.Metadata = new DocumentMetadata()
+            {
+                Id = "doc1"
+            };
+
+            trackedDoc.ClearStatus();
+            (ctx as IChangeTrackableContext).Track(beer);
+
+            //act
+
+            beer.Abv = 5;
+
+            var previousModifiedCount = ctx.ModifiedCount;
+            ctx.Save(beer);
+
+            //assert
+            Assert.True(trackedDoc.IsDirty);
+            Assert.AreEqual(previousModifiedCount, ctx.ModifiedCount);
+        }
+
+        [Test]
+        public void Save_RemoveThenSave_ClearsIsDeletedFlagAndSetsIsDirtyAndAddsToModified()
+        {
+            //arrange
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+
+            var ctx = new BucketContext(bucket.Object);
+            ctx.BeginChangeTracking();
+
+            var beer = (Beer) DocumentProxyManager.Default.CreateProxy(typeof(Beer));
+            beer.Name = "doc1";
+
+            // ReSharper disable once SuspiciousTypeConversion.Global
+            var trackedDoc = (ITrackedDocumentNode)beer;
+            trackedDoc.Metadata = new DocumentMetadata()
+            {
+                Id = "doc1"
+            };
+
+            trackedDoc.ClearStatus();
+            (ctx as IChangeTrackableContext).Track(beer);
+
+            //act
+            ctx.Remove(beer);
+            ctx.Save(beer);
+
+            //assert
+            Assert.True(trackedDoc.IsDirty);
+            Assert.False(trackedDoc.IsDeleted);
+            Assert.AreEqual(1, ctx.ModifiedCount);
+        }
+
+        [Test]
         public void SubmitChanges_Removes_Document_From_Modified_List()
         {
             //arrange

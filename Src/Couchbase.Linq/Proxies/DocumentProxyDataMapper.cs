@@ -92,9 +92,6 @@ namespace Couchbase.Linq.Proxies
                         // Track the document
                         context.Track(row);
 
-                        // Register the context so that it can handled the changed document
-                        status.RegisterChangeTracking(context);
-
                         // Clear the deserialization flags to start change tracking
                         status.ClearStatus();
                     }
