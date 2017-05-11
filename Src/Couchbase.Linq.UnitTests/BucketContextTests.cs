@@ -1080,6 +1080,88 @@ namespace Couchbase.Linq.UnitTests
         }
 
         [Test]
+        public void AddToMutationState_TokenWithNullBucketRef_DoesNothing()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+
+            var db = new BucketContext(bucket.Object);
+
+            // Act
+
+            db.AddToMutationState(new MutationToken(null, 1, 2, 3));
+
+            // Assert
+
+            Assert.IsNull(db.MutationState);
+        }
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-2)]
+        public void AddToMutationState_TokenWithSequenceNumberLessThan1_DoesNothing(int value)
+        {
+          // Arrange
+
+          var bucket = new Mock<IBucket>();
+          bucket.SetupGet(m => m.Name).Returns("default");
+
+          var db = new BucketContext(bucket.Object);
+
+          // Act
+
+          db.AddToMutationState(new MutationToken("default", 1, 2, value));
+
+          // Assert
+
+          Assert.IsNull(db.MutationState);
+        }
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-2)]
+        public void AddToMutationState_TokenWithVBucketIdLessThan1_DoesNothing(short value)
+        {
+          // Arrange
+
+          var bucket = new Mock<IBucket>();
+          bucket.SetupGet(m => m.Name).Returns("default");
+
+          var db = new BucketContext(bucket.Object);
+
+          // Act
+
+          db.AddToMutationState(new MutationToken("default", value, 2, 3));
+
+          // Assert
+
+          Assert.IsNull(db.MutationState);
+        }
+
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-2)]
+        public void AddToMutationState_TokenWithVBucketUUIDLessThan1_DoesNothing(int value)
+        {
+          // Arrange
+
+          var bucket = new Mock<IBucket>();
+          bucket.SetupGet(m => m.Name).Returns("default");
+
+          var db = new BucketContext(bucket.Object);
+
+          // Act
+
+          db.AddToMutationState(new MutationToken("default", 1, value, 3));
+
+          // Assert
+
+          Assert.IsNull(db.MutationState);
+        }
+
+        [Test]
         public void AddToMutationState_FirstRealToken_CreatesMutationState()
         {
             // Arrange

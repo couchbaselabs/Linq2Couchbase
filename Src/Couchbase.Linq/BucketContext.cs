@@ -458,7 +458,7 @@ namespace Couchbase.Linq
 
         internal virtual void AddToMutationState(MutationToken token)
         {
-            if ((token == null) || (token.VBucketId < 0))
+            if (token == null || !IsTokenSet(token))
             {
                 // No token was returned, so don't add to the mutation state
                 return;
@@ -473,6 +473,14 @@ namespace Couchbase.Linq
             {
                 Token = token
             });
+        }
+
+        private bool IsTokenSet(MutationToken token)
+        {
+            return token.VBucketId > 0 &&
+                   token.VBucketUUID > 0 &&
+                   token.SequenceNumber > 0 &&
+                   token.BucketRef != null;
         }
 
         /// <summary>
