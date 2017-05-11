@@ -1098,8 +1098,10 @@ namespace Couchbase.Linq.UnitTests
             Assert.IsNull(db.MutationState);
         }
 
-        [Test]
-        public void AddToMutationState_TokenWithSequenceNumberLessThan1_DoesNothing()
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-2)]
+        public void AddToMutationState_TokenWithSequenceNumberLessThan1_DoesNothing(int value)
         {
           // Arrange
 
@@ -1110,15 +1112,17 @@ namespace Couchbase.Linq.UnitTests
 
           // Act
 
-          db.AddToMutationState(new MutationToken("default", 1, 2, 0));
+          db.AddToMutationState(new MutationToken("default", 1, 2, value));
 
           // Assert
 
           Assert.IsNull(db.MutationState);
         }
 
-        [Test]
-        public void AddToMutationState_TokenWithVBucketIdLessThan1_DoesNothing()
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-2)]
+        public void AddToMutationState_TokenWithVBucketIdLessThan1_DoesNothing(short value)
         {
           // Arrange
 
@@ -1129,15 +1133,17 @@ namespace Couchbase.Linq.UnitTests
 
           // Act
 
-          db.AddToMutationState(new MutationToken("default", 0, 2, 3));
+          db.AddToMutationState(new MutationToken("default", value, 2, 3));
 
           // Assert
 
           Assert.IsNull(db.MutationState);
         }
 
-        [Test]
-        public void AddToMutationState_TokenWithVBucketUUIDLessThan1_DoesNothing()
+        [TestCase(0)]
+        [TestCase(-1)]
+        [TestCase(-2)]
+        public void AddToMutationState_TokenWithVBucketUUIDLessThan1_DoesNothing(int value)
         {
           // Arrange
 
@@ -1148,7 +1154,7 @@ namespace Couchbase.Linq.UnitTests
 
           // Act
 
-          db.AddToMutationState(new MutationToken("default", 1, 0, 3));
+          db.AddToMutationState(new MutationToken("default", 1, value, 3));
 
           // Assert
 
