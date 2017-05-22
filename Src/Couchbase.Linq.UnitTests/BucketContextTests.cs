@@ -1080,6 +1080,82 @@ namespace Couchbase.Linq.UnitTests
         }
 
         [Test]
+        public void AddToMutationState_TokenWithNullBucketRef_DoesNothing()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.SetupGet(m => m.Name).Returns("default");
+
+            var db = new BucketContext(bucket.Object);
+
+            // Act
+
+            db.AddToMutationState(new MutationToken(null, 1, 2, 3));
+
+            // Assert
+
+            Assert.IsNull(db.MutationState);
+        }
+
+        [Test]
+        public void AddToMutationState_TokenWithSequenceNumberLessThan1_DoesNothing()
+        {
+          // Arrange
+
+          var bucket = new Mock<IBucket>();
+          bucket.SetupGet(m => m.Name).Returns("default");
+
+          var db = new BucketContext(bucket.Object);
+
+          // Act
+
+          db.AddToMutationState(new MutationToken("default", 1, 2, 0));
+
+          // Assert
+
+          Assert.IsNull(db.MutationState);
+        }
+
+        [Test]
+        public void AddToMutationState_TokenWithVBucketIdLessThan1_DoesNothing()
+        {
+          // Arrange
+
+          var bucket = new Mock<IBucket>();
+          bucket.SetupGet(m => m.Name).Returns("default");
+
+          var db = new BucketContext(bucket.Object);
+
+          // Act
+
+          db.AddToMutationState(new MutationToken("default", 0, 2, 3));
+
+          // Assert
+
+          Assert.IsNull(db.MutationState);
+        }
+
+        [Test]
+        public void AddToMutationState_TokenWithVBucketUUIDLessThan1_DoesNothing()
+        {
+          // Arrange
+
+          var bucket = new Mock<IBucket>();
+          bucket.SetupGet(m => m.Name).Returns("default");
+
+          var db = new BucketContext(bucket.Object);
+
+          // Act
+
+          db.AddToMutationState(new MutationToken("default", 1, 0, 3));
+
+          // Assert
+
+          Assert.IsNull(db.MutationState);
+        }
+
+        [Test]
         public void AddToMutationState_FirstRealToken_CreatesMutationState()
         {
             // Arrange
