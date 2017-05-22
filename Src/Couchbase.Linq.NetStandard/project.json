@@ -2,7 +2,7 @@
   "supports": {},
   "dependencies": {
     "Castle.Core": "4.0.0",
-    "CouchbaseNetClient": "2.4.0",
+    "CouchbaseNetClient": "2.4.5",
     "Microsoft.NETCore.Portable.Compatibility": "1.0.1",
     "NETStandard.Library": "1.6.1",
     "Newtonsoft.Json": "9.0.1",
