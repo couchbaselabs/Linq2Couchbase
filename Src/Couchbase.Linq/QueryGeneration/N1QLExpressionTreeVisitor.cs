@@ -56,7 +56,7 @@ namespace Couchbase.Linq.QueryGeneration
             var message = string.Format(
                 "The expression '{0}' (type: {1}) is not supported by this LINQ provider."
                 , unhandledItem
-                , typeof (T));
+                , typeof(T));
 
             return new NotSupportedException(message);
         }
@@ -71,10 +71,10 @@ namespace Couchbase.Linq.QueryGeneration
             switch (expression.NodeType)
             {
                 case ExpressionType.Coalesce:
-                    return VisitCoalesceExpression((BinaryExpression) expression);
+                    return VisitCoalesceExpression((BinaryExpression)expression);
 
                 case ExpressionType.ArrayIndex:
-                    return VisitArrayIndexExpression((BinaryExpression) expression);
+                    return VisitArrayIndexExpression((BinaryExpression)expression);
 
                 default:
                     return base.Visit(expression);
@@ -230,7 +230,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _expression.Append('[');
 
-                for (var i=0; i<expression.Expressions.Count; i++)
+                for (var i = 0; i < expression.Expressions.Count; i++)
                 {
                     if (i > 0)
                     {
@@ -286,7 +286,7 @@ namespace Couchbase.Linq.QueryGeneration
                     break;
 
                 case ExpressionType.Add:
-                    if ((expression.Left.Type == typeof (string)) || (expression.Right.Type == typeof (string)))
+                    if ((expression.Left.Type == typeof(string)) || (expression.Right.Type == typeof(string)))
                     {
                         _expression.Append(" || ");
                     }
@@ -357,8 +357,20 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected virtual Expression VisitStringComparisonExpression(StringComparisonExpression expression)
         {
+            var toLower = expression.Comparison.HasValue && expression.Comparison.Value == StringComparison.OrdinalIgnoreCase;
+
             _expression.Append('(');
-            Visit(expression.Left);
+            if (toLower)
+            {
+                _expression.Append("LOWER(");
+                Visit(expression.Left);
+                _expression.Append(')');
+            }
+            else
+            {
+                Visit(expression.Left);
+            }
+
 
             switch (expression.Operation)
             {
@@ -382,7 +394,17 @@ namespace Couchbase.Linq.QueryGeneration
                     break;
             }
 
-            Visit(expression.Right);
+            if (toLower)
+            {
+                _expression.Append("LOWER(");
+                Visit(expression.Right);
+                _expression.Append(')');
+            }
+            else
+            {
+                Visit(expression.Right);
+            }
+
             _expression.Append(')');
 
             return expression;
@@ -405,7 +427,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 if (rightExpression.NodeType == ExpressionType.Coalesce)
                 {
-                    var subExpression = (BinaryExpression) rightExpression;
+                    var subExpression = (BinaryExpression)rightExpression;
                     Visit(subExpression.Left);
 
                     rightExpression = subExpression.Right;
@@ -470,7 +492,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
             else if (namedParameter.Value is bool)
             {
-                _expression.Append((bool) namedParameter.Value ? "TRUE" : "FALSE");
+                _expression.Append((bool)namedParameter.Value ? "TRUE" : "FALSE");
             }
             else if (namedParameter.Value is DateTime)
             {
