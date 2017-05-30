@@ -13,7 +13,6 @@
     <FileAlignment>512</FileAlignment>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
-    <ILRepackPath>$(SolutionDir)\packages\ILRepack.2.0.10\tools\ILRepack.exe</ILRepackPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,17 +35,6 @@
     <DocumentationFile>bin\Release\Couchbase.Linq.xml</DocumentationFile>
     <LangVersion>5</LangVersion>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'RepackedRelease|AnyCPU'">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\RepackedRelease\</OutputPath>
-    <DefineConstants>TRACE;NET45</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <ILRepack>true</ILRepack>
-    <DocumentationFile>bin\RepackedRelease\Couchbase.Linq.xml</DocumentationFile>
-    <LangVersion>5</LangVersion>
-  </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
@@ -67,8 +55,8 @@
       <HintPath>..\packages\Common.Logging.Core.3.3.1\lib\net40\Common.Logging.Core.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Couchbase.NetClient, Version=2.4.0.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
-      <HintPath>..\packages\CouchbaseNetClient.2.4.0\lib\net45\Couchbase.NetClient.dll</HintPath>
+    <Reference Include="Couchbase.NetClient, Version=2.4.5.0, Culture=neutral, PublicKeyToken=05e9c6b5a9ec94c2, processorArchitecture=MSIL">
+      <HintPath>..\packages\CouchbaseNetClient.2.4.5\lib\net45\Couchbase.NetClient.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -220,34 +208,8 @@
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <BuildDependsOn>ILRepackPrebuild;$(BuildDependsOn);ILRepackPostbuild</BuildDependsOn>
+    <BuildDependsOn>$(BuildDependsOn);</BuildDependsOn>
   </PropertyGroup>
-  <Target Name="ILRepackPrebuild" Condition="'$(ILRepack)' == 'true'">
-    <!-- Save the modified timestamp from the output assembly before build starts -->
-    <PropertyGroup>
-      <ILRepackCompileTimestamp>%(IntermediateAssembly.ModifiedTime)</ILRepackCompileTimestamp>
-    </PropertyGroup>
-  </Target>
-  <Target Name="ILRepackPostbuild" Condition="'$(ILRepack)' == 'true'">
-    <!-- If the output assembly was modified, then start the repack -->
-    <CallTarget Condition="'$(ILRepackCompileTimestamp)' != '%(IntermediateAssembly.ModifiedTime)'" Targets="ILRepack" />
-    <!-- Remove repacked files from the output directory -->
-    <ItemGroup>
-      <ToBeDeleted Include="$(OutputPath)Remotion.Linq.*" />
-      <ToBeDeleted Include="$(OutputPath)Castle.Core.*" />
-    </ItemGroup>
-    <Delete Files="@(ToBeDeleted)" />
-  </Target>
-  <Target Name="ILRepack" Condition="'$(ILRepack)' == 'true'">
-    <!-- This will be triggered by ILRepackPostbuild only if the output assembly was modified by the build -->
-    <!-- Ensure that ILRepack.exe exists -->
-    <PropertyGroup>
-      <ErrorText>Cannot find ILRepack executable: {0}.</ErrorText>
-    </PropertyGroup>
-    <Error Condition="!Exists('$(ILRepackPath)')" Text="$([System.String]::Format('$(ErrorText)', '$(ILRepackPath)'))" />
-    <!-- Perform repack -->
-    <Exec WorkingDirectory="$(OutputPath)" Command="&quot;$(ILRepackPath)&quot; /internalize /parallel /out:Couchbase.Linq.dll Couchbase.Linq.dll Remotion.Linq.dll Castle.Core.dll" Outputs="$(OutputPath)Couchbase.Linq.dll" />
-  </Target>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
