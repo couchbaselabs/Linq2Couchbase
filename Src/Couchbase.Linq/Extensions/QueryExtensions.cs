@@ -308,6 +308,15 @@ namespace Couchbase.Linq.Extensions
         /// </example>
         public static async Task<IEnumerable<T>> ExecuteAsync<T>(this IQueryable<T> source)
         {
+            if (source is EnumerableQuery)
+            {
+                // Allow ExecuteAsync to simply run synchronously when executed against an in-memory collection
+                // This supports injecting mock IBucketContext instances into unit tests of business logic
+                // https://github.com/couchbaselabs/Linq2Couchbase/issues/191
+
+                return source.AsEnumerable();
+            }
+
             EnsureBucketQueryable(source, "ExecuteAsync", "source");
 
             var queryRequest = LinqQueryRequest.CreateQueryRequest(source);
@@ -342,6 +351,16 @@ namespace Couchbase.Linq.Extensions
         public static async Task<TResult> ExecuteAsync<T, TResult>(this IQueryable<T> source,
             Expression<Func<IQueryable<T>, TResult>> additionalExpression)
         {
+            if (source is EnumerableQuery)
+            {
+                // Allow ExecuteAsync to simply run synchronously when executed against an in-memory collection
+                // This supports injecting mock IBucketContext instances into unit tests of business logic
+                // https://github.com/couchbaselabs/Linq2Couchbase/issues/191
+
+                var additionalFunction = additionalExpression.Compile();
+                return additionalFunction(source);
+            }
+
             EnsureBucketQueryable(source, "ExecuteAsync", "source");
 
             if (typeof (TResult).GetTypeInfo().IsGenericTypeDefinition &&
