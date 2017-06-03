@@ -38,6 +38,9 @@
     <DocumentationFile>bin\Release\Couchbase.Linq.XML</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\Couchbase.Linq\BucketQueryOptions.cs">
+      <Link>BucketQueryOptions.cs</Link>
+    </Compile>
     <Compile Include="..\Couchbase.Linq\Clauses\UseIndexClause.cs">
       <Link>Clauses\UseIndexClause.cs</Link>
     </Compile>
