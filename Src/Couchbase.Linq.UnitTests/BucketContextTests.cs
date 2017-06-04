@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Linq.Expressions;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
 using Couchbase.Core.Buckets;
@@ -177,6 +178,64 @@ namespace Couchbase.Linq.UnitTests
 
             //assert
             Assert.AreEqual("Key2", result);
+        }
+
+        [Test]
+        public void Query_NoOptions_AppliesFilters()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+            var ctx = new BucketContext(bucket.Object);
+
+            // Act
+
+            var query = ctx.Query<BeerFiltered>();
+
+            // Assert
+
+            var methodCall = query.Expression as MethodCallExpression;
+            Assert.IsNotNull(methodCall);
+            Assert.AreEqual("Where", methodCall.Method.Name);
+        }
+
+        [Test]
+        public void Query_None_AppliesFilters()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+            var ctx = new BucketContext(bucket.Object);
+
+            // Act
+
+            var query = ctx.Query<BeerFiltered>(BucketQueryOptions.None);
+
+            // Assert
+
+            var methodCall = query.Expression as MethodCallExpression;
+            Assert.IsNotNull(methodCall);
+            Assert.AreEqual("Where", methodCall.Method.Name);
+        }
+
+        [Test]
+        public void Query_SuppressFilters_DoesntApplyFilters()
+        {
+            // Arrange
+
+            var bucket = new Mock<IBucket>();
+            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
+            var ctx = new BucketContext(bucket.Object);
+
+            // Act
+
+            var query = ctx.Query<BeerFiltered>(BucketQueryOptions.SuppressFilters);
+
+            // Assert
+
+            Assert.IsAssignableFrom<ConstantExpression>(query.Expression);
         }
 
         [Test]

@@ -82,6 +82,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BucketQueryOptions.cs" />
     <Compile Include="Clauses\UseIndexClause.cs" />
     <Compile Include="Clauses\ExtentNameExpressionNode.cs" />
     <Compile Include="Clauses\UseIndexExpressionNode.cs" />
