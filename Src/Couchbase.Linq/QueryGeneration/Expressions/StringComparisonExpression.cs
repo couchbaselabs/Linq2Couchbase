@@ -26,6 +26,7 @@ namespace Couchbase.Linq.QueryGeneration.Expressions
         public ExpressionType Operation { get; private set; }
         public Expression Left { get; private set; }
         public Expression Right { get; private set; }
+        public StringComparison? Comparison { get; set; }
 
         public override ExpressionType NodeType
         {
@@ -37,10 +38,10 @@ namespace Couchbase.Linq.QueryGeneration.Expressions
 
         public override Type Type
         {
-            get { return typeof (bool); }
+            get { return typeof(bool); }
         }
 
-        public static StringComparisonExpression Create(ExpressionType operation, Expression left, Expression right)
+        public static StringComparisonExpression Create(ExpressionType operation, Expression left, Expression right, StringComparison? comparison = null)
         {
             if (!SupportedOperations.Contains(operation))
             {
@@ -63,14 +64,15 @@ namespace Couchbase.Linq.QueryGeneration.Expressions
                 throw new ArgumentException("Expressions must be strings.", "right");
             }
 
-            return new StringComparisonExpression(operation, left, right);
+            return new StringComparisonExpression(operation, left, right, comparison);
         }
 
-        private StringComparisonExpression(ExpressionType operation, Expression left, Expression right)
+        private StringComparisonExpression(ExpressionType operation, Expression left, Expression right, StringComparison? comparison = null)
         {
             Operation = operation;
             Left = left;
             Right = right;
+            Comparison = comparison;
         }
 
         protected override Expression VisitChildren(ExpressionVisitor visitor)
@@ -80,7 +82,7 @@ namespace Couchbase.Linq.QueryGeneration.Expressions
 
             if ((Left != newLeft) || (Right != newRight))
             {
-                return Create(Operation, newLeft, newRight);
+                return Create(Operation, newLeft, newRight, Comparison);
             }
             else
             {

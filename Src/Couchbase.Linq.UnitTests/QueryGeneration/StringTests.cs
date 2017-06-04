@@ -536,6 +536,95 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_StringCompare_EqualOrdinal()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
+                        where string.Compare(contact.FirstName, "M", StringComparison.Ordinal) == 0
+                        select new { contact.FirstName };
+
+            const string expected =
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`fname` = 'M')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringCompare_EqualOrginalIgnoreCase()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
+                        where string.Compare(contact.FirstName, "M", StringComparison.OrdinalIgnoreCase) == 0
+                        select new { contact.FirstName };
+
+            const string expected =
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (LOWER(`Extent1`.`fname`) = LOWER('M'))";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringCompare_EqualCurrCultureIgnoreCase()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
+                        where string.Compare(contact.FirstName, "M", StringComparison.CurrentCultureIgnoreCase) == 0
+                        select new { contact.FirstName };
+
+            const string expected =
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (LOWER(`Extent1`.`fname`) = LOWER('M'))";
+
+            Assert.Throws<NotSupportedException>(() => CreateN1QlQuery(mockBucket.Object, query.Expression));
+        }
+
+        [Test]
+        public void Test_StringCompare_EqualCurrCultureCase()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
+                        where string.Compare(contact.FirstName, "M", StringComparison.CurrentCulture) == 0
+                        select new { contact.FirstName };
+
+            const string expected =
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (LOWER(`Extent1`.`fname`) = LOWER('M'))";
+
+            Assert.Throws<NotSupportedException>(() => CreateN1QlQuery(mockBucket.Object, query.Expression));
+        }
+
+        [Test]
+        public void Test_StringCompare_EqualCurrCulturegnoreCase()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
+                        where string.Compare(contact.FirstName, "M", StringComparison.CurrentCultureIgnoreCase) == 0
+                        select new { contact.FirstName };
+
+            const string expected =
+                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
+                "WHERE (LOWER(`Extent1`.`fname`) = LOWER('M'))";
+
+            Assert.Throws<NotSupportedException>(() => CreateN1QlQuery(mockBucket.Object, query.Expression));
+        }
+
+        [Test]
         public void Test_StringCompare_NotEqual()
         {
             var mockBucket = new Mock<IBucket>();

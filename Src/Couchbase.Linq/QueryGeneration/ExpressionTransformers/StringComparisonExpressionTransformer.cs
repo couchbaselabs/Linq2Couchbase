@@ -18,6 +18,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
     {
         private static readonly MethodInfo[] StringCompareMethods = {
            typeof(string).GetMethod("Compare", new[] { typeof(string), typeof(string) }),
+           typeof (string).GetMethod("Compare", new[] { typeof (string), typeof(string), typeof(StringComparison) }),
            typeof(string).GetMethod("CompareTo", new[] { typeof(string) })
         };
 
@@ -42,6 +43,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
 
             var leftExpression = expression.Left as MethodCallExpression;
             var rightExpression = expression.Right as MethodCallExpression;
+            ConstantExpression comparisonExpression = null;
 
             if ((leftExpression != null) && !StringCompareMethods.Contains(leftExpression.Method))
             {
@@ -78,8 +80,13 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
 
             Expression leftString;
             Expression rightString;
-
-            if (methodCallExpression.Arguments.Count > 1)
+            if (methodCallExpression.Arguments.Count > 2)
+            {
+                leftString = methodCallExpression.Arguments[0];
+                rightString = methodCallExpression.Arguments[1];
+                comparisonExpression = methodCallExpression.Arguments[2] as ConstantExpression;
+            }
+            else if (methodCallExpression.Arguments.Count > 1)
             {
                 leftString = methodCallExpression.Arguments[0];
                 rightString = methodCallExpression.Arguments[1];
@@ -99,7 +106,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
                 rightString = temp;
             }
 
-            return ConvertStringCompareExpression(leftString, rightString, expression.NodeType, number);
+            return ConvertStringCompareExpression(leftString, rightString, expression.NodeType, number, comparisonExpression);
         }
 
         /// <summary>
@@ -109,8 +116,9 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
         /// <param name="rightString">String expression on the right side of the comparison</param>
         /// <param name="operation">Comparison operation being performed</param>
         /// <param name="number">Number that String.Compare was being compared to, typically 0, 1, or -1.</param>
+        /// <param name="comparisonExpression">Indicated the comparison type. Most commonly used with case insensitive comparisons</param>
         private Expression ConvertStringCompareExpression(Expression leftString, Expression rightString,
-            ExpressionType operation, int number)
+            ExpressionType operation, int number, ConstantExpression comparisonExpression)
         {
             if (number == 1)
             {
@@ -161,8 +169,18 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             }
 
             // If number == 0 we just leave operation unchanged
+            StringComparison? comparison = null;
+            if (comparisonExpression != null)
+            {
+                comparison = (StringComparison)comparisonExpression.Value;
+                if (comparison != StringComparison.Ordinal && comparison != StringComparison.OrdinalIgnoreCase)
+                {
+                    var msg = string.Format("String comparison option {0} is not supported", comparison);
+                    throw new NotSupportedException(msg);
+                }
+            }
 
-            return StringComparisonExpression.Create(operation, leftString, rightString);
+            return StringComparisonExpression.Create(operation, leftString, rightString, comparison);
         }
     }
 }
