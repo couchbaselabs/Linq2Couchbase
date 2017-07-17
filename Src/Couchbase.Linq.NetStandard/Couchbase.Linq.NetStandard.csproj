@@ -386,6 +386,9 @@
     <Compile Include="..\Couchbase.Linq\Versioning\VersionProvider.cs">
       <Link>Versioning\VersionProvider.cs</Link>
     </Compile>
+    <Compile Include="..\Couchbase.Linq\UnixMillisecondsDateTimeOffset.cs">
+      <Link>UnixMillisecondsDateTimeOffset.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <!-- A reference to the entire .NET Framework is automatically included -->

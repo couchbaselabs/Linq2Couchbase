@@ -21,7 +21,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Where(e => e.Age > 10 && e.FirstName == "Sam")
                     .OrderBy(e => e.Age)
-                    .Select(e => new {age = e.Age, name = e.FirstName});
+                    .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
                 "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) ORDER BY `Extent1`.`age` ASC";
@@ -42,7 +42,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Where(e => e.Email == "something@gmail.com")
                     .Where(g => N1QlFunctions.IsMissing(g.Age))
                     .OrderBy(e => e.Age)
-                    .Select(e => new {age = e.Age, name = e.FirstName});
+                    .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
                 "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (`Extent1`.`email` = 'something@gmail.com') AND `Extent1`.`age` IS MISSING ORDER BY `Extent1`.`age` ASC";
@@ -61,7 +61,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query =
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Where(e => e.Age > 10 && e.FirstName == "Sam" && e.LastName.Contains("a"))
-                    .Select(e => new {age = e.Age, name = e.FirstName});
+                    .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
                 "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) AND (`Extent1`.`lname` LIKE '%a%'))";
@@ -118,7 +118,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query =
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Where(e => e.Age > 10 && e.FirstName == "Sam")
-                    .Select(e => new {age = e.Age, name = e.FirstName});
+                    .Select(e => new { age = e.Age, name = e.FirstName });
 
 
             const string expected =
@@ -141,7 +141,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query =
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Where(e => e.Age > age && e.FirstName == firstName)
-                    .Select(e => new {age = e.Age, name = e.FirstName});
+                    .Select(e => new { age = e.Age, name = e.FirstName });
 
 
             const string expected =
@@ -162,7 +162,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Where(e => e.Age > 10 && e.FirstName == "Sam")
                     .Where(e => e.Email == "myemail@test.com")
-                    .Select(e => new {age = e.Age, name = e.FirstName});
+                    .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
                 "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) AND (`Extent1`.`email` = 'myemail@test.com')";
@@ -181,7 +181,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query =
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Where(e => e.Age > 10 || e.FirstName == "Sam")
-                    .Select(e => new {age = e.Age, name = e.FirstName});
+                    .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
                 "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) OR (`Extent1`.`fname` = 'Sam'))";
@@ -200,7 +200,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query =
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Where(e => e.Age < 10 + 30)
-                    .Select(e => new {age = e.Age, name = e.FirstName});
+                    .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected = "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (`Extent1`.`age` < 40)";
 
@@ -264,6 +264,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected =
                 "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` " +
                 "WHERE (STR_TO_MILLIS(`Extent1`.`updated`) >= STR_TO_MILLIS(\"2010-01-01T00:00:00Z\"))";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Where_With_DateTimeOffsetComparison()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .Where(e => e.UpdatedOffset >= new DateTimeOffset(2010, 1, 1, 0, 0, 0, new TimeSpan(6, 0, 0)))
+                    .Select(e => new { e.Name });
+
+
+            const string expected =
+                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` " +
+                "WHERE (STR_TO_MILLIS(`Extent1`.`updatedOffset`) >= STR_TO_MILLIS(\"2010-01-01T00:00:00+06:00\"))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
