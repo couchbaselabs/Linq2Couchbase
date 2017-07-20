@@ -14,8 +14,13 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
         private static readonly MethodInfo[] SupportedMethodsStatic = {
             typeof (UnixMillisecondsDateTime).GetMethod("FromDateTime", new[] { typeof (DateTime) }),
             typeof (UnixMillisecondsDateTime).GetMethod("FromDateTime", new[] { typeof (DateTime?) }),
+            typeof (UnixMillisecondsDateTimeOffset).GetMethod("FromDateTimeOffset", new[] { typeof (DateTimeOffset) }),
+            typeof (UnixMillisecondsDateTimeOffset).GetMethod("FromDateTimeOffset", new[] { typeof (DateTimeOffset?) }),
             typeof (UnixMillisecondsDateTime).GetMethod("ToDateTime", new[] { typeof (UnixMillisecondsDateTime) }),
-            typeof (UnixMillisecondsDateTime).GetMethod("ToDateTime", new[] { typeof (UnixMillisecondsDateTime?) })
+            typeof (UnixMillisecondsDateTime).GetMethod("ToDateTime", new[] { typeof (UnixMillisecondsDateTime?) }),
+            typeof (UnixMillisecondsDateTimeOffset).GetMethod("ToDateTimeOffset", new[] { typeof (UnixMillisecondsDateTimeOffset) }),
+            typeof (UnixMillisecondsDateTimeOffset).GetMethod("ToDateTimeOffset", new[] { typeof (UnixMillisecondsDateTimeOffset?) })
+
         };
 
         public IEnumerable<MethodInfo> SupportMethods
@@ -45,7 +50,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
             var expression = expressionTreeVisitor.Expression;
 
-            if (methodCallExpression.Method.Name == "FromDateTime")
+            if (methodCallExpression.Method.Name == "FromDateTime" || methodCallExpression.Method.Name == "FromDateTimeOffset")
             {
                 expression.Append("STR_TO_MILLIS(");
             }

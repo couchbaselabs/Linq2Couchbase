@@ -192,6 +192,7 @@
     <Compile Include="QueryGeneration\UnclaimedGroupJoin.cs" />
     <Compile Include="QueryParserHelper.cs" />
     <Compile Include="SaveOptions.cs" />
+    <Compile Include="UnixMillisecondsDateTimeOffset.cs" />
     <Compile Include="UnixMillisecondsDateTime.cs" />
     <Compile Include="Utils\ExceptionMsgs.cs" />
     <Compile Include="Versioning\DefaultVersionProvider.cs" />

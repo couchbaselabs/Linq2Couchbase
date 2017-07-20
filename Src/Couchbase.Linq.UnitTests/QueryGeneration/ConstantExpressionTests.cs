@@ -95,7 +95,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query =
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Select(e => new { e.FirstName, Value = new[] {1, 2, 3, 4, 5} });
+                .Select(e => new { e.FirstName, Value = new[] { 1, 2, 3, 4, 5 } });
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName`, [1, 2, 3, 4, 5] as `Value` FROM `default` as `Extent1`";
@@ -149,7 +149,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var query =
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
-                .Select(e => new {Value = new[] { new {Name = e.FirstName}, new {Name = e.LastName} } });
+                .Select(e => new { Value = new[] { new { Name = e.FirstName }, new { Name = e.LastName } } });
 
             const string expected =
                 "SELECT [{\"Name\": `Extent1`.`fname`}, {\"Name\": `Extent1`.`lname`}] as `Value` FROM `default` as `Extent1`";
@@ -171,6 +171,24 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName`, \"2000-12-01T01:23:45.067Z\" as `Value` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_DateTimeOffset()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                .Select(e => new { e.FirstName, Value = new DateTimeOffset(2017, 2, 24, 23, 20, 34, 67, new TimeSpan(6, 0, 0)) });
+
+            const string expected =
+                "SELECT `Extent1`.`fname` as `FirstName`, \"2017-02-24T23:20:34.067+06:00\" as `Value` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

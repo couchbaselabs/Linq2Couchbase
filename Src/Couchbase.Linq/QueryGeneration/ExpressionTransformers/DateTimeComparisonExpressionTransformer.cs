@@ -21,6 +21,10 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             typeof (UnixMillisecondsDateTime).GetMethod("FromDateTime", new[] { typeof(DateTime) });
         private static readonly MethodInfo FromDateTimeNullableMethod =
             typeof(UnixMillisecondsDateTime).GetMethod("FromDateTime", new[] { typeof(DateTime?) });
+        private static readonly MethodInfo FromDateTimeOffsetMethod =
+            typeof(UnixMillisecondsDateTimeOffset).GetMethod("FromDateTimeOffset", new[] { typeof(DateTimeOffset) });
+        private static readonly MethodInfo FromDateTimeOffsetNullableMethod =
+           typeof(UnixMillisecondsDateTimeOffset).GetMethod("FromDateTimeOffset", new[] { typeof(DateTimeOffset?) });
 
         public ExpressionType[] SupportedExpressionTypes
         {
@@ -70,6 +74,14 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             else if (side.Type == typeof(DateTime?))
             {
                 return Expression.Call(FromDateTimeNullableMethod, side);
+            }
+            else if(side.Type == typeof(DateTimeOffset))
+            {
+                return Expression.Call(FromDateTimeOffsetMethod, side);
+            }
+            else if (side.Type == typeof(DateTimeOffset?))
+            {
+                return Expression.Call(FromDateTimeOffsetMethod, side);
             }
             else
             {

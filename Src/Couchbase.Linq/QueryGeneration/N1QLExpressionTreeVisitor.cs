@@ -494,7 +494,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _expression.Append((bool)namedParameter.Value ? "TRUE" : "FALSE");
             }
-            else if (namedParameter.Value is DateTime)
+            else if (namedParameter.Value is DateTime || namedParameter.Value is DateTimeOffset)
             {
                 // For consistency, use the JSON serializer configured for the cluster
                 var serializedDateTime = _queryGenerationContext.Serializer.Serialize(namedParameter.Value);

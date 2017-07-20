@@ -39,5 +39,8 @@ namespace Couchbase.Linq.UnitTests.Documents
 
         [JsonProperty("updated")]
         public virtual DateTime Updated { get; set; }
+
+        [JsonProperty("updatedOffset")]
+        public virtual DateTimeOffset UpdatedOffset { get; set; }
     }
 }
