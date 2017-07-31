@@ -142,7 +142,7 @@ namespace Couchbase.Linq.UnitTests.Versioning
 
             provider
                 .Setup(m => m.DownloadConfig(It.IsAny<Uri>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((DefaultVersionProvider.Bootstrap) null);
 
             // Act
 
@@ -223,7 +223,7 @@ namespace Couchbase.Linq.UnitTests.Versioning
 
             provider
                 .Setup(m => m.DownloadConfig(It.IsAny<Uri>()))
-                .ReturnsAsync(null);
+                .ReturnsAsync((DefaultVersionProvider.Bootstrap) null);
 
             // Act
 
@@ -270,7 +270,7 @@ namespace Couchbase.Linq.UnitTests.Versioning
                 .Returns((List<Uri> p1) => p1);
             provider
                 .Setup(m => m.DownloadConfig(Uri1))
-                .ReturnsAsync(null);
+                .ReturnsAsync((DefaultVersionProvider.Bootstrap) null);
             provider
                 .Setup(m => m.DownloadConfig(Uri2))
                 .ReturnsAsync(new DefaultVersionProvider.Bootstrap()

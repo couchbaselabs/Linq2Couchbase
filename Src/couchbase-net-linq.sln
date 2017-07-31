@@ -1,26 +1,17 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio 15
+VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq", "Couchbase.Linq\Couchbase.Linq.csproj", "{C0254649-0162-47A4-B3D3-354E0B3FF7D0}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{33CA2A25-DD9D-4E05-A786-6FF4DB1C5C3C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Linq", "Couchbase.Linq\Couchbase.Linq.csproj", "{C0254649-0162-47A4-B3D3-354E0B3FF7D0}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq.UnitTests", "Couchbase.Linq.UnitTests\Couchbase.Linq.UnitTests.csproj", "{8B5F339F-6E52-4E03-9FFA-12C1C025E591}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq.Views", "Couchbase.Linq.Views\Couchbase.Linq.Views.csproj", "{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq.IntegrationTests", "Couchbase.Linq.IntegrationTests\Couchbase.Linq.IntegrationTests.csproj", "{AEA6FE33-62F1-4F1A-B955-6CD5AAF8AC7F}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq.NetStandard", "Couchbase.Linq.NetStandard\Couchbase.Linq.NetStandard.csproj", "{32B165DF-B516-4E52-A73C-D8D12AB34067}"
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Linq.UnitTests.NetCore", "Couchbase.Linq.UnitTests.NetCore\Couchbase.Linq.UnitTests.NetCore.xproj", "{70C82384-E011-423D-AFEC-694E4FFF523C}"
-EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{33CA2A25-DD9D-4E05-A786-6FF4DB1C5C3C}"
-	ProjectSection(SolutionItems) = preProject
-		global.json = global.json
-	EndProjectSection
-EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Couchbase.Linq.IntegrationTests.NetCore", "Couchbase.Linq.IntegrationTests.NetCore\Couchbase.Linq.IntegrationTests.NetCore.xproj", "{BC115B09-6CBE-45A1-9475-9B02C8A652AF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Linq.IntegrationTests", "Couchbase.Linq.IntegrationTests\Couchbase.Linq.IntegrationTests.csproj", "{AEA6FE33-62F1-4F1A-B955-6CD5AAF8AC7F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -50,24 +41,6 @@ Global
 		{AEA6FE33-62F1-4F1A-B955-6CD5AAF8AC7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AEA6FE33-62F1-4F1A-B955-6CD5AAF8AC7F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AEA6FE33-62F1-4F1A-B955-6CD5AAF8AC7F}.RepackedRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{32B165DF-B516-4E52-A73C-D8D12AB34067}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{32B165DF-B516-4E52-A73C-D8D12AB34067}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{32B165DF-B516-4E52-A73C-D8D12AB34067}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{32B165DF-B516-4E52-A73C-D8D12AB34067}.Release|Any CPU.Build.0 = Release|Any CPU
-		{32B165DF-B516-4E52-A73C-D8D12AB34067}.RepackedRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{32B165DF-B516-4E52-A73C-D8D12AB34067}.RepackedRelease|Any CPU.Build.0 = Release|Any CPU
-		{70C82384-E011-423D-AFEC-694E4FFF523C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{70C82384-E011-423D-AFEC-694E4FFF523C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{70C82384-E011-423D-AFEC-694E4FFF523C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{70C82384-E011-423D-AFEC-694E4FFF523C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{70C82384-E011-423D-AFEC-694E4FFF523C}.RepackedRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{70C82384-E011-423D-AFEC-694E4FFF523C}.RepackedRelease|Any CPU.Build.0 = Release|Any CPU
-		{BC115B09-6CBE-45A1-9475-9B02C8A652AF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{BC115B09-6CBE-45A1-9475-9B02C8A652AF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{BC115B09-6CBE-45A1-9475-9B02C8A652AF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{BC115B09-6CBE-45A1-9475-9B02C8A652AF}.Release|Any CPU.Build.0 = Release|Any CPU
-		{BC115B09-6CBE-45A1-9475-9B02C8A652AF}.RepackedRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{BC115B09-6CBE-45A1-9475-9B02C8A652AF}.RepackedRelease|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
