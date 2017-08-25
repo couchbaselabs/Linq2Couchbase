@@ -14,8 +14,8 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
         {
             typeof (string).GetMethod("Trim", Type.EmptyTypes),
             typeof (string).GetMethod("Trim", new[] { typeof (char[]) }),
-            typeof (string).GetMethod("TrimStart"),
-            typeof (string).GetMethod("TrimEnd")
+            typeof (string).GetMethod("TrimStart", Type.EmptyTypes),
+            typeof (string).GetMethod("TrimEnd", Type.EmptyTypes)
         };
 
         public IEnumerable<MethodInfo> SupportMethods
