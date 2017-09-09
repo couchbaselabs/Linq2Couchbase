@@ -33,7 +33,9 @@ namespace Couchbase.Linq.QueryGeneration
                 {
                     var instance = (IMethodCallTranslator) Activator.CreateInstance(type);
 
-                    return instance.SupportMethods.Select(method => new {instance, method});
+                    return instance.SupportMethods
+                        .Where(method => method != null)
+                        .Select(method => new {instance, method});
                 });
 
             return query.ToDictionary(p => p.method, p => p.instance);
