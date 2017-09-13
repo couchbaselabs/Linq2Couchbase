@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.Core.Version;
 using Couchbase.Linq.Versioning;
 using Moq;
 using NUnit.Framework;
@@ -15,8 +16,8 @@ namespace Couchbase.Linq.UnitTests.Versioning
     [TestFixture]
     public class DefaultVersionProviderTests
     {
-        private static readonly Version Version40 = new Version(4, 0, 0);
-        private static readonly Version Version45 = new Version(4, 5, 0);
+        private static readonly ClusterVersion Version40 = new ClusterVersion(new Version(4, 0, 0));
+        private static readonly ClusterVersion Version45 = new ClusterVersion(new Version(4, 5, 0));
 
         private static readonly Uri Uri1 = new Uri("http://abc.def");
         private static readonly Uri Uri2 = new Uri("http://def.abc");
@@ -30,36 +31,17 @@ namespace Couchbase.Linq.UnitTests.Versioning
 
             var bucket = new Mock<IBucket>();
             bucket
-                .SetupGet(m => m.Configuration)
-                .Returns(new BucketConfiguration()
-                {
-                    PoolConfiguration = new PoolConfiguration()
-                    {
-                        ClientConfiguration = new ClientConfiguration()
-                        {
-                            Servers = new List<Uri>
-                            {
-                                Uri1
-                            }
-                        }
-                    }
-                });
+                .SetupGet(m => m.Cluster)
+                .Returns(new Mock<ICluster>().Object);
+            bucket
+                .Setup(m => m.GetClusterVersionAsync())
+                .Returns(Task.FromResult<ClusterVersion?>(Version45));
 
-            var provider = new Mock<DefaultVersionProvider>()
-            {
-                CallBase = true
-            };
-
-            provider
-                .Setup(m => m.DownloadConfig(It.IsAny<Uri>()))
-                .ReturnsAsync(new DefaultVersionProvider.Bootstrap()
-                {
-                    ImplementationVersion = "4.5.0"
-                });
+            var provider = new DefaultVersionProvider();
 
             // Act
 
-            var result = provider.Object.GetVersion(bucket.Object);
+            var result = provider.GetVersion(bucket.Object);
 
             // Assert
 
@@ -73,33 +55,16 @@ namespace Couchbase.Linq.UnitTests.Versioning
 
             var bucket = new Mock<IBucket>();
             bucket
-                .SetupGet(m => m.Configuration)
-                .Returns(new BucketConfiguration()
-                {
-                    PoolConfiguration = new PoolConfiguration()
-                    {
-                        ClientConfiguration = new ClientConfiguration()
-                        {
-                            Servers = new List<Uri>
-                            {
-                                Uri1,
-                                Uri2
-                            }
-                        }
-                    }
-                });
+                .SetupGet(m => m.Cluster)
+                .Returns(new Mock<ICluster>().Object);
+            bucket
+                .Setup(m => m.GetClusterVersionAsync())
+                .Returns(Task.FromResult<ClusterVersion?>(Version45));
 
             var provider = new Mock<DefaultVersionProvider>()
             {
                 CallBase = true
             };
-
-            provider
-                .Setup(m => m.DownloadConfig(It.IsAny<Uri>()))
-                .ReturnsAsync(new DefaultVersionProvider.Bootstrap()
-                {
-                    ImplementationVersion = "4.5.0"
-                });
 
             // Act
 
@@ -109,7 +74,7 @@ namespace Couchbase.Linq.UnitTests.Versioning
 
             provider
                 .Verify(
-                    m => m.CacheStore(It.Is<List<Uri>>(p => p.Contains(Uri1) && p.Contains(Uri2)), Version45),
+                    m => m.CacheStore(bucket.Object.Cluster, Version45),
                     Times.Once);
         }
 
@@ -120,33 +85,17 @@ namespace Couchbase.Linq.UnitTests.Versioning
 
             var bucket = new Mock<IBucket>();
             bucket
-                .SetupGet(m => m.Configuration)
-                .Returns(new BucketConfiguration()
-                {
-                    PoolConfiguration = new PoolConfiguration()
-                    {
-                        ClientConfiguration = new ClientConfiguration()
-                        {
-                            Servers = new List<Uri>
-                            {
-                                Uri1
-                            }
-                        }
-                    }
-                });
+                .SetupGet(m => m.Cluster)
+                .Returns(new Mock<ICluster>().Object);
+            bucket
+                .Setup(m => m.GetClusterVersionAsync())
+                .Returns(Task.FromResult<ClusterVersion?>(null));
 
-            var provider = new Mock<DefaultVersionProvider>()
-            {
-                CallBase = true
-            };
-
-            provider
-                .Setup(m => m.DownloadConfig(It.IsAny<Uri>()))
-                .ReturnsAsync((DefaultVersionProvider.Bootstrap) null);
+            var provider = new DefaultVersionProvider();
 
             // Act
 
-            var result = provider.Object.GetVersion(bucket.Object);
+            var result = provider.GetVersion(bucket.Object);
 
             // Assert
 
@@ -160,33 +109,17 @@ namespace Couchbase.Linq.UnitTests.Versioning
 
             var bucket = new Mock<IBucket>();
             bucket
-                .SetupGet(m => m.Configuration)
-                .Returns(new BucketConfiguration()
-                {
-                    PoolConfiguration = new PoolConfiguration()
-                    {
-                        ClientConfiguration = new ClientConfiguration()
-                        {
-                            Servers = new List<Uri>
-                            {
-                                Uri1
-                            }
-                        }
-                    }
-                });
+                .SetupGet(m => m.Cluster)
+                .Returns(new Mock<ICluster>().Object);
+            bucket
+                .Setup(m => m.GetClusterVersionAsync())
+                .Returns(Task.FromException<ClusterVersion?>(new Exception()));
 
-            var provider = new Mock<DefaultVersionProvider>()
-            {
-                CallBase = true
-            };
-
-            provider
-                .Setup(m => m.DownloadConfig(It.IsAny<Uri>()))
-                .ThrowsAsync(new Exception());
+            var provider = new DefaultVersionProvider();
 
             // Act
 
-            var result = provider.Object.GetVersion(bucket.Object);
+            var result = provider.GetVersion(bucket.Object);
 
             // Assert
 
@@ -200,30 +133,16 @@ namespace Couchbase.Linq.UnitTests.Versioning
 
             var bucket = new Mock<IBucket>();
             bucket
-                .SetupGet(m => m.Configuration)
-                .Returns(new BucketConfiguration()
-                {
-                    PoolConfiguration = new PoolConfiguration()
-                    {
-                        ClientConfiguration = new ClientConfiguration()
-                        {
-                            Servers = new List<Uri>
-                            {
-                                Uri1,
-                                Uri2
-                            }
-                        }
-                    }
-                });
+                .SetupGet(m => m.Cluster)
+                .Returns(new Mock<ICluster>().Object);
+            bucket
+                .Setup(m => m.GetClusterVersionAsync())
+                .Returns(Task.FromResult<ClusterVersion?>(null));
 
-            var provider = new Mock<DefaultVersionProvider>()
+            var provider = new Mock<DefaultVersionProvider>
             {
                 CallBase = true
             };
-
-            provider
-                .Setup(m => m.DownloadConfig(It.IsAny<Uri>()))
-                .ReturnsAsync((DefaultVersionProvider.Bootstrap) null);
 
             // Act
 
@@ -233,108 +152,8 @@ namespace Couchbase.Linq.UnitTests.Versioning
 
             provider
                 .Verify(
-                    m => m.CacheStore(It.Is<List<Uri>>(p => p.Contains(Uri1) && p.Contains(Uri2)), Version40),
+                    m => m.CacheStore(bucket.Object.Cluster, Version40),
                     Times.Once);
-        }
-
-        [Test]
-        public void GetVersion_FirstDownloadFails_ReturnsSecond()
-        {
-            // Arrange
-
-            var bucket = new Mock<IBucket>();
-            bucket
-                .SetupGet(m => m.Configuration)
-                .Returns(new BucketConfiguration()
-                {
-                    PoolConfiguration = new PoolConfiguration()
-                    {
-                        ClientConfiguration = new ClientConfiguration()
-                        {
-                            Servers = new List<Uri>
-                            {
-                                Uri1,
-                                Uri2
-                            }
-                        }
-                    }
-                });
-
-            var provider = new Mock<DefaultVersionProvider>()
-            {
-                CallBase = true
-            };
-
-            provider
-                .Setup(m => m.Shuffle(It.IsAny<List<Uri>>()))
-                .Returns((List<Uri> p1) => p1);
-            provider
-                .Setup(m => m.DownloadConfig(Uri1))
-                .ReturnsAsync((DefaultVersionProvider.Bootstrap) null);
-            provider
-                .Setup(m => m.DownloadConfig(Uri2))
-                .ReturnsAsync(new DefaultVersionProvider.Bootstrap()
-                {
-                    ImplementationVersion = "4.5.0"
-                });
-
-            // Act
-
-            var result = provider.Object.GetVersion(bucket.Object);
-
-            // Assert
-
-            Assert.AreEqual(Version45, result);
-        }
-
-        [Test]
-        public void GetVersion_FirstDownloadThrowsException_ReturnsSecond()
-        {
-            // Arrange
-
-            var bucket = new Mock<IBucket>();
-            bucket
-                .SetupGet(m => m.Configuration)
-                .Returns(new BucketConfiguration()
-                {
-                    PoolConfiguration = new PoolConfiguration()
-                    {
-                        ClientConfiguration = new ClientConfiguration()
-                        {
-                            Servers = new List<Uri>
-                            {
-                                Uri1,
-                                Uri2
-                            }
-                        }
-                    }
-                });
-
-            var provider = new Mock<DefaultVersionProvider>()
-            {
-                CallBase = true
-            };
-
-            provider
-                .Setup(m => m.Shuffle(It.IsAny<List<Uri>>()))
-                .Returns((List<Uri> p1) => p1);
-            provider
-                .Setup(m => m.DownloadConfig(Uri1))
-                .ThrowsAsync(new Exception());
-            provider
-                .Setup(m => m.DownloadConfig(Uri2))
-                .ReturnsAsync(new DefaultVersionProvider.Bootstrap()
-                {
-                    ImplementationVersion = "4.5.0"
-                });
-
-            // Act
-
-            var result = provider.Object.GetVersion(bucket.Object);
-
-            // Assert
-
-            Assert.AreEqual(Version45, result);
         }
 
         #endregion
@@ -346,16 +165,13 @@ namespace Couchbase.Linq.UnitTests.Versioning
         {
             // Arrange
 
-            var servers = new List<Uri>
-            {
-                Uri1
-            };
+            var servers = new Mock<ICluster>();
 
             var provider = new DefaultVersionProvider();
 
             // Act
 
-            var result = provider.CacheLookup(servers);
+            var result = provider.CacheLookup(servers.Object);
 
             // Assert
 
@@ -367,174 +183,22 @@ namespace Couchbase.Linq.UnitTests.Versioning
         {
             // Arrange
 
-            var servers = new List<Uri>
-            {
-                Uri1
-            };
+            var cluster = new Mock<ICluster>();
 
             var provider = new DefaultVersionProvider();
 
-            provider.CacheStore(servers, Version45);
+            provider.CacheStore(cluster.Object, Version45);
 
             // Act
 
-            var result = provider.CacheLookup(servers);
+            var result = provider.CacheLookup(cluster.Object);
 
             // Assert
 
-            Assert.AreEqual(Version45, result);
-        }
-
-        [Test]
-        public void CacheLookup_MultipleUrisOneInCache_ReturnsVersion()
-        {
-            // Arrange
-
-            var servers1 = new List<Uri>
-            {
-                Uri1
-            };
-
-            var servers2 = new List<Uri>
-            {
-                Uri2
-            };
-
-            var provider = new DefaultVersionProvider();
-
-            provider.CacheStore(servers2, Version45);
-
-            // Act
-
-            var result = provider.CacheLookup(servers1.Concat(servers2));
-
-            // Assert
-
-            Assert.AreEqual(Version45, result);
-        }
-
-        [Test]
-        public void CacheStore_MultipleUris_StoresAll()
-        {
-            // Arrange
-
-            var servers = new List<Uri>
-            {
-                Uri1,
-                Uri2
-            };
-
-            var provider = new DefaultVersionProvider();
-
-            // Act
-
-            provider.CacheStore(servers, Version45);
-
-            // Assert
-
-            var result = provider.CacheLookup(servers.Take(1));
-            Assert.AreEqual(Version45, result);
-
-            result = provider.CacheLookup(servers.Skip(1));
             Assert.AreEqual(Version45, result);
         }
 
         #endregion
 
-        #region ExtractVersion
-
-        [Test]
-        public void ExtractVersion_NullConfig_ReturnsNull()
-        {
-            // Arrange
-
-            var provider = new DefaultVersionProvider();
-
-            // Act
-
-            var result = provider.ExtractVersion(null);
-
-            // Assert
-
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public void ExtractVersion_EmptyVersion_ReturnsNull()
-        {
-            // Arrange
-
-            var provider = new DefaultVersionProvider();
-
-            // Act
-
-            var result = provider.ExtractVersion(new DefaultVersionProvider.Bootstrap()
-            {
-                ImplementationVersion = ""
-            });
-
-            // Assert
-
-            Assert.IsNull(result);
-        }
-
-        [Test]
-        public void ExtractVersion_VersionWithoutDash_ReturnsVersion()
-        {
-            // Arrange
-
-            var provider = new DefaultVersionProvider();
-
-            // Act
-
-            var result = provider.ExtractVersion(new DefaultVersionProvider.Bootstrap()
-            {
-                ImplementationVersion = "4.5.0"
-            });
-
-            // Assert
-
-            Assert.AreEqual(Version45, result);
-        }
-
-        [Test]
-        public void ExtractVersion_VersionWithDash_ReturnsVersion()
-        {
-            // Arrange
-
-            var provider = new DefaultVersionProvider();
-
-            // Act
-
-            var result = provider.ExtractVersion(new DefaultVersionProvider.Bootstrap()
-            {
-                ImplementationVersion = "4.5.0-somethingelse"
-            });
-
-            // Assert
-
-            Assert.AreEqual(Version45, result);
-        }
-
-        [Test]
-        public void ExtractVersion_InvalidVersion_ReturnsNull()
-        {
-            // Arrange
-
-            var provider = new DefaultVersionProvider();
-
-            // Act
-
-            var result = provider.ExtractVersion(new DefaultVersionProvider.Bootstrap()
-            {
-                ImplementationVersion = "4.5.0a"
-            });
-
-            // Assert
-
-            Assert.IsNull(result);
-        }
-
-        #endregion
     }
 }

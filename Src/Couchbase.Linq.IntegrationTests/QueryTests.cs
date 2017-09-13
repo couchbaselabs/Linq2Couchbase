@@ -454,7 +454,7 @@ namespace Couchbase.Linq.IntegrationTests
                 Explain();
 
             Assert.AreEqual("DistinctScan", explanation.plan["~children"][0]["#operator"].ToString());
-            Assert.AreEqual("IndexScan", explanation.plan["~children"][0].scan["#operator"].ToString());
+            Assert.True(explanation.plan["~children"][0].scan["#operator"].ToString().StartsWith("IndexScan"));
             Assert.AreEqual("brewery_address", explanation.plan["~children"][0].scan.index.ToString());
         }
 

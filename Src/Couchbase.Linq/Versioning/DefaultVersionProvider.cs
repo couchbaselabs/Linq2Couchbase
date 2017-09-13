@@ -1,14 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Net.Security;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading;
-using System.Threading.Tasks;
 using Couchbase.Core;
+using Couchbase.Core.Version;
 using Couchbase.Logging;
-using Newtonsoft.Json;
 
 namespace Couchbase.Linq.Versioning
 {
@@ -18,33 +13,32 @@ namespace Couchbase.Linq.Versioning
     /// </summary>
     internal class DefaultVersionProvider : IVersionProvider
     {
-        private static readonly Random Random = new Random();
-
         private readonly ILog _log = LogManager.GetLogger<DefaultVersionProvider>();
-        private readonly ConcurrentDictionary<Uri, Version> _versionsByUri = new ConcurrentDictionary<Uri, Version>();
+
+        private readonly ConcurrentDictionary<ICluster, ClusterVersion> _versionsByUri =
+            new ConcurrentDictionary<ICluster, ClusterVersion>();
         private readonly object _lock = new object();
 
         /// <summary>
-        /// Gets the version of the cluster hosting a bucket, using the cluster's
-        /// <see cref="Couchbase.Configuration.Client.ClientConfiguration"/>.
+        /// Gets the version of the cluster hosting a bucket.
         /// </summary>
         /// <param name="bucket">Couchbase bucket.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bucket"/> is null.</exception>
         /// <returns>The version of the cluster hosting this bucket, or 4.0.0 if unable to determine the version.</returns>
-        public Version GetVersion(IBucket bucket)
+        public ClusterVersion GetVersion(IBucket bucket)
         {
             if (bucket == null)
             {
                 throw new ArgumentNullException("bucket");
             }
 
-            var servers = bucket.Configuration.PoolConfiguration.ClientConfiguration.Servers;
+            var cluster = bucket.Cluster;
 
             // First check for an existing result
-            var version = CacheLookup(servers);
+            var version = CacheLookup(cluster);
             if (version != null)
             {
-                return version;
+                return version.Value;
             }
 
             var contextCache = SynchronizationContext.Current;
@@ -56,35 +50,34 @@ namespace Couchbase.Linq.Versioning
                 lock (_lock)
                 {
                     // In case the version was received while we were waiting for the lock, check for it again
-                    version = CacheLookup(servers);
+                    version = CacheLookup(cluster);
                     if (version != null)
                     {
-                        return version;
+                        return version.Value;
                     }
 
-                    foreach (var server in Shuffle(servers))
+                    try
                     {
-                        try
-                        {
-                            var config = DownloadConfig(server).Result;
+                        // Use the bucket to get the cluster version, in case we're using old-style bucket passwords
+                        version = bucket.GetClusterVersionAsync().Result;
 
-                            version = ExtractVersion(config);
-                            if (version != null)
-                            {
-                                CacheStore(servers, version);
-
-                                return version;
-                            }
-                        }
-                        catch (Exception e)
+                        if (version != null)
                         {
-                            _log.Error(string.Format("Unable to load config from {0}", server), e);
+                            CacheStore(cluster, version.Value);
+                            return version.Value;
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        _log.Error("Unhandled error getting cluster version", ex);
+
+                        // Don't cache on exception, but assume 4.0 for now
+                        return new ClusterVersion(new Version(4, 0, 0));
                     }
 
                     // No version information could be loaded from any node
-                    var fallbackVersion = new Version(4, 0, 0);
-                    CacheStore(servers, fallbackVersion);
+                    var fallbackVersion = new ClusterVersion(new Version(4, 0, 0));
+                    CacheStore(cluster, fallbackVersion);
                     return fallbackVersion;
                 }
             }
@@ -97,120 +90,19 @@ namespace Couchbase.Linq.Versioning
             }
         }
 
-        internal virtual async Task<Bootstrap> DownloadConfig(Uri uri)
+        internal virtual ClusterVersion? CacheLookup(ICluster cluster)
         {
-            try
-            {
-#if NET45
-                using (var handler = new WebRequestHandler())
-                {
-                    handler.ServerCertificateValidationCallback = ServerCertificateValidationCallback;
-#else
-                using (var handler = new HttpClientHandler())
-                {
-                    try
-                    {
-                        handler.ServerCertificateCustomValidationCallback += ServerCertificateValidationCallback;
-                    }
-                    catch (NotImplementedException)
-                    {
-                        _log.Debug("Cannot set ServerCertificateCustomValidationCallback, not supported on this platform");
-                    }
-#endif
-                    using (var httpClient = new HttpClient(handler))
-                    {
-                        httpClient.Timeout = TimeSpan.FromSeconds(5);
-
-                        var response = await httpClient.GetAsync(uri);
-
-                        response.EnsureSuccessStatusCode();
-
-                        return JsonConvert.DeserializeObject<Bootstrap>(await response.Content.ReadAsStringAsync());
-                    }
-                }
-            }
-            catch (AggregateException ex)
-            {
-                // Unwrap the aggregate exception
-                throw new HttpRequestException(ex.InnerException.Message, ex.InnerException);
-            }
-        }
-
-#if NET45
-        private bool ServerCertificateValidationCallback(object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-#else
-        private bool ServerCertificateValidationCallback(HttpRequestMessage sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
-#endif
-        {
-            _log.Info("Validating certificate: {0}", sslPolicyErrors);
-            return sslPolicyErrors == SslPolicyErrors.None;
-        }
-
-        internal virtual Version ExtractVersion(Bootstrap config)
-        {
-            if ((config == null) || string.IsNullOrEmpty(config.ImplementationVersion))
-            {
-                return null;
-            }
-
-            var versionStr = config.ImplementationVersion.Split('-')[0];
-
-            Version version;
-            if (Version.TryParse(versionStr, out version))
+            if (_versionsByUri.TryGetValue(cluster, out var version))
             {
                 return version;
-            }
-            else
-            {
-                _log.Error("Invalid version string {0}", versionStr);
-                return null;
-            }
-        }
-
-        internal virtual List<T> Shuffle<T>(List<T> list)
-        {
-            list = new List<T>(list);
-
-            var length = list.Count;
-            while (length > 1)
-            {
-                length--;
-                var index = Random.Next(length + 1);
-                var item = list[index];
-                list[index] = list[length];
-                list[length] = item;
-            }
-            return list;
-        }
-
-        internal virtual Version CacheLookup(IEnumerable<Uri> servers)
-        {
-            foreach (var server in servers)
-            {
-                Version version;
-                if (_versionsByUri.TryGetValue(server, out version))
-                {
-                    return version;
-                }
             }
 
             return null;
         }
 
-        internal virtual void CacheStore(IEnumerable<Uri> servers, Version version)
+        internal virtual void CacheStore(ICluster cluster, ClusterVersion version)
         {
-            foreach (var server in servers)
-            {
-                _versionsByUri.AddOrUpdate(server, version, (key, oldValue) => version);
-            }
-        }
-
-        // ReSharper disable once ClassNeverInstantiated.Local
-        internal class Bootstrap
-        {
-            // ReSharper disable once UnusedAutoPropertyAccessor.Local
-            [JsonProperty("implementationVersion")]
-            public string ImplementationVersion { get; set; }
+            _versionsByUri.AddOrUpdate(cluster, version, (key, oldValue) => version);
         }
     }
 }

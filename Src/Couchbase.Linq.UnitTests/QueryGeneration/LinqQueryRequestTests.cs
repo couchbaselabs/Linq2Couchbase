@@ -25,6 +25,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             {
                 PoolConfiguration = new PoolConfiguration(new ClientConfiguration())
             });
+            bucket.Setup(m => m.Cluster).Returns(new Mock<ICluster>().Object);
 
             var context = new BucketContext(bucket.Object);
             var query = context.Query<Brewery>().Where(p => p.Name == "name");
@@ -52,6 +53,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             {
                 PoolConfiguration = new PoolConfiguration(new ClientConfiguration())
             });
+            bucket.Setup(m => m.Cluster).Returns(new Mock<ICluster>().Object);
 
             var context = new BucketContext(bucket.Object);
             var query = context.Query<Beer>().Where(p => p.Name == "name");
@@ -80,6 +82,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             {
                 PoolConfiguration = new PoolConfiguration(new ClientConfiguration())
             });
+            bucket.Setup(m => m.Cluster).Returns(new Mock<ICluster>().Object);
 
             var context = new BucketContext(bucket.Object);
             var query = context.Query<Brewery>().Where(p => p.Name == "name");
@@ -108,6 +111,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             {
                 PoolConfiguration = new PoolConfiguration(new ClientConfiguration())
             });
+            bucket.Setup(m => m.Cluster).Returns(new Mock<ICluster>().Object);
 
             var context = new BucketContext(bucket.Object);
             var query = context.Query<Brewery>().Where(p => p.Name == "name");
@@ -136,6 +140,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             {
                 PoolConfiguration = new PoolConfiguration(new ClientConfiguration())
             });
+            bucket.Setup(m => m.Cluster).Returns(new Mock<ICluster>().Object);
 
             var context = new BucketContext(bucket.Object);
             var query = context.Query<Brewery>();
@@ -165,6 +170,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             {
                 PoolConfiguration = new PoolConfiguration(new ClientConfiguration())
             });
+            bucket.Setup(m => m.Cluster).Returns(new Mock<ICluster>().Object);
 
             var context = new BucketContext(bucket.Object);
             var query = context.Query<Brewery>();
@@ -194,6 +200,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             {
                 PoolConfiguration = new PoolConfiguration(new ClientConfiguration())
             });
+            bucket.Setup(m => m.Cluster).Returns(new Mock<ICluster>().Object);
 
             var context = new BucketContext(bucket.Object);
             var query = context.Query<Brewery>().ScanConsistency(ScanConsistency.RequestPlus).Where(p => p.Name == "name");
@@ -219,6 +226,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             {
                 PoolConfiguration = new PoolConfiguration(new ClientConfiguration())
             });
+            bucket.Setup(m => m.Cluster).Returns(new Mock<ICluster>().Object);
 
             var scanWait = TimeSpan.FromMinutes(1);
 
