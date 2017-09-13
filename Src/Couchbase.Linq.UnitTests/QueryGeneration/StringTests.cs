@@ -248,7 +248,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
-                        select new { name = contact.FirstName.Split(' ') };
+                        select new { name = contact.FirstName.Split(new[] {' '}) };
 
             const string expected =
                 "SELECT SPLIT(`Extent1`.`fname`, ' ') as `name` FROM `default` as `Extent1`";
