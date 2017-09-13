@@ -33,6 +33,7 @@
     <PackageReference Include="CouchbaseNetClient" Version="2.5.0" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="Remotion.Linq" Version="2.1.1" />
+    <PackageReference Include="System.ComponentModel.TypeConverter" Version="4.3.0" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'net45' ">
