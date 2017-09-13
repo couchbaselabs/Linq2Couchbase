@@ -5,6 +5,8 @@
   },
 
   "couchbase": {
+    "username": "Administrator",
+    "password": "password",
     "enableConfigHeartbeart": false,
     "servers": [
       "http://localhost:8091"

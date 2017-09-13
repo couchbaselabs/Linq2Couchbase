@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Couchbase.Core.Version;
 using Couchbase.Linq.Execution;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
@@ -15,7 +16,7 @@ namespace Couchbase.Linq.UnitTests
 // ReSharper disable once InconsistentNaming
     public class N1QLTestBase
     {
-        protected static readonly Version DefaultClusterVersion = new Version(4, 0, 0);
+        protected static readonly ClusterVersion DefaultClusterVersion = new ClusterVersion(new Version(4, 0, 0));
 
         private IMemberNameResolver _memberNameResolver = new JsonNetMemberNameResolver(new DefaultContractResolver());
         internal IMemberNameResolver MemberNameResolver
@@ -42,7 +43,7 @@ namespace Couchbase.Linq.UnitTests
             return CreateN1QlQuery(bucket, expression, false);
         }
 
-        protected string CreateN1QlQuery(IBucket bucket, Expression expression, Version clusterVersion)
+        protected string CreateN1QlQuery(IBucket bucket, Expression expression, ClusterVersion clusterVersion)
         {
             return CreateN1QlQuery(bucket, expression, clusterVersion, false);
         }
@@ -52,14 +53,14 @@ namespace Couchbase.Linq.UnitTests
             return CreateN1QlQuery(bucket, expression, DefaultClusterVersion, selectDocumentMetadata);
         }
 
-        protected string CreateN1QlQuery(IBucket bucket, Expression expression, Version clusterVersion,
+        protected string CreateN1QlQuery(IBucket bucket, Expression expression, ClusterVersion clusterVersion,
             bool selectDocumentMetadata)
         {
             ScalarResultBehavior resultBehavior;
             return CreateN1QlQuery(bucket, expression, clusterVersion, selectDocumentMetadata, out resultBehavior);
         }
 
-        internal string CreateN1QlQuery(IBucket bucket, Expression expression, Version clusterVersion,
+        internal string CreateN1QlQuery(IBucket bucket, Expression expression, ClusterVersion clusterVersion,
             bool selectDocumentMetadata, out ScalarResultBehavior resultBehavior)
         {
             var queryModel = QueryParserHelper.CreateQueryParser().GetParsedQuery(expression);

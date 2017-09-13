@@ -5,6 +5,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Core;
+using Couchbase.Core.Version;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.UnitTests.Documents;
 using Moq;
@@ -168,7 +169,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
             Assert.Throws<NotSupportedException>(
-                () => CreateN1QlQuery(mockBucket.Object, query.Expression, new Version(4, 1, 0)));
+                () => CreateN1QlQuery(mockBucket.Object, query.Expression, new ClusterVersion(new Version(4, 1, 0))));
         }
 
         [Test]
@@ -187,7 +188,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 "INNER JOIN `default` as `Extent2` " +
                 "ON KEY `Extent2`.`brewery_id` FOR `Extent1`";
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, new Version(4, 5, 0));
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, new ClusterVersion(new Version(4, 5, 0)));
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -205,7 +206,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
             Assert.Throws<NotSupportedException>(
-                () => CreateN1QlQuery(mockBucket.Object, query.Expression, new Version(4, 1, 0)));
+                () => CreateN1QlQuery(mockBucket.Object, query.Expression, new ClusterVersion(new Version(4, 1, 0))));
         }
 
         [Test]
@@ -225,7 +226,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 "LEFT JOIN `default` as `Extent2` " +
                 "ON KEY `Extent2`.`brewery_id` FOR `Extent1`";
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, new Version(4, 5, 0));
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, new ClusterVersion(new Version(4, 5, 0)));
 
             Assert.AreEqual(expected, n1QlQuery);
         }
