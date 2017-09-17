@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Couchbase.Core.Version;
 using Couchbase.Linq.Execution;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.N1QL;
@@ -21,6 +22,8 @@ namespace Couchbase.Linq.UnitTests
         public TimeSpan? ScanWait { get; set; }
 
         private readonly N1QLTestBase _test;
+        private readonly ClusterVersion _clusterVersion;
+
         public N1QLTestBase Test
         {
             get { return _test; }
@@ -34,7 +37,7 @@ namespace Couchbase.Linq.UnitTests
 
         public bool UseStreaming { get; set; }
 
-        public BucketQueryExecutorEmulator(N1QLTestBase test)
+        public BucketQueryExecutorEmulator(N1QLTestBase test, ClusterVersion clusterVersion)
         {
             if (test == null)
             {
@@ -42,6 +45,7 @@ namespace Couchbase.Linq.UnitTests
             }
 
             _test = test;
+            _clusterVersion = clusterVersion;
         }
 
         public void ConsistentWith(MutationState state)
@@ -73,7 +77,8 @@ namespace Couchbase.Linq.UnitTests
             {
                 MemberNameResolver = Test.MemberNameResolver,
                 MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
-                Serializer = new Core.Serialization.DefaultSerializer()
+                Serializer = new Core.Serialization.DefaultSerializer(),
+                ClusterVersion = _clusterVersion
             };
 
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);

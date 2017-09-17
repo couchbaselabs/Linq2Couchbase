@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Couchbase.Configuration.Client;
 using Couchbase.Core;
 using Couchbase.Core.Version;
 using Couchbase.Linq.Execution;
@@ -9,7 +8,6 @@ using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Moq;
 using Newtonsoft.Json.Serialization;
-using Remotion.Linq;
 
 namespace Couchbase.Linq.UnitTests
 {
@@ -31,7 +29,7 @@ namespace Couchbase.Linq.UnitTests
             {
                 if (_queryExecutor == null)
                 {
-                    _queryExecutor = new BucketQueryExecutorEmulator(this);
+                    _queryExecutor = new BucketQueryExecutorEmulator(this, DefaultClusterVersion);
                 }
 
                 return _queryExecutor;
@@ -56,8 +54,7 @@ namespace Couchbase.Linq.UnitTests
         protected string CreateN1QlQuery(IBucket bucket, Expression expression, ClusterVersion clusterVersion,
             bool selectDocumentMetadata)
         {
-            ScalarResultBehavior resultBehavior;
-            return CreateN1QlQuery(bucket, expression, clusterVersion, selectDocumentMetadata, out resultBehavior);
+            return CreateN1QlQuery(bucket, expression, clusterVersion, selectDocumentMetadata, out var _);
         }
 
         internal string CreateN1QlQuery(IBucket bucket, Expression expression, ClusterVersion clusterVersion,
@@ -88,6 +85,15 @@ namespace Couchbase.Linq.UnitTests
 
             return new BucketQueryable<T>(mockBucket.Object,
                 QueryParserHelper.CreateQueryParser(), QueryExecutor);
+        }
+
+        internal virtual IQueryable<T> CreateQueryable<T>(string bucketName, IBucketQueryExecutor queryExecutor)
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns(bucketName);
+
+            return new BucketQueryable<T>(mockBucket.Object,
+                QueryParserHelper.CreateQueryParser(), queryExecutor);
         }
 
         protected void SetContractResolver(IContractResolver contractResolver)

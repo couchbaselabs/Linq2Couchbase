@@ -52,6 +52,11 @@ namespace Couchbase.Linq.QueryGeneration
         public List<string> UnionParts { get; set; }
 
         /// <summary>
+        /// If true, then SELECT RAW should be used instead of a plain SELCT
+        /// </summary>
+        public bool RawSelection { get; set; }
+
+        /// <summary>
         /// Indicates the type of query or subquery being generated
         /// </summary>
         /// <remarks>
@@ -217,16 +222,22 @@ namespace Couchbase.Linq.QueryGeneration
                 sb.Append(ExplainPart);
             }
 
+            sb.Append("SELECT ");
+            if (RawSelection)
+            {
+                sb.Append("RAW ");
+            }
+
             if (!string.IsNullOrEmpty(AggregateFunction))
             {
-                sb.AppendFormat("SELECT {0}({1}{2})",
+                sb.AppendFormat("{0}({1}{2})",
                     AggregateFunction,
                     !string.IsNullOrWhiteSpace(DistinctPart) ? DistinctPart : string.Empty,
                     SelectPart);
             }
             else
             {
-                sb.AppendFormat("SELECT {0}{1}",
+                sb.AppendFormat("{0}{1}",
                     !string.IsNullOrWhiteSpace(DistinctPart) ? DistinctPart : string.Empty,
                     SelectPart);
                 //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5
