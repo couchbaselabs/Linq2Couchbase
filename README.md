@@ -72,6 +72,7 @@ Full code list available [here](https://gist.github.com/jeffrymorris/c3bf85d73a1
 - [The META Keyword](docs/meta-keyword.md)
 - [Working With Enumerations](docs/enum.md)
 - [Asynchronous Queries](docs/async-queries.md)
+- [Result Streaming](docs/result-streaming.md)
 - [Custom JSON Serializers](docs/custom-serializers.md)
 - [Using Read Your Own Write (RYOW) Consistency](docs/ryow.md)
 - [Change Tracking (Experimental Developer Preview)](docs/change-tracking.md)

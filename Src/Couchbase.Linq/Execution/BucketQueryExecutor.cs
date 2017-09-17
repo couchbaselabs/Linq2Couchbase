@@ -67,8 +67,6 @@ namespace Couchbase.Linq.Execution
             _bucket = bucket;
             _configuration = configuration;
             _bucketContext = bucketContext;
-
-            UseStreaming = true;
         }
 
         /// <summary>
