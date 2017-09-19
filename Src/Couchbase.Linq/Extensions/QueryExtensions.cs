@@ -440,7 +440,7 @@ namespace Couchbase.Linq.Extensions
         /// <param name="useStreaming">Specifies if query results should be streamed.</param>
         /// <remarks>
         /// Streaming is not supported in combination with change tracking.  If change tracking is enabled,
-        /// this setting will be ignored.  Streaming is enabled by default.
+        /// this setting will be ignored.  Streaming is disabled by default.
         /// </remarks>
         public static IQueryable<T> UseStreaming<T>(this IQueryable<T> source, bool useStreaming)
         {

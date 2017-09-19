@@ -28,7 +28,7 @@ namespace Couchbase.Linq.Execution
         /// <summary>
         /// Specifies if the query results should be streamed, reducing memory utilzation for large result sets.
         /// </summary>
-        /// <remarks>The default is true.</remarks>
+        /// <remarks>The default is false.</remarks>
         bool UseStreaming { get; set; }
 
         /// <summary>
