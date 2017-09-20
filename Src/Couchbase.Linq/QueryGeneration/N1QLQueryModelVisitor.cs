@@ -10,6 +10,7 @@ using Couchbase.Linq.Execution;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
+using Couchbase.Linq.Versioning;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -72,6 +73,8 @@ namespace Couchbase.Linq.QueryGeneration
         {
             get { return _scalarResultBehavior; }
         }
+
+        private bool CanUseRawSelection => _queryGenerationContext.ClusterVersion >= FeatureVersions.SelectRaw;
 
         public N1QlQueryModelVisitor(IMemberNameResolver memberNameResolver, IMethodCallTranslatorProvider methodCallTranslatorProvider,
             ITypeSerializer serializer)
@@ -332,8 +335,15 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 // for aggregates, just use "*" (i.e. AggregateFunction = "COUNT", expression = "*" results in COUNT(*)"
 
-                ScalarResultBehavior.ResultExtractionRequired = true;
-                _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+                if (!CanUseRawSelection)
+                {
+                    ScalarResultBehavior.ResultExtractionRequired = true;
+                    _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+                }
+                else
+                {
+                    _queryPartsAggregator.RawSelection = true;
+                }
 
                 return "*";
             }
@@ -347,22 +357,39 @@ namespace Couchbase.Linq.QueryGeneration
                 return GetN1QlExpression(selectClause.Selector);
             }
 
-            if (IsScalarType(selectClause.Selector.Type))
+            if (!CanUseRawSelection)
             {
-                // We unnested an array of scalars
-                // So don't apply .*, instead extract the scalars as a `result` property on the object
-                // i.e. SELECT Extent2 as result FROM bucket as Extent1 UNNEST Extent1.array as Extent2
+                if (IsScalarType(selectClause.Selector.Type))
+                {
+                    // We unnested an array of scalars
+                    // So don't apply .*, instead extract the scalars as a `result` property on the object
+                    // i.e. SELECT Extent2 as result FROM bucket as Extent1 UNNEST Extent1.array as Extent2
 
-                ScalarResultBehavior.ResultExtractionRequired = true;
-                _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+                    ScalarResultBehavior.ResultExtractionRequired = true;
+                    _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
 
-                return GetN1QlExpression(selectClause.Selector);
+                    return GetN1QlExpression(selectClause.Selector);
+                }
+
+                // This is a simple object selection, so give us all of the properties of the object
+                // i.e. SELECT Extent1.* FROM bucket as Extent1
+
+                return string.Concat(GetN1QlExpression(selectClause.Selector), ".*",
+                    SelectDocumentMetadataIfRequired(queryModel));
             }
 
-            // This is a simple object selection, so give us all of the properties of the object
-            // i.e. SELECT Extent1.* FROM bucket as Extent1
+            if (_queryGenerationContext.SelectDocumentMetadata &&
+                _queryPartsAggregator.QueryType == N1QlQueryType.Select)
+            {
+                // We will also be selecting document metadata, so we can't use SELECT RAW
 
-            return string.Concat(GetN1QlExpression(selectClause.Selector), ".*", SelectDocumentMetadataIfRequired(queryModel));
+                return string.Concat(GetN1QlExpression(selectClause.Selector), ".*",
+                    SelectDocumentMetadataIfRequired(queryModel));
+            }
+
+            // We can use SELECT RAW to get the result
+            _queryPartsAggregator.RawSelection = true;
+            return GetN1QlExpression(selectClause.Selector);
         }
 
         private string GetSelectParameters(SelectClause selectClause, QueryModel queryModel)
@@ -394,8 +421,15 @@ namespace Couchbase.Linq.QueryGeneration
                     }
                     else
                     {
-                        ScalarResultBehavior.ResultExtractionRequired = true;
-                        _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+                        if (!CanUseRawSelection)
+                        {
+                            ScalarResultBehavior.ResultExtractionRequired = true;
+                            _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+                        }
+                        else
+                        {
+                            _queryPartsAggregator.RawSelection = true;
+                        }
 
                         // Don't use special "x as y" syntax inside an aggregate function, just make a new object with {y: x}
                         expression = GetN1QlExpression(selectClause.Selector);
@@ -410,25 +444,32 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 expression = GetN1QlExpression(selectClause.Selector);
 
-                if (_queryPartsAggregator.QueryType == N1QlQueryType.Subquery)
+                if (!CanUseRawSelection)
                 {
-                    // For LINQ, this subquery is expected to return a list of the specific property being selected
-                    // But N1QL will always return a list of objects with a single property
-                    // So we need to use an ARRAY statement to convert the list
+                    if (_queryPartsAggregator.QueryType == N1QlQueryType.Subquery)
+                    {
+                        // For LINQ, this subquery is expected to return a list of the specific property being selected
+                        // But N1QL will always return a list of objects with a single property
+                        // So we need to use an ARRAY statement to convert the list
 
-                    _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+                        _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
 
-                    expression += " as " + _queryPartsAggregator.PropertyExtractionPart;
+                        expression += " as " + _queryPartsAggregator.PropertyExtractionPart;
+                    }
+                    else
+                    {
+                        // This is a select expression on the main query that doesn't use a "new" clause, and isn't against an extent
+                        // So it will return an array of objects with properties, while LINQ is expecting an array of values
+                        // Since we can't extract the properties from the object in N1QL like we can with subqueries
+                        // We need to indicate to the BucketQueryExecutor that it will need to extract the properties
+
+                        _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
+                        ScalarResultBehavior.ResultExtractionRequired = true;
+                    }
                 }
-                else
+                else if (_queryPartsAggregator.QueryType != N1QlQueryType.Aggregate)
                 {
-                    // This is a select expression on the main query that doesn't use a "new" clause, and isn't against an extent
-                    // So it will return an array of objects with properties, while LINQ is expecting an array of values
-                    // Since we can't extract the properties from the object in N1QL like we can with subqueries
-                    // We need to indicate to the BucketQueryExecutor that it will need to extract the properties
-
-                    _queryPartsAggregator.PropertyExtractionPart = N1QlHelpers.EscapeIdentifier("result");
-                    ScalarResultBehavior.ResultExtractionRequired = true;
+                    _queryPartsAggregator.RawSelection = true;
                 }
             }
 

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Core;
 using Couchbase.Linq.UnitTests.Documents;
+using Couchbase.Linq.Versioning;
 using Moq;
 using NUnit.Framework;
 
@@ -33,6 +34,21 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_Avg_Raw()
+        {
+            var queryExecutor = new BucketQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
+
+            // ReSharper disable once UnusedVariable
+            var temp = CreateQueryable<Beer>("default", queryExecutor).Average(p => p.Abv);
+            var n1QlQuery = queryExecutor.Query;
+
+            const string expected =
+                "SELECT RAW AVG(`Extent1`.`abv`) FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_Count()
         {
             // ReSharper disable once UnusedVariable
@@ -41,6 +57,21 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT COUNT(*) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Count_Raw()
+        {
+            var queryExecutor = new BucketQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
+
+            // ReSharper disable once UnusedVariable
+            var temp = CreateQueryable<Beer>("default", queryExecutor).Count();
+            var n1QlQuery = queryExecutor.Query;
+
+            const string expected =
+                "SELECT RAW COUNT(*) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -56,6 +87,23 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT COUNT({\"Name\": `Extent1`.`name`, \"Description\": `Extent1`.`description`}) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_CountAfterSelectProjection_Raw()
+        {
+            var queryExecutor = new BucketQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
+
+            // ReSharper disable once UnusedVariable
+            var temp = CreateQueryable<Beer>("default", queryExecutor)
+                .Select(p => new { p.Name, p.Description })
+                .Count();
+            var n1QlQuery = queryExecutor.Query;
+
+            const string expected =
+                "SELECT RAW COUNT({\"Name\": `Extent1`.`name`, \"Description\": `Extent1`.`description`}) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }

@@ -4,6 +4,7 @@ using System.Linq;
 using Couchbase.Core;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.UnitTests.Documents;
+using Couchbase.Linq.Versioning;
 using Moq;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
@@ -93,6 +94,34 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 "FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_BucketSubqueryWithPropertySelection_Raw()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                select new
+                {
+                    name = brewery.Name,
+                    beers = QueryFactory.Queryable<Beer>(mockBucket.Object)
+                        .UseKeys(brewery.Beers)
+                        .Select(p => p.Name)
+                        .ToArray()
+                };
+
+            const string expected =
+                "SELECT `Extent1`.`name` as `name`, " +
+                "(SELECT RAW `Extent2`.`name` FROM `default` as `Extent2` USE KEYS `Extent1`.`beers`) as `beers` " +
+                "FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.SelectRaw);
 
             Assert.AreEqual(expected, n1QlQuery);
         }

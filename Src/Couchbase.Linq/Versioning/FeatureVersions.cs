@@ -27,5 +27,10 @@ namespace Couchbase.Linq.Versioning
         /// Version where support was added for array indexes.
         /// </summary>
         public static readonly ClusterVersion ArrayIndexes = new ClusterVersion(new Version(4, 5, 0));
+
+        /// <summary>
+        /// Version where support was added for SELECT RAW
+        /// </summary>
+        public static readonly ClusterVersion SelectRaw = new ClusterVersion(new Version(5, 0, 0));
     }
 }
