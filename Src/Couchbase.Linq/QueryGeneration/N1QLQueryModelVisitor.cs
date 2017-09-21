@@ -784,6 +784,22 @@ namespace Couchbase.Linq.QueryGeneration
                 return;
             }
 
+            // Validate the status of array subqueries
+            if (_queryPartsAggregator.QueryType == N1QlQueryType.Array)
+            {
+                if (!VerifyArraySubqueryOrderByClause(orderByClause, queryModel, index))
+                {
+                    if (_queryGenerationContext.ClusterVersion < FeatureVersions.ArrayInFromClause)
+                    {
+                        throw new NotSupportedException(
+                            "N1QL Array Subqueries Support One Ordering By The Array Elements Only Prior To Server 5.0");
+                    }
+
+                    // Switch to an array subquery using SELECT ... FROM
+                    _queryPartsAggregator.QueryType = N1QlQueryType.Subquery;
+                }
+            }
+
             if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
             {
                 var orderByParts =
@@ -799,11 +815,6 @@ namespace Couchbase.Linq.QueryGeneration
             else
             {
                 // This is an array subquery
-
-                if (!VerifyArraySubqueryOrderByClause(orderByClause, queryModel, index))
-                {
-                    throw new NotSupportedException("N1Ql Array Subqueries Support One Ordering By The Array Elements Only");
-                }
 
                 _queryPartsAggregator.AddWrappingFunction("ARRAY_SORT");
                 if (orderByClause.Orderings[0].OrderingDirection == OrderingDirection.Desc)

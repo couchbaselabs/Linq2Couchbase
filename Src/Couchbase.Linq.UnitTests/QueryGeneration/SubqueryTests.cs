@@ -376,5 +376,28 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public void Test_ArraySubqueryAdvancedSorting()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            mockBucket.Setup(e => e.GetClusterVersion()).Returns(FeatureVersions.ArrayInFromClause);
+
+            var query =
+                from route in QueryFactory.Queryable<Route>(mockBucket.Object)
+                select new {route.Id, Schedules = route.Schedule.OrderBy(p => p.Utc)};
+
+            const string expected =
+                "SELECT `Extent1`.`Id` as `Id`, " +
+                "(SELECT RAW `Extent2` FROM `Extent1`.`schedule` as `Extent2` ORDER BY `Extent2`.`utc` ASC) as `Schedules` " +
+                "FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.ArrayInFromClause);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
     }
 }

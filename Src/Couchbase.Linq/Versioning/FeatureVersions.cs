@@ -32,5 +32,10 @@ namespace Couchbase.Linq.Versioning
         /// Version where support was added for SELECT RAW
         /// </summary>
         public static readonly ClusterVersion SelectRaw = new ClusterVersion(new Version(5, 0, 0));
+
+        /// <summary>
+        /// Version where support was added for SELECT ... FROM queries on arrays
+        /// </summary>
+        public static readonly ClusterVersion ArrayInFromClause = new ClusterVersion(new Version(5, 0, 0));
     }
 }
