@@ -22,7 +22,7 @@ namespace Couchbase.Linq
     /// </summary>
     public class BucketContext : IBucketContext, IChangeTrackableContext
     {
-        private readonly ConcurrentDictionary<Type, PropertyInfo>_cachedKeyProperties = new ConcurrentDictionary<Type, PropertyInfo>();
+        private static readonly ConcurrentDictionary<Type, PropertyInfo> CachedKeyProperties = new ConcurrentDictionary<Type, PropertyInfo>();
         private readonly ConcurrentDictionary<string, object> _tracked = new ConcurrentDictionary<string, object>();
         private readonly ConcurrentDictionary<string, object> _modified = new ConcurrentDictionary<string, object>();
         private int _beginChangeTrackingCount;
@@ -200,14 +200,14 @@ namespace Couchbase.Linq
             var type = document.GetType();
 
             PropertyInfo propertyInfo;
-            if (!_cachedKeyProperties.TryGetValue(type, out propertyInfo))
+            if (!CachedKeyProperties.TryGetValue(type, out propertyInfo))
             {
                 propertyInfo = type.GetProperties()
                     .FirstOrDefault(p => p.GetCustomAttribute<KeyAttribute>() != null);
 
                 if (propertyInfo != null)
                 {
-                    _cachedKeyProperties.AddOrUpdate(type, propertyInfo, (key, value) => propertyInfo);
+                    CachedKeyProperties.AddOrUpdate(type, propertyInfo, (key, value) => propertyInfo);
                 }
             }
 
