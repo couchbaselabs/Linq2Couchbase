@@ -131,8 +131,9 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             var genericType = key.DeclaringType.GetGenericTypeDefinition();
+            var classTypeArgs = key.DeclaringType.GetGenericArguments();
 
-            var typeArgs = key.IsGenericMethod && !key.IsGenericMethodDefinition
+            var methodTypeArgs = key.IsGenericMethod && !key.IsGenericMethodDefinition
                 ? key.GetGenericArguments()
                 : null;
 
@@ -140,7 +141,8 @@ namespace Couchbase.Linq.QueryGeneration
                                (key.IsPublic ? BindingFlags.Public : BindingFlags.NonPublic);
 
             var genericTypeKey = genericType.GetMethods(bindingFlags)
-                .FirstOrDefault(method => method.Name == key.Name && ArgsMatch(key.GetParameters(), method, typeArgs));
+                .FirstOrDefault(method =>
+                    method.Name == key.Name && ArgsMatch(key.GetParameters(), method, classTypeArgs, methodTypeArgs));
 
             if (genericTypeKey != null)
             {
@@ -205,21 +207,21 @@ namespace Couchbase.Linq.QueryGeneration
             return null;
         }
 
-        private bool ArgsMatch(ParameterInfo[] args, MethodInfo method, Type[] typeArgs)
+        private static bool ArgsMatch(ParameterInfo[] args, MethodInfo method, Type[] classTypeArgs, Type[] methodTypeArgs)
         {
-            if (!method.IsGenericMethodDefinition && (typeArgs != null))
+            if (!method.IsGenericMethodDefinition && (methodTypeArgs != null))
             {
                 return false;
             }
 
             if (method.IsGenericMethodDefinition)
             {
-                if ((typeArgs == null) || (typeArgs.Length != method.GetGenericArguments().Length))
+                if ((methodTypeArgs == null) || (methodTypeArgs.Length != method.GetGenericArguments().Length))
                 {
                     return false;
                 }
 
-                method = method.MakeGenericMethod(typeArgs);
+                method = method.MakeGenericMethod(methodTypeArgs);
             }
 
             var methodArgs = method.GetParameters();
@@ -230,7 +232,23 @@ namespace Couchbase.Linq.QueryGeneration
 
             for (var i = 0; i < args.Length; i++)
             {
-                if (!methodArgs[i].ParameterType.IsAssignableFrom(args[i].ParameterType))
+                var parameterType = methodArgs[i].ParameterType;
+                if (parameterType.IsGenericParameter)
+                {
+                    // This parameter is a generic from the class (not a method generic), so convert before comparing
+                    var genericArgs = method.DeclaringType.GetGenericArguments();
+
+                    for (var genericIndex = 0; genericIndex < genericArgs.Length; genericIndex++)
+                    {
+                        if (genericArgs[genericIndex] == parameterType)
+                        {
+                            parameterType = classTypeArgs[genericIndex];
+                            break;
+                        }
+                    }
+                }
+
+                if (!parameterType.IsAssignableFrom(args[i].ParameterType))
                 {
                     return false;
                 }
