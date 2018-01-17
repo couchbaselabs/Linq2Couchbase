@@ -189,14 +189,13 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 var interfaceMap = key.DeclaringType.GetTypeInfo().GetRuntimeInterfaceMap(interfaceType);
 
-                var interfaceMethod = interfaceMap.TargetMethods
-                    .Where(p => p == key)
-                    .Select((p, i) => interfaceMap.InterfaceMethods[i])
-                    .FirstOrDefault();
+                var matchedMapping = interfaceMap.TargetMethods
+                    .Select((p, i) => new {ClassMethod = p, InterfaceMethod = interfaceMap.InterfaceMethods[i]})
+                    .FirstOrDefault(p => p.ClassMethod == key);
 
-                if (interfaceMethod != null)
+                if (matchedMapping != null)
                 {
-                    var translator = GetItem(interfaceMethod);
+                    var translator = GetItem(matchedMapping.InterfaceMethod);
                     if (translator != null)
                     {
                         return translator;
