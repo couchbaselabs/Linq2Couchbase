@@ -64,6 +64,58 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
         #endregion
 
+        #region Index
+
+        [Test]
+        public void Test_ContainsKey_Interface()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<DictionaryInterface>(mockBucket.Object)
+                .Where(p => p.Dictionary.ContainsKey("key"));
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`Dictionary`.`key` IS NOT MISSING";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ContainsKey_Class()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<DictionaryClass>(mockBucket.Object)
+                .Where(p => p.Dictionary.ContainsKey("key"));
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`Dictionary`.`key` IS NOT MISSING";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ContainsKey_InterfaceUntyped()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<DictionaryInterfaceUntyped>(mockBucket.Object)
+                .Where(p => p.Dictionary.Contains("key"));
+
+            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`Dictionary`.`key` IS NOT MISSING";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
+
         // ReSharper disable ClassNeverInstantiated.Local
         // ReSharper disable CollectionNeverUpdated.Local
         // ReSharper disable UnusedAutoPropertyAccessor.Local
