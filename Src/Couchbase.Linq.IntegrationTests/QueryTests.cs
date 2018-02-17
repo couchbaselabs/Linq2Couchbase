@@ -1443,5 +1443,71 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         #endregion
+
+        #region Dictionary
+
+        [Test]
+        public void DictionaryTests_Indexer()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var breweries =
+                from brewery in context.Query<Dictionary<string, object>>()
+                where brewery["type"].ToString() == "brewery"
+                select brewery;
+
+            var results = breweries.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+        }
+
+        [Test]
+        public void DictionaryTests_ContainsKey()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var breweries =
+                from brewery in context.Query<Dictionary<string, object>>()
+                where brewery["type"].ToString() == "brewery" && brewery.ContainsKey("address")
+                select brewery;
+
+            var results = breweries.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+        }
+
+        [Test]
+        public void DictionaryTests_Keys()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var breweries =
+                from brewery in context.Query<Dictionary<string, object>>()
+                where brewery["type"].ToString() == "brewery"
+                select brewery.Keys.ToList();
+
+            var results = breweries.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+            Assert.Greater(results[0].Count, 0);
+        }
+
+        [Test]
+        public void DictionaryTests_Values()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var breweries =
+                from brewery in context.Query<Dictionary<string, object>>()
+                where brewery["type"].ToString() == "brewery"
+                select brewery.Values.ToList();
+
+            var results = breweries.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+            Assert.Greater(results[0].Count, 0);
+        }
+
+        #endregion
     }
 }
