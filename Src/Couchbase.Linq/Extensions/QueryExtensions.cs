@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core.Buckets;
 using Couchbase.Linq.Execution;
@@ -306,7 +307,22 @@ namespace Couchbase.Linq.Extensions
         /// <example>
         /// var results = await query.ExecuteAsync();
         /// </example>
-        public static async Task<IEnumerable<T>> ExecuteAsync<T>(this IQueryable<T> source)
+        public static Task<IEnumerable<T>> ExecuteAsync<T>(this IQueryable<T> source)
+        {
+            return source.ExecuteAsync(CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Execute a Couchbase query asynchronously.
+        /// </summary>
+        /// <typeparam name="T">Type being queried.</typeparam>
+        /// <param name="source">Query to execute asynchronously.  Must be a Couchbase LINQ query.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Task which contains the query result when completed.</returns>
+        /// <example>
+        /// var results = await query.ExecuteAsync(cancellationTokenSource.Token);
+        /// </example>
+        public static async Task<IEnumerable<T>> ExecuteAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
         {
             if (source is EnumerableQuery)
             {
@@ -322,7 +338,7 @@ namespace Couchbase.Linq.Extensions
             var queryRequest = LinqQueryRequest.CreateQueryRequest(source);
 
             return await
-                ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ExecuteCollectionAsync<T>(queryRequest)
+                ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ExecuteCollectionAsync<T>(queryRequest, cancellationToken)
                     .ConfigureAwait(false);
         }
 
@@ -348,8 +364,37 @@ namespace Couchbase.Linq.Extensions
         /// <example>
         /// var avg = await query.ExecuteAsync(query => query.Average(p => p.Abv));
         /// </example>
-        public static async Task<TResult> ExecuteAsync<T, TResult>(this IQueryable<T> source,
+        public static Task<TResult> ExecuteAsync<T, TResult>(this IQueryable<T> source,
             Expression<Func<IQueryable<T>, TResult>> additionalExpression)
+        {
+            return source.ExecuteAsync(additionalExpression, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Execute a Couchbase query asynchronously.
+        /// </summary>
+        /// <typeparam name="T">Type being queried.</typeparam>
+        /// <typeparam name="TResult">Type returned by <paramref name="additionalExpression"/>.</typeparam>
+        /// <param name="source">Query to execute asynchronously.  Must be a Couchbase LINQ query.</param>
+        /// <param name="additionalExpression">Additional expressions to apply to the query before executing.  Typically used for aggregates.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
+        /// <returns>Task which contains the query result when completed.</returns>
+        /// <remarks>
+        /// <para>The expression contained in <paramref name="additionalExpression"/> is applied to the query before
+        /// it is executed asynchrounously.  Typically, this would be used to apply an aggregate, First, Single,
+        /// or other operation to the query that normall  triggers immediate query execution.  Passing these actions
+        /// in <paramref name="additionalExpression"/> delays their execution so that they can be handled asynchronously.</para>
+        /// <para><paramref name="additionalExpression"/> must return a scalar value or a single object.  It should not return another
+        /// instance of <see cref="IQueryable{T}"/>.</para>
+        /// </remarks>
+        /// <example>
+        /// var document = await query.ExecuteAsync(query => query.First());
+        /// </example>
+        /// <example>
+        /// var avg = await query.ExecuteAsync(query => query.Average(p => p.Abv), cancellationTokenSource.Token);
+        /// </example>
+        public static async Task<TResult> ExecuteAsync<T, TResult>(this IQueryable<T> source,
+            Expression<Func<IQueryable<T>, TResult>> additionalExpression, CancellationToken cancellationToken)
         {
             if (source is EnumerableQuery)
             {
@@ -366,13 +411,13 @@ namespace Couchbase.Linq.Extensions
             if (typeof (TResult).GetTypeInfo().IsGenericTypeDefinition &&
                 (typeof (TResult).GetGenericTypeDefinition() == typeof (IQueryable<>)))
             {
-                throw new ArgumentException("additionalExpression must return a scalar value, not IQueryable.", "additionalExpression");
+                throw new ArgumentException("additionalExpression must return a scalar value, not IQueryable.", nameof(additionalExpression));
             }
 
             var queryRequest = LinqQueryRequest.CreateQueryRequest(source, additionalExpression);
 
             return await
-                ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ExecuteSingleAsync<TResult>(queryRequest)
+                ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ExecuteSingleAsync<TResult>(queryRequest, cancellationToken)
                     .ConfigureAwait(false);
         }
 

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core.Version;
 using Couchbase.Linq.Execution;
@@ -86,12 +87,12 @@ namespace Couchbase.Linq.UnitTests
             return visitor.GetQuery();
         }
 
-        public Task<IEnumerable<T>> ExecuteCollectionAsync<T>(LinqQueryRequest queryResult)
+        public Task<IEnumerable<T>> ExecuteCollectionAsync<T>(LinqQueryRequest queryResult, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }
 
-        public Task<T> ExecuteSingleAsync<T>(LinqQueryRequest queryRequest)
+        public Task<T> ExecuteSingleAsync<T>(LinqQueryRequest queryRequest, CancellationToken cancellationToken)
         {
             throw new NotImplementedException();
         }

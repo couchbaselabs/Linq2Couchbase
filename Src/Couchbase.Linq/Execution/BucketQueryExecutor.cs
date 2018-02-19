@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
@@ -194,18 +195,19 @@ namespace Couchbase.Linq.Execution
         /// </summary>
         /// <typeparam name="T">Type returned by the query.</typeparam>
         /// <param name="queryRequest">Request to execute.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Task which contains a list of objects returned by the request when complete.</returns>
-        public async Task<IEnumerable<T>> ExecuteCollectionAsync<T>(LinqQueryRequest queryRequest)
+        public async Task<IEnumerable<T>> ExecuteCollectionAsync<T>(LinqQueryRequest queryRequest, CancellationToken cancellationToken)
         {
             if (!queryRequest.ScalarResultBehavior.ResultExtractionRequired)
             {
-                var result = await _bucket.QueryAsync<T>(queryRequest).ConfigureAwait(false);
+                var result = await _bucket.QueryAsync<T>(queryRequest, cancellationToken).ConfigureAwait(false);
 
                 return ParseResult(result);
             }
             else
             {
-                var result = await _bucket.QueryAsync<ScalarResult<T>>(queryRequest).ConfigureAwait(false);
+                var result = await _bucket.QueryAsync<ScalarResult<T>>(queryRequest, cancellationToken).ConfigureAwait(false);
 
                 return queryRequest.ScalarResultBehavior.ApplyResultExtraction(ParseResult(result));
             }
@@ -257,9 +259,9 @@ namespace Couchbase.Linq.Execution
             return result;
         }
 
-        public async Task<T> ExecuteSingleAsync<T>(LinqQueryRequest queryRequest)
+        public async Task<T> ExecuteSingleAsync<T>(LinqQueryRequest queryRequest, CancellationToken cancellationToken)
         {
-            var resultSet = await ExecuteCollectionAsync<T>(queryRequest);
+            var resultSet = await ExecuteCollectionAsync<T>(queryRequest, cancellationToken).ConfigureAwait(false);
 
             return queryRequest.ReturnDefaultWhenEmpty
                 ? resultSet.SingleOrDefault()

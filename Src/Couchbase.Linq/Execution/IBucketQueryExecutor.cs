@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.N1QL;
@@ -43,15 +44,17 @@ namespace Couchbase.Linq.Execution
         /// </summary>
         /// <typeparam name="T">Type returned by the query.</typeparam>
         /// <param name="queryRequest">Request to execute.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Task which contains a list of objects returned by the request when complete.</returns>
-        Task<IEnumerable<T>> ExecuteCollectionAsync<T>(LinqQueryRequest queryRequest);
+        Task<IEnumerable<T>> ExecuteCollectionAsync<T>(LinqQueryRequest queryRequest, CancellationToken cancellationToken);
 
         /// <summary>
         /// Asynchronously execute a <see cref="LinqQueryRequest"/> that returns a single result.
         /// </summary>
         /// <typeparam name="T">Type returned by the query.</typeparam>
         /// <param name="queryRequest">Request to execute.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Task which contains the object returned by the request when complete.</returns>
-        Task<T> ExecuteSingleAsync<T>(LinqQueryRequest queryRequest);
+        Task<T> ExecuteSingleAsync<T>(LinqQueryRequest queryRequest, CancellationToken cancellationToken);
     }
 }
