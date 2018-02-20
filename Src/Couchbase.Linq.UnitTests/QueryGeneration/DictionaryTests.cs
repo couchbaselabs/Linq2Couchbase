@@ -64,7 +64,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
         #endregion
 
-        #region Index
+        #region ContainsKey
 
         [Test]
         public void Test_ContainsKey_Interface()
@@ -108,6 +108,110 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Dictionary.Contains("key"));
 
             const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`Dictionary`.`key` IS NOT MISSING";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
+
+        #region Keys
+
+        [Test]
+        public void Test_Keys_Interface()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<DictionaryInterface>(mockBucket.Object)
+                .Select(p => p.Dictionary.Keys);
+
+            const string expected = "SELECT OBJECT_NAMES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Keys_Class()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<DictionaryClass>(mockBucket.Object)
+                .Select(p => p.Dictionary.Keys);
+
+            const string expected = "SELECT OBJECT_NAMES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Keys_InterfaceUntyped()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<DictionaryInterfaceUntyped>(mockBucket.Object)
+                .Select(p => p.Dictionary.Keys);
+
+            const string expected = "SELECT OBJECT_NAMES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
+
+        #region Values
+
+        [Test]
+        public void Test_Values_Interface()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<DictionaryInterface>(mockBucket.Object)
+                .Select(p => p.Dictionary.Values);
+
+            const string expected = "SELECT OBJECT_VALUES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Values_Class()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<DictionaryClass>(mockBucket.Object)
+                .Select(p => p.Dictionary.Values);
+
+            const string expected = "SELECT OBJECT_VALUES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Values_InterfaceUntyped()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<DictionaryInterfaceUntyped>(mockBucket.Object)
+                .Select(p => p.Dictionary.Values);
+
+            const string expected = "SELECT OBJECT_VALUES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
