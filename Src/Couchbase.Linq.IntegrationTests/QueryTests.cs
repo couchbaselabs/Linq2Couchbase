@@ -727,6 +727,61 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void JoinTests_InnerJoin_AnsiJoin()
+        {
+            var bucket = ClusterHelper.GetBucket("travel-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.AnsiJoin)
+            {
+                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var routes = from route in context.Query<Route>()
+                join airport in context.Query<Airport>()
+                    on route.DestinationAirport equals airport.Faa
+                where (route.Type == "route") && (airport.Type == "airport")
+                select new { airport.AirportName, route.Airline };
+
+            var results = routes.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Route for airline {0} goes to {1}", b.Airline, b.AirportName);
+            }
+        }
+
+        [Test]
+        public void JoinTests_InnerJoin_AnsiJoinPrefiltered()
+        {
+            var bucket = ClusterHelper.GetBucket("travel-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.AnsiJoin)
+            {
+                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var routes = from route in context.Query<Route>().Where(p => p.Type == "route")
+                join airport in context.Query<Airport>().Where(p => p.Type == "airport")
+                    on route.DestinationAirport equals airport.Faa
+                select new { airport.AirportName, route.Airline };
+
+            var results = routes.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Route for airline {0} goes to {1}", b.Airline, b.AirportName);
+            }
+        }
+
+        [Test]
         public void JoinTests_LeftJoin_Simple()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
@@ -821,6 +876,63 @@ namespace Couchbase.Linq.IntegrationTests
             foreach (var b in results)
             {
                 Console.WriteLine("Beer {0} with ABV {1} is from {2}", b.Name, b.Abv, b.BreweryName);
+            }
+        }
+
+        [Test]
+        public void JoinTests_LeftJoin_AnsiJoin()
+        {
+            var bucket = ClusterHelper.GetBucket("travel-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.AnsiJoin)
+            {
+                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var routes = from route in context.Query<Route>()
+                join airport in context.Query<Airport>()
+                    on route.DestinationAirport equals airport.Faa into ra
+                from airport in ra.DefaultIfEmpty()
+                where (route.Type == "route") && (airport.Type == "airport")
+                select new { airport.AirportName, route.Airline };
+
+            var results = routes.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Route for airline {0} goes to {1}", b.Airline, b.AirportName);
+            }
+        }
+
+        [Test]
+        public void JoinTests_LeftJoin_AnsiJoinPrefiltered()
+        {
+            var bucket = ClusterHelper.GetBucket("travel-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.AnsiJoin)
+            {
+                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var routes = from route in context.Query<Route>().Where(p => p.Type == "route")
+                join airport in context.Query<Airport>().Where(p => p.Type == "airport")
+                    on route.DestinationAirport equals airport.Faa into ra
+                from airport in ra.DefaultIfEmpty()
+                select new { airport.AirportName, route.Airline };
+
+            var results = routes.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Route for airline {0} goes to {1}", b.Airline, b.AirportName);
             }
         }
 

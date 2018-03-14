@@ -110,7 +110,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected = "SELECT `Extent1`.`name` as `name`, `Extent2` as `address` " +
                 "FROM `default` as `Extent1` " +
-                "OUTER UNNEST `Extent1`.`address` as `Extent2`";
+                "LEFT OUTER UNNEST `Extent1`.`address` as `Extent2`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -129,7 +129,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected = "SELECT `Extent2` as `result` " +
                 "FROM `default` as `Extent1` " +
-                "OUTER UNNEST `Extent1`.`address` as `Extent2`";
+                "LEFT OUTER UNNEST `Extent1`.`address` as `Extent2`";
 
             ScalarResultBehavior resultBehavior;
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, DefaultClusterVersion, false,

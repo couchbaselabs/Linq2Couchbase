@@ -19,6 +19,11 @@ namespace Couchbase.Linq.Versioning
         public static readonly ClusterVersion IndexJoin = new ClusterVersion(new Version(4, 5, 0));
 
         /// <summary>
+        /// Version where support was added for full ANSI joins.
+        /// </summary>
+        public static readonly ClusterVersion AnsiJoin = new ClusterVersion(new Version(5, 5, 0));
+
+        /// <summary>
         /// Version where support was added for RYOW consistency.
         /// </summary>
         public static readonly ClusterVersion ReadYourOwnWrite = new ClusterVersion(new Version(4, 5, 0));

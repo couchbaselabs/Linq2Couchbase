@@ -5,7 +5,7 @@ Joins are used to combine multiple documents with a common link into a single qu
 **Note:** Joins can be performed across multiple buckets, so long as the buckets are all on the same cluster.
 
 ##Joins and Keys
-In N1QL, all join operations must be done using document keys.  The documents on the left hand side of the join must provide a document key, and it is matched against the document keys on the right hand side of the join.  You may not join against document properties on the right hand side of the join, so it is important to take this into consideration when designing your data model.
+In N1QL on Couchbase 5.1 and earlier, all join operations must be done using document keys.  The documents on the left hand side of the join must provide a document key, and it is matched against the document keys on the right hand side of the join.  You may not join against document properties on the right hand side of the join, so it is important to take this into consideration when designing your data model.
 
 Joining against document keys is represented in LINQ using N1QlFunctions.Key on the right hand side of the join equality operator.  Examples of this are included in the sections below.
 
@@ -111,3 +111,23 @@ Since indexes are only used on the left most document, this approach to joins ca
 In order to perform this type of join, there must be an index created on the key field in the child document.  In the example above, the index must be on the BreweryId field.  More information about this type of join operation can be found [here](http://developer.couchbase.com/documentation/server/4.5-dp/flexible-join-n1ql.html).
 
 Note that a NotSupportedException will be thrown if you execute this kind of join operation against a 4.0 or 4.1 Couchbase cluster.
+
+## ANSI Joins
+
+Beginning with Couchbase Server 5.5, N1QL supports full ANSI joins. It is now possible to join against any properties on either side, the N1QlFunctions.Key limitation no longer applies.
+
+To use this feature, simply join on the desired properties in LINQ. It is necessary, however, to ensure there is an index which can be used to lookup the properties on the right-hand side. Attempting to use this feature on a Couchbase Server cluster before version 5.5 will result in a NotSupportedException.
+
+```cs
+var context = new BucketContext(bucket);
+
+var query = from route in context.Query<Route>()
+            join airport in context.Query<Airport>()
+            on route.DestinationAirport equals airport.Faa
+            select new {airport.AirportName, route.Airline};
+
+foreach (var doc in query)
+{
+    // do work
+}
+```

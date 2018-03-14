@@ -9,6 +9,7 @@ using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Execution;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
+using Couchbase.Linq.QueryGeneration.FromParts;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Couchbase.Linq.Versioning;
 using Remotion.Linq;
@@ -140,7 +141,7 @@ namespace Couchbase.Linq.QueryGeneration
                     }
 
                     var fromQueryPart = ParseIndexNestJoinClause(join.JoinClause, join.GroupJoinClause);
-                    _queryPartsAggregator.AddFromPart(fromQueryPart);
+                    _queryPartsAggregator.AddExtent(fromQueryPart);
                 }
             }
 
@@ -187,7 +188,7 @@ namespace Couchbase.Linq.QueryGeneration
                     throw new NotSupportedException("N1Ql Bucket Subqueries Require A UseKeys Call");
                 }
 
-                _queryPartsAggregator.AddFromPart(new N1QlFromQueryPart()
+                _queryPartsAggregator.AddExtent(new FromPart
                 {
                     Source = N1QlHelpers.EscapeIdentifier(((IBucketQueryable) bucketConstantExpression.Value).BucketName),
                     ItemName = GetExtentName(fromClause)
@@ -200,7 +201,7 @@ namespace Couchbase.Linq.QueryGeneration
                     throw new NotSupportedException("Member Access In The Main From Clause Is Only Supported In Subqueries");
                 }
 
-                _queryPartsAggregator.AddFromPart(new N1QlFromQueryPart()
+                _queryPartsAggregator.AddExtent(new FromPart
                 {
                     Source = GetN1QlExpression((MemberExpression) fromClause.FromExpression),
                     ItemName = GetExtentName(fromClause)
@@ -232,7 +233,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 _queryPartsAggregator.QueryType = N1QlQueryType.Array;
 
-                _queryPartsAggregator.AddFromPart(new N1QlFromQueryPart()
+                _queryPartsAggregator.AddExtent(new FromPart
                 {
                     Source = GetN1QlExpression(fromClause.FromExpression),
                     ItemName = GetExtentName(fromClause)
@@ -482,7 +483,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// <returns></returns>
         private string GetExtentSelectParameters()
         {
-            IEnumerable<string> extents = _queryPartsAggregator.FromParts.Select(p => p.ItemName);
+            IEnumerable<string> extents = _queryPartsAggregator.Extents.Select(p => p.ItemName);
 
             if (_queryPartsAggregator.LetParts != null)
             {
@@ -874,7 +875,7 @@ namespace Couchbase.Linq.QueryGeneration
                 // Unnest operation
 
                 var fromPart = VisitMemberFromExpression(fromClause, fromClause.FromExpression as MemberExpression);
-                _queryPartsAggregator.AddFromPart(fromPart);
+                _queryPartsAggregator.AddExtent(fromPart);
                 handled = true;
             }
             else if (fromClause.FromExpression is SubQueryExpression)
@@ -917,10 +918,10 @@ namespace Couchbase.Linq.QueryGeneration
 
                 if (subQuery.QueryModel.ResultOperators.OfType<DefaultIfEmptyResultOperator>().Any())
                 {
-                    fromPart.JoinType = "OUTER UNNEST";
+                    fromPart.JoinType = JoinTypes.LeftUnnest;
                 }
 
-                _queryPartsAggregator.AddFromPart(fromPart);
+                _queryPartsAggregator.AddExtent(fromPart);
 
                 // be sure the subquery clauses use the same extent name
                 _queryGenerationContext.ExtentNameProvider.LinkExtents(fromClause, subQuery.QueryModel.MainFromClause);
@@ -956,17 +957,14 @@ namespace Couchbase.Linq.QueryGeneration
 
                 if (subQuery.QueryModel.ResultOperators.OfType<DefaultIfEmptyResultOperator>().Any())
                 {
-                    fromPart.JoinType = "LEFT JOIN";
-
-                    // TODO Handle where clauses applied to the inner sequence before the join
-                    // Currently they are filtered after the join is complete instead of before by N1QL
+                    fromPart.JoinType = JoinTypes.LeftJoin;
                 }
 
                 // Be sure that any reference to the subquery gets the join clause extent name
                 _queryGenerationContext.ExtentNameProvider.LinkExtents(unclaimedJoin.JoinClause, fromClause);
 
                 _unclaimedGroupJoins.Remove(unclaimedJoin);
-                _queryPartsAggregator.AddFromPart(fromPart);
+                _queryPartsAggregator.AddExtent(fromPart);
 
                 return true;
             }
@@ -980,15 +978,15 @@ namespace Couchbase.Linq.QueryGeneration
         /// <param name="fromClause">AdditionalFromClause being visited</param>
         /// <param name="expression">MemberExpression being referenced</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to INNER UNNEST.</returns>
-        private N1QlFromQueryPart VisitMemberFromExpression(AdditionalFromClause fromClause, MemberExpression expression)
+        private JoinPart VisitMemberFromExpression(AdditionalFromClause fromClause, MemberExpression expression)
         {
             // This case represents an unnest operation
 
-            return new N1QlFromQueryPart()
+            return new JoinPart
             {
                 Source = GetN1QlExpression(expression),
                 ItemName = GetExtentName(fromClause),
-                JoinType = "INNER UNNEST"
+                JoinType = JoinTypes.InnerUnnest
             };
         }
 
@@ -1020,7 +1018,7 @@ namespace Couchbase.Linq.QueryGeneration
 
             var fromQueryPart = ParseJoinClause(joinClause);
 
-            _queryPartsAggregator.AddFromPart(fromQueryPart);
+            _queryPartsAggregator.AddExtent(fromQueryPart);
 
             base.VisitJoinClause(joinClause, queryModel, index);
         }
@@ -1031,7 +1029,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// <param name="joinClause">Join clause being visited</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to INNER JOIN.</returns>
         /// <remarks>The InnerKeySelector must be selecting the N1QlFunctions.Key of the InnerSequence</remarks>
-        private N1QlFromQueryPart ParseJoinClause(JoinClause joinClause)
+        private JoinPart ParseJoinClause(JoinClause joinClause)
         {
             if (joinClause.InnerSequence.NodeType == ExpressionType.Constant)
             {
@@ -1053,7 +1051,21 @@ namespace Couchbase.Linq.QueryGeneration
                 var fromPart = VisitConstantExpressionJoinClause(joinClause,
                     subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression);
 
-                VisitBodyClauses(subQuery.QueryModel.BodyClauses, subQuery.QueryModel);
+                if (fromPart is AnsiJoinPart ansiJoinPart)
+                {
+                    // If the right hand extent is filtered the predicates must
+                    // be part of the ON statement rather than part of the general predicates.
+                    // However, we can only do this for ANSI joins.
+
+                    ansiJoinPart.AdditionalInnerPredicates = string.Join(" AND ",
+                        subQuery.QueryModel.BodyClauses
+                            .OfType<WhereClause>()
+                            .Select(p => GetN1QlExpression(p.Predicate)));
+                }
+                else
+                {
+                    VisitBodyClauses(subQuery.QueryModel.BodyClauses, subQuery.QueryModel);
+                }
 
                 return fromPart;
             }
@@ -1070,14 +1082,13 @@ namespace Couchbase.Linq.QueryGeneration
         /// <param name="constantExpression">Constant expression that is the InnerSequence of the JoinClause</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to INNER JOIN.</returns>
         /// <remarks>The InnerKeySelector must be selecting the N1QlFunctions.Key of the InnerSequence</remarks>
-        private N1QlFromQueryPart VisitConstantExpressionJoinClause(JoinClause joinClause, ConstantExpression constantExpression)
+        private JoinPart VisitConstantExpressionJoinClause(JoinClause joinClause, ConstantExpression constantExpression)
         {
             string bucketName = null;
 
             if (constantExpression != null)
             {
-                var bucketQueryable = constantExpression.Value as IBucketQueryable;
-                if (bucketQueryable != null)
+                if (constantExpression.Value is IBucketQueryable bucketQueryable)
                 {
                     bucketName = bucketQueryable.BucketName;
                 }
@@ -1088,43 +1099,52 @@ namespace Couchbase.Linq.QueryGeneration
                 throw new NotSupportedException("N1QL Joins Must Be Against IBucketQueryable");
             }
 
-            IQuerySource keyQuerySource;
-            if (!IsKeyMethodCall(joinClause.InnerKeySelector, out keyQuerySource))
+            if (_queryGenerationContext.ClusterVersion >= FeatureVersions.AnsiJoin)
             {
-                if (_queryGenerationContext.ClusterVersion < Versioning.FeatureVersions.IndexJoin)
+                // If ANSI joins are supported they are always preferred
+
+                return new AnsiJoinPart
                 {
-                    throw new NotSupportedException(
-                        "N1QL Join Selector Must Be A Call To N1QlFunctions.Key Referencing The Inner Sequence");
-                }
-                else
-                {
-                    if (!IsKeyMethodCall(joinClause.OuterKeySelector, out keyQuerySource))
-                    {
-                        throw new NotSupportedException(
-                            "N1QL Join Selector Must Be A Call To N1QlFunctions.Key Referencing One Of The Sequences");
-                    }
-                    else
-                    {
-                        // Index join
-                        return new N1QlFromQueryPart()
-                        {
-                            Source = N1QlHelpers.EscapeIdentifier(bucketName),
-                            ItemName = GetExtentName(joinClause),
-                            OnKeys = GetN1QlExpression(joinClause.InnerKeySelector),
-                            JoinType = "INNER JOIN",
-                            IndexJoinExtentName = GetExtentName(keyQuerySource)
-                        };
-                    }
-                }
+                    Source = N1QlHelpers.EscapeIdentifier(bucketName),
+                    ItemName = GetExtentName(joinClause),
+                    OuterKey = GetN1QlExpression(joinClause.OuterKeySelector),
+                    InnerKey = GetN1QlExpression(joinClause.InnerKeySelector),
+                    JoinType = JoinTypes.InnerJoin
+                };
             }
 
-            // Regular join
-            return new N1QlFromQueryPart()
+            if (IsKeyMethodCall(joinClause.InnerKeySelector, out var keyQuerySource))
+            {
+                // ON KEYS join
+                return new OnKeysJoinPart
+                {
+                    Source = N1QlHelpers.EscapeIdentifier(bucketName),
+                    ItemName = GetExtentName(joinClause),
+                    OnKeys = GetN1QlExpression(joinClause.OuterKeySelector),
+                    JoinType = JoinTypes.InnerJoin
+                };
+            }
+
+            if (_queryGenerationContext.ClusterVersion < FeatureVersions.IndexJoin)
+            {
+                throw new NotSupportedException(
+                    "N1QL Join Selector Must Be A Call To N1QlFunctions.Key Referencing The Inner Sequences");
+            }
+
+            if (!IsKeyMethodCall(joinClause.OuterKeySelector, out keyQuerySource))
+            {
+                throw new NotSupportedException(
+                    "N1QL Join Selector Must Be A Call To N1QlFunctions.Key Referencing One Of The Sequences");
+            }
+
+            // Index join
+            return new IndexJoinPart
             {
                 Source = N1QlHelpers.EscapeIdentifier(bucketName),
                 ItemName = GetExtentName(joinClause),
-                OnKeys = GetN1QlExpression(joinClause.OuterKeySelector),
-                JoinType = "INNER JOIN"
+                OnKeys = GetN1QlExpression(joinClause.InnerKeySelector),
+                JoinType = JoinTypes.InnerJoin,
+                IndexJoinExtentName = GetExtentName(keyQuerySource)
             };
         }
 
@@ -1136,7 +1156,7 @@ namespace Couchbase.Linq.QueryGeneration
         {
             EnsureNotArraySubquery();
 
-            _queryPartsAggregator.AddFromPart(ParseNestClause(nestClause));
+            _queryPartsAggregator.AddExtent(ParseNestClause(nestClause));
         }
 
         /// <summary>
@@ -1144,7 +1164,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// </summary>
         /// <param name="nestClause">Nest clause being visited</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator</returns>
-        private N1QlFromQueryPart ParseNestClause(NestClause nestClause)
+        private JoinPart ParseNestClause(NestClause nestClause)
         {
             if (nestClause.InnerSequence.NodeType == ExpressionType.Constant)
             {
@@ -1207,7 +1227,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// <param name="constantExpression">Constant expression that is the InnerSequence of the NestClause</param>
         /// <param name="itemName">Name to be used when referencing the data being nested</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator</returns>
-        private N1QlFromQueryPart VisitConstantExpressionNestClause(NestClause nestClause, ConstantExpression constantExpression, string itemName)
+        private JoinPart VisitConstantExpressionNestClause(NestClause nestClause, ConstantExpression constantExpression, string itemName)
         {
             string bucketName = null;
 
@@ -1225,12 +1245,12 @@ namespace Couchbase.Linq.QueryGeneration
                 throw new NotSupportedException("N1QL Nests Must Be Against IBucketQueryable");
             }
 
-            return new N1QlFromQueryPart()
+            return new OnKeysJoinPart
             {
                 Source = N1QlHelpers.EscapeIdentifier(bucketName),
                 ItemName = itemName,
                 OnKeys = GetN1QlExpression(nestClause.KeySelector),
-                JoinType = nestClause.IsLeftOuterNest ? "LEFT OUTER NEST" : "INNER NEST"
+                JoinType = nestClause.IsLeftOuterNest ? JoinTypes.LeftNest : JoinTypes.InnerNest
             };
         }
 
@@ -1241,12 +1261,12 @@ namespace Couchbase.Linq.QueryGeneration
         /// <param name="groupJoinClause">Group join clause being visited</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to NEST.</returns>
         /// <remarks>The OuterKeySelector must be selecting the N1QlFunctions.Key of the OuterSequence</remarks>
-        private N1QlFromQueryPart ParseIndexNestJoinClause(JoinClause joinClause, GroupJoinClause groupJoinClause)
+        private JoinPart ParseIndexNestJoinClause(JoinClause joinClause, GroupJoinClause groupJoinClause)
         {
             if (joinClause.InnerSequence.NodeType == ExpressionType.Constant)
             {
                 var clause = VisitConstantExpressionJoinClause(joinClause, joinClause.InnerSequence as ConstantExpression);
-                clause.JoinType = "LEFT OUTER NEST";
+                clause.JoinType = JoinTypes.LeftNest;
 
                 _queryGenerationContext.ExtentNameProvider.LinkExtents(joinClause, groupJoinClause);
 
@@ -1265,7 +1285,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 var fromPart = VisitConstantExpressionJoinClause(joinClause,
                     subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression);
-                fromPart.JoinType = "LEFT OUTER NEST";
+                fromPart.JoinType = JoinTypes.LeftNest;
 
                 // Put any where clauses in the sub query in an ARRAY filtering clause using a LET statement
 
