@@ -19,7 +19,7 @@ namespace Couchbase.Linq.UnitTests.Documents
         [JsonProperty("sourceairport")]
         public string SourceAirport { get; set; }
 
-        [JsonProperty("destination")]
+        [JsonProperty("destinationairport")]
         public string DestinationAirport { get; set; }
 
         [JsonProperty("stops")]

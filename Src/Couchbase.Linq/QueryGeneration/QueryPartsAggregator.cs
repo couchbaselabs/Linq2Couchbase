@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Couchbase.Linq.QueryGeneration.FromParts;
 using Couchbase.Logging;
 using Remotion.Linq.Clauses;
 
@@ -13,14 +14,14 @@ namespace Couchbase.Linq.QueryGeneration
 
         public QueryPartsAggregator()
         {
-            FromParts = new List<N1QlFromQueryPart>();
+            Extents = new List<ExtentPart>();
             LetParts = new List<N1QlLetQueryPart>();
             WhereParts = new List<string>();
             OrderByParts = new List<string>();
         }
 
         public string SelectPart { get; set; }
-        public List<N1QlFromQueryPart> FromParts { get; set; }
+        public List<ExtentPart> Extents { get; set; }
         public string UseKeysPart { get; set; }
         public N1QlUseIndexPart UseIndexPart { get; set; }
         public List<N1QlLetQueryPart> LetParts { get; set; }
@@ -98,9 +99,9 @@ namespace Couchbase.Linq.QueryGeneration
             WhereParts.Add(string.Format(format, args));
         }
 
-        public void AddFromPart(N1QlFromQueryPart fromPart)
+        public void AddExtent(ExtentPart fromPart)
         {
-            FromParts.Add(fromPart);
+            Extents.Add(fromPart);
         }
 
         public void AddUseKeysPart(string useKeysPart)
@@ -248,12 +249,10 @@ namespace Couchbase.Linq.QueryGeneration
                 sb.AppendFormat(" as {0}", PropertyExtractionPart);
             }
 
-            if (FromParts.Any())
+            if (Extents.Any())
             {
-                var mainFrom = FromParts.First();
-                sb.AppendFormat(" FROM {0} as {1}",
-                    mainFrom.Source,
-                    mainFrom.ItemName);
+                var mainFrom = Extents.First();
+                mainFrom.AppendToStringBuilder(sb);
 
                 if (!string.IsNullOrEmpty(UseKeysPart))
                 {
@@ -264,7 +263,7 @@ namespace Couchbase.Linq.QueryGeneration
                     sb.AppendFormat(" USE INDEX ({0} USING {1})", UseIndexPart.IndexName, UseIndexPart.IndexType);
                 }
 
-                foreach (var joinPart in FromParts.Skip(1))
+                foreach (var joinPart in Extents.Skip(1))
                 {
                     joinPart.AppendToStringBuilder(sb);
                 }
@@ -337,12 +336,10 @@ namespace Couchbase.Linq.QueryGeneration
             sb.AppendFormat("SELECT {0} as result",
                 QueryType == N1QlQueryType.MainQueryAny ? "true" : "false");
 
-            if (FromParts.Any())
+            if (Extents.Any())
             {
-                var mainFrom = FromParts.First();
-                sb.AppendFormat(" FROM {0} as {1}",
-                    mainFrom.Source,
-                    mainFrom.ItemName);
+                var mainFrom = Extents.First();
+                mainFrom.AppendToStringBuilder(sb);
 
                 if (!string.IsNullOrEmpty(UseKeysPart))
                 {
@@ -353,7 +350,7 @@ namespace Couchbase.Linq.QueryGeneration
                     sb.AppendFormat(" USE INDEX ({0} USING {1})", UseIndexPart.IndexName, UseIndexPart.IndexType);
                 }
 
-                foreach (var joinPart in FromParts.Skip(1))
+                foreach (var joinPart in Extents.Skip(1))
                 {
                     joinPart.AppendToStringBuilder(sb);
                 }
@@ -389,7 +386,7 @@ namespace Couchbase.Linq.QueryGeneration
         {
             var sb = new StringBuilder();
 
-            var mainFrom = FromParts.FirstOrDefault();
+            var mainFrom = Extents.FirstOrDefault();
             if (mainFrom == null)
             {
                 throw new InvalidOperationException("N1QL Subquery Missing From Part");
@@ -437,7 +434,7 @@ namespace Couchbase.Linq.QueryGeneration
         {
             var sb = new StringBuilder();
 
-            var mainFrom = FromParts.FirstOrDefault();
+            var mainFrom = Extents.FirstOrDefault();
             if (mainFrom == null)
             {
                 throw new InvalidOperationException("N1QL Any Subquery Missing From Part");
