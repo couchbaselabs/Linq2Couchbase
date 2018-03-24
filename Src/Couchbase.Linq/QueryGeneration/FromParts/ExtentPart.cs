@@ -1,4 +1,7 @@
-﻿using System.Text;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using Couchbase.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration.FromParts
 {
@@ -17,11 +20,34 @@ namespace Couchbase.Linq.QueryGeneration.FromParts
         /// </summary>
         public string ItemName { get; set; }
 
+        public List<HintClause> Hints { get; set; }
+
         public virtual void AppendToStringBuilder(StringBuilder sb)
         {
-            sb.AppendFormat(" {0} as {1}",
-                Source,
-                ItemName);
+            // Use a single format string for performance
+
+            if (Hints != null && Hints.Any())
+            {
+                sb.AppendFormat(" {0} as {1} USE ",
+                    Source,
+                    ItemName);
+
+                for (var i = 0; i < Hints.Count; i++)
+                {
+                    if (i > 0)
+                    {
+                        sb.Append(' ');
+                    }
+
+                    Hints[i].AppendToStringBuilder(sb);
+                }
+            }
+            else
+            {
+                sb.AppendFormat(" {0} as {1}",
+                    Source,
+                    ItemName);
+            }
         }
     }
 }

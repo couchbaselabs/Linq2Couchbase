@@ -31,6 +31,10 @@ namespace Couchbase.Linq
             customNodeTypeRegistry.Register(UseIndexExpressionNode.SupportedMethods,
                 typeof(UseIndexExpressionNode));
 
+            //register the "UseHash" expression node parser
+            customNodeTypeRegistry.Register(UseHashExpressionNode.SupportedMethods,
+                typeof(UseHashExpressionNode));
+
             //register the "ExtentName" expression node parser
             customNodeTypeRegistry.Register(ExtentNameExpressionNode.SupportedMethods,
                 typeof(ExtentNameExpressionNode));

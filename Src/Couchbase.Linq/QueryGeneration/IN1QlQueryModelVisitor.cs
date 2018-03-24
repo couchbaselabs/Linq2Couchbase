@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 using Couchbase.Linq.Clauses;
 using Remotion.Linq;
 
@@ -15,6 +10,6 @@ namespace Couchbase.Linq.QueryGeneration
 
         void VisitUseKeysClause(UseKeysClause clause, QueryModel queryModel, int index);
 
-        void VisitUseIndexClause(UseIndexClause clause, QueryModel queryModel, int index);
+        void VisitHintClause(HintClause clause, QueryModel queryModel, int index);
     }
 }

@@ -281,24 +281,36 @@ namespace Couchbase.Linq.QueryGeneration
             _queryPartsAggregator.AddUseKeysPart(GetN1QlExpression(clause.Keys));
         }
 
-        public virtual void VisitUseIndexClause(UseIndexClause clause, QueryModel queryModel, int index)
+        public virtual void VisitHintClause(HintClause clause, QueryModel queryModel, int index)
         {
-            if (_queryPartsAggregator.UseIndexPart != null)
+            VisitHintClause(clause, _queryPartsAggregator.Extents[0]);
+        }
+
+        public virtual void VisitHintClause(HintClause clause, ExtentPart fromPart)
+        {
+            if (fromPart.Hints == null)
             {
-                throw new NotSupportedException("Only one UseIndex clause is allowed per query.");
+                fromPart.Hints = new List<HintClause>();
+            }
+            else if (fromPart.Hints.Any(p => p.GetType() == clause.GetType()))
+            {
+                throw new NotSupportedException($"Only one {clause.GetType().Name} is allowed per extent.");
             }
 
-            var indexType = clause.IndexType.ToString().ToUpper();
-            if (!N1QlHelpers.IsValidKeyword(indexType))
+            if (clause is UseHashClause)
             {
-                throw new InvalidOperationException("Invalid index type for the UseIndex clause");
+                if (_queryGenerationContext.ClusterVersion < FeatureVersions.AnsiJoin)
+                {
+                    throw new NotSupportedException($"Hash joins are not supported before Couchbase Server {FeatureVersions.AnsiJoin}");
+                }
+
+                if (!(fromPart is AnsiJoinPart))
+                {
+                    throw new NotSupportedException("UseHash is only supported on joined extents");
+                }
             }
 
-            _queryPartsAggregator.UseIndexPart = new N1QlUseIndexPart()
-            {
-                IndexName = N1QlHelpers.EscapeIdentifier(clause.IndexName),
-                IndexType = indexType
-            };
+            fromPart.Hints.Add(clause);
         }
 
         public override void VisitSelectClause(SelectClause selectClause, QueryModel queryModel)
@@ -1061,9 +1073,20 @@ namespace Couchbase.Linq.QueryGeneration
                         subQuery.QueryModel.BodyClauses
                             .OfType<WhereClause>()
                             .Select(p => GetN1QlExpression(p.Predicate)));
+
+                    foreach (var hintClause in subQuery.QueryModel.BodyClauses.OfType<HintClause>())
+                    {
+                        VisitHintClause(hintClause, fromPart);
+                    }
                 }
                 else
                 {
+                    if (subQuery.QueryModel.BodyClauses.Any(p => !(p is WhereClause)))
+                    {
+                        throw new NotSupportedException(
+                            "Only predicates are allowed on the right-hand extent of a join");
+                    }
+
                     VisitBodyClauses(subQuery.QueryModel.BodyClauses, subQuery.QueryModel);
                 }
 
