@@ -13,5 +13,11 @@ namespace Couchbase.Linq.IntegrationTests
 
             EnsurePrimaryIndexExists(ClusterHelper.GetBucket("beer-sample"));
         }
+
+        [OneTimeTearDown]
+        public void TearDown()
+        {
+            ClusterHelper.Close();
+        }
     }
 }
