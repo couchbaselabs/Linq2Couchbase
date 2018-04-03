@@ -1166,50 +1166,58 @@ namespace Couchbase.Linq.QueryGeneration
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator</returns>
         private JoinPart ParseNestClause(NestClause nestClause)
         {
-            if (nestClause.InnerSequence.NodeType == ExpressionType.Constant)
+            if (nestClause.InnerSequence is ConstantExpression constantExpression)
             {
-                return VisitConstantExpressionNestClause(nestClause, nestClause.InnerSequence as ConstantExpression,
-                    GetExtentName(nestClause));
+                return VisitConstantExpressionNestClause(nestClause, constantExpression, false);
             }
-            else if (nestClause.InnerSequence is SubQueryExpression)
+            else if (nestClause.InnerSequence is SubQueryExpression subQuery)
             {
-                var subQuery = (SubQueryExpression) nestClause.InnerSequence;
                 if (subQuery.QueryModel.ResultOperators.Any() ||
                     subQuery.QueryModel.MainFromClause.FromExpression.NodeType != ExpressionType.Constant)
                 {
                     throw new NotSupportedException("Unsupported Nest Inner Sequence");
                 }
 
-                // Generate a temporary item name to use on the NEST statement, which we can then reference in the LET statement
-
-                var genItemName = _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName();
                 var fromPart = VisitConstantExpressionNestClause(nestClause,
-                    subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression, genItemName);
+                    subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression, true);
 
-                // Put any where clauses in the sub query in an ARRAY filtering clause using a LET statement
-
-                var whereClauseString = string.Join(" AND ",
-                    subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
-                        .Select(p => GetN1QlExpression(p.Predicate)));
-
-                var letPart = new N1QlLetQueryPart()
+                if (fromPart is AnsiJoinPart ansiJoinPart)
                 {
-                    ItemName = GetExtentName(nestClause),
-                    Value =
-                        string.Format("ARRAY {0} FOR {0} IN {1} WHEN {2} END",
-                            GetExtentName(subQuery.QueryModel.MainFromClause),
-                            genItemName,
-                            whereClauseString)
-                };
+                    // Ensure that the extents are linked before processing the where clause
+                    // So they have the same name
+                    _queryGenerationContext.ExtentNameProvider.LinkExtents(nestClause, subQuery.QueryModel.MainFromClause);
 
-                _queryPartsAggregator.AddLetPart(letPart);
-
-                if (!nestClause.IsLeftOuterNest)
+                    ansiJoinPart.AdditionalInnerPredicates = string.Join(" AND ",
+                        subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
+                            .Select(p => GetN1QlExpression(p.Predicate)));
+                }
+                else
                 {
-                    // This is an INNER NEST, but the inner sequence filter is being applied after the NEST operation is done
-                    // So we need to put an additional filter to drop rows with an empty array result
+                    // Put any where clauses in the sub query in an ARRAY filtering clause using a LET statement
 
-                    _queryPartsAggregator.AddWherePart("(ARRAY_LENGTH({0}) > 0)", letPart.ItemName);
+                    var whereClauseString = string.Join(" AND ",
+                        subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
+                            .Select(p => GetN1QlExpression(p.Predicate)));
+
+                    var letPart = new N1QlLetQueryPart()
+                    {
+                        ItemName = GetExtentName(nestClause),
+                        Value =
+                            string.Format("ARRAY {0} FOR {0} IN {1} WHEN {2} END",
+                                GetExtentName(subQuery.QueryModel.MainFromClause),
+                                fromPart.ItemName,
+                                whereClauseString)
+                    };
+
+                    _queryPartsAggregator.AddLetPart(letPart);
+
+                    if (!nestClause.IsLeftOuterNest)
+                    {
+                        // This is an INNER NEST, but the inner sequence filter is being applied after the NEST operation is done
+                        // So we need to put an additional filter to drop rows with an empty array result
+
+                        _queryPartsAggregator.AddWherePart("(ARRAY_LENGTH({0}) > 0)", letPart.ItemName);
+                    }
                 }
 
                 return fromPart;
@@ -1225,9 +1233,9 @@ namespace Couchbase.Linq.QueryGeneration
         /// </summary>
         /// <param name="nestClause">Nest clause being visited</param>
         /// <param name="constantExpression">Constant expression that is the InnerSequence of the NestClause</param>
-        /// <param name="itemName">Name to be used when referencing the data being nested</param>
+        /// <param name="isSubQuery">Indicates if this nest clause is a subquery which may require the use of a LET clause after the NEST</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator</returns>
-        private JoinPart VisitConstantExpressionNestClause(NestClause nestClause, ConstantExpression constantExpression, string itemName)
+        private JoinPart VisitConstantExpressionNestClause(NestClause nestClause, ConstantExpression constantExpression, bool isSubQuery)
         {
             string bucketName = null;
 
@@ -1245,13 +1253,33 @@ namespace Couchbase.Linq.QueryGeneration
                 throw new NotSupportedException("N1QL Nests Must Be Against IBucketQueryable");
             }
 
-            return new OnKeysJoinPart
+            if (_queryGenerationContext.ClusterVersion < FeatureVersions.AnsiJoin)
             {
-                Source = N1QlHelpers.EscapeIdentifier(bucketName),
-                ItemName = itemName,
-                OnKeys = GetN1QlExpression(nestClause.KeySelector),
-                JoinType = nestClause.IsLeftOuterNest ? JoinTypes.LeftNest : JoinTypes.InnerNest
-            };
+                return new OnKeysJoinPart
+                {
+                    Source = N1QlHelpers.EscapeIdentifier(bucketName),
+                    ItemName = isSubQuery
+                        // For subqueries, generate a temporary item name to use on the NEST statement, which we can then reference in the LET statement
+                        ? _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName()
+                        : _queryGenerationContext.ExtentNameProvider.GetExtentName(nestClause),
+                    OnKeys = GetN1QlExpression(nestClause.KeySelector),
+                    JoinType = nestClause.IsLeftOuterNest ? JoinTypes.LeftNest : JoinTypes.InnerNest
+                };
+            }
+            else
+            {
+                var itemName = _queryGenerationContext.ExtentNameProvider.GetExtentName(nestClause);
+
+                return new AnsiJoinPart
+                {
+                    Source = N1QlHelpers.EscapeIdentifier(bucketName),
+                    ItemName = itemName,
+                    JoinType = nestClause.IsLeftOuterNest ? JoinTypes.LeftNest : JoinTypes.InnerNest,
+                    InnerKey = GetN1QlExpression(nestClause.KeySelector),
+                    OuterKey = $"META({itemName}).id",
+                    Operator = "IN"
+                };
+            }
         }
 
         /// <summary>

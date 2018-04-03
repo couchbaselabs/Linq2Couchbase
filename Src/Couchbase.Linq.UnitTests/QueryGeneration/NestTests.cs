@@ -182,6 +182,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_NestServer55_Simple()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                .Nest(
+                    QueryFactory.Queryable<NestLevel2>(mockBucket.Object),
+                    level1 => level1.NestLevel2Keys,
+                    (level1, level2) => new {level1.Value, level2});
+
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent2` as `level2` " +
+                                    "FROM `default` as `Extent1` " +
+                                    "INNER NEST `default` as `Extent2` ON (META(`Extent2`).id IN `Extent1`.`NestLevel2Keys`)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, Linq.Versioning.FeatureVersions.AnsiJoin);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_Nest_Prefiltered()
         {
             var mockBucket = new Mock<IBucket>();
@@ -201,6 +222,30 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 "WHERE (`Extent1`.`Type` = 'level1') AND (ARRAY_LENGTH(`Extent4`) > 0)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_NestServer55_Prefiltered()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                .Where(level1 => level1.Type == "level1")
+                .Nest(
+                    QueryFactory.Queryable<NestLevel2>(mockBucket.Object).Where(level2 => level2.Type == "level2"),
+                    level1 => level1.NestLevel2Keys,
+                    (level1, level2) => new { level1.Value, level2 });
+
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent2` as `level2` " +
+                                    "FROM `default` as `Extent1` " +
+                                    "INNER NEST `default` as `Extent2` " +
+                                    "ON (META(`Extent2`).id IN `Extent1`.`NestLevel2Keys`) AND (`Extent2`.`Type` = 'level2') " +
+                                    "WHERE (`Extent1`.`Type` = 'level1')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, Linq.Versioning.FeatureVersions.AnsiJoin);
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -227,6 +272,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_LeftOuterNestServer55_Simple()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                .LeftOuterNest(
+                    QueryFactory.Queryable<NestLevel2>(mockBucket.Object),
+                    level1 => level1.NestLevel2Keys,
+                    (level1, level2) => new { level1.Value, level2 });
+
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent2` as `level2` " +
+                                    "FROM `default` as `Extent1` " +
+                                    "LEFT OUTER NEST `default` as `Extent2` ON (META(`Extent2`).id IN `Extent1`.`NestLevel2Keys`)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, Linq.Versioning.FeatureVersions.AnsiJoin);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_LeftOuterNest_Prefiltered()
         {
             var mockBucket = new Mock<IBucket>();
@@ -246,6 +312,30 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 "WHERE (`Extent1`.`Type` = 'level1')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_LeftOuterNestServer55_Prefiltered()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                .Where(level1 => level1.Type == "level1")
+                .LeftOuterNest(
+                    QueryFactory.Queryable<NestLevel2>(mockBucket.Object).Where(level2 => level2.Type == "level2"),
+                    level1 => level1.NestLevel2Keys,
+                    (level1, level2) => new { level1.Value, level2 });
+
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent2` as `level2` " +
+                                    "FROM `default` as `Extent1` " +
+                                    "LEFT OUTER NEST `default` as `Extent2` " +
+                                    "ON (META(`Extent2`).id IN `Extent1`.`NestLevel2Keys`) AND (`Extent2`.`Type` = 'level2') " +
+                                    "WHERE (`Extent1`.`Type` = 'level1')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, Linq.Versioning.FeatureVersions.AnsiJoin);
 
             Assert.AreEqual(expected, n1QlQuery);
         }
