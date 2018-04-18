@@ -23,7 +23,6 @@ namespace Couchbase.Linq.QueryGeneration
         public string SelectPart { get; set; }
         public List<ExtentPart> Extents { get; set; }
         public string UseKeysPart { get; set; }
-        public N1QlUseIndexPart UseIndexPart { get; set; }
         public List<N1QlLetQueryPart> LetParts { get; set; }
         public List<string> WhereParts { get; set; }
         public List<string> OrderByParts { get; set; }
@@ -258,10 +257,6 @@ namespace Couchbase.Linq.QueryGeneration
                 {
                     sb.AppendFormat(" USE KEYS {0}", UseKeysPart);
                 }
-                else if (UseIndexPart != null)
-                {
-                    sb.AppendFormat(" USE INDEX ({0} USING {1})", UseIndexPart.IndexName, UseIndexPart.IndexType);
-                }
 
                 foreach (var joinPart in Extents.Skip(1))
                 {
@@ -344,10 +339,6 @@ namespace Couchbase.Linq.QueryGeneration
                 if (!string.IsNullOrEmpty(UseKeysPart))
                 {
                     sb.AppendFormat(" USE KEYS {0}", UseKeysPart);
-                }
-                else if (UseIndexPart != null)
-                {
-                    sb.AppendFormat(" USE INDEX ({0} USING {1})", UseIndexPart.IndexName, UseIndexPart.IndexType);
                 }
 
                 foreach (var joinPart in Extents.Skip(1))

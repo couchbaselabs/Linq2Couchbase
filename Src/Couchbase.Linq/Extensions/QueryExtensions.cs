@@ -296,6 +296,40 @@ namespace Couchbase.Linq.Extensions
 
         #endregion
 
+        #region Use Hash
+
+        private static readonly MethodInfo UseHashMethod =
+            typeof(QueryExtensions).GetMethod("UseHash");
+
+        /// <summary>
+        /// Provides an hash join hint to the query engine.
+        /// </summary>
+        /// <typeparam name="T">Type of items being queried.</typeparam>
+        /// <param name="source">Items being queried.</param>
+        /// <param name="type">Type of hash hint to provide.</param>
+        /// <returns>Modified IQueryable</returns>
+        /// <remarks>Only valid when using Couchbase Server 5.5 Enterprise Edition (or later).  Not supported by Community Edition.</remarks>
+        public static IQueryable<T> UseHash<T>(this IQueryable<T> source, HashHintType type)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+            if (!Enum.IsDefined(typeof(HashHintType), type))
+            {
+                throw new ArgumentOutOfRangeException(nameof(type));
+            }
+
+            return source.Provider.CreateQuery<T>(
+                    Expression.Call(
+                        UseHashMethod
+                            .MakeGenericMethod(typeof(T)),
+                        source.Expression,
+                        Expression.Constant(type)));
+        }
+
+        #endregion
+
         #region Async
 
         /// <summary>

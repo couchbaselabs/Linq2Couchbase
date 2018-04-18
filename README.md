@@ -63,7 +63,7 @@ Full code list available [here](https://gist.github.com/jeffrymorris/c3bf85d73a1
 - [Array Filtering, Projections, and Sorting](docs/array-filtering-projections.md)
 - [Grouping and Aggregation](docs/grouping-aggregation.md)
 - [The UseKeys Method](docs/use-keys.md)
-- [The UseIndex Method](docs/use-index.md)
+- [Query Hints](docs/query-hints.md)
 - [JOINing Documents](docs/joins.md)
 - [NESTing Documents](docs/nest.md)
 - [UNNESTing Documents](docs/unnest.md)

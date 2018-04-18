@@ -414,6 +414,104 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void UseIndex_RightSideOfJoin_SelectDocuments()
+        {
+            // This test simply confirms that the USE INDEX clause generated is valid N1QL.  There's not much point
+            // in the actual USE INDEX clause itself in this query, since the index isn't used in the predicate.
+            // In a real world query, this should be a specific index helpful to the query.
+
+            var bucket = ClusterHelper.GetBucket("travel-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.AnsiJoin)
+            {
+                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var query =
+                from route in context.Query<Route>()
+                join airport in context.Query<Airport>()
+                        .UseIndex("def_faa")
+                        .Where(p => p.Type == "airport")
+                    on route.DestinationAirport equals airport.Faa
+                where route.Type == "route"
+                select new { airport.AirportName, route.Airline };
+
+            var results = query.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Route for airline {0} goes to {1}", b.Airline, b.AirportName);
+            }
+        }
+
+        [Test]
+        public void UseHash_SelectDocuments()
+        {
+            var bucket = ClusterHelper.GetBucket("travel-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.AnsiJoin)
+            {
+                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var query =
+                from route in context.Query<Route>()
+                join airport in context.Query<Airport>()
+                        .UseHash(HashHintType.Build)
+                        .Where(p => p.Type == "airport")
+                    on route.DestinationAirport equals airport.Faa
+                where route.Type == "route"
+                select new { airport.AirportName, route.Airline };
+
+            var results = query.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Route for airline {0} goes to {1}", b.Airline, b.AirportName);
+            }
+        }
+
+        [Test]
+        public void UseHashAndIndex_SelectDocuments()
+        {
+            var bucket = ClusterHelper.GetBucket("travel-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.AnsiJoin)
+            {
+                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var query =
+                from route in context.Query<Route>()
+                join airport in context.Query<Airport>()
+                        .UseHash(HashHintType.Build)
+                        .UseIndex("def_faa")
+                        .Where(p => p.Type == "airport")
+                    on route.DestinationAirport equals airport.Faa
+                where route.Type == "route"
+                select new { airport.AirportName, route.Airline };
+
+            var results = query.Take(1).ToList();
+            Assert.AreEqual(1, results.Count);
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Route for airline {0} goes to {1}", b.Airline, b.AirportName);
+            }
+        }
+
+        [Test]
         public void AnyAllTests_AnyNestedArrayWithFilter()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
