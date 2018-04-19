@@ -133,14 +133,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 foreach (var join in _unclaimedGroupJoins)
                 {
-                    IQuerySource querySource;
-                    if (!IsKeyMethodCall(join.JoinClause.OuterKeySelector, out querySource))
-                    {
-                        throw new NotSupportedException(
-                            "N1QL Requires All Group Joins Have A Matching From Clause Subquery Or Use N1QlFunctions.Key For The Outer Key Selector");
-                    }
-
-                    var fromQueryPart = ParseIndexNestJoinClause(join.JoinClause, join.GroupJoinClause);
+                    var fromQueryPart = ParseNestJoinClause(join.JoinClause, join.GroupJoinClause);
                     _queryPartsAggregator.AddExtent(fromQueryPart);
                 }
             }
@@ -1278,13 +1271,13 @@ namespace Couchbase.Linq.QueryGeneration
         }
 
         /// <summary>
-        /// Visits an index nest join against either a constant expression of IBucketQueryable, or a subquery based on an IBucketQueryable
+        /// Visits an nest join against either a constant expression of IBucketQueryable, or a subquery based on an IBucketQueryable
         /// </summary>
         /// <param name="joinClause">Join clause being visited</param>
         /// <param name="groupJoinClause">Group join clause being visited</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to NEST.</returns>
         /// <remarks>The OuterKeySelector must be selecting the N1QlFunctions.Key of the OuterSequence</remarks>
-        private JoinPart ParseIndexNestJoinClause(JoinClause joinClause, GroupJoinClause groupJoinClause)
+        private JoinPart ParseNestJoinClause(JoinClause joinClause, GroupJoinClause groupJoinClause)
         {
             if (joinClause.InnerSequence.NodeType == ExpressionType.Constant)
             {
@@ -1310,23 +1303,37 @@ namespace Couchbase.Linq.QueryGeneration
                     subQuery.QueryModel.MainFromClause.FromExpression as ConstantExpression);
                 fromPart.JoinType = JoinTypes.LeftNest;
 
-                // Put any where clauses in the sub query in an ARRAY filtering clause using a LET statement
-
-                var whereClauseString = string.Join(" AND ",
-                    subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
-                        .Select(p => GetN1QlExpression(p.Predicate)));
-
-                var letPart = new N1QlLetQueryPart()
+                if (fromPart is AnsiJoinPart ansiJoinPart)
                 {
-                    ItemName = GetExtentName(groupJoinClause),
-                    Value =
-                        string.Format("ARRAY {0} FOR {0} IN {1} WHEN {2} END",
-                            GetExtentName(subQuery.QueryModel.MainFromClause),
-                            GetExtentName(joinClause),
-                            whereClauseString)
-                };
+                    // Ensure references to the join pass through to the group join
+                    _queryGenerationContext.ExtentNameProvider.LinkExtents(joinClause, groupJoinClause);
+                    _queryGenerationContext.ExtentNameProvider.LinkExtents(joinClause, subQuery.QueryModel.MainFromClause);
 
-                _queryPartsAggregator.AddLetPart(letPart);
+                    // Put any where clauses in the sub query on the join
+                    ansiJoinPart.AdditionalInnerPredicates = string.Join(" AND ",
+                        subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
+                            .Select(p => GetN1QlExpression(p.Predicate)));
+                }
+                else
+                {
+                    // Put any where clauses in the sub query in an ARRAY filtering clause using a LET statement
+
+                    var whereClauseString = string.Join(" AND ",
+                        subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
+                            .Select(p => GetN1QlExpression(p.Predicate)));
+
+                    var letPart = new N1QlLetQueryPart()
+                    {
+                        ItemName = GetExtentName(groupJoinClause),
+                        Value =
+                            string.Format("ARRAY {0} FOR {0} IN {1} WHEN {2} END",
+                                GetExtentName(subQuery.QueryModel.MainFromClause),
+                                GetExtentName(joinClause),
+                                whereClauseString)
+                    };
+
+                    _queryPartsAggregator.AddLetPart(letPart);
+                }
 
                 return fromPart;
             }

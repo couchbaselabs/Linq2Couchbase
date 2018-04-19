@@ -1157,6 +1157,36 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void Test_AnsiNest_Prefiltered()
+        {
+            var bucket = ClusterHelper.GetBucket("travel-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion < FeatureVersions.AnsiJoin)
+            {
+                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var query = from airline in context.Query<Airline>()
+                join route in context.Query<Route>()
+                        .Where(route => route.Type == "route" && route.SourceAirport == "SFO")
+                    on airline.Iata equals route.Airline into routes
+                where airline.Type == "airline" && airline.Country == "United States"
+                select new { name = airline.Name, routes };
+
+            var results = query.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var airline in results)
+            {
+                Console.WriteLine("Airline {0} flies to these cities from SFO: {1}", airline.name,
+                    string.Join(", ", airline.routes.Select(p => p.DestinationAirport)));
+            }
+        }
+
+        [Test]
         public void SubqueryTests_ArraySubqueryWithFilter()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
