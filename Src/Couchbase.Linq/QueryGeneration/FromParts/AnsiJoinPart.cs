@@ -19,6 +19,11 @@ namespace Couchbase.Linq.QueryGeneration.FromParts
         public string InnerKey { get; set; }
 
         /// <summary>
+        /// Join operator, defaults to "="
+        /// </summary>
+        public string Operator { get; set; } = "=";
+
+        /// <summary>
         /// Additional predicates to apply to the inner sequence.
         /// </summary>
         public string AdditionalInnerPredicates { get; set; }
@@ -27,7 +32,7 @@ namespace Couchbase.Linq.QueryGeneration.FromParts
         {
             base.AppendToStringBuilder(sb);
 
-            sb.AppendFormat(" ON ({0} = {1})", OuterKey, InnerKey);
+            sb.AppendFormat(" ON ({0} {1} {2})", OuterKey, Operator, InnerKey);
 
             if (!string.IsNullOrEmpty(AdditionalInnerPredicates))
             {
