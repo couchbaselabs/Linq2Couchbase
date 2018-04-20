@@ -115,6 +115,28 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             Assert.AreEqual(expected, n1QlQuery);
         }
 
+        [Test]
+        public void Test_UseIndexRightSideOfNest()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from airport in QueryFactory.Queryable<Airport>(mockBucket.Object)
+                join route in QueryFactory.Queryable<Route>(mockBucket.Object).UseIndex("IndexName")
+                    on airport.Faa equals route.DestinationAirport into routes
+                select new {airport, routes};
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+
+            const string expected = "SELECT `Extent1` as `airport`, `Extent2` as `routes` " +
+                                    "FROM `default` as `Extent1` " +
+                                    "LEFT OUTER NEST `default` as `Extent2` USE INDEX (`IndexName` USING GSI) " +
+                                    "ON (`Extent1`.`faa` = `Extent2`.`destinationairport`)";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_UseIndexRightSideOfJoin_PreAnsiNotSupported()
         {
             var mockBucket = new Mock<IBucket>();
@@ -151,6 +173,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_UseIndexBothSidesOfNest()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from airport in QueryFactory.Queryable<Airport>(mockBucket.Object).UseIndex("IndexName2")
+                join route in QueryFactory.Queryable<Route>(mockBucket.Object).UseIndex("IndexName")
+                    on airport.Faa equals route.DestinationAirport into routes
+                select new {airport, routes};
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+
+            const string expected = "SELECT `Extent1` as `airport`, `Extent2` as `routes` " +
+                                    "FROM `default` as `Extent1` USE INDEX (`IndexName2` USING GSI) " +
+                                    "LEFT OUTER NEST `default` as `Extent2` USE INDEX (`IndexName` USING GSI) " +
+                                    "ON (`Extent1`.`faa` = `Extent2`.`destinationairport`)";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         [TestCase(HashHintType.Build, "build")]
         [TestCase(HashHintType.Probe, "probe")]
         public void Test_UseHash(HashHintType type, string typeString)
@@ -169,6 +212,29 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                             "FROM `default` as `Extent1` " +
                             $"INNER JOIN `default` as `Extent2` USE HASH ({typeString}) " +
                             "ON (`Extent1`.`destinationairport` = `Extent2`.`faa`)";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        [TestCase(HashHintType.Build, "build")]
+        [TestCase(HashHintType.Probe, "probe")]
+        public void Test_UseHashNest(HashHintType type, string typeString)
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from airport in QueryFactory.Queryable<Airport>(mockBucket.Object)
+                join route in QueryFactory.Queryable<Route>(mockBucket.Object).UseHash(type)
+                    on airport.Faa equals route.DestinationAirport into routes
+                select new {airport, routes};
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+
+            var expected = "SELECT `Extent1` as `airport`, `Extent2` as `routes` " +
+                           "FROM `default` as `Extent1` " +
+                           $"LEFT OUTER NEST `default` as `Extent2` USE HASH ({typeString}) " +
+                           "ON (`Extent1`.`faa` = `Extent2`.`destinationairport`)";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -233,6 +299,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                                     "FROM `default` as `Extent1` " +
                                     "INNER JOIN `default` as `Extent2` USE INDEX (`IndexName` USING GSI) HASH (build) " +
                                     "ON (`Extent1`.`destinationairport` = `Extent2`.`faa`)";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_UseIndexAndHintNest()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from airport in QueryFactory.Queryable<Airport>(mockBucket.Object)
+                join route in QueryFactory.Queryable<Route>(mockBucket.Object).UseIndex("IndexName").UseHash(HashHintType.Build)
+                    on airport.Faa equals route.DestinationAirport into routes
+                select new {airport, routes};
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+
+            const string expected = "SELECT `Extent1` as `airport`, `Extent2` as `routes` " +
+                                    "FROM `default` as `Extent1` " +
+                                    "LEFT OUTER NEST `default` as `Extent2` USE INDEX (`IndexName` USING GSI) HASH (build) " +
+                                    "ON (`Extent1`.`faa` = `Extent2`.`destinationairport`)";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
