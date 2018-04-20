@@ -1341,6 +1341,11 @@ namespace Couchbase.Linq.QueryGeneration
                     ansiJoinPart.AdditionalInnerPredicates = string.Join(" AND ",
                         subQuery.QueryModel.BodyClauses.OfType<WhereClause>()
                             .Select(p => GetN1QlExpression(p.Predicate)));
+
+                    foreach (var hintClause in subQuery.QueryModel.BodyClauses.OfType<HintClause>())
+                    {
+                        VisitHintClause(hintClause, fromPart);
+                    }
                 }
                 else
                 {
