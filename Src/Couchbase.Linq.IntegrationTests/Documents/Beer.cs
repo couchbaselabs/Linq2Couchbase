@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Couchbase.Core.Serialization;
 using Newtonsoft.Json;
 
 namespace Couchbase.Linq.IntegrationTests.Documents
@@ -38,5 +39,11 @@ namespace Couchbase.Linq.IntegrationTests.Documents
 
         [JsonProperty("updated")]
         public virtual DateTime Updated { get; set; }
+
+        // This property isn't normally on beers in the beer-sample bucket
+        // But we need it for some integration tests so we'll add it
+        [JsonProperty("updatedUnixMillis")]
+        [JsonConverter(typeof(UnixMillisecondsConverter))]
+        public virtual DateTime? UpdatedUnixMillis { get; set; }
     }
 }

@@ -16,21 +16,13 @@ namespace Couchbase.Linq.QueryGeneration
         private static readonly Assembly Mscorlib = typeof(string).GetTypeInfo().Assembly;
 
         private readonly StringBuilder _expression = new StringBuilder();
-        public StringBuilder Expression
-        {
-            get { return _expression; }
-        }
+        public StringBuilder Expression => _expression;
 
-        private readonly N1QlQueryGenerationContext _queryGenerationContext;
+        public N1QlQueryGenerationContext QueryGenerationContext { get; }
 
         protected N1QlExpressionTreeVisitor(N1QlQueryGenerationContext queryGenerationContext)
         {
-            if (queryGenerationContext == null)
-            {
-                throw new ArgumentNullException("queryGenerationContext");
-            }
-
-            _queryGenerationContext = queryGenerationContext;
+            QueryGenerationContext = queryGenerationContext ?? throw new ArgumentNullException(nameof(queryGenerationContext));
         }
 
         public static string GetN1QlExpression(Expression expression, N1QlQueryGenerationContext queryGenerationContext)
@@ -134,8 +126,7 @@ namespace Couchbase.Linq.QueryGeneration
                     _expression.Append(", ");
                 }
 
-                string memberName;
-                if (!_queryGenerationContext.MemberNameResolver.TryResolveMemberName(members[i], out memberName))
+                if (!QueryGenerationContext.MemberNameResolver.TryResolveMemberName(members[i], out var memberName))
                 {
                     memberName = members[i].Name;
                 }
@@ -206,8 +197,7 @@ namespace Couchbase.Linq.QueryGeneration
                 //only add 'as' part if the  previous visitexpression has generated something.
                 if (_expression.Length > expressionLength)
                 {
-                    string memberName;
-                    if (!_queryGenerationContext.MemberNameResolver.TryResolveMemberName(members[i], out memberName))
+                    if (!QueryGenerationContext.MemberNameResolver.TryResolveMemberName(members[i], out var memberName))
                     {
                         memberName = members[i].Name;
                     }
@@ -464,7 +454,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// <returns></returns>
         protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
-            IMethodCallTranslator methodCallTranslator = _queryGenerationContext.MethodCallTranslatorProvider.GetTranslator(expression);
+            IMethodCallTranslator methodCallTranslator = QueryGenerationContext.MethodCallTranslatorProvider.GetTranslator(expression);
 
             if (methodCallTranslator != null)
             {
@@ -476,7 +466,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitConstant(ConstantExpression expression)
         {
-            var namedParameter = _queryGenerationContext.ParameterAggregator.AddNamedParameter(expression.Value);
+            var namedParameter = QueryGenerationContext.ParameterAggregator.AddNamedParameter(expression.Value);
 
             if (namedParameter.Value == null)
             {
@@ -497,7 +487,7 @@ namespace Couchbase.Linq.QueryGeneration
             else if (namedParameter.Value is DateTime || namedParameter.Value is DateTimeOffset)
             {
                 // For consistency, use the JSON serializer configured for the cluster
-                var serializedDateTime = _queryGenerationContext.Serializer.Serialize(namedParameter.Value);
+                var serializedDateTime = QueryGenerationContext.Serializer.Serialize(namedParameter.Value);
 
                 _expression.Append(Encoding.UTF8.GetString(serializedDateTime));
             }
@@ -529,8 +519,8 @@ namespace Couchbase.Linq.QueryGeneration
                 // Then convert back to get the raw type being stored, such as a string or integer.
                 // Then we can write this value to N1QL by visiting it as a constant expression.
 
-                var jsonString = _queryGenerationContext.Serializer.Serialize(namedParameter.Value);
-                var jsonValue = _queryGenerationContext.Serializer.Deserialize<object>(jsonString, 0, jsonString.Length);
+                var jsonString = QueryGenerationContext.Serializer.Serialize(namedParameter.Value);
+                var jsonValue = QueryGenerationContext.Serializer.Deserialize<object>(jsonString, 0, jsonString.Length);
 
                 return Visit(System.Linq.Expressions.Expression.Constant(jsonValue));
             }
@@ -562,7 +552,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitQuerySourceReference(QuerySourceReferenceExpression expression)
         {
-            _expression.Append(_queryGenerationContext.ExtentNameProvider.GetExtentName(expression.ReferencedQuerySource));
+            _expression.Append(QueryGenerationContext.ExtentNameProvider.GetExtentName(expression.ReferencedQuerySource));
 
             return expression;
         }
@@ -588,13 +578,11 @@ namespace Couchbase.Linq.QueryGeneration
                 }
             }
 
-            string memberName;
-
-            if (_queryGenerationContext.MemberNameResolver.TryResolveMemberName(expression.Member, out memberName))
+            if (QueryGenerationContext.MemberNameResolver.TryResolveMemberName(expression.Member, out var memberName))
             {
                 var querySourceExpression = expression.Expression as QuerySourceReferenceExpression;
                 if ((querySourceExpression != null) &&
-                    (_queryGenerationContext.ExtentNameProvider.GetExtentName(
+                    (QueryGenerationContext.ExtentNameProvider.GetExtentName(
                         querySourceExpression.ReferencedQuerySource) == ""))
                 {
                     // This query source has a blank extent name, so we don't need to reference the extent to access the member
@@ -635,7 +623,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitSubQuery(SubQueryExpression expression)
         {
-            var modelVisitor = new N1QlQueryModelVisitor(_queryGenerationContext, true);
+            var modelVisitor = new N1QlQueryModelVisitor(QueryGenerationContext, true);
 
             modelVisitor.VisitQueryModel(expression.QueryModel);
             _expression.Append(modelVisitor.GetQuery());

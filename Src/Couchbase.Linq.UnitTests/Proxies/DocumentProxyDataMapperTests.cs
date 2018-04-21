@@ -23,15 +23,12 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var configuration = new ClientConfiguration()
-            {
-                Serializer = () => new Mock<ITypeSerializer>().Object
-            };
+            var serializer = new Mock<ITypeSerializer>();
 
             // Act/Assert
 
             // ReSharper disable once ObjectCreationAsStatement
-            Assert.Throws<NotSupportedException>(() => new DocumentProxyDataMapper<Document>(configuration, new Mock<IChangeTrackableContext>().Object));
+            Assert.Throws<NotSupportedException>(() => new DocumentProxyDataMapper<Document>(serializer.Object, new Mock<IChangeTrackableContext>().Object));
         }
 
         [Test]
@@ -45,15 +42,10 @@ namespace Couchbase.Linq.UnitTests.Proxies
                 CustomObjectCreator = false
             });
 
-            var configuration = new ClientConfiguration()
-            {
-                Serializer = () => serializer.Object
-            };
-
             // Act/Assert
 
             // ReSharper disable once ObjectCreationAsStatement
-            Assert.Throws<NotSupportedException>(() => new DocumentProxyDataMapper<Document>(configuration, new Mock<IChangeTrackableContext>().Object));
+            Assert.Throws<NotSupportedException>(() => new DocumentProxyDataMapper<Document>(serializer.Object, new Mock<IChangeTrackableContext>().Object));
         }
 
         [Test]
@@ -61,12 +53,9 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var configuration = new ClientConfiguration()
-            {
-                Serializer = () => new FakeSerializer()
-            };
+            var serializer = new FakeSerializer();
 
-            var dataMapper = new DocumentProxyDataMapper<Document>(configuration, new Mock<IChangeTrackableContext>().Object);
+            var dataMapper = new DocumentProxyDataMapper<Document>(serializer, new Mock<IChangeTrackableContext>().Object);
 
             // Act
 
@@ -83,12 +72,9 @@ namespace Couchbase.Linq.UnitTests.Proxies
         {
             // Arrange
 
-            var configuration = new ClientConfiguration()
-            {
-                Serializer = () => new FakeSerializer()
-            };
+            var serializer = new FakeSerializer();
 
-            var dataMapper = new DocumentProxyDataMapper<Document>(configuration, new Mock<IChangeTrackableContext>().Object);
+            var dataMapper = new DocumentProxyDataMapper<Document>(serializer, new Mock<IChangeTrackableContext>().Object);
 
             // Act
 

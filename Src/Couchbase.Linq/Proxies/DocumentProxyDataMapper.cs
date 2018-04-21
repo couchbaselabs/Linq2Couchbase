@@ -24,21 +24,11 @@ namespace Couchbase.Linq.Proxies
         private readonly IExtendedTypeSerializer _serializer;
         private readonly IChangeTrackableContext _context;
 
-        public DocumentProxyDataMapper(ClientConfiguration configuration, IChangeTrackableContext context)
+        public DocumentProxyDataMapper(ITypeSerializer serializer, IChangeTrackableContext context)
         {
+            _serializer = (serializer ?? throw new ArgumentNullException(nameof(serializer))) as IExtendedTypeSerializer;
 
-            if (configuration == null)
-            {
-                throw new ArgumentNullException("configuration");
-            }
-
-            _serializer = configuration.Serializer.Invoke() as IExtendedTypeSerializer;
-            if (_serializer == null)
-            {
-                throw new NotSupportedException("Change tracking is not supported without an IExtendedTypeSerializer which supports CustomObjectCreator.");
-            }
-
-            if (!_serializer.SupportedDeserializationOptions.CustomObjectCreator)
+            if (_serializer == null || !_serializer.SupportedDeserializationOptions.CustomObjectCreator)
             {
                 throw new NotSupportedException("Change tracking is not supported without an IExtendedTypeSerializer which supports CustomObjectCreator.");
             }

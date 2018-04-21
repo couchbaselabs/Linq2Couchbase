@@ -14,6 +14,12 @@ namespace Couchbase.Linq.IntegrationTests
     [TestFixture]
     public class QueryTests : N1QlTestBase
     {
+        [OneTimeSetUp]
+        public void OneTimeSetup()
+        {
+            PrepareBeerDocuments();
+        }
+
         [SetUp]
         public void TestSetUp()
         {
@@ -1629,6 +1635,25 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void DateTime_DateAdd_UnixMillis()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var beers = from beer in context.Query<Beer>()
+                where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
+                select new {beer.Name, Updated = N1QlFunctions.DateAdd(beer.UpdatedUnixMillis.Value, -10, N1QlDatePart.Day)};
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} was updated 10 days after {1:g}", b.Name, b.Updated);
+            }
+        }
+
+        [Test]
         public void DateTime_DateDiff()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
@@ -1637,6 +1662,25 @@ namespace Couchbase.Linq.IntegrationTests
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
                 select new {beer.Name, DaysOld = N1QlFunctions.DateDiff(DateTime.Now, beer.Updated, N1QlDatePart.Day)};
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} is {1} days old", b.Name, b.DaysOld);
+            }
+        }
+
+        [Test]
+        public void DateTime_DateDiff_UnixMillis()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var beers = from beer in context.Query<Beer>()
+                where beer.Type == "beer"
+                select new {beer.Name, DaysOld = N1QlFunctions.DateDiff(DateTime.Now, beer.UpdatedUnixMillis.Value, N1QlDatePart.Day)};
 
             var results = beers.Take(1).ToList();
             Assert.AreEqual(1, results.Count());
@@ -1667,6 +1711,25 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void DateTime_DatePart_UnixMillis()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new BucketContext(bucket);
+
+            var beers = from beer in context.Query<Beer>()
+                where beer.Type == "beer"
+                select new {beer.Name, Year = N1QlFunctions.DatePart(beer.UpdatedUnixMillis.Value, N1QlDatePart.Year)};
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} was updated in {1:0000}", b.Name, b.Year);
+            }
+        }
+
+        [Test]
         public void DateTime_DateTrunc()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
@@ -1680,6 +1743,40 @@ namespace Couchbase.Linq.IntegrationTests
             {
                 Console.WriteLine("Beer {0} is in {1:MMMM yyyy}", b.Name, b.Updated);
             }
+        }
+
+        [Test]
+        public void DateTime_DateTrunc_UnixMillis()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+
+            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            if (clusterVersion.Version == new Version(5, 5, 0))
+            {
+                Assert.Ignore("Skipping temporarily due to bug in 5.5 Beta https://issues.couchbase.com/browse/MB-29357");
+            }
+
+            var context = new BucketContext(bucket);
+
+            var beers = from beer in context.Query<Beer>()
+                where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
+                select new {beer.Name, Updated = N1QlFunctions.DateTrunc(beer.UpdatedUnixMillis.Value, N1QlDatePart.Month)};
+
+            foreach (var b in beers.Take(1))
+            {
+                Console.WriteLine("Beer {0} is in {1:MMMM yyyy}", b.Name, b.Updated);
+            }
+        }
+
+        private void PrepareBeerDocuments()
+        {
+            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var query = new QueryRequest(
+                @"UPDATE `beer-sample` SET updatedUnixMillis = STR_TO_MILLIS(updated)
+                  WHERE type = 'beer' AND updateUnixMillis IS MISSING");
+
+            var result = bucket.Query<dynamic>(query);
+            result.EnsureSuccess();
         }
 
         #endregion

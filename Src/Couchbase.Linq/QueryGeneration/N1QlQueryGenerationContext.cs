@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Couchbase.Core.Serialization;
 using Couchbase.Core.Version;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
+using Couchbase.Linq.Serialization;
 using Couchbase.Linq.Versioning;
 using Newtonsoft.Json.Serialization;
 using Remotion.Linq.Clauses.Expressions;
@@ -17,6 +18,7 @@ namespace Couchbase.Linq.QueryGeneration
     /// </summary>
     internal class N1QlQueryGenerationContext
     {
+        private IDateTimeSerializationFormatProvider _dateTimeSerializationFormatProvider;
 
         public N1QlExtentNameProvider ExtentNameProvider { get; set; }
         public IMemberNameResolver MemberNameResolver { get; set; }
@@ -34,6 +36,25 @@ namespace Couchbase.Linq.QueryGeneration
         /// If true, indicates that the document metadata should also be included in the select projection as "__metadata"
         /// </summary>
         public bool SelectDocumentMetadata { get; set; }
+
+        /// <summary>
+        /// <see cref="IDateTimeSerializationFormatProvider"/> to use when determining the serialization format
+        /// of DateTime properties.
+        /// </summary>
+        public IDateTimeSerializationFormatProvider DateTimeSerializationFormatProvider
+        {
+            get
+            {
+                if (_dateTimeSerializationFormatProvider == null)
+                {
+                    // ReSharper disable once SuspiciousTypeConversion.Global
+                    _dateTimeSerializationFormatProvider = Serializer as IDateTimeSerializationFormatProvider ??
+                                                           new DefaultDateTimeSerializationFormatProvider(Serializer);
+                }
+
+                return _dateTimeSerializationFormatProvider;
+            }
+        }
 
         public N1QlQueryGenerationContext()
         {
