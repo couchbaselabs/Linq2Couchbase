@@ -1,5 +1,4 @@
 ﻿using Couchbase.Linq.Clauses;
-using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
@@ -10,46 +9,59 @@ namespace Couchbase.Linq
 {
     internal class QueryParserHelper
     {
-        public static IQueryParser CreateQueryParser()
+        private static readonly INodeTypeProvider _nodeTypeProvider;
+        private static readonly ExpressionTransformerRegistry _transformerRegistry;
+
+        static QueryParserHelper()
+        {
+            _nodeTypeProvider = CreateDefaultNodeTypeProvider();
+            _transformerRegistry = CreateDefaultTransformerRegistry();
+        }
+
+        private static INodeTypeProvider CreateDefaultNodeTypeProvider()
         {
             //Create Custom node registry
-            var customNodeTypeRegistry = new MethodInfoBasedNodeTypeRegistry();
+            var nodeTypeRegistry = new MethodInfoBasedNodeTypeRegistry();
 
             //register the "Nest" clause type
-            customNodeTypeRegistry.Register(NestExpressionNode.SupportedMethods,
+            nodeTypeRegistry.Register(NestExpressionNode.SupportedMethods,
                 typeof(NestExpressionNode));
 
             //register the "Explain" expression node parser
-            customNodeTypeRegistry.Register(ExplainExpressionNode.SupportedMethods,
+            nodeTypeRegistry.Register(ExplainExpressionNode.SupportedMethods,
                 typeof(ExplainExpressionNode));
 
             //register the "UseKeys" expression node parser
-            customNodeTypeRegistry.Register(UseKeysExpressionNode.SupportedMethods,
+            nodeTypeRegistry.Register(UseKeysExpressionNode.SupportedMethods,
                 typeof(UseKeysExpressionNode));
 
             //register the "UseIndex" expression node parser
-            customNodeTypeRegistry.Register(UseIndexExpressionNode.SupportedMethods,
+            nodeTypeRegistry.Register(UseIndexExpressionNode.SupportedMethods,
                 typeof(UseIndexExpressionNode));
 
             //register the "UseHash" expression node parser
-            customNodeTypeRegistry.Register(UseHashExpressionNode.SupportedMethods,
+            nodeTypeRegistry.Register(UseHashExpressionNode.SupportedMethods,
                 typeof(UseHashExpressionNode));
 
             //register the "ExtentName" expression node parser
-            customNodeTypeRegistry.Register(ExtentNameExpressionNode.SupportedMethods,
+            nodeTypeRegistry.Register(ExtentNameExpressionNode.SupportedMethods,
                 typeof(ExtentNameExpressionNode));
 
             //register the "ToQueryRequest" expression node parser
-            customNodeTypeRegistry.Register(ToQueryRequestExpressionNode.SupportedMethods,
+            nodeTypeRegistry.Register(ToQueryRequestExpressionNode.SupportedMethods,
                 typeof(ToQueryRequestExpressionNode));
 
             //This creates all the default node types
             var nodeTypeProvider = ExpressionTreeParser.CreateDefaultNodeTypeProvider();
 
             //add custom node provider to the providers
-            nodeTypeProvider.InnerProviders.Add(customNodeTypeRegistry);
+            nodeTypeProvider.InnerProviders.Add(nodeTypeRegistry);
 
+            return nodeTypeProvider;
+        }
 
+        private static ExpressionTransformerRegistry CreateDefaultTransformerRegistry()
+        {
             var transformerRegistry = ExpressionTransformerRegistry.CreateDefault();
 
             //Register transformer to handle enum == and != comparisons
@@ -61,11 +73,13 @@ namespace Couchbase.Linq
             //Register transformer to handle DateTime comparisons
             transformerRegistry.Register(new DateTimeComparisonExpressionTransformer());
 
-            var processor = ExpressionTreeParser.CreateDefaultProcessor(transformerRegistry);
-            var expressionTreeParser = new ExpressionTreeParser(nodeTypeProvider, processor);
-            var queryParser = new QueryParser(expressionTreeParser);
-
-            return queryParser;
+            return transformerRegistry;
         }
+
+        public static IQueryParser CreateQueryParser() =>
+            new QueryParser(
+                new ExpressionTreeParser(
+                    _nodeTypeProvider,
+                    ExpressionTreeParser.CreateDefaultProcessor(_transformerRegistry)));
     }
 }

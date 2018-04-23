@@ -2,7 +2,7 @@
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
 
-namespace Couchbase.Linq
+namespace Couchbase.Linq.UnitTests
 {
     internal class QueryFactory
     {
