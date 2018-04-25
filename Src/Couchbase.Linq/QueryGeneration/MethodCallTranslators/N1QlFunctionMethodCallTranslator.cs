@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Couchbase.Linq.Serialization;
 
 namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
@@ -77,7 +74,18 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                     expressionTreeVisitor.Expression.Append(", ");
                 }
 
-                expressionTreeVisitor.Visit(methodCallExpression.Arguments[i]);
+                var argument = methodCallExpression.Arguments[i];
+
+                if (argument.Type == typeof(DateTime) && expressionTreeVisitor.QueryGenerationContext.IsUnixMillisecondsMember(argument))
+                {
+                    expressionTreeVisitor.Expression.Append("MILLIS_TO_STR(");
+                    expressionTreeVisitor.Visit(methodCallExpression.Arguments[i]);
+                    expressionTreeVisitor.Expression.Append(')');
+                }
+                else
+                {
+                    expressionTreeVisitor.Visit(methodCallExpression.Arguments[i]);
+                }
             }
 
             expressionTreeVisitor.Expression.Append(')');

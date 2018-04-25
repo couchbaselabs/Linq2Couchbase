@@ -27,6 +27,7 @@ namespace Couchbase.Linq.Execution
         private readonly IBucket _bucket;
         private readonly ClientConfiguration _configuration;
         private readonly IBucketContext _bucketContext;
+        private ITypeSerializer _serializer;
 
         public string BucketName
         {
@@ -56,6 +57,19 @@ namespace Couchbase.Linq.Execution
 
         /// <inheritdoc cref="IBucketQueryExecutor.UseStreaming"/>
         public bool UseStreaming { get; set; }
+
+        private ITypeSerializer Serializer
+        {
+            get
+            {
+                if (_serializer == null)
+                {
+                    _serializer = _configuration.Serializer.Invoke();
+                }
+
+                return _serializer;
+            }
+        }
 
         /// <summary>
         /// Creates a new BucketQueryExecutor.
@@ -154,7 +168,7 @@ namespace Couchbase.Linq.Execution
             if (generateProxies)
             {
                 // Proxy generation was requested, and the
-                queryRequest.DataMapper = new Proxies.DocumentProxyDataMapper<T>(_configuration, (IChangeTrackableContext)_bucketContext);
+                queryRequest.DataMapper = new Proxies.DocumentProxyDataMapper<T>(Serializer, (IChangeTrackableContext)_bucketContext);
             }
 
             if (queryModel.ResultOperators.Any(p => p is ToQueryRequestResultOperator))
@@ -274,7 +288,7 @@ namespace Couchbase.Linq.Execution
             // Otherwise fallback to the legacy behavior which assumes we're using Newtonsoft.Json
             // Note that DefaultSerializer implements IExtendedTypeSerializer, but has the same logic as JsonNetMemberNameResolver
 
-            var serializer = _configuration.Serializer.Invoke() as IExtendedTypeSerializer;
+            var serializer = Serializer as IExtendedTypeSerializer;
 
 #pragma warning disable CS0618 // Type or member is obsolete
             var memberNameResolver = serializer != null ?
