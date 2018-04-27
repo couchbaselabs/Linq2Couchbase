@@ -507,6 +507,30 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             Assert.AreEqual(expected, n1QlQuery);
         }
 
+        [Test]
+        public void Test_AnsiNest_CanUseExtentAsArray()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from airline in QueryFactory.Queryable<Airline>(mockBucket.Object)
+                join route in QueryFactory.Queryable<Route>(mockBucket.Object)
+                    on airline.Iata equals route.Airline into routes
+                where airline.Type == "airline"
+                select new { name = airline.Name, routes = routes.Where(p => p.DestinationAirport == "SCO").ToList() };
+
+            const string expected = "SELECT `Extent1`.`name` as `name`, " +
+                                    "ARRAY `Extent3` FOR `Extent3` IN `Extent2` WHEN (`Extent3`.`destinationairport` = 'SCO') END as `routes` " +
+                                    "FROM `default` as `Extent1` " +
+                                    "LEFT OUTER NEST `default` as `Extent2` " +
+                                    "ON (`Extent1`.`iata` = `Extent2`.`airline`) " +
+                                    "WHERE (`Extent1`.`type` = 'airline')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, Linq.Versioning.FeatureVersions.AnsiJoin);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
         #region Helper Classes
 
         public class UnnestLevel1
