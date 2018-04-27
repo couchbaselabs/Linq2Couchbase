@@ -207,33 +207,46 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 VisitSubQueryFromClause(fromClause, (SubQueryExpression) fromClause.FromExpression);
             }
-            else if (fromClause.FromExpression is QuerySourceReferenceExpression)
+            else if (fromClause.FromExpression is QuerySourceReferenceExpression querySourceReferenceExpression)
             {
-                if (!fromClause.FromExpression.Equals(_queryGenerationContext.GroupingQuerySource))
+                if (querySourceReferenceExpression.ReferencedQuerySource is GroupJoinClause)
                 {
-                    throw new NotSupportedException("From Clauses May Not Reference Any Query Source Other Than The Grouping Subquery");
+                    // This is an array subquery against a NEST clause
+                    VisitArrayFromClause(fromClause);
                 }
+                else if (fromClause.FromExpression.Equals(_queryGenerationContext.GroupingQuerySource))
+                {
+                    // We're performing an aggregate against a group
+                    _queryPartsAggregator.QueryType = N1QlQueryType.Aggregate;
 
-                // We're performing an aggregate against a group
-                _queryPartsAggregator.QueryType = N1QlQueryType.Aggregate;
-
-                // Ensure that we use the same extent name as the grouping
-                _queryGenerationContext.ExtentNameProvider.LinkExtents(_queryGenerationContext.GroupingQuerySource.ReferencedQuerySource, fromClause);
+                    // Ensure that we use the same extent name as the grouping
+                    _queryGenerationContext.ExtentNameProvider.LinkExtents(
+                        _queryGenerationContext.GroupingQuerySource.ReferencedQuerySource, fromClause);
+                }
+                else
+                {
+                    throw new NotSupportedException("From Clause Is Referencing An Invalid Query Source");
+                }
             }
             else if (fromClause.FromExpression is ConstantExpression)
             {
                 // From clause for this subquery is a constant array
 
-                _queryPartsAggregator.QueryType = N1QlQueryType.Array;
-
-                _queryPartsAggregator.AddExtent(new FromPart
-                {
-                    Source = GetN1QlExpression(fromClause.FromExpression),
-                    ItemName = GetExtentName(fromClause)
-                });
+                VisitArrayFromClause(fromClause);
             }
 
             base.VisitMainFromClause(fromClause, queryModel);
+        }
+
+        private void VisitArrayFromClause(MainFromClause fromClause)
+        {
+            _queryPartsAggregator.QueryType = N1QlQueryType.Array;
+
+            _queryPartsAggregator.AddExtent(new FromPart
+            {
+                Source = GetN1QlExpression(fromClause.FromExpression),
+                ItemName = GetExtentName(fromClause)
+            });
         }
 
         private void VisitSubQueryFromClause(MainFromClause fromClause, SubQueryExpression subQuery)
