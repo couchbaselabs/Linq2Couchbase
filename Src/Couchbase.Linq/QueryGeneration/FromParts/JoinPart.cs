@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration.FromParts
 {
@@ -11,6 +12,10 @@ namespace Couchbase.Linq.QueryGeneration.FromParts
         /// Type of join to perform
         /// </summary>
         public string JoinType { get; set; }
+
+        public JoinPart(IQuerySource querySource) : base(querySource)
+        {
+        }
 
         public override void AppendToStringBuilder(StringBuilder sb)
         {
