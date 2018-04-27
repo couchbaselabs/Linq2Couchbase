@@ -1,7 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Couchbase.Linq.Clauses;
+using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration.FromParts
 {
@@ -10,6 +12,17 @@ namespace Couchbase.Linq.QueryGeneration.FromParts
     /// </summary>
     internal abstract class ExtentPart
     {
+        private IQuerySource _querySource;
+
+        /// <summary>
+        /// Clause which is the source of the query data, such as a MainFromClause.
+        /// </summary>
+        public IQuerySource QuerySource
+        {
+            get => _querySource;
+            set => _querySource = value ?? throw new ArgumentNullException(nameof(value));
+        }
+
         /// <summary>
         /// Source of the query data, such as a bucket name.  Should already be escaped.
         /// </summary>
@@ -21,6 +34,11 @@ namespace Couchbase.Linq.QueryGeneration.FromParts
         public string ItemName { get; set; }
 
         public List<HintClause> Hints { get; set; }
+
+        protected ExtentPart(IQuerySource querySource)
+        {
+            QuerySource = querySource ?? throw new ArgumentNullException(nameof(querySource));
+        }
 
         public virtual void AppendToStringBuilder(StringBuilder sb)
         {

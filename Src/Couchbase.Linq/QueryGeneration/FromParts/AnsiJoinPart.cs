@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration.FromParts
 {
@@ -27,6 +28,10 @@ namespace Couchbase.Linq.QueryGeneration.FromParts
         /// Additional predicates to apply to the inner sequence.
         /// </summary>
         public string AdditionalInnerPredicates { get; set; }
+
+        public AnsiJoinPart(IQuerySource querySource) : base(querySource)
+        {
+        }
 
         public override void AppendToStringBuilder(StringBuilder sb)
         {

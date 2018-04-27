@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Text;
+using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration.FromParts
 {
@@ -17,6 +18,10 @@ namespace Couchbase.Linq.QueryGeneration.FromParts
         /// For index joins, the name of the extent on the left side of the join.  Should already be escaped.
         /// </summary>
         public string IndexJoinExtentName { get; set; }
+
+        public IndexJoinPart(IQuerySource querySource) : base(querySource)
+        {
+        }
 
         public override void AppendToStringBuilder(StringBuilder sb)
         {

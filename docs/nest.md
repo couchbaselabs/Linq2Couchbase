@@ -171,3 +171,24 @@ foreach (var doc in query) {
     // may return airlines with no routes
 }
 ```
+
+To perform an INNER NEST instead of a LEFT OUTER NEST, simply add a .Any() predicate to your where clause.
+
+```cs
+var context = new BucketContext(bucket);
+
+var query = from airline in context.Query<Airline>()
+            join route in context.Query<Route>().Where(route.SourceAirport == "SFO")
+                on airline.Iata equals route.Airline into routes
+            where airline.Type == "airline" && airline.Country == "United States" && routes.Any()
+            select new { airline, routes };
+
+foreach (var doc in query) {
+    // do work
+
+    // each returned "document" has a airline property which is the airline
+    // and a routes property that is an array of routes the airline flies from SFO
+
+    // will not return airlines with no routes
+}
+```
