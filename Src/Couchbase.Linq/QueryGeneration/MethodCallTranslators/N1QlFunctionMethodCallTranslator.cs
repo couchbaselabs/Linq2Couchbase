@@ -74,18 +74,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                     expressionTreeVisitor.Expression.Append(", ");
                 }
 
-                var argument = methodCallExpression.Arguments[i];
-
-                if (argument.Type == typeof(DateTime) && expressionTreeVisitor.QueryGenerationContext.IsUnixMillisecondsMember(argument))
-                {
-                    expressionTreeVisitor.Expression.Append("MILLIS_TO_STR(");
-                    expressionTreeVisitor.Visit(methodCallExpression.Arguments[i]);
-                    expressionTreeVisitor.Expression.Append(')');
-                }
-                else
-                {
-                    expressionTreeVisitor.Visit(methodCallExpression.Arguments[i]);
-                }
+                expressionTreeVisitor.Visit(methodCallExpression.Arguments[i]);
             }
 
             expressionTreeVisitor.Expression.Append(')');

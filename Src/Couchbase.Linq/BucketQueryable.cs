@@ -76,7 +76,7 @@ namespace Couchbase.Linq
         /// <exception cref="System.ArgumentNullException">bucket</exception>
         /// <exception cref="ArgumentNullException"><paramref name="bucket" /> is <see langword="null" />.</exception>
         public BucketQueryable(IBucket bucket, ClientConfiguration configuration, IBucketContext bucketContext)
-            : base(QueryParserHelper.CreateQueryParser(), new BucketQueryExecutor(bucket, configuration, bucketContext))
+            : base(QueryParserHelper.CreateQueryParser(bucketContext), new BucketQueryExecutor(bucket, configuration, bucketContext))
         {
             if (bucket == null)
             {

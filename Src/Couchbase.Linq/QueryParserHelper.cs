@@ -1,8 +1,13 @@
-﻿using Couchbase.Linq.Clauses;
+﻿using System.Collections.Generic;
+using Couchbase.Core.Serialization;
+using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
+using Couchbase.Linq.Serialization;
+using Couchbase.Linq.Utils;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 using Remotion.Linq.Parsing.Structure;
+using Remotion.Linq.Parsing.Structure.ExpressionTreeProcessors;
 using Remotion.Linq.Parsing.Structure.NodeTypeProviders;
 
 namespace Couchbase.Linq
@@ -76,10 +81,15 @@ namespace Couchbase.Linq
             return transformerRegistry;
         }
 
-        public static IQueryParser CreateQueryParser() =>
+        public static IQueryParser CreateQueryParser(IBucketContext bucketContext) =>
             new QueryParser(
                 new ExpressionTreeParser(
                     _nodeTypeProvider,
-                    ExpressionTreeParser.CreateDefaultProcessor(_transformerRegistry)));
+                    new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
+                    {
+                        new PartialEvaluatingExpressionTreeProcessor(new NullEvaluatableExpressionFilter()),
+                        SerializationExpressionTreeProcessor.FromBucketContext(bucketContext),
+                        new TransformingExpressionTreeProcessor(_transformerRegistry)
+                    })));
     }
 }

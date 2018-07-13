@@ -64,7 +64,9 @@ namespace Couchbase.Linq.Execution
             {
                 if (_serializer == null)
                 {
-                    _serializer = _configuration.Serializer.Invoke();
+                    var serializerProvider = _bucketContext.Bucket as ITypeSerializerProvider;
+
+                    _serializer = serializerProvider?.Serializer ?? _configuration.Serializer.Invoke();
                 }
 
                 return _serializer;

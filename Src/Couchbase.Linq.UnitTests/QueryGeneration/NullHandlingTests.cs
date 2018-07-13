@@ -63,7 +63,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`Updated` as `Updated` FROM `default` as `Extent1` " +
-                "WHERE (STR_TO_MILLIS(`Extent1`.`Updated`) < STR_TO_MILLIS(\"2000-01-01T00:00:00Z\"))";
+                "WHERE (STR_TO_MILLIS(`Extent1`.`Updated`) < 946684800000)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -82,7 +82,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { e.Updated });
 
             const string expected =
-                "SELECT `Extent1`.`Updated` as `Updated` FROM `default` as `Extent1` WHERE (`Extent1`.`Updated` IS NOT NULL)";
+                "SELECT MILLIS_TO_STR(`Extent1`.`Updated`) as `Updated` FROM `default` as `Extent1` WHERE (`Extent1`.`Updated` IS NOT NULL)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -101,7 +101,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { e.Updated });
 
             const string expected =
-                "SELECT `Extent1`.`Updated` as `Updated` FROM `default` as `Extent1` WHERE NOT (`Extent1`.`Updated` IS NOT NULL)";
+                "SELECT MILLIS_TO_STR(`Extent1`.`Updated`) as `Updated` FROM `default` as `Extent1` WHERE NOT (`Extent1`.`Updated` IS NOT NULL)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -120,8 +120,8 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { e.Updated });
 
             const string expected =
-                "SELECT `Extent1`.`Updated` as `Updated` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`Updated` < STR_TO_MILLIS(\"2000-01-01T00:00:00Z\"))";
+                "SELECT MILLIS_TO_STR(`Extent1`.`Updated`) as `Updated` FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`Updated` < 946684800000)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
