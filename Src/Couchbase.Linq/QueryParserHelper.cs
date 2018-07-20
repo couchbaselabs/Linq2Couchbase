@@ -16,11 +16,13 @@ namespace Couchbase.Linq
     {
         private static readonly INodeTypeProvider _nodeTypeProvider;
         private static readonly ExpressionTransformerRegistry _transformerRegistry;
+        private static readonly ExpressionTransformerRegistry _prePartialEvaluationTransformerRegistry;
 
         static QueryParserHelper()
         {
             _nodeTypeProvider = CreateDefaultNodeTypeProvider();
             _transformerRegistry = CreateDefaultTransformerRegistry();
+            _prePartialEvaluationTransformerRegistry = CreatePrePartialEvaluationDefaultTransformerRegistry();
         }
 
         private static INodeTypeProvider CreateDefaultNodeTypeProvider()
@@ -69,14 +71,21 @@ namespace Couchbase.Linq
         {
             var transformerRegistry = ExpressionTransformerRegistry.CreateDefault();
 
-            //Register transformer to handle enum == and != comparisons
-            transformerRegistry.Register(new EnumComparisonExpressionTransformer());
-
             //Register transformer to handle string comparisons
             transformerRegistry.Register(new StringComparisonExpressionTransformer());
 
             //Register transformer to handle DateTime comparisons
             transformerRegistry.Register(new DateTimeComparisonExpressionTransformer());
+
+            return transformerRegistry;
+        }
+
+        private static ExpressionTransformerRegistry CreatePrePartialEvaluationDefaultTransformerRegistry()
+        {
+            var transformerRegistry = ExpressionTransformerRegistry.CreateDefault();
+
+            //Register transformer to handle enum == and != comparisons
+            transformerRegistry.Register(new EnumComparisonExpressionTransformer());
 
             return transformerRegistry;
         }
@@ -87,8 +96,9 @@ namespace Couchbase.Linq
                     _nodeTypeProvider,
                     new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
                     {
-                        new PartialEvaluatingExpressionTreeProcessor(new NullEvaluatableExpressionFilter()),
+                        new TransformingExpressionTreeProcessor(_prePartialEvaluationTransformerRegistry),
                         SerializationExpressionTreeProcessor.FromBucketContext(bucketContext),
+                        new PartialEvaluatingExpressionTreeProcessor(new ExcludeSerializationConversionEvaluatableExpressionFilter()),
                         new TransformingExpressionTreeProcessor(_transformerRegistry)
                     })));
     }

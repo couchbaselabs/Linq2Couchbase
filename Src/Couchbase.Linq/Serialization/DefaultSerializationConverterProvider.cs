@@ -72,7 +72,7 @@ namespace Couchbase.Linq.Serialization
                     var jsonConverter = property?.Converter;
                     if (jsonConverter != null)
                     {
-                        return Registry.GetSerializationConverter(jsonConverter);
+                        return Registry.CreateSerializationConverter(jsonConverter, p);
                     }
                 }
 

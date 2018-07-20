@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using Couchbase.Linq.Utils;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 
 namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
@@ -35,18 +36,21 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
         {
             Expression newExpression = null;
 
-            if (IsEnumConversion(expression.Left) && (expression.Right.NodeType == ExpressionType.Constant))
+            ConstantExpression constant;
+            if (IsEnumConversion(expression.Left) &&
+                (constant = ReflectionUtils.UnwrapNullableConversion<ConstantExpression>(expression.Right, out _)) != null)
             {
                 newExpression = MakeEnumComparisonExpression(
                     ((UnaryExpression) expression.Left).Operand,
-                    ((ConstantExpression)expression.Right).Value,
+                    constant.Value,
                     expression.NodeType);
             }
-            else if (IsEnumConversion(expression.Right) && (expression.Left.NodeType == ExpressionType.Constant))
+            else if (IsEnumConversion(expression.Right) &&
+                     (constant = ReflectionUtils.UnwrapNullableConversion<ConstantExpression>(expression.Left, out _)) != null)
             {
                 newExpression = MakeEnumComparisonExpression(
                     ((UnaryExpression)expression.Right).Operand,
-                    ((ConstantExpression)expression.Left).Value,
+                    constant.Value,
                     expression.NodeType);
             }
 
@@ -115,7 +119,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             {
                 comparisonValue = Expression.Constant(null);
             }
-            
+
             return Expression.MakeBinary(comparisonType, operand, comparisonValue);
         }
     }

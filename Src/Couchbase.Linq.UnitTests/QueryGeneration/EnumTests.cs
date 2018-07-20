@@ -388,12 +388,210 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
         #endregion
 
+        #region StringEnumConverter on property
+
+        [Test]
+        public void Test_StringEnumConverterOnProperty_WhereEqual()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringOnPropertyDoc>(mockBucket.Object)
+                .Where(p => p.Value == IntegerEnum.Value0);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringEnumConverterOnProperty_WhereEqualReversed()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringOnPropertyDoc>(mockBucket.Object)
+                .Where(p => IntegerEnum.Value0 == p.Value);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringEnumConverterOnProperty_WhereNotEqual()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringOnPropertyDoc>(mockBucket.Object)
+                .Where(p => p.Value != IntegerEnum.Value0);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringEnumConverterOnProperty_WhereEqualToValueWithEnumMemberAttribute()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringOnPropertyDoc>(mockBucket.Object)
+                .Where(p => p.Value == IntegerEnum.Value2);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value 2')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringEnumConverterOnProperty_WhereNotEqualReversed()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringOnPropertyDoc>(mockBucket.Object)
+                .Where(p => IntegerEnum.Value0 != p.Value);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
+
+        #region StringEnumConverter on property nullable value
+
+        [Test]
+        public void Test_StringEnumConverterOnPropertyNullable_WhereEqual()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringNullableOnPropertyDoc>(mockBucket.Object)
+                .Where(p => p.Value == IntegerEnum.Value0);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringEnumConverterOnPropertyNullable_WhereEqualToNull()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringNullableOnPropertyDoc>(mockBucket.Object)
+                .Where(p => p.Value == null);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NULL)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringEnumConverterOnPropertyNullable_WhereEqualReversed()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringNullableOnPropertyDoc>(mockBucket.Object)
+                .Where(p => IntegerEnum.Value0 == p.Value);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringEnumConverterOnPropertyNullable_WhereNotEqual()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringNullableOnPropertyDoc>(mockBucket.Object)
+                .Where(p => p.Value != IntegerEnum.Value0);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringEnumConverterOnPropertyNullable_WhereNotEqualToNull()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringNullableOnPropertyDoc>(mockBucket.Object)
+                .Where(p => p.Value != null);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NOT NULL)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringEnumConverterOnPropertyNullable_WhereNotEqualReversed()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<StringNullableOnPropertyDoc>(mockBucket.Object)
+                .Where(p => IntegerEnum.Value0 != p.Value);
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
+
         #region Helpers
 
         private enum IntegerEnum
         {
             Value0 = 0,
-            Value1 = 1
+            Value1 = 1,
+
+            [EnumMember(Value="Value 2")]
+            Value2 = 2
         }
 
         [JsonConverter(typeof(StringEnumConverter))]
@@ -425,6 +623,18 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         private class StringNullableDoc
         {
             public StringEnum? Value { get; set; }
+        }
+
+        private class StringOnPropertyDoc
+        {
+            [JsonConverter(typeof(StringEnumConverter))]
+            public IntegerEnum Value { get; set; }
+        }
+
+        private class StringNullableOnPropertyDoc
+        {
+            [JsonConverter(typeof(StringEnumConverter))]
+            public IntegerEnum? Value { get; set; }
         }
         // ReSharper restore UnusedAutoPropertyAccessor.Local
         // ReSharper restore ClassNeverInstantiated.Local

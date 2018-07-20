@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using Couchbase.Core.Serialization;
 using Couchbase.Linq.Serialization.Converters;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
 namespace Couchbase.Linq.Serialization
 {
@@ -28,7 +30,8 @@ namespace Couchbase.Linq.Serialization
         /// <returns></returns>
         public static TypeBasedSerializationConverterRegistry CreateDefaultRegistry() => new TypeBasedSerializationConverterRegistry
         {
-            { typeof(UnixMillisecondsConverter), typeof(UnixMillisecondsSerializationConverter) }
+            { typeof(UnixMillisecondsConverter), typeof(UnixMillisecondsSerializationConverter) },
+            { typeof(StringEnumConverter), typeof(StringEnumSerializationConverter<>)}
         };
 
         /// <summary>
@@ -65,7 +68,7 @@ namespace Couchbase.Linq.Serialization
         }
 
         /// <inheritdoc/>
-        public ISerializationConverter GetSerializationConverter(JsonConverter jsonConverter)
+        public ISerializationConverter CreateSerializationConverter(JsonConverter jsonConverter, MemberInfo member)
         {
             if (jsonConverter == null)
             {
@@ -74,10 +77,40 @@ namespace Couchbase.Linq.Serialization
 
             if (_registry.TryGetValue(jsonConverter.GetType(), out var serializationConverterType))
             {
-                return (ISerializationConverter) Activator.CreateInstance(serializationConverterType);
+                return CreateConverter(serializationConverterType, jsonConverter, member);
             }
 
             return null;
+        }
+
+        private ISerializationConverter CreateConverter(Type converterType, JsonConverter jsonConverter,
+            MemberInfo member)
+        {
+            if (converterType.GetTypeInfo().IsGenericTypeDefinition)
+            {
+                var memberType = GetMemberType(member);
+                if (memberType == null)
+                {
+                    throw new NotSupportedException(
+                        "Generic SerializationConverter Applied To A Member Other Than Field Or Property");
+                }
+
+                if (memberType.GetTypeInfo().IsGenericType && memberType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    // Extract the inner type if the type is nullable
+                    memberType = memberType.GenericTypeArguments[0];
+                }
+
+                converterType = converterType.MakeGenericType(memberType);
+            }
+
+            var constructor = converterType.GetConstructor(new[] {typeof(JsonConverter), typeof(MemberInfo)});
+            if (constructor != null)
+            {
+                return (ISerializationConverter) constructor.Invoke(new object[] {jsonConverter, member});
+            }
+
+            return (ISerializationConverter) Activator.CreateInstance(converterType);
         }
 
         /// <inheritdoc/>
@@ -89,6 +122,21 @@ namespace Couchbase.Linq.Serialization
         IEnumerator IEnumerable.GetEnumerator()
         {
             return GetEnumerator();
+        }
+
+        private static Type GetMemberType(MemberInfo member)
+        {
+            switch (member)
+            {
+                case FieldInfo field:
+                    return field.FieldType;
+
+                case PropertyInfo property:
+                    return property.PropertyType;
+
+                default:
+                    return null;
+            }
         }
     }
 }
