@@ -11,7 +11,7 @@ using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Couchbase.Linq.QueryGeneration
 {
-    internal class N1QlExpressionTreeVisitor : ThrowingExpressionVisitor
+    internal class N1QlExpressionTreeVisitor : ThrowingExpressionVisitor, IN1QlExpressionTreeVisitor
     {
         private static readonly Assembly Mscorlib = typeof(string).GetTypeInfo().Assembly;
 
@@ -56,6 +56,12 @@ namespace Couchbase.Linq.QueryGeneration
         public string GetN1QlExpression()
         {
             return _expression.ToString();
+        }
+
+        /// <inheritdoc/>
+        void IN1QlExpressionTreeVisitor.Visit(Expression expression)
+        {
+            Visit(expression);
         }
 
         public override Expression Visit(Expression expression)

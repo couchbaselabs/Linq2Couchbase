@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using Couchbase.Configuration.Client;
 using Couchbase.Core;
+using Moq;
 
 namespace Couchbase.Linq.UnitTests
 {
@@ -8,8 +9,14 @@ namespace Couchbase.Linq.UnitTests
     {
         public static IQueryable<T> Queryable<T>(IBucket bucket)
         {
+            var configuration = new ClientConfiguration();
+
+            var bucketContext = new Mock<IBucketContext>();
+            bucketContext.SetupGet(p => p.Bucket).Returns(bucket);
+            bucketContext.SetupGet(p => p.Configuration).Returns(configuration);
+
             //TODO refactor so ClientConfiguration is injectable
-            return new BucketQueryable<T>(bucket, new ClientConfiguration(), new BucketContext(bucket));
+            return new BucketQueryable<T>(bucket, configuration, bucketContext.Object);
         }
     }
 }

@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Linq;
 using Couchbase.Core;
+using Couchbase.Core.Serialization;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.UnitTests.Documents;
 using Moq;
+using Newtonsoft.Json;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.UnitTests.QueryGeneration
@@ -263,7 +265,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` " +
-                "WHERE (STR_TO_MILLIS(`Extent1`.`updated`) >= STR_TO_MILLIS(\"2010-01-01T00:00:00Z\"))";
+                "WHERE (STR_TO_MILLIS(`Extent1`.`updated`) >= 1262304000000)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_Where_With_UnixMillisecondsDateComparison()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<UnixMillisecondsDocument>(mockBucket.Object)
+                    .Where(e => e.DateTime >= new DateTime(2010, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+
+
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`DateTime` >= 1262304000000)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -284,7 +306,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` " +
-                "WHERE (STR_TO_MILLIS(`Extent1`.`updatedOffset`) >= STR_TO_MILLIS(\"2010-01-01T00:00:00+06:00\"))";
+                "WHERE (STR_TO_MILLIS(`Extent1`.`updatedOffset`) >= 1262282400000)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -311,5 +333,15 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        #region Helpers
+
+        public class UnixMillisecondsDocument
+        {
+            [JsonConverter(typeof(UnixMillisecondsConverter))]
+            public DateTime DateTime { get; set; }
+        }
+
+        #endregion
     }
 }

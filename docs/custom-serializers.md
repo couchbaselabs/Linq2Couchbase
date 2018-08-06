@@ -8,10 +8,10 @@ The GetMemberName method is used to determine how a particular member property o
 
 Here is [an example of how this method was implemented for Newtonsoft's Json.Net](https://github.com/couchbase/couchbase-net-client/blob/03d7957226da6f7c3e05220a21e7ebeeb0519b93/Src/Couchbase/Core/Serialization/DefaultSerializer.cs#L192).
 
-## Date/Times
+## Non-standard conversions
 
-By default, Linq2Couchbase assumes that DateTime properties are serialized as ISO 8601 strings.  When using the default serializer, attributes may be used to indicate that they are stored as milliseconds since the Unix epoch.  See [Date Handling](./date-handling.md) for more information.
+Some attributes may have additional decorators applied that change how they are serialized.  To support this, your serializer should implement `ISerializationConverterProvider` (in addition to `IExtendedTypeSerializer`).  This interface can return a custom `ISerializationConverter` for a particular member, altering query generation behavior when this member is used in a N1QL query.
 
-For custom serializers that wish to use Unix milliseconds, an extra step is required.  The serializer must implement the IDateTimeSerializationFormatProvider interface (in addition to IExtendedTypeSerializer).  This interface provides the GetDateTimeSerializationFormat, which is used by Linq2Couchbase to determine if a property is serialized as ISO 8601 or Unix milliseconds.
+For more details, see [Serialization Converters](./serialization-converters.md).
 
-For performance reasons, be sure to use a cache in your internal implementation.  The method is called each time a candidate DateTime property is encountered.  In a system under load this could be many times per second for the same property.
+For performance reasons, be sure to use a cache in your internal implementation.  The method is called each time a candidate property is encountered.  In a system under load this could be many times per second for the same property.
