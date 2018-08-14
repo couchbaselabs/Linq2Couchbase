@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
+using Couchbase.Linq.Utils;
 using Remotion.Linq.Parsing;
 
 namespace Couchbase.Linq.Serialization
@@ -81,7 +83,7 @@ namespace Couchbase.Linq.Serialization
             var right = Visit(node.Right);
 
             var leftConvertMethod = ExtractConvertFromMethod(left);
-            if (leftConvertMethod != null)
+            if (leftConvertMethod != null && !IsNull(right))
             {
                 var inverseMethod = leftConvertMethod.Method.DeclaringType?.GetMethod("ConvertTo");
                 if (inverseMethod != null)
@@ -97,7 +99,7 @@ namespace Couchbase.Linq.Serialization
             }
 
             var rightConvertMethod = ExtractConvertFromMethod(right);
-            if (rightConvertMethod != null)
+            if (rightConvertMethod != null && !IsNull(left))
             {
                 var inverseMethod = rightConvertMethod.Method.DeclaringType?.GetMethod("ConvertTo");
                 if (inverseMethod != null)
@@ -137,6 +139,12 @@ namespace Couchbase.Linq.Serialization
             }
 
             return null;
+        }
+
+        private static bool IsNull(Expression expression)
+        {
+            return expression is ConstantExpression constantExpression &&
+                   constantExpression.Value == null;
         }
     }
 }
