@@ -2,7 +2,7 @@ Asynchronous Queries
 ====================
 For performance in high load web environments, Linq2Couchbase supports executing queries asynchronously.  This helps optimize thread utilization by avoiding thread blocking during long running query operations.
 
-##Executing Basic Queries
+## Executing Basic Queries
 To execute basic queries asynchronously, simply add .ExecuteAsync() to the end of the query building lambda chain.
 
 ```
@@ -21,7 +21,7 @@ var result = await (from p in context.Query<Beer>()
 
 **Note:** ExecuteAsync will only work for Linq2Couchbase queries.  Code completion will show it as an option for other types of LINQ queries, but it will fail when executed.
 
-##Executing Scalar Queries
+## Executing Scalar Queries
 Scalar queries are queries that return a single result, instead of a list of results.  Queries ending in First, Single, and Sum are examples of scalar queries.
 
 The last command in a scalar query typically executes the query, therefore once called it's already too late to call ExecuteAsync to make the query run asynchronously.  To avoid this, pass the final expression to ExecuteAsync as a lambda expression.
