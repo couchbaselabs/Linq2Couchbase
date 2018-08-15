@@ -2,7 +2,7 @@ Filtering with Where
 ====================
 The where clause is used to apply filter predicates to your query.  It supports a very wide variety of operators and methods when translating to N1QL.
 
-##Basic Usage
+## Basic Usage
 To apply a where clause, simply add it to your LINQ query along with an expression that returns a Boolean result.
 
 	using (var cluster = new Cluster()) {
@@ -21,7 +21,7 @@ To apply a where clause, simply add it to your LINQ query along with an expressi
 
 The above example will return all beers with an ABV of exactly 6.
 
-##Compound Expressions
+## Compound Expressions
 The where clause supports Boolean operations (&& and ||) to combine multiple predicates.
 
 	using (var cluster = new Cluster()) {
@@ -60,10 +60,10 @@ It is also valid to extend the query with multiple where clauses.
 		}
 	}
 
-##Document Type Filters
+## Document Type Filters
 Some where clauses may be automatically applied to your query based on the document type you are querying.  For example, it is common to use `DocumentTypeFilter` attributes on your document objects so they are automatically limited to documents with a certain "type" attribute.  For more information, see [Mapping JSON documents to POCOs with DocumentFilters](document-filters.md).
 
-##Supported Operators
+## Supported Operators
 The following operators are supported by Linq2Couchbase.
 
 - Equality (==)
