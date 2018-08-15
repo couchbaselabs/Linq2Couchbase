@@ -21,7 +21,7 @@ Now, this is nice and all but becomes a but tedious to do for every query. Inste
 
 This is exactly what Document Filters allow you to do: map a JSON document to a C# POCO without explicitly (and redundantly) having to provide a predicate (WHERE) based on the "type" field. Instead you create either create a custom DocumentFilter or you use a DocumentTypeFilterAttribute and you associate it with your C# class or POCO. 
 
-##Using the DocumentTypeFilterAttribute##
+## Using the DocumentTypeFilterAttribute##
 Assuming we have a document that looks like this:
 
 		{
@@ -63,7 +63,7 @@ We can have an associated Airline class that is symmetrical in form and shape:
 
 Now when we generate a Linq query, the `WHERE type="airline"` will be automatically added to the emitted N1QL query and only document of type "airline" will be returned. 
 
-##Custom Document Filters##
+## Custom Document Filters##
 In addition to the default filters, custom filters are also supported which enable you to apply any predicate you wish to a POCO. To use a custom document filter, you create an implementation of IDocumentFilter which matches the criterion you wish to filter by. 
 Here is an example of a custom filter which filters by Type:
 
