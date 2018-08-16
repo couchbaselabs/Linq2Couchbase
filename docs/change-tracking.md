@@ -32,7 +32,7 @@ public class SubDocument
 }
 ```
 
-##Using Change Tracking
+## Using Change Tracking
 Using change tracking has these requirements.
 
 1. Call BeginChangeTracking **before** you execute the query that reads the documents.
@@ -60,7 +60,7 @@ using (var cluster = new Cluster()) {
 
 **Note:** BeginChangeTracking is implemented using a counter, which is incremented each time it is called.  You must call SubmitChanges the same number of times as you call BeginChangeTracking before the changes are saved.
 
-##Adding and Removing Documents
+## Adding and Removing Documents
 While change tracking is enabled, you may also add and remove documents from the bucket.  This is done using the Save and Remove methods.
 
 When called outside of a change tracking context, these methods will act immediately against the bucket.  However, when called after BeginChangeTracking they will instead be queued and execute later when SubmitChanges is called.
@@ -100,7 +100,7 @@ using (var cluster = new Cluster()) {
 }
 ```
 
-##Document IDs
+## Document IDs
 Documents which are read from the database using a query are always saved to the database using the document ID that was read from the database during the query.  If you need to change the document ID of a document, you must manually remove the old document and add a new document.
 
 For new documents being added via a call to Save, you must define the document ID.  This is done by applying the Key attribute to the property that represents the document ID.  This may be a read only or a read/write property.  Below is an example of one approach to building document IDs.
