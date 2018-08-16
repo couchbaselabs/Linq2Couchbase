@@ -128,7 +128,7 @@ namespace Documents
 }
 ```
 
-##Using Custom Serializers
+## Using Custom Serializers
 In addition to the requirements for custom serializers detailed in the [Custom JSON Serializers](custom-serializers.md) document, there is an extra requirement to support change tracking.
 
 As objects are deserialized, they must be proxied.  Linq2Couchbase does this by injecting an [ICustomObjectCreator](https://github.com/couchbase/couchbase-net-client/blob/master/Src/Couchbase/Core/Serialization/ICustomObjectCreator.cs) into the deserialization process.  Therefore, the custom deserializer must support and use the ICustomObjectCreator that is provided.
