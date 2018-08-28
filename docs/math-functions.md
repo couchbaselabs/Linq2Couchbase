@@ -2,7 +2,7 @@ Math Functions
 ==============
 Most math functions from the .Net Math class are supported by N1QL.  They may be used anywhere in the query, including where predicates, select projections, and sort ordering.
 
-##Supported Math Functions
+## Supported Math Functions
 - Math.Abs
 - Math.Acos
 - Math.Atan
@@ -22,7 +22,7 @@ Most math functions from the .Net Math class are supported by N1QL.  They may be
 - Math.Tan
 - Math.Trunc
 
-##Supported Math Operators
+## Supported Math Operators
 - Addition (+)
 - Subtraction/Negation (-)
 - Multiplication (*)

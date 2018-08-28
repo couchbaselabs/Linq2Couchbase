@@ -9,7 +9,7 @@ For every document Couchbase Server will also store another document containing 
 
 There is additionally meta-data stored within couchbase for each document (TTL and Sequence Number), but this is not available from the META function. 
 
-##META() example
+## META() example
 The simplest usage of the META() function is to query it directly:
 
     var query = (from meta in context.Query<DocumentMetadata>()

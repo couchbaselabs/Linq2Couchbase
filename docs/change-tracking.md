@@ -4,7 +4,7 @@ Change tracking allows for reading documents from Couchbase using LINQ queries, 
 
 Note that this feature is currently an experimental feature being offered as a developer preview.  The API is subject to change, and backwards compatibility following the semver versioning rules is not guaranteed.
 
-##Preparing Your Document POCOs
+## Preparing Your Document POCOs
 Many change tracking systems for database access layers work based on comparing records.  As each record is read two copies are kept in memory, the original and the current record.  When it's time to save changes, the two records are compared to check for differences that need to be saved.
 
 With Couchbase's document-based store, this can result in a very large memory footprint.  As each document can easily be several kilobytes, keeping two copies of each document in memory is doubling the required memory.  To address this, Linq2Couchbase doesn't use the two copy comparison approach.  Instead, only a single document is kept in memory, and it is flagged as dirty anytime a property is changed.

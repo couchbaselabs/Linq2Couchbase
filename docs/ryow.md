@@ -6,7 +6,7 @@ This delay is often unnoticed.  However, there can be circumstances where you ne
 
 Couchbase Server 4.5 adds support for this use case using Read Your Own Write consistency.  To use this feature, you specifically indicate which updates must be processed by the indexer before returning query results.  This may add a delay to your query results, but you are guaranteed that your mutations are included in the query result.  It is also more performant than AtPlus consistency, because you only need to wait for your mutations to be indexed, not all mutations.  More information is available [here](http://developer.couchbase.com/documentation/server/current/developer-guide/query-consistency.html).
 
-##Configuring The Client
+## Configuring The Client
 To support Read Your Own Write, your Couchbase bucket must be configured for enhanced durability.  If not, no exceptions will be thrown but consistency is not guaranteed.
 
 Example XML configuration section:
@@ -24,7 +24,7 @@ Example XML configuration section:
 </couchbaseClients>
 ```
 
-##Reading Your Own Writes
+## Reading Your Own Writes
 Each `BucketContext` will automatically keep track of its own `MutationState` as mutations are applied.  In order to execute a query using this state, simply use the `ConsistentWith` method when building your query.
 
 ```csharp
@@ -66,7 +66,7 @@ var query = context2.Query<Beer>()
 	.Count();
 ```
 
-##Working With Change Tracking
+## Working With Change Tracking
 When using change tracking, the `MutationState` value won't be meaningful until after you call `SubmitChanges`.
 
 ```csharp
@@ -92,5 +92,5 @@ var query2 = context.Query<Beer>()
 	.Count();
 ```
 
-##Performance Note
+## Performance Note
 To support Read Your Own Write consistency, each `BucketContext` builds the `MutationState` on an ongoing basis as each mutation is completed.  Normally, the `BucketContext` is a short-lived object that is created and thrown away quickly.  However, if you are using long-lived `BucketContext` objects, memory utilization may tend to increase over time as more mutations are added.  In this case, it is recommended to run `BucketContext.ResetMutationState` regularly to clear the `MutationState` and reduce memory utilization.
