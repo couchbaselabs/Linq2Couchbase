@@ -21,7 +21,7 @@ For the most part, enumeration properties are supported transparently.  LINQ que
 
 So long as you are using the standard JSON serializer, which serializes the enumeration value as a number, there are no special concerns to be addressed.
 
-##Non-Standard JSON Converters##
+## Non-Standard JSON Converters##
 
 If a non-standard JSON converter is being used, there are some additional limitations.  A common example of this would be the [Json.Net StringEnumConverter](http://www.newtonsoft.com/json/help/html/t_newtonsoft_json_converters_stringenumconverter.htm).  This converter serializes the enumeration as a string, rather than as an integer.
 

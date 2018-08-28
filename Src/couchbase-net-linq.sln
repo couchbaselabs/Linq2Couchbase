@@ -4,10 +4,39 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 VisualStudioVersion = 15.0.26430.16
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{33CA2A25-DD9D-4E05-A786-6FF4DB1C5C3C}"
+	ProjectSection(SolutionItems) = preProject
+		..\docs\any-all.md = ..\docs\any-all.md
+		..\docs\array-filtering-projections.md = ..\docs\array-filtering-projections.md
+		..\docs\async-queries.md = ..\docs\async-queries.md
+		..\docs\bucket-context.md = ..\docs\bucket-context.md
+		..\docs\change-tracking.md = ..\docs\change-tracking.md
+		..\docs\custom-serializers.md = ..\docs\custom-serializers.md
+		..\docs\date-handling.md = ..\docs\date-handling.md
+		..\docs\document-filters.md = ..\docs\document-filters.md
+		..\docs\enum.md = ..\docs\enum.md
+		..\docs\grouping-aggregation.md = ..\docs\grouping-aggregation.md
+		..\docs\joins.md = ..\docs\joins.md
+		..\docs\math-functions.md = ..\docs\math-functions.md
+		..\docs\meta-keyword.md = ..\docs\meta-keyword.md
+		..\docs\nest.md = ..\docs\nest.md
+		..\docs\null-missing-valued.md = ..\docs\null-missing-valued.md
+		..\docs\poco-mapping.md = ..\docs\poco-mapping.md
+		..\docs\query-hints.md = ..\docs\query-hints.md
+		..\docs\result-streaming.md = ..\docs\result-streaming.md
+		..\docs\ryow.md = ..\docs\ryow.md
+		..\docs\serialization-converters.md = ..\docs\serialization-converters.md
+		..\docs\simple-select.md = ..\docs\simple-select.md
+		..\docs\sorting-take-limit.md = ..\docs\sorting-take-limit.md
+		..\docs\string-handling.md = ..\docs\string-handling.md
+		..\docs\unnest.md = ..\docs\unnest.md
+		..\docs\use-index.md = ..\docs\use-index.md
+		..\docs\use-keys.md = ..\docs\use-keys.md
+		..\docs\where-clause.md = ..\docs\where-clause.md
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Linq", "Couchbase.Linq\Couchbase.Linq.csproj", "{C0254649-0162-47A4-B3D3-354E0B3FF7D0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq.UnitTests", "Couchbase.Linq.UnitTests\Couchbase.Linq.UnitTests.csproj", "{8B5F339F-6E52-4E03-9FFA-12C1C025E591}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Linq.UnitTests", "Couchbase.Linq.UnitTests\Couchbase.Linq.UnitTests.csproj", "{8B5F339F-6E52-4E03-9FFA-12C1C025E591}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq.Views", "Couchbase.Linq.Views\Couchbase.Linq.Views.csproj", "{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}"
 EndProject
@@ -44,5 +73,8 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {80B77510-6D97-4A9D-A10E-C3F3531A0052}
 	EndGlobalSection
 EndGlobal

@@ -2,7 +2,7 @@ Sorting and Paging Results
 ==========================
 Using LINQ and N1QL, it's easy to sort and page results.
 
-##Sorting
+## Sorting
 For LINQ, sorting of results is represented by the orderby clause, which accepts a comma-delimited list of properties to sort by.
 
 	using (var cluster = new Cluster()) {
@@ -37,7 +37,7 @@ To sort in descending order, add the descending keyword to the sort property.
 		}
 	}
 
-##Paging
+## Paging
 Paging of data is done using the LINQ Skip and Take functions.  Skip is applied first, and skips a certain number of records in the result set.  Then Take is applied, which limits the maximum number of results which are returned.
 
 When possible, paging using Skip and Take can significantly improve query performance by allowing the query to short-circuit once enough data is available for the result set.

@@ -2,7 +2,7 @@ Any and All
 ===========
 The LINQ Any and All methods are a useful way to test for a condition across a series of documents.
 
-##Any
+## Any
 Any returns true if any of the documents in the list meet the criteria provided.  If no criteria is provided, then it will return true so long as there is at least one document in the list.
 
 	using (var cluster = new Cluster()) {
@@ -43,7 +43,7 @@ You may also apply Any at the end of a more complex query:
 		}
 	}
 
-##All
+## All
 All returns true only if all of the documents meet the criteria provided.
 
 	using (var cluster = new Cluster()) {
@@ -59,7 +59,7 @@ All returns true only if all of the documents meet the criteria provided.
 		}
 	}
 
-##Arrays
+## Arrays
 Any and All operations may also be applied to arrays within documents, either as part of the where clause or the select projection.
 
 	using (var cluster = new Cluster()) {

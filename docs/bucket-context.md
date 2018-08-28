@@ -2,7 +2,7 @@ The BucketContext
 =================
 The public API for Linq2Couchbase is the BucketContext; this object is similar to the DbContext in Linq2SQL and the DataContext from the EntityFramework. It's primary purpose is to provide and interface for building and submitting queries to a Couchbase server Bucket. Internally, the BucketContext uses a Cluster object and CouchbaseBucket to handle communication and to send queries and updates to the server. 
 
-##Creating a BucketContext##
+## Creating a BucketContext##
 The BucketContext has a dependency on the Cluster object; in your application you will need to have instantiated and initialized a Cluster object before you can create a BucketContext. 
 
     using (var cluster = new Cluster())
@@ -15,7 +15,7 @@ The BucketContext has a dependency on the Cluster object; in your application yo
 
 It's important to note that the Cluster object is a long-lived object, so you will want to create a single (usually) per application and reuse it over the lifespan of the application. A BucketContext is slightly different; it contains no Dispose method and is more ephemeral compared to the Cluster. So a better way to manage the Cluster is by using the ClusterHelper and initializing it when the application starts up and closing it when the application is torn down.
 
-###Using the BucketContext in a Web Application###
+### Using the BucketContext in a Web Application###
 As previously mentioned, the Cluster object should be globally scoped to the application. In an ASP.NET application, there are two places this can be done: in the Global.asax and in the Startup.cs class if the application is an Ownin/Katana application.
 
 For example by using the Global.asax:
@@ -98,7 +98,7 @@ Once you used one of the methods above to handle the initiation/destruction of t
 
 Using this pattern, the IBucket will be reused in every request as long as you do not close or dispose of it.
 
-###Configuration###
+### Configuration###
 Configuration is done when the Cluster object is created using the ClientConfiguration class. You do this again either when you create the Cluster object or when you initialize the ClusterHelper, for example:
 
     var config = new ClientConfiguration();

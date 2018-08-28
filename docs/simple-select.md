@@ -16,7 +16,7 @@ This will emit query that looks something like this:
 
 Assuming the Beer class has a document filter; if not the predicate would be removed and the entire keystore will be returned. Any returning fields from the * will be mapped to the Properties of Beer unless a match cannot be made. If a match cannot be made, the value will be ignored.
 
-##Selecting a subset of a document's fields##
+## Selecting a subset of a document's fields##
 If you wish to constrain the output, you specify which fields you want returned:
 
 	var beers = from b in context.Query<Beer>()

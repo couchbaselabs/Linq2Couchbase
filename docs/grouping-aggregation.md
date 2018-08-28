@@ -4,7 +4,7 @@ LINQ may also be used to group query results and perform aggregation of data on 
 
 **Note:** LINQ group joins are not currently supported.
 
-##Simple Group
+## Simple Group
 Grouping support is provided by the LINQ group clause.  When grouping, you provide a key selector and an into clause.  The key selector defines which property should be used to group.
 
 The into clause provides a local name for the group to be referenced by for the rest of the query.  When referencing this name, it is a list of the documents in a given group.  It also has a .Key property, which is the value of the key selector for that group.
@@ -47,7 +47,7 @@ It is also possible to group by a combination of multiple columns.
 		}
 	}
 
-##Applying An Aggregate To A Group
+## Applying An Aggregate To A Group
 LINQ supports six aggregates which can be applied to a group.
 
 - Sum - Adds values
@@ -93,7 +93,7 @@ Count and LongCount do not require a parameter.
 		}
 	}
 
-##Ungrouped Aggregates
+## Ungrouped Aggregates
 It is not required to use grouping to use an aggregate function.  It is also possible to apply the aggregate directly to a query.
 
 	using (var cluster = new Cluster()) {
@@ -119,7 +119,7 @@ It is not required to use grouping to use an aggregate function.  It is also pos
 		}
 	}
 
-##Distinct Counts
+## Distinct Counts
 Count aggregates also support the .Distinct() function.  They return the number of discount results, rather than the total number of results.
 
 	using (var cluster = new Cluster()) {

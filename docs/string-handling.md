@@ -2,7 +2,7 @@ String Handling
 ================
 Many .Net string operations are supported by N1QL, and can be used directly in your LINQ queries.
 
-##Supported String Operations
+## Supported String Operations
 - Length property
 - Character index (i.e. str[2])
 - ToUpper() and ToLower()
@@ -13,7 +13,7 @@ Many .Net string operations are supported by N1QL, and can be used directly in y
 - Split() and Split(char)
 - Replace(oldValue, newValue)
 
-##String Comparisons
+## String Comparisons
 String equality comparisons can be performed using the == and != operators.
 
 	using (var cluster = new Cluster()) {

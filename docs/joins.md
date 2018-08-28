@@ -4,12 +4,12 @@ Joins are used to combine multiple documents with a common link into a single qu
 
 **Note:** Joins can be performed across multiple buckets, so long as the buckets are all on the same cluster.
 
-##Joins and Keys
+## Joins and Keys
 In N1QL on Couchbase 5.1 and earlier, all join operations must be done using document keys.  The documents on the left hand side of the join must provide a document key, and it is matched against the document keys on the right hand side of the join.  You may not join against document properties on the right hand side of the join, so it is important to take this into consideration when designing your data model.
 
 Joining against document keys is represented in LINQ using N1QlFunctions.Key on the right hand side of the join equality operator.  Examples of this are included in the sections below.
 
-##Inner Joins
+## Inner Joins
 An inner join requires that there be a matching document on the right hand side of the join.  If the matching document is not found, the document on the left hand side of the join is dropped from the result set.
 
 	using (var cluster = new Cluster()) {
@@ -28,7 +28,7 @@ An inner join requires that there be a matching document on the right hand side 
 		}
 	}
 
-##Left Outer Joins
+## Left Outer Joins
 A left outer join returns all documents on the left side of the join, even if the document on the right side is not found.
 
 	using (var cluster = new Cluster()) {
@@ -49,7 +49,7 @@ A left outer join returns all documents on the left side of the join, even if th
 		}
 	}
 
-##Compound Keys
+## Compound Keys
 It is also possible to build the key on the left hand side of the join using multiple properties and string constants.  As an example, imagine a bucket with this data structure:
 
 	Key: "order-1001"
@@ -84,7 +84,7 @@ As you can see, the key "customer-5" is not present on the order document.  Howe
 		}
 	}
 
-##Index Joins
+## Index Joins
 
 Beginning with Couchbase Server 4.5, it is possible to perform joins where the key is stored in the document on the right side of the join.  Previously, the key had to be stored on the document on the left side of the join.
 

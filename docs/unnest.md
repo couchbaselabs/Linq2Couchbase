@@ -2,7 +2,7 @@ UNNESTing Documents
 ===================
 Unnesting documents is somewhat similar to performing a join.  However, instead of operating against documents in a bucket, it joins the main body of the document to subdocuments on arrays inside the main body of the document.  The main body of the document is repeated in the result set for each subdocument.
 
-##Inner Unnests
+## Inner Unnests
 An inner unnest requires that there be at least one subdocument on the right side of the unnest.  If the array being unnested is null or has no subdocuments, the main document is excluded from the result set.
 
 	using (var cluster = new Cluster()) {
@@ -27,7 +27,7 @@ An inner unnest requires that there be at least one subdocument on the right sid
 		}
 	}
 
-##Left Outer Nests
+## Left Outer Nests
 A left outer unnest returns all documents on the left side of the unnest, even if the array being unnested is null or has no subdocuments.
 
 	using (var cluster = new Cluster()) {
