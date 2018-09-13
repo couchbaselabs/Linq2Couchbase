@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -68,17 +70,37 @@ namespace Couchbase.Linq.Serialization
                 {
                     var property = contract.Properties.FirstOrDefault(
                         q => q.UnderlyingName == member.Name && !q.Ignored);
-
-                    var jsonConverter = property?.Converter;
-                    if (jsonConverter != null)
+                    if (property != null)
                     {
-                        return Registry.CreateSerializationConverter(jsonConverter, p);
+                        var jsonConverter = GetJsonConverter(property, defaultSerializer);
+                        if (jsonConverter != null)
+                        {
+                            return Registry.CreateSerializationConverter(jsonConverter, p);
+                        }
                     }
                 }
 
                 // Default behavior
                 return null;
             });
+        }
+
+        private static JsonConverter GetJsonConverter(JsonProperty property, DefaultSerializer defaultSerializer)
+        {
+            if (property.Converter != null)
+            {
+                return property.Converter;
+            }
+
+            var valueContract = defaultSerializer.SerializerSettings.ContractResolver
+                .ResolveContract(property.PropertyType);
+            if (valueContract?.Converter != null)
+            {
+                return valueContract.Converter;
+            }
+
+            var converters = defaultSerializer.SerializerSettings.Converters;
+            return converters?.FirstOrDefault(p => p.CanConvert(property.PropertyType));
         }
     }
 }
