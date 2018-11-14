@@ -18,8 +18,6 @@ namespace Couchbase.Linq.QueryGeneration
     /// </summary>
     internal class N1QlQueryGenerationContext
     {
-        private ISerializationConverterProvider _serializationFormatProvider;
-
         public N1QlExtentNameProvider ExtentNameProvider { get; set; }
         public IMemberNameResolver MemberNameResolver { get; set; }
         public IMethodCallTranslatorProvider MethodCallTranslatorProvider { get; set; }
