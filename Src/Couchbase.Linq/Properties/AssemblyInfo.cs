@@ -1,4 +1,4 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -13,9 +13,7 @@ using System.Runtime.InteropServices;
 
 // For writing tests against internal classes
 [assembly: InternalsVisibleTo("Couchbase.Linq.UnitTests")]
-[assembly: InternalsVisibleTo("Couchbase.Linq.UnitTests.NetCore")]
 [assembly: InternalsVisibleTo("Couchbase.Linq.IntegrationTests")]
-[assembly: InternalsVisibleTo("Couchbase.Linq.IntegrationTests.NetCore")]
 
 // For using Moq against internal classes
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
