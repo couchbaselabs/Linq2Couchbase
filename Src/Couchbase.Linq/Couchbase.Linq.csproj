@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <PackageId>Linq2Couchbase</PackageId>
@@ -13,7 +13,7 @@
     <PackageProjectUrl>https://github.com/couchbaselabs/Linq2Couchbase</PackageProjectUrl>
     <PackageIconUrl>https://raw.githubusercontent.com/couchbaselabs/Linq2Couchbase/master/Packaging/couchbase-logo.png</PackageIconUrl>
 
-    <TargetFrameworks>net452;netstandard1.5</TargetFrameworks>
+    <TargetFrameworks>netstandard1.5;netstandard2.0</TargetFrameworks>
     <RootNamespace>Couchbase.Linq</RootNamespace>
     <AssemblyName>Couchbase.Linq</AssemblyName>
     <NetStandardImplicitPackageVersion>2.0.1</NetStandardImplicitPackageVersion>
@@ -22,11 +22,8 @@
     <Version>1.3.2.1</Version>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'net452' ">
-    <DefineConstants>$(DefineConstants);NET45</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
-    <DefineConstants>$(DefineConstants);NETSTANDARD</DefineConstants>
+  <PropertyGroup Condition="'$(OS)'=='Windows_NT'">
+    <TargetFrameworks>$(TargetFrameworks);net452</TargetFrameworks>
   </PropertyGroup>
 
   <ItemGroup>

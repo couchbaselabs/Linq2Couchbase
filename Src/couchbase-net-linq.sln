@@ -38,8 +38,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Linq", "Couchbase
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Linq.UnitTests", "Couchbase.Linq.UnitTests\Couchbase.Linq.UnitTests.csproj", "{8B5F339F-6E52-4E03-9FFA-12C1C025E591}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Couchbase.Linq.Views", "Couchbase.Linq.Views\Couchbase.Linq.Views.csproj", "{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Couchbase.Linq.IntegrationTests", "Couchbase.Linq.IntegrationTests\Couchbase.Linq.IntegrationTests.csproj", "{AEA6FE33-62F1-4F1A-B955-6CD5AAF8AC7F}"
 EndProject
 Global
@@ -60,11 +58,6 @@ Global
 		{8B5F339F-6E52-4E03-9FFA-12C1C025E591}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8B5F339F-6E52-4E03-9FFA-12C1C025E591}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8B5F339F-6E52-4E03-9FFA-12C1C025E591}.RepackedRelease|Any CPU.ActiveCfg = Release|Any CPU
-		{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{6F80608B-2EB5-4EF1-9D77-A2033ADC84AB}.RepackedRelease|Any CPU.ActiveCfg = Release|Any CPU
 		{AEA6FE33-62F1-4F1A-B955-6CD5AAF8AC7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{AEA6FE33-62F1-4F1A-B955-6CD5AAF8AC7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AEA6FE33-62F1-4F1A-B955-6CD5AAF8AC7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
