@@ -490,6 +490,20 @@ namespace Couchbase.Linq.Extensions
         }
 
         /// <summary>
+        /// Specifies the maximum time the server should wait for the QueryRequest to execute.
+        /// </summary>
+        /// <param name="source">Sets scan wait for this query.  Must be a Couchbase LINQ query.</param>
+        /// <param name="timeout">The maximum time the server should wait for the QueryRequest to execute.</param>
+        public static IQueryable<T> Timeout<T>(this IQueryable<T> source, TimeSpan timeout)
+        {
+            EnsureBucketQueryable(source, "Timeout", "source");
+
+            ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.Timeout = timeout;
+
+            return source;
+        }
+
+        /// <summary>
         /// Requires that the indexes but up to date with a <see cref="MutationState"/> before the query is executed.
         /// </summary>
         /// <param name="source">Sets consistency requirement for this query.  Must be a Couchbase LINQ query.</param>

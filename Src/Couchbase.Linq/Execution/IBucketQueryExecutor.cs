@@ -27,6 +27,11 @@ namespace Couchbase.Linq.Execution
         TimeSpan? ScanWait { get; set; }
 
         /// <summary>
+        /// Specifies the maximum time the server should wait for the QueryRequest to execute.
+        /// </summary>
+        TimeSpan? Timeout { get; set; }
+
+        /// <summary>
         /// Specifies if the query results should be streamed, reducing memory utilzation for large result sets.
         /// </summary>
         /// <remarks>The default is false.</remarks>

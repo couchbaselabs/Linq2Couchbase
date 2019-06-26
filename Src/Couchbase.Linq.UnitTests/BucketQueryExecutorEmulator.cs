@@ -21,6 +21,7 @@ namespace Couchbase.Linq.UnitTests
     {
         public ScanConsistency? ScanConsistency { get; set; }
         public TimeSpan? ScanWait { get; set; }
+        public TimeSpan? Timeout { get; set; }
 
         private readonly N1QLTestBase _test;
         private readonly ClusterVersion _clusterVersion;
