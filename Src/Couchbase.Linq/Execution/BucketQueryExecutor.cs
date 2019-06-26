@@ -53,6 +53,11 @@ namespace Couchbase.Linq.Execution
         /// </summary>
         public TimeSpan? ScanWait { get; set; }
 
+        /// <summary>
+        /// Specifies the maximum time the server should wait for the QueryRequest to execute.
+        /// </summary>
+        public TimeSpan? Timeout { get; set; }
+
         public MutationState MutationState { get; private set; }
 
         /// <inheritdoc cref="IBucketQueryExecutor.UseStreaming"/>
@@ -138,6 +143,10 @@ namespace Couchbase.Linq.Execution
             if (ScanWait.HasValue)
             {
                 queryRequest.ScanWait(ScanWait.Value);
+            }
+            if (Timeout.HasValue)
+            {
+                queryRequest.Timeout(Timeout.Value);
             }
             if (MutationState != null)
             {
