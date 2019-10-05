@@ -364,7 +364,15 @@ namespace Couchbase.Linq.QueryGeneration
                     _queryPartsAggregator.RawSelection = true;
                 }
 
-                return "*";
+                if (_queryPartsAggregator.IsArraySubquery)
+                {
+                    // Can't use * in an array subquery
+                    return GetN1QlExpression(selectClause.Selector);
+                }
+                else
+                {
+                    return "*";
+                }
             }
 
             if (_queryPartsAggregator.IsArraySubquery)
@@ -689,7 +697,15 @@ namespace Couchbase.Linq.QueryGeneration
             }
             else if ((resultOperator is CountResultOperator) || (resultOperator is LongCountResultOperator))
             {
-                _queryPartsAggregator.AggregateFunction = "COUNT";
+                if (_queryPartsAggregator.IsArraySubquery)
+                {
+                    _queryPartsAggregator.AddWrappingFunction("ARRAY_LENGTH");
+                }
+                else
+                {
+                    _queryPartsAggregator.AggregateFunction = "COUNT";
+                }
+
                 _isAggregated = true;
             }
             else if (resultOperator is MaxResultOperator)
