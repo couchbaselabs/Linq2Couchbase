@@ -417,5 +417,45 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
         #endregion
 
+        #region Array Aggregate
+
+        [Test]
+        public void Test_ArrayCount()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<Route>(mockBucket.Object)
+                .Where(p => p.Schedule.Count() > 1);
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.ArrayInFromClause);
+
+            const string expected =
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` " +
+                "WHERE (ARRAY_LENGTH(`Extent1`.`schedule`) > 1)";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ArrayCountFiltered()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<Route>(mockBucket.Object)
+                .Where(p => p.Schedule.Count(q => q.Day == 0) > 1);
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.ArrayInFromClause);
+
+            const string expected =
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` " +
+                "WHERE (ARRAY_LENGTH(ARRAY `Extent2` FOR `Extent2` IN `Extent1`.`schedule` " +
+                "WHEN (`Extent2`.`day` = 0) END) > 1)";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
     }
 }
