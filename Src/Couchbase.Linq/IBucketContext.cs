@@ -107,5 +107,11 @@ namespace Couchbase.Linq
         void ResetMutationState();
 
         #endregion
+
+        #region Log
+
+        ICouchbaseLinqLog Log { get; set; }
+
+        #endregion
     }
 }

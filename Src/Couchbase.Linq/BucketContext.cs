@@ -42,6 +42,16 @@ namespace Couchbase.Linq
         }
 
         /// <summary>
+        /// Creates a new BucketContext for a given Couchbase bucket.
+        /// </summary>
+        /// <param name="bucket">Bucket referenced by the new BucketContext.</param>
+        /// <param name="Log">log capture interface</param>
+        public BucketContext(IBucket bucket, ICouchbaseLinqLog Log) : this(bucket)
+        {
+            this.Log = Log;
+        }
+
+        /// <summary>
         /// Gets the bucket the <see cref="IBucketContext"/> was created against.
         /// </summary>
         /// <value>The <see cref="IBucket"/>.</value>
@@ -461,6 +471,8 @@ namespace Couchbase.Linq
         /// This function is only supported on Couchbase Server 4.5 or later.
         /// </remarks>
         public MutationState MutationState { get; private set; }
+
+        public ICouchbaseLinqLog Log { get; set; }
 
         /// <summary>
         /// Resets the <see cref="MutationState"/> to start a new set of mutations.

@@ -1,29 +1,23 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using Couchbase.Configuration.Client;
+﻿using Couchbase.Configuration.Client;
 using Couchbase.Core;
-using Couchbase.Core.Buckets;
 using Couchbase.Core.Serialization;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Couchbase.Linq.Utils;
 using Couchbase.Linq.Versioning;
-using Couchbase.Logging;
 using Couchbase.N1QL;
-using Newtonsoft.Json;
 using Remotion.Linq;
-using Remotion.Linq.Clauses.ResultOperators;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Couchbase.Linq.Execution
 {
     internal class BucketQueryExecutor : IBucketQueryExecutor
     {
-        private readonly ILog _log = LogManager.GetLogger<BucketQueryExecutor>();
         private readonly IBucket _bucket;
         private readonly ClientConfiguration _configuration;
         private readonly IBucketContext _bucketContext;
@@ -131,7 +125,7 @@ namespace Couchbase.Linq.Execution
 
             var mainFromClauseType = queryModel.MainFromClause.ItemType;
 
-            return (mainFromClauseType == typeof (T)) || (mainFromClauseType == typeof (ScalarResult<T>));
+            return (mainFromClauseType == typeof(T)) || (mainFromClauseType == typeof(ScalarResult<T>));
         }
 
         private void ApplyQueryRequestSettings(LinqQueryRequest queryRequest, bool generateProxies)
@@ -157,7 +151,7 @@ namespace Couchbase.Linq.Execution
             {
                 if (generateProxies)
                 {
-                    _log.Info("Query result streaming is not supported with change tracking, streaming disabled");
+                    _bucketContext.Log?.Info("Query result streaming is not supported with change tracking, streaming disabled");
                 }
                 else
                 {
@@ -322,7 +316,8 @@ namespace Couchbase.Linq.Execution
             visitor.VisitQueryModel(queryModel);
 
             var query = visitor.GetQuery();
-            _log.Debug("Generated query: {0}", query);
+
+            _bucketContext.Log?.Debug("Generated query: {0}", query);
 
             scalarResultBehavior = visitor.ScalarResultBehavior;
             return query;
