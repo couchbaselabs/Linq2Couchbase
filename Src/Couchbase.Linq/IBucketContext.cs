@@ -110,6 +110,9 @@ namespace Couchbase.Linq
 
         #region Log
 
+        /// <summary>
+        /// Optional implementation to get the linq2couchbase log
+        /// </summary>
         ICouchbaseLinqLog Log { get; set; }
 
         #endregion
