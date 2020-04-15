@@ -42,7 +42,7 @@ var query = context.Query<Beer>()
 
 **Note:** The `ConsistentWith` method should only be invoked on the main extent being queried.  If you are performing joins or nests, don't include ConsistentWith on these extents.
 
-##Combining Multiple MutationStates
+## Combining Multiple MutationStates
 If you are working with multiple BucketContexts, it is possible to use MutationState values from both buckets to ensure that mutations on each are included in your query.
 
 ```csharp
