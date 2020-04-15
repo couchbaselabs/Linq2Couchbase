@@ -131,10 +131,10 @@ namespace Documents
 ## Using Custom Serializers
 In addition to the requirements for custom serializers detailed in the [Custom JSON Serializers](custom-serializers.md) document, there is an extra requirement to support change tracking.
 
-As objects are deserialized, they must be proxied.  Linq2Couchbase does this by injecting an [ICustomObjectCreator](https://github.com/couchbase/couchbase-net-client/blob/master/Src/Couchbase/Core/Serialization/ICustomObjectCreator.cs) into the deserialization process.  Therefore, the custom deserializer must support and use the ICustomObjectCreator that is provided.
+As objects are deserialized, they must be proxied.  Linq2Couchbase does this by injecting an [ICustomObjectCreator](https://github.com/couchbase/couchbase-net-client/blob/master/src/Couchbase/Core/IO/Serializers/ICustomObjectCreator.cs) into the deserialization process.  Therefore, the custom deserializer must support and use the ICustomObjectCreator that is provided.
 
-The custom deserializer indicates support by returning true for CustomObjectCreator in the [SupportedDeserializationOptions](https://github.com/couchbase/couchbase-net-client/blob/master/Src/Couchbase/Core/Serialization/SupportedDeserializationOptions.cs) object.
+The custom deserializer indicates support by returning true for CustomObjectCreator in the [SupportedDeserializationOptions](https://github.com/couchbase/couchbase-net-client/blob/master/src/Couchbase/Core/IO/Serializers/SupportedDeserializationOptions.cs) object.
 
-When deserializing, the IExtendedTypeSerializer may receive an ICustomObjectCreator in the (DeserializationOptions)[https://github.com/couchbase/couchbase-net-client/blob/master/Src/Couchbase/Core/Serialization/DeserializationOptions.cs] object.  When it does, it should use this creator to create any types that return true for CanCreateObject.
+When deserializing, the IExtendedTypeSerializer may receive an ICustomObjectCreator in the [DeserializationOptions](https://github.com/couchbase/couchbase-net-client/blob/master/src/Couchbase/Core/IO/Serializers/DeserializerOptions.cs) object.  When it does, it should use this creator to create any types that return true for CanCreateObject.
 
-Here is [an example of how this method was implemented for Newtonsoft's Json.Net](https://github.com/couchbase/couchbase-net-client/blob/03d7957226da6f7c3e05220a21e7ebeeb0519b93/Src/Couchbase/Core/Serialization/DefaultSerializer.cs#L216). 
+Here is [an example of how this method was implemented for Newtonsoft's Json.Net](https://github.com/couchbase/couchbase-net-client/blob/2c9d7d24c388f9316af6cf2b4a993c2a4ebecc5d/src/Couchbase/Core/IO/Serializers/DefaultSerializer.cs#L248). 
