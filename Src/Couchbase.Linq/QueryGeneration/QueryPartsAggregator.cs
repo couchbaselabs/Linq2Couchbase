@@ -223,22 +223,20 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             sb.Append("SELECT ");
-            if (RawSelection)
-            {
-                sb.Append("RAW ");
-            }
 
             if (!string.IsNullOrEmpty(AggregateFunction))
             {
-                sb.AppendFormat("{0}({1}{2})",
+                sb.AppendFormat("{0}{1}({2}{3})",
+                    RawSelection ? "RAW " : string.Empty,
                     AggregateFunction,
                     !string.IsNullOrWhiteSpace(DistinctPart) ? DistinctPart : string.Empty,
                     SelectPart);
             }
             else
             {
-                sb.AppendFormat("{0}{1}",
+                sb.AppendFormat("{0}{1}{2}",
                     !string.IsNullOrWhiteSpace(DistinctPart) ? DistinctPart : string.Empty,
+                    RawSelection ? "RAW " : string.Empty,
                     SelectPart);
                 //TODO support multiple select parts: http://localhost:8093/tutorial/content/#5
             }
