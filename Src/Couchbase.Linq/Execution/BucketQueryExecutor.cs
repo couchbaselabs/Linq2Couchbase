@@ -35,14 +35,6 @@ namespace Couchbase.Linq.Execution
         }
 
         /// <summary>
-        /// If true, generate change tracking proxies for documents during deserialization.
-        /// </summary>
-        public bool EnableProxyGeneration
-        {
-            get { return _bucketContext.ChangeTrackingEnabled; }
-        }
-
-        /// <summary>
         /// Specifies the consistency guarantee/constraint for index scanning.
         /// </summary>
         public ScanConsistency? ScanConsistency { get; set; }
@@ -111,30 +103,7 @@ namespace Couchbase.Linq.Execution
             MutationState.Add(state);
         }
 
-        /// <summary>
-        /// Determines if proxies should be generated, based on the given query model and return type.
-        /// </summary>
-        /// <typeparam name="T">Return type expected for query rows.</typeparam>
-        /// <param name="queryModel">Query model.</param>
-        /// <returns>Returns true if proxies should be generated, based on the given query model and return type.</returns>
-        /// <remarks>
-        /// Queries with select projections don't need change tracking, because there is no original source document to be
-        /// updated if their properties are changed.  So only create proxies if the rows being returned by the query are
-        /// plain instances of the document type being queried, without select projections.
-        /// </remarks>
-        private bool ShouldGenerateProxies<T>(QueryModel queryModel)
-        {
-            if (!EnableProxyGeneration)
-            {
-                return false;
-            }
-
-            var mainFromClauseType = queryModel.MainFromClause.ItemType;
-
-            return (mainFromClauseType == typeof (T)) || (mainFromClauseType == typeof (ScalarResult<T>));
-        }
-
-        private void ApplyQueryRequestSettings(LinqQueryRequest queryRequest, bool generateProxies)
+        private void ApplyQueryRequestSettings(LinqQueryRequest queryRequest)
         {
             if (ScanConsistency.HasValue)
             {
@@ -155,32 +124,18 @@ namespace Couchbase.Linq.Execution
 
             if (UseStreaming)
             {
-                if (generateProxies)
-                {
-                    _log.Info("Query result streaming is not supported with change tracking, streaming disabled");
-                }
-                else
-                {
-                    queryRequest.UseStreaming(true);
-                }
+                queryRequest.UseStreaming(true);
             }
         }
 
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
             ScalarResultBehavior scalarResultBehavior;
-            bool generateProxies = ShouldGenerateProxies<T>(queryModel);
 
-            var commandData = GenerateQuery(queryModel, generateProxies, out scalarResultBehavior);
+            var commandData = GenerateQuery(queryModel, out scalarResultBehavior);
 
             var queryRequest = new LinqQueryRequest(commandData, scalarResultBehavior);
-            ApplyQueryRequestSettings(queryRequest, generateProxies);
-
-            if (generateProxies)
-            {
-                // Proxy generation was requested, and the
-                queryRequest.DataMapper = new Proxies.DocumentProxyDataMapper<T>(Serializer, (IChangeTrackableContext)_bucketContext);
-            }
+            ApplyQueryRequestSettings(queryRequest);
 
             if (queryModel.ResultOperators.Any(p => p is ToQueryRequestResultOperator))
             {
@@ -293,7 +248,7 @@ namespace Couchbase.Linq.Execution
                 : resultSet.Single();
         }
 
-        public string GenerateQuery(QueryModel queryModel, bool selectDocumentMetadata, out ScalarResultBehavior scalarResultBehavior)
+        public string GenerateQuery(QueryModel queryModel, out ScalarResultBehavior scalarResultBehavior)
         {
             // If ITypeSerializer is an IExtendedTypeSerializer, use it as the member name resolver
             // Otherwise fallback to the legacy behavior which assumes we're using Newtonsoft.Json
@@ -314,7 +269,6 @@ namespace Couchbase.Linq.Execution
                 MemberNameResolver = memberNameResolver,
                 MethodCallTranslatorProvider = methodCallTranslatorProvider,
                 Serializer = serializer,
-                SelectDocumentMetadata = selectDocumentMetadata,
                 ClusterVersion = VersionProvider.Current.GetVersion(_bucket)
             };
 
