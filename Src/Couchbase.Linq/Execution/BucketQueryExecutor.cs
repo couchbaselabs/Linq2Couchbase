@@ -52,9 +52,6 @@ namespace Couchbase.Linq.Execution
 
         public MutationState MutationState { get; private set; }
 
-        /// <inheritdoc cref="IBucketQueryExecutor.UseStreaming"/>
-        public bool UseStreaming { get; set; }
-
         private ITypeSerializer Serializer
         {
             get
@@ -120,11 +117,6 @@ namespace Couchbase.Linq.Execution
             if (MutationState != null)
             {
                 queryRequest.ConsistentWith(MutationState);
-            }
-
-            if (UseStreaming)
-            {
-                queryRequest.UseStreaming(true);
             }
         }
 

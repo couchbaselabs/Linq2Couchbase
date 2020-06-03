@@ -63,24 +63,6 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void Map2PocoTests_Simple_Projections_Streamed()
-        {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
-
-            var beers = from b in context.Query<Beer>().UseStreaming(true)
-                        select new { name = b.Name, abv = b.Abv };
-
-            var results = beers.Take(10).ToList();
-            Assert.AreEqual(10, results.Count());
-
-            foreach (var b in results)
-            {
-                Console.WriteLine("{0} has {1} ABV", b.name, b.abv);
-            }
-        }
-
-        [Test]
         public void Map2PocoTests_StronglyTyped_Projections()
         {
             var bucket = ClusterHelper.GetBucket("beer-sample");
