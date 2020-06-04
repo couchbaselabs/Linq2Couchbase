@@ -213,7 +213,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             Assert.AreEqual(expected, n1QlQuery);
         }
 
-#if NET46
         [Test]
         [SetCulture("da-DK")]
         public void Test_DecimalInCommaCulture()
@@ -234,6 +233,5 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
-#endif
     }
 }

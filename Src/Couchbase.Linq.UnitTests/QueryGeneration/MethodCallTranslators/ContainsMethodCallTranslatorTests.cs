@@ -86,9 +86,10 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
             {
                 CallBase = true
             };
-            visitor.Setup(m => m.Visit(It.IsAny<ParameterExpression>())).Callback((Expression p) =>
+            visitor.Setup(m => m.Visit(It.IsAny<ParameterExpression>())).Returns((Expression p) =>
             {
                 visitor.Object.Expression.Append("FAKE");
+                return p;
             });
 
             var method = typeof(string).GetMethod("Contains", new[] { typeof(string) });
@@ -141,9 +142,10 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
             {
                 CallBase = true
             };
-            visitor.Setup(m => m.Visit(It.IsAny<ParameterExpression>())).Callback((Expression p) =>
+            visitor.Setup(m => m.Visit(It.IsAny<ParameterExpression>())).Returns((Expression p) =>
             {
                 visitor.Object.Expression.Append("FAKE");
+                return p;
             });
 
             var method = typeof(string).GetMethod("StartsWith", new[] { typeof(string) });
@@ -196,9 +198,10 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
             {
                 CallBase = true
             };
-            visitor.Setup(m => m.Visit(It.IsAny<ParameterExpression>())).Callback((Expression p) =>
+            visitor.Setup(m => m.Visit(It.IsAny<ParameterExpression>())).Returns((Expression p) =>
             {
                 visitor.Object.Expression.Append("FAKE");
+                return p;
             });
 
             var method = typeof(string).GetMethod("EndsWith", new[] { typeof(string) });
