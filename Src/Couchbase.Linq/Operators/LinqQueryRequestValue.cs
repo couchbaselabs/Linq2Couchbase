@@ -10,7 +10,7 @@ namespace Couchbase.Linq.Operators
 {
     /// <summary>
     /// Implementation of <see cref="IStreamedData"/> for a query where <see cref="ToQueryRequestResultOperator"/>
-    /// was applied.  Value will be a <see cref="LinqQueryRequest"/>.
+    /// was applied.  Value will be a <see cref="LinqQueryOptions"/>.
     /// </summary>
     internal class LinqQueryRequestValue : IStreamedData
     {
@@ -18,7 +18,7 @@ namespace Couchbase.Linq.Operators
 
         public object Value { get; private set; }
 
-        public LinqQueryRequestValue(LinqQueryRequest value, LinqQueryRequestDataInfo linqQueryRequestInfo)
+        public LinqQueryRequestValue(LinqQueryOptions value, LinqQueryRequestDataInfo linqQueryRequestInfo)
         {
             if (linqQueryRequestInfo == null)
             {

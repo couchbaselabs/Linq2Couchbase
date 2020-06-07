@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-using Couchbase.Core.Serialization;
-using Couchbase.Linq.Clauses;
+﻿using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
 using Couchbase.Linq.Serialization;
@@ -54,10 +52,6 @@ namespace Couchbase.Linq
             nodeTypeRegistry.Register(ExtentNameExpressionNode.SupportedMethods,
                 typeof(ExtentNameExpressionNode));
 
-            //register the "ToQueryRequest" expression node parser
-            nodeTypeRegistry.Register(ToQueryRequestExpressionNode.SupportedMethods,
-                typeof(ToQueryRequestExpressionNode));
-
             //This creates all the default node types
             var nodeTypeProvider = ExpressionTreeParser.CreateDefaultNodeTypeProvider();
 
@@ -90,14 +84,14 @@ namespace Couchbase.Linq
             return transformerRegistry;
         }
 
-        public static IQueryParser CreateQueryParser(IBucketContext bucketContext) =>
+        public static IQueryParser CreateQueryParser(ICluster cluster) =>
             new QueryParser(
                 new ExpressionTreeParser(
                     _nodeTypeProvider,
                     new CompoundExpressionTreeProcessor(new IExpressionTreeProcessor[]
                     {
                         new TransformingExpressionTreeProcessor(_prePartialEvaluationTransformerRegistry),
-                        SerializationExpressionTreeProcessor.FromBucketContext(bucketContext),
+                        SerializationExpressionTreeProcessor.FromCluster(cluster),
                         new PartialEvaluatingExpressionTreeProcessor(new ExcludeSerializationConversionEvaluatableExpressionFilter()),
                         new TransformingExpressionTreeProcessor(_transformerRegistry)
                     })));

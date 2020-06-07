@@ -3,17 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using Couchbase.Linq.QueryGeneration.FromParts;
-using Couchbase.Logging;
-using Remotion.Linq.Clauses;
+using Microsoft.Extensions.Logging;
 
 namespace Couchbase.Linq.QueryGeneration
 {
     internal class QueryPartsAggregator
     {
-        private readonly ILog _log = LogManager.GetLogger<QueryPartsAggregator>();
+        private readonly ILogger<QueryPartsAggregator> _logger;
 
-        public QueryPartsAggregator()
+        public QueryPartsAggregator(ILogger<QueryPartsAggregator> logger)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
             Extents = new List<ExtentPart>();
             LetParts = new List<N1QlLetQueryPart>();
             WhereParts = new List<string>();
@@ -519,7 +520,7 @@ namespace Couchbase.Linq.QueryGeneration
                     throw new InvalidOperationException(string.Format("Unsupported N1QlQueryType: {0}", QueryType));
             }
 
-            _log.Debug(query);
+            _logger.LogDebug(query);
             return query;
         }
 

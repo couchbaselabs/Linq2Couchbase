@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
-using Couchbase.Core.Serialization;
 using Couchbase.Linq.Serialization.Converters;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -30,7 +29,8 @@ namespace Couchbase.Linq.Serialization
         /// <returns></returns>
         public static TypeBasedSerializationConverterRegistry CreateDefaultRegistry() => new TypeBasedSerializationConverterRegistry
         {
-            { typeof(UnixMillisecondsConverter), typeof(UnixMillisecondsSerializationConverter) },
+            // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
+            // { typeof(UnixMillisecondsConverter), typeof(UnixMillisecondsSerializationConverter) },
             { typeof(StringEnumConverter), typeof(StringEnumSerializationConverter<>)}
         };
 

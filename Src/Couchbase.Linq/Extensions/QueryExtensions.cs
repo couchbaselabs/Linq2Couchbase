@@ -5,13 +5,13 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Couchbase.Linq.Execution;
 using Couchbase.Linq.Metadata;
-using Couchbase.N1QL;
+using Couchbase.Query;
 using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Couchbase.Linq.Extensions
 {
     /// <summary>
-    /// Extentions to <see cref="IQueryable{T}" /> for use in queries against a <see cref="BucketContext"/>.
+    /// Extentions to <see cref="IQueryable{T}" /> for use in queries against a <see cref="CollectionContext"/>.
     /// </summary>
     public static class QueryExtensions
     {
@@ -333,12 +333,12 @@ namespace Couchbase.Linq.Extensions
         /// </summary>
         /// <param name="source">Sets scan consistency for this query.  Must be a Couchbase LINQ query.</param>
         /// <param name="scanConsistency">Specify the consistency guarantee/constraint for index scanning.</param>
-        /// <remarks>The default is <see cref="ScanConsistency.NotBounded"/>.</remarks>
-        public static IQueryable<T> ScanConsistency<T>(this IQueryable<T> source, ScanConsistency scanConsistency)
+        /// <remarks>The default is <see cref="QueryScanConsistency.NotBounded"/>.</remarks>
+        public static IQueryable<T> ScanConsistency<T>(this IQueryable<T> source, QueryScanConsistency scanConsistency)
         {
             EnsureBucketQueryable(source, "ScanConsistency", "source");
 
-            ((IBucketQueryExecutorProvider) source).BucketQueryExecutor.ScanConsistency = scanConsistency;
+            ((IClusterQueryExecutorProvider) source).ClusterQueryExecutor.ScanConsistency = scanConsistency;
 
             return source;
         }
@@ -353,7 +353,7 @@ namespace Couchbase.Linq.Extensions
         {
             EnsureBucketQueryable(source, "ScanWait", "source");
 
-            ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.ScanWait = scanWait;
+            ((IClusterQueryExecutorProvider)source).ClusterQueryExecutor.ScanWait = scanWait;
 
             return source;
         }
@@ -367,7 +367,7 @@ namespace Couchbase.Linq.Extensions
         {
             EnsureBucketQueryable(source, "Timeout", "source");
 
-            ((IBucketQueryExecutorProvider)source).BucketQueryExecutor.Timeout = timeout;
+            ((IClusterQueryExecutorProvider)source).ClusterQueryExecutor.Timeout = timeout;
 
             return source;
         }
@@ -384,13 +384,13 @@ namespace Couchbase.Linq.Extensions
             {
                 throw new ArgumentNullException("source");
             }
-            if (!(source is IBucketQueryExecutorProvider))
+            if (!(source is IClusterQueryExecutorProvider))
             {
                 // do nothing if this isn't a Couchbase LINQ query
                 return source;
             }
 
-            ((IBucketQueryExecutorProvider) source).BucketQueryExecutor.ConsistentWith(state);
+            ((IClusterQueryExecutorProvider) source).ClusterQueryExecutor.ConsistentWith(state);
 
             return source;
         }
@@ -403,7 +403,7 @@ namespace Couchbase.Linq.Extensions
             {
                 throw new ArgumentNullException(paramName);
             }
-            if (!(source is IBucketQueryable) || !(source is IBucketQueryExecutorProvider))
+            if (!(source is ICollectionQueryable) || !(source is IClusterQueryExecutorProvider))
             {
                 throw new ArgumentException(string.Format("{0} is only supported on Couchbase LINQ queries.", methodName), paramName);
             }

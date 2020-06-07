@@ -1,6 +1,5 @@
 ﻿using System.Linq;
-using Couchbase.Configuration.Client;
-using Couchbase.Core;
+using Couchbase.KeyValue;
 using Couchbase.Linq.Filters;
 
 using Couchbase.Linq.UnitTests.Documents;
@@ -10,14 +9,9 @@ namespace Couchbase.Linq.UnitTests
     /// <summary>
     /// A concrete DbContext for the beer-sample example bucket.
     /// </summary>
-    public class BeerSample : BucketContext
+    public class BeerSample : CollectionContext
     {
-        public BeerSample()
-            : this(ClusterHelper.GetBucket("beer-sample"))
-        {
-        }
-
-        public BeerSample(IBucket bucket) : base(bucket)
+        public BeerSample(ICouchbaseCollection collection) : base(collection)
         {
             //Two ways of applying a filter are included in this example.
             //This is by implementing IDocumentFilter and then adding explicitly.

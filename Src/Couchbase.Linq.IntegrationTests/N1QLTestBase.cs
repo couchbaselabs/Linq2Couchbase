@@ -1,48 +1,35 @@
-﻿using System;
-using System.Linq;
-using Couchbase.Core;
-using Couchbase.Management;
-using NUnit.Framework;
+﻿using System.Linq;
+using System.Threading.Tasks;
 
 namespace Couchbase.Linq.IntegrationTests
 {
     public class N1QlTestBase
     {
-        public IBucketManager GetBucketManager(IBucket bucket)
+        public async Task EnsureIndexExists(IBucket bucket, string indexName, params string[] fields)
         {
-            return bucket.CreateManager(TestConfigurations.Settings.AdminUsername,
-                TestConfigurations.Settings.AdminPassword);
-        }
+            var manager = bucket.Cluster.QueryIndexes;
 
-        public void EnsureIndexExists(IBucket bucket, string indexName, params string[] fields)
-        {
-            var manager = GetBucketManager(bucket);
-
-            var indexes = manager.ListN1qlIndexes();
-            Assert.True(indexes.Success);
+            var indexes = await manager.GetAllIndexesAsync(bucket.Name);
 
             if (indexes.All(p => p.Name != indexName))
             {
                 // We need to create the index
 
-                var result = manager.CreateN1qlIndex(indexName, false, fields);
-                Assert.True(result.Success);
+                await manager.CreateIndexAsync(bucket.Name, indexName, fields);
             }
         }
 
-        public void EnsurePrimaryIndexExists(IBucket bucket)
+        public async Task EnsurePrimaryIndexExists(IBucket bucket)
         {
-            var manager = GetBucketManager(bucket);
+            var manager = bucket.Cluster.QueryIndexes;
 
-            var indexes = manager.ListN1qlIndexes();
-            Assert.True(indexes.Success);
+            var indexes = await manager.GetAllIndexesAsync(bucket.Name);
 
             if (indexes.All(p => !p.IsPrimary))
             {
                 // We need to create the index
 
-                var result = manager.CreateN1qlPrimaryIndex(false);
-                Assert.True(result.Success);
+                await manager.CreatePrimaryIndexAsync(bucket.Name);
             }
         }
     }

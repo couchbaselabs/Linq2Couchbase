@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using Couchbase.Configuration.Client;
-using Couchbase.Core;
+using Couchbase.Core.IO.Serializers;
 using Couchbase.Core.Version;
+using Couchbase.KeyValue;
 using Couchbase.Linq.Execution;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json.Serialization;
 
@@ -23,18 +25,34 @@ namespace Couchbase.Linq.UnitTests
             get { return _memberNameResolver; }
         }
 
-        private BucketQueryExecutorEmulator _queryExecutor;
-        internal BucketQueryExecutorEmulator QueryExecutor
+        private ClusterQueryExecutorEmulator _queryExecutor;
+        internal ClusterQueryExecutorEmulator QueryExecutor
         {
             get
             {
                 if (_queryExecutor == null)
                 {
-                    _queryExecutor = new BucketQueryExecutorEmulator(this, DefaultClusterVersion);
+                    _queryExecutor = new ClusterQueryExecutorEmulator(this, DefaultClusterVersion);
                 }
 
                 return _queryExecutor;
             }
+        }
+
+        public IServiceProvider ServiceProvider { get; }
+        public ILoggerFactory LoggerFactory => ServiceProvider.GetRequiredService<ILoggerFactory>();
+
+        protected N1QLTestBase()
+        {
+            var serializer = new DefaultSerializer();
+
+            var services = new ServiceCollection();
+
+            services.AddSingleton<ITypeSerializer>(serializer);
+            services.AddLogging();
+            services.AddSingleton(Mock.Of<IClusterVersionProvider>());
+
+            ServiceProvider = services.BuildServiceProvider();
         }
 
         protected string CreateN1QlQuery(IBucket bucket, Expression expression)
@@ -61,24 +79,21 @@ namespace Couchbase.Linq.UnitTests
         internal string CreateN1QlQuery(IBucket bucket, Expression expression, ClusterVersion clusterVersion,
             bool selectDocumentMetadata, out ScalarResultBehavior resultBehavior)
         {
-            var serializer = new Core.Serialization.DefaultSerializer();
+            var mockCluster = new Mock<ICluster>();
+            mockCluster
+                .Setup(p => p.ClusterServices)
+                .Returns(ServiceProvider);
 
-            var bucketContext = new Mock<IBucketContext>();
-            bucketContext.SetupGet(p => p.Bucket).Returns(bucket);
-            bucketContext.SetupGet(p => p.Configuration).Returns(new ClientConfiguration
-            {
-                Serializer = () => serializer
-            });
-
-            var queryModel = QueryParserHelper.CreateQueryParser(bucketContext.Object).GetParsedQuery(expression);
+            var queryModel = QueryParserHelper.CreateQueryParser(mockCluster.Object).GetParsedQuery(expression);
 
             var queryGenerationContext = new N1QlQueryGenerationContext()
             {
                 MemberNameResolver = MemberNameResolver,
                 MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
-                Serializer = serializer,
+                Serializer = ServiceProvider.GetRequiredService<ITypeSerializer>(),
                 SelectDocumentMetadata = selectDocumentMetadata,
-                ClusterVersion = clusterVersion
+                ClusterVersion = clusterVersion,
+                LoggerFactory = LoggerFactory
             };
 
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);
@@ -93,22 +108,24 @@ namespace Couchbase.Linq.UnitTests
             return CreateQueryable<T>(bucketName, QueryExecutor);
         }
 
-        internal virtual IQueryable<T> CreateQueryable<T>(string bucketName, IBucketQueryExecutor queryExecutor)
+        internal virtual IQueryable<T> CreateQueryable<T>(string bucketName, IClusterQueryExecutor queryExecutor)
         {
+            var mockCluster = new Mock<ICluster>();
+            mockCluster
+                .Setup(p => p.ClusterServices)
+                .Returns(ServiceProvider);
+
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns(bucketName);
+            mockBucket.SetupGet(e => e.Cluster).Returns(mockCluster.Object);
 
-            var serializer = new Core.Serialization.DefaultSerializer();
+            var mockCollection = new Mock<ICouchbaseCollection>();
+            mockCollection
+                .SetupGet(p => p.Scope.Bucket)
+                .Returns(mockBucket.Object);
 
-            var bucketContext = new Mock<IBucketContext>();
-            bucketContext.SetupGet(p => p.Bucket).Returns(mockBucket.Object);
-            bucketContext.SetupGet(p => p.Configuration).Returns(new ClientConfiguration
-            {
-                Serializer = () => serializer
-            });
-
-            return new BucketQueryable<T>(mockBucket.Object,
-                QueryParserHelper.CreateQueryParser(bucketContext.Object), queryExecutor);
+            return new CollectionQueryable<T>(mockCollection.Object,
+                QueryParserHelper.CreateQueryParser(mockCluster.Object), queryExecutor);
         }
 
         protected void SetContractResolver(IContractResolver contractResolver)

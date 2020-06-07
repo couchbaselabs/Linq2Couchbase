@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Couchbase.Core.Version;
 
 namespace Couchbase.Linq.Versioning
@@ -12,6 +9,11 @@ namespace Couchbase.Linq.Versioning
     /// </summary>
     internal static class FeatureVersions
     {
+        /// <summary>
+        /// Default version we assume if we can't get the cluster version.
+        /// </summary>
+        public static readonly ClusterVersion DefaultVersion = new ClusterVersion(new Version(4, 0, 0));
+
         /// <summary>
         /// Version where support was added for index-based joins where the primary key for the join
         /// is on the left instead of the right.

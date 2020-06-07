@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Couchbase.Configuration.Client;
+using System.Threading.Tasks;
+using Couchbase.Core.Version;
+using Couchbase.KeyValue;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Filters;
 using Couchbase.Linq.IntegrationTests.Documents;
+using Couchbase.Linq.Utils;
 using Couchbase.Linq.Versioning;
-using Couchbase.N1QL;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.IntegrationTests
@@ -14,10 +16,14 @@ namespace Couchbase.Linq.IntegrationTests
     [TestFixture]
     public class QueryTests : N1QlTestBase
     {
+        private ICouchbaseCollection _travelSample;
+
         [OneTimeSetUp]
-        public void OneTimeSetup()
+        public async Task OneTimeSetup()
         {
-            PrepareBeerDocuments();
+            await PrepareBeerDocuments();
+
+            _travelSample = (await TestSetup.Cluster.BucketAsync("travel-sample")).DefaultCollection();
         }
 
         [SetUp]
@@ -29,8 +35,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from b in context.Query<Beer>()
                 select b;
@@ -47,8 +52,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from b in context.Query<Beer>()
                 select new {name = b.Name, abv = b.Abv};
@@ -65,8 +69,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_StronglyTyped_Projections()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from b in context.Query<Beer>()
                 select new Beer {Name = b.Name, Abv = b.Abv};
@@ -83,8 +86,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_Where()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from b in context.Query<Beer>()
                 where b.Type == "beer"
@@ -102,8 +104,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_WhereNot()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from b in context.Query<Beer>()
                 where b.Type == "beer" && !(b.Abv < 4)
@@ -121,8 +122,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_WhereDateTime()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from b in context.Query<Beer>()
                 where (b.Type == "beer") && (b.Updated >= new DateTime(2010, 1, 1))
@@ -140,8 +140,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_WhereEnum()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = (from b in context.Query<BeerWithEnum>()
                 where (b.Type == "beer") && (b.Style == BeerStyle.OatmealStout)
@@ -161,8 +160,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_StartsWith()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from b in context.Query<Beer>()
                         where b.Type == "beer" && b.Name.StartsWith("563")
@@ -180,8 +178,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_EndsWithExpression()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             // This query is not useful, but tests more advanced string contains use cases
             var beers = from b in context.Query<Beer>()
@@ -200,8 +197,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_Limit()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = (from b in context.Query<Beer>()
                 where b.Type == "beer"
@@ -221,8 +217,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_Meta()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var beers = (from b in context.Query<Beer>()
                 where b.Type == "beer"
@@ -241,8 +237,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_Key()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var beers = (from b in context.Query<Beer>()
                          where b.Type == "beer"
@@ -262,8 +258,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Explain()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var explanation = (from b in context.Query<Beer>()
                 where b.Type == "beer"
@@ -276,8 +272,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Explain_QueryWithPropertyExtraction()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var explanation = (from b in context.Query<Beer>()
                 where b.Type == "beer"
@@ -290,8 +286,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_NewObjectsInArray()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var query = from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery"
@@ -317,8 +313,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NoProjection_Meta()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var beers = (from b in context.Query<Beer>()
                 where b.Type == "beer"
@@ -337,8 +333,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NoProjection_Number()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var beers = (from b in context.Query<Beer>()
                 where b.Type == "beer"
@@ -357,8 +353,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void UseKeys_SelectDocuments()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var query =
                 from brewery in
@@ -375,17 +371,17 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void UseIndex_SelectDocuments()
+        public async Task UseIndex_SelectDocuments()
         {
             // This test simply confirms that the USE INDEX clause generated is valid N1QL.  There's not much point
             // in the actual USE INDEX clause itself in this query, since the index isn't used in the predicate.
             // In a real world query, this should be a specific index helpful to the query.
 
-            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new CollectionContext(TestSetup.Collection);
 
-            EnsureIndexExists(bucket, "brewery_id", "brewery_id");
+            await EnsureIndexExists(context.Collection.Scope.Bucket, "brewery_id", "brewery_id");
 
-            var context = new BucketContext(bucket);
+
 
             var query =
                 from brewery in
@@ -402,21 +398,20 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void UseIndex_RightSideOfJoin_SelectDocuments()
+        public async Task UseIndex_RightSideOfJoin_SelectDocuments()
         {
             // This test simply confirms that the USE INDEX clause generated is valid N1QL.  There's not much point
             // in the actual USE INDEX clause itself in this query, since the index isn't used in the predicate.
             // In a real world query, this should be a specific index helpful to the query.
 
-            var bucket = ClusterHelper.GetBucket("travel-sample");
+            var context = new CollectionContext(_travelSample);
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.AnsiJoin)
             {
                 Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
             }
-
-            var context = new BucketContext(bucket);
 
             var query =
                 from route in context.Query<Route>()
@@ -437,17 +432,18 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void UseHash_SelectDocuments()
+        public async Task UseHash_SelectDocuments()
         {
-            var bucket = ClusterHelper.GetBucket("travel-sample");
+            var context = new CollectionContext(_travelSample);
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.AnsiJoin)
             {
                 Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
             }
 
-            var context = new BucketContext(bucket);
+
 
             var query =
                 from route in context.Query<Route>()
@@ -468,17 +464,18 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void UseHashAndIndex_SelectDocuments()
+        public async Task UseHashAndIndex_SelectDocuments()
         {
-            var bucket = ClusterHelper.GetBucket("travel-sample");
+            var context = new CollectionContext(_travelSample);
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.AnsiJoin)
             {
                 Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
             }
 
-            var context = new BucketContext(bucket);
+
 
             var query =
                 from route in context.Query<Route>()
@@ -502,8 +499,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AnyAllTests_AnyNestedArrayWithFilter()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries = (from b in context.Query<Brewery>()
                 where b.Type == "brewery" && b.Address.Any(p => p == "563 Second Street")
@@ -516,11 +513,12 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void AnyAllTests_AnyNestedArrayWithFilter_UsesArrayIndex()
+        public async Task AnyAllTests_AnyNestedArrayWithFilter_UsesArrayIndex()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new CollectionContext(TestSetup.Collection);
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.ArrayIndexes)
             {
                 Assert.Ignore("Cluster does not support array indexes, test skipped.");
@@ -532,7 +530,7 @@ namespace Couchbase.Linq.IntegrationTests
             // It can't be automatically created currently because the bucket manager
             // doesn't support creating array or function-based indexes, only plain attribute indexes
 
-            var context = new BucketContext(bucket);
+
 
             var explanation = (from b in context.Query<Brewery>()
                                where b.Type == "brewery" && b.Address.AsQueryable("x").Any(p => p == "563 Second Street")
@@ -547,8 +545,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AnyAllTests_AnyOnMainDocument_ReturnsTrue()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var hasBreweries = (from b in context.Query<Brewery>()
                 where b.Type == "brewery"
@@ -561,8 +559,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AnyAllTests_AnyOnMainDocument_ReturnsFalse()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var hasFaketype = (from b in context.Query<Brewery>()
                 where b.Type == "faketype"
@@ -576,8 +574,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AnyAllTests_AllNestedArray()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries = (from b in context.Query<Brewery>()
                 where b.Type == "brewery" && b.Address.All(p => p == "563 Second Street")
@@ -592,8 +590,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AnyAllTests_AllNestedArrayPrefiltered()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             // Note: This query isn't very useful in the real world
             // However, it does demonstrate how to prefilter the collection before all is run
@@ -616,8 +614,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AnyAllTests_AllOnMainDocument_ReturnsFalse()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var isAllBreweries = context.Query<Brewery>().All(p => p.Type == "brewery");
 
@@ -627,8 +625,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AnyAllTests_AllOnMainDocument_ReturnsTrue()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var allBreweriesHaveAddress = (from b in context.Query<Brewery>()
                 where b.Type == "brewery"
@@ -641,8 +639,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_TypeFilterAttribute()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var beers = (from b in context.Query<BeerFiltered>()
                 select new {type = b.Type}).
@@ -656,8 +654,8 @@ namespace Couchbase.Linq.IntegrationTests
         {
             DocumentFilterManager.SetFilter(new BreweryFilter());
 
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries = (from b in context.Query<Brewery>()
                 select new {type = b.Type})
@@ -668,8 +666,8 @@ namespace Couchbase.Linq.IntegrationTests
 
         public void Map2PocoTests_Simple_Projections_MetaWhere()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var beers = (from b in context.Query<Beer>()
                 where b.Type == "beer" && N1QlFunctions.Meta(b).Type == "json"
@@ -687,8 +685,8 @@ namespace Couchbase.Linq.IntegrationTests
 
         public void Map2PocoTests_Simple_Projections_MetaId()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var beers = (from b in context.Query<Beer>()
                 where b.Type == "beer"
@@ -706,8 +704,8 @@ namespace Couchbase.Linq.IntegrationTests
 
         public void AnyAllTests_AnyNestedArray()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries = (from b in context.Query<Brewery>()
                 where b.Type == "brewery" && b.Address.Any()
@@ -721,8 +719,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_InnerJoin_Simple()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var beers = from beer in context.Query<Beer>()
                 join brewery in context.Query<Brewery>()
@@ -741,8 +739,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_InnerJoin_SortAndFilter()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var beers = from beer in context.Query<Beer>()
                 join brewery in context.Query<Brewery>()
@@ -763,8 +761,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_InnerJoin_Prefiltered()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var beers = from beer in context.Query<Beer>().Where(p => p.Type == "beer")
                 join brewery in context.Query<Brewery>().Where(p => p.Type == "brewery")
@@ -783,19 +781,18 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void JoinTests_InnerJoin_IndexJoin()
+        public async Task JoinTests_InnerJoin_IndexJoin()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new CollectionContext(TestSetup.Collection);
 
-            EnsureIndexExists(bucket, "brewery_id", "brewery_id");
+            await EnsureIndexExists(context.Collection.Scope.Bucket, "brewery_id", "brewery_id");
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.IndexJoin)
             {
                 Assert.Ignore("Cluster does not support index joins, test skipped.");
             }
-
-            var context = new BucketContext(bucket);
 
             var beers = from brewery in context.Query<Brewery>()
                         join beer in context.Query<Beer>()
@@ -813,17 +810,16 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void JoinTests_InnerJoin_AnsiJoin()
+        public async Task JoinTests_InnerJoin_AnsiJoin()
         {
-            var bucket = ClusterHelper.GetBucket("travel-sample");
+            var context = new CollectionContext(_travelSample);
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.AnsiJoin)
             {
                 Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
             }
-
-            var context = new BucketContext(bucket);
 
             var routes = from route in context.Query<Route>()
                 join airport in context.Query<Airport>()
@@ -841,17 +837,16 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void JoinTests_InnerJoin_AnsiJoinPrefiltered()
+        public async Task JoinTests_InnerJoin_AnsiJoinPrefiltered()
         {
-            var bucket = ClusterHelper.GetBucket("travel-sample");
+            var context = new CollectionContext(_travelSample);
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.AnsiJoin)
             {
                 Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
             }
-
-            var context = new BucketContext(bucket);
 
             var routes = from route in context.Query<Route>().Where(p => p.Type == "route")
                 join airport in context.Query<Airport>().Where(p => p.Type == "airport")
@@ -870,8 +865,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_LeftJoin_Simple()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 join breweryGroup in context.Query<Brewery>()
@@ -891,8 +885,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_LeftJoin_SortAndFilter()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 join breweryGroup in context.Query<Brewery>()
@@ -914,8 +907,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_LeftJoin_Prefiltered()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>().Where(p => p.Type == "beer")
                 join breweryGroup in context.Query<Brewery>().Where(p => p.Type == "brewery")
@@ -935,19 +927,20 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void JoinTests_LeftJoin_IndexJoin()
+        public async Task JoinTests_LeftJoin_IndexJoin()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new CollectionContext(TestSetup.Collection);
 
-            EnsureIndexExists(bucket, "brewery_id", "brewery_id");
+            await EnsureIndexExists(context.Collection.Scope.Bucket, "brewery_id", "brewery_id");
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.IndexJoin)
             {
                 Assert.Ignore("Cluster does not support index joins, test skipped.");
             }
 
-            var context = new BucketContext(bucket);
+
 
             var beers = from brewery in context.Query<Brewery>()
                         join beer in context.Query<Beer>()
@@ -966,17 +959,16 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void JoinTests_LeftJoin_AnsiJoin()
+        public async Task JoinTests_LeftJoin_AnsiJoin()
         {
-            var bucket = ClusterHelper.GetBucket("travel-sample");
+            var context = new CollectionContext(_travelSample);
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.AnsiJoin)
             {
                 Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
             }
-
-            var context = new BucketContext(bucket);
 
             var routes = from route in context.Query<Route>()
                 join airport in context.Query<Airport>()
@@ -995,17 +987,16 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void JoinTests_LeftJoin_AnsiJoinPrefiltered()
+        public async Task JoinTests_LeftJoin_AnsiJoinPrefiltered()
         {
-            var bucket = ClusterHelper.GetBucket("travel-sample");
+            var context = new CollectionContext(_travelSample);
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.AnsiJoin)
             {
                 Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
             }
-
-            var context = new BucketContext(bucket);
 
             var routes = from route in context.Query<Route>().Where(p => p.Type == "route")
                 join airport in context.Query<Airport>().Where(p => p.Type == "airport")
@@ -1025,8 +1016,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NestTests_Unnest_Simple()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries = from brewery in context.Query<Brewery>()
                 from address in brewery.Address
@@ -1044,8 +1035,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NestTests_Unnest_Sort()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries = from brewery in context.Query<Brewery>()
                 from address in brewery.Address
@@ -1064,8 +1055,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NestTests_Unnest_Scalar()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries = from brewery in context.Query<Brewery>()
                             from address in brewery.Address
@@ -1081,19 +1072,18 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void NestTests_Nest_IndexJoin()
+        public async Task NestTests_Nest_IndexJoin()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new CollectionContext(TestSetup.Collection);
 
-            EnsureIndexExists(bucket, "brewery_id", "brewery_id");
+            await EnsureIndexExists(context.Collection.Scope.Bucket, "brewery_id", "brewery_id");
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.IndexJoin)
             {
                 Assert.Ignore("Cluster does not support index joins, test skipped.");
             }
-
-            var context = new BucketContext(bucket);
 
             var breweries = from brewery in context.Query<Brewery>()
                 join beer in context.Query<Beer>() on N1QlFunctions.Key(brewery) equals beer.BreweryId into beers
@@ -1113,19 +1103,18 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void NestTests_Nest_IndexJoinPrefiltered()
+        public async Task NestTests_Nest_IndexJoinPrefiltered()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var context = new CollectionContext(TestSetup.Collection);
 
-            EnsureIndexExists(bucket, "brewery_id", "brewery_id");
+            await EnsureIndexExists(context.Collection.Scope.Bucket, "brewery_id", "brewery_id");
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.IndexJoin)
             {
                 Assert.Ignore("Cluster does not support index joins, test skipped.");
             }
-
-            var context = new BucketContext(bucket);
 
             var breweries = from brewery in context.Query<Brewery>()
                             join beer in context.Query<BeerFiltered>() on N1QlFunctions.Key(brewery) equals beer.BreweryId into beers
@@ -1145,17 +1134,16 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void Test_AnsiNest_Prefiltered()
+        public async Task Test_AnsiNest_Prefiltered()
         {
-            var bucket = ClusterHelper.GetBucket("travel-sample");
+            var context = new CollectionContext(_travelSample);
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion < FeatureVersions.AnsiJoin)
             {
                 Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
             }
-
-            var context = new BucketContext(bucket);
 
             var query = from airline in context.Query<Airline>()
                 join route in context.Query<Route>()
@@ -1177,8 +1165,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_ArraySubqueryWithFilter()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var breweries = from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery"
@@ -1197,8 +1184,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_ArraySubqueryContains()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var breweries = from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery" && brewery.Address.Contains("563 Second Street")
@@ -1217,8 +1203,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_StaticArraySubqueryContains()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var breweryNames = new[] { "21st Amendment Brewery Cafe", "357" };
             var breweries = from brewery in context.Query<Brewery>()
@@ -1238,8 +1223,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_ArraySubquerySelectNewObject()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var breweries = from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery"
@@ -1259,8 +1243,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_ArraySubquerySorted()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var breweries = from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery"
@@ -1280,8 +1263,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_Union()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var names = (from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery"
@@ -1303,8 +1285,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_UnionAll()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var names = (from brewery in context.Query<Brewery>()
                          where brewery.Type == "brewery"
@@ -1326,8 +1307,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_SimpleAverage()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var avg =
                 context.Query<Beer>().Where(p => p.Type == "beer" && N1QlFunctions.IsValued(p.Abv)).Average(p => p.Abv);
@@ -1338,8 +1318,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_SimpleCount()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var count = context.Query<Beer>().Count(p => p.Type == "beer");
             Assert.Greater(count, 0);
@@ -1349,8 +1328,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_GroupBy()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var breweries =
                 from beer in context.Query<Beer>()
@@ -1373,8 +1351,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_Having()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var breweries =
                 from beer in context.Query<Beer>()
@@ -1398,8 +1375,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_OrderByAggregate()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var breweries =
                 from beer in context.Query<Beer>()
@@ -1422,8 +1398,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_JoinBeforeGroupByAndMultipartKey()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var breweries =
                 from beer in context.Query<Beer>()
@@ -1446,8 +1421,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void First_Empty()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -1463,8 +1437,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void First_HasResult()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1476,8 +1449,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void FirstOrDefault_Empty()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -1490,8 +1462,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void FirstOrDefault_HasResult()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1505,8 +1476,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Single_Empty()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -1522,8 +1492,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Single_HasResult()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Name == "21A IPA"
@@ -1535,8 +1504,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Single_HasManyResults()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1552,8 +1520,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SingleOrDefault_Empty()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -1566,8 +1533,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SingleOrDefault_HasResult()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Name == "21A IPA"
@@ -1581,8 +1547,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SingleOrDefault_HasManyResults()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1600,8 +1565,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DateTime_DateAdd()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1616,30 +1580,29 @@ namespace Couchbase.Linq.IntegrationTests
             }
         }
 
-        [Test]
-        public void DateTime_DateAdd_UnixMillis()
-        {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+        // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
+        //[Test]
+        //public void DateTime_DateAdd_UnixMillis()
+        //{
+        //    var context = new CollectionContext(TestSetup.Collection);
 
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
-                select new {beer.Name, Updated = N1QlFunctions.DateAdd(beer.UpdatedUnixMillis.Value, -10, N1QlDatePart.Day)};
+        //    var beers = from beer in context.Query<Beer>()
+        //        where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
+        //        select new {beer.Name, Updated = N1QlFunctions.DateAdd(beer.UpdatedUnixMillis.Value, -10, N1QlDatePart.Day)};
 
-            var results = beers.Take(1).ToList();
-            Assert.AreEqual(1, results.Count());
+        //    var results = beers.Take(1).ToList();
+        //    Assert.AreEqual(1, results.Count());
 
-            foreach (var b in results)
-            {
-                Console.WriteLine("Beer {0} was updated 10 days after {1:g}", b.Name, b.Updated);
-            }
-        }
+        //    foreach (var b in results)
+        //    {
+        //        Console.WriteLine("Beer {0} was updated 10 days after {1:g}", b.Name, b.Updated);
+        //    }
+        //}
 
         [Test]
         public void DateTime_DateDiff()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1654,30 +1617,29 @@ namespace Couchbase.Linq.IntegrationTests
             }
         }
 
-        [Test]
-        public void DateTime_DateDiff_UnixMillis()
-        {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+        // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
+        //[Test]
+        //public void DateTime_DateDiff_UnixMillis()
+        //{
+        //    var context = new CollectionContext(TestSetup.Collection);
 
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "beer"
-                select new {beer.Name, DaysOld = N1QlFunctions.DateDiff(DateTime.Now, beer.UpdatedUnixMillis.Value, N1QlDatePart.Day)};
+        //    var beers = from beer in context.Query<Beer>()
+        //        where beer.Type == "beer"
+        //        select new {beer.Name, DaysOld = N1QlFunctions.DateDiff(DateTime.Now, beer.UpdatedUnixMillis.Value, N1QlDatePart.Day)};
 
-            var results = beers.Take(1).ToList();
-            Assert.AreEqual(1, results.Count());
+        //    var results = beers.Take(1).ToList();
+        //    Assert.AreEqual(1, results.Count());
 
-            foreach (var b in results)
-            {
-                Console.WriteLine("Beer {0} is {1} days old", b.Name, b.DaysOld);
-            }
-        }
+        //    foreach (var b in results)
+        //    {
+        //        Console.WriteLine("Beer {0} is {1} days old", b.Name, b.DaysOld);
+        //    }
+        //}
 
         [Test]
         public void DateTime_DatePart()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1692,30 +1654,29 @@ namespace Couchbase.Linq.IntegrationTests
             }
         }
 
-        [Test]
-        public void DateTime_DatePart_UnixMillis()
-        {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+        // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
+        //[Test]
+        //public void DateTime_DatePart_UnixMillis()
+        //{
+        //    var context = new CollectionContext(TestSetup.Collection);
 
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "beer"
-                select new {beer.Name, Year = N1QlFunctions.DatePart(beer.UpdatedUnixMillis.Value, N1QlDatePart.Year)};
+        //    var beers = from beer in context.Query<Beer>()
+        //        where beer.Type == "beer"
+        //        select new {beer.Name, Year = N1QlFunctions.DatePart(beer.UpdatedUnixMillis.Value, N1QlDatePart.Year)};
 
-            var results = beers.Take(1).ToList();
-            Assert.AreEqual(1, results.Count());
+        //    var results = beers.Take(1).ToList();
+        //    Assert.AreEqual(1, results.Count());
 
-            foreach (var b in results)
-            {
-                Console.WriteLine("Beer {0} was updated in {1:0000}", b.Name, b.Year);
-            }
-        }
+        //    foreach (var b in results)
+        //    {
+        //        Console.WriteLine("Beer {0} was updated in {1:0000}", b.Name, b.Year);
+        //    }
+        //}
 
         [Test]
         public void DateTime_DateTrunc()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1727,38 +1688,35 @@ namespace Couchbase.Linq.IntegrationTests
             }
         }
 
-        [Test]
-        public void DateTime_DateTrunc_UnixMillis()
+        // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
+        //[Test]
+        //public async Task DateTime_DateTrunc_UnixMillis()
+        //{
+        //    var context = new CollectionContext(TestSetup.Collection);
+
+        //    var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+        //    var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
+        //    if (clusterVersion.Version == new Version(5, 5, 0))
+        //    {
+        //        Assert.Ignore("Skipping temporarily due to bug in 5.5 Beta https://issues.couchbase.com/browse/MB-29357");
+        //    }
+
+        //    var beers = from beer in context.Query<Beer>()
+        //        where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
+        //        select new {beer.Name, Updated = N1QlFunctions.DateTrunc(beer.UpdatedUnixMillis.Value, N1QlDatePart.Month)};
+
+        //    foreach (var b in beers.Take(1))
+        //    {
+        //        Console.WriteLine("Beer {0} is in {1:MMMM yyyy}", b.Name, b.Updated);
+        //    }
+        //}
+
+        private async Task PrepareBeerDocuments()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
+            var query = @"UPDATE `beer-sample` SET updatedUnixMillis = STR_TO_MILLIS(updated)
+                  WHERE type = 'beer' AND updateUnixMillis IS MISSING";
 
-            var clusterVersion = VersionProvider.Current.GetVersion(bucket);
-            if (clusterVersion.Version == new Version(5, 5, 0))
-            {
-                Assert.Ignore("Skipping temporarily due to bug in 5.5 Beta https://issues.couchbase.com/browse/MB-29357");
-            }
-
-            var context = new BucketContext(bucket);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
-                select new {beer.Name, Updated = N1QlFunctions.DateTrunc(beer.UpdatedUnixMillis.Value, N1QlDatePart.Month)};
-
-            foreach (var b in beers.Take(1))
-            {
-                Console.WriteLine("Beer {0} is in {1:MMMM yyyy}", b.Name, b.Updated);
-            }
-        }
-
-        private void PrepareBeerDocuments()
-        {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var query = new QueryRequest(
-                @"UPDATE `beer-sample` SET updatedUnixMillis = STR_TO_MILLIS(updated)
-                  WHERE type = 'beer' AND updateUnixMillis IS MISSING");
-
-            var result = bucket.Query<dynamic>(query);
-            result.EnsureSuccess();
+            await TestSetup.Cluster.QueryAsync<dynamic>(query);
         }
 
         #endregion
@@ -1768,8 +1726,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DictionaryTests_Indexer()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries =
                 from brewery in context.Query<Dictionary<string, object>>()
@@ -1783,8 +1741,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DictionaryTests_ContainsKey()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries =
                 from brewery in context.Query<Dictionary<string, object>>()
@@ -1798,8 +1756,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DictionaryTests_Keys()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries =
                 from brewery in context.Query<Dictionary<string, object>>()
@@ -1814,8 +1772,8 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DictionaryTests_Values()
         {
-            var bucket = ClusterHelper.GetBucket("beer-sample");
-            var context = new BucketContext(bucket);
+            var context = new CollectionContext(TestSetup.Collection);
+
 
             var breweries =
                 from brewery in context.Query<Dictionary<string, object>>()

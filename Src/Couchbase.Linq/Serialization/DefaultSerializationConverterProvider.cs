@@ -5,8 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using Couchbase.Core.Serialization;
-using Couchbase.Linq.Serialization.Converters;
+using Couchbase.Core.IO.Serializers;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 

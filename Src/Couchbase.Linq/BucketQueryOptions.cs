@@ -4,7 +4,7 @@ using Couchbase.Linq.Filters;
 namespace Couchbase.Linq
 {
     /// <summary>
-    /// Options to control queries against an <see cref="IBucketContext"/>.
+    /// Options to control queries against an <see cref="ICollectionContext"/>.
     /// </summary>
     [Flags]
     public enum BucketQueryOptions

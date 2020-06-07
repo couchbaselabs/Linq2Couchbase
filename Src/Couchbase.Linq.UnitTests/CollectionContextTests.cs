@@ -1,12 +1,5 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Linq.Expressions;
-using Couchbase.Configuration.Client;
-using Couchbase.Core;
-using Couchbase.Core.Buckets;
-using Couchbase.IO;
-using Couchbase.Linq.Metadata;
+﻿using System.Linq.Expressions;
+using Couchbase.KeyValue;
 using Couchbase.Linq.UnitTests.Documents;
 using Moq;
 using NUnit.Framework;
@@ -14,15 +7,15 @@ using NUnit.Framework;
 namespace Couchbase.Linq.UnitTests
 {
     [TestFixture]
-    public class BucketContextTests
+    public class CollectionContextTests : N1QLTestBase
     {
         [Test]
         public void Can_Get_The_Bucket_The_Context_Was_Created_With()
         {
-            var bucket = new Mock<IBucket>();
-            var context = new BucketContext(bucket.Object);
+            var collection = new Mock<ICouchbaseCollection>();
+            var context = new CollectionContext(collection.Object);
 
-            Assert.AreSame(bucket.Object, context.Bucket);
+            Assert.AreSame(collection.Object, context.Collection);
         }
 
         [Test]
@@ -30,9 +23,21 @@ namespace Couchbase.Linq.UnitTests
         {
             // Arrange
 
-            var bucket = new Mock<IBucket>();
-            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
-            var ctx = new BucketContext(bucket.Object);
+            var mockCluster = new Mock<ICluster>();
+            mockCluster
+                .Setup(p => p.ClusterServices)
+                .Returns(ServiceProvider);
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            mockBucket.SetupGet(e => e.Cluster).Returns(mockCluster.Object);
+
+            var mockCollection = new Mock<ICouchbaseCollection>();
+            mockCollection
+                .SetupGet(p => p.Scope.Bucket)
+                .Returns(mockBucket.Object);
+
+            var ctx = new CollectionContext(mockCollection.Object);
 
             // Act
 
@@ -50,9 +55,21 @@ namespace Couchbase.Linq.UnitTests
         {
             // Arrange
 
-            var bucket = new Mock<IBucket>();
-            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
-            var ctx = new BucketContext(bucket.Object);
+            var mockCluster = new Mock<ICluster>();
+            mockCluster
+                .Setup(p => p.ClusterServices)
+                .Returns(ServiceProvider);
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            mockBucket.SetupGet(e => e.Cluster).Returns(mockCluster.Object);
+
+            var mockCollection = new Mock<ICouchbaseCollection>();
+            mockCollection
+                .SetupGet(p => p.Scope.Bucket)
+                .Returns(mockBucket.Object);
+
+            var ctx = new CollectionContext(mockCollection.Object);
 
             // Act
 
@@ -70,9 +87,21 @@ namespace Couchbase.Linq.UnitTests
         {
             // Arrange
 
-            var bucket = new Mock<IBucket>();
-            bucket.Setup(x => x.Configuration).Returns(new ClientConfiguration().BucketConfigs.First().Value);
-            var ctx = new BucketContext(bucket.Object);
+            var mockCluster = new Mock<ICluster>();
+            mockCluster
+                .Setup(p => p.ClusterServices)
+                .Returns(ServiceProvider);
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            mockBucket.SetupGet(e => e.Cluster).Returns(mockCluster.Object);
+
+            var mockCollection = new Mock<ICouchbaseCollection>();
+            mockCollection
+                .SetupGet(p => p.Scope.Bucket)
+                .Returns(mockBucket.Object);
+
+            var ctx = new CollectionContext(mockCollection.Object);
 
             // Act
 

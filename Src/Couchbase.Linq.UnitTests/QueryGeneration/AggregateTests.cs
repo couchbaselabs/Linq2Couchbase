@@ -36,7 +36,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         [Test]
         public void Test_Avg_Raw()
         {
-            var queryExecutor = new BucketQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
+            var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
 
             // ReSharper disable once UnusedVariable
             var temp = CreateQueryable<Beer>("default", queryExecutor).Average(p => p.Abv);
@@ -64,7 +64,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         [Test]
         public void Test_Count_Raw()
         {
-            var queryExecutor = new BucketQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
+            var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
 
             // ReSharper disable once UnusedVariable
             var temp = CreateQueryable<Beer>("default", queryExecutor).Count();
@@ -94,7 +94,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         [Test]
         public void Test_CountAfterSelectProjection_Raw()
         {
-            var queryExecutor = new BucketQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
+            var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
 
             // ReSharper disable once UnusedVariable
             var temp = CreateQueryable<Beer>("default", queryExecutor)
