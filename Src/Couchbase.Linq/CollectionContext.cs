@@ -1,6 +1,5 @@
 ﻿using System.Linq;
-using Couchbase.Configuration.Client;
-using Couchbase.Core;
+using Couchbase.KeyValue;
 using Couchbase.Linq.Filters;
 
 namespace Couchbase.Linq
@@ -9,33 +8,22 @@ namespace Couchbase.Linq
     /// Provides a single point of entry to a Couchbase bucket which makes it easier to compose
     /// and execute queries and to group together changes which will be submitted back into the bucket.
     /// </summary>
-    public class BucketContext : IBucketContext
+    public class CollectionContext : ICollectionContext
     {
         /// <summary>
-        /// Creates a new BucketContext for a given Couchbase bucket.
+        /// Creates a new CollectionContext for a given Couchbase collection.
         /// </summary>
-        /// <param name="bucket">Bucket referenced by the new BucketContext.</param>
-        public BucketContext(IBucket bucket)
+        /// <param name="collection">Collection referenced by the new CollectionContext.</param>
+        public CollectionContext(ICouchbaseCollection collection)
         {
-            Bucket = bucket;
+            Collection = collection;
         }
 
         /// <summary>
-        /// Gets the bucket the <see cref="IBucketContext"/> was created against.
+        /// Gets the collection the <see cref="ICollectionContext"/> was created against.
         /// </summary>
         /// <value>The <see cref="IBucket"/>.</value>
-        public IBucket Bucket { get; private set; }
-
-        /// <summary>
-        /// Gets the configuration for the current <see cref="Cluster" />.
-        /// </summary>
-        /// <value>
-        /// The configuration.
-        /// </value>
-        public ClientConfiguration Configuration
-        {
-            get { return Bucket.Configuration.PoolConfiguration.ClientConfiguration; }
-        }
+        public ICouchbaseCollection Collection { get; private set; }
 
         /// <summary>
         /// Queries the current <see cref="IBucket" /> for entities of type T. This is the target of
@@ -57,7 +45,7 @@ namespace Couchbase.Linq
         /// <returns><see cref="IQueryable{T}" /> which can be used to query the bucket.</returns>
         public IQueryable<T> Query<T>(BucketQueryOptions options)
         {
-            IQueryable<T> query = new BucketQueryable<T>(Bucket, Configuration, this);
+            IQueryable<T> query = new CollectionQueryable<T>(Collection);
 
             if ((options & BucketQueryOptions.SuppressFilters) == BucketQueryOptions.None)
             {
@@ -67,16 +55,14 @@ namespace Couchbase.Linq
             return query;
         }
 
-        /// <summary>
-        /// Gets the name of the <see cref="IBucket"/>.
-        /// </summary>
-        /// <value>
-        /// The name of the bucket.
-        /// </value>
-        public string BucketName
-        {
-            get { return Bucket.Name; }
-        }
+        /// <inheritdoc />
+        public string CollectionName => Collection.Name;
+
+        /// <inheritdoc />
+        public string ScopeName => Collection.Scope.Name;
+
+        /// <inheritdoc />
+        public string BucketName => Collection.Scope.Bucket.Name;
     }
 }
 

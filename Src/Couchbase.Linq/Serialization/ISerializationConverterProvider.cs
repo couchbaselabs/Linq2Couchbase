@@ -1,6 +1,5 @@
-﻿using System;
-using System.Reflection;
-using Couchbase.Core.Serialization;
+﻿using System.Reflection;
+using Couchbase.Core.IO.Serializers;
 
 namespace Couchbase.Linq.Serialization
 {

@@ -1,14 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Core.Serialization;
+﻿using Couchbase.Core.IO.Serializers;
 using Couchbase.Core.Version;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
-using Couchbase.Linq.Serialization;
-using Couchbase.Linq.Versioning;
-using Newtonsoft.Json.Serialization;
+using Microsoft.Extensions.Logging;
 using Remotion.Linq.Clauses.Expressions;
 
 namespace Couchbase.Linq.QueryGeneration
@@ -24,6 +17,7 @@ namespace Couchbase.Linq.QueryGeneration
         public ParameterAggregator ParameterAggregator { get; set; }
         public ITypeSerializer Serializer { get; set; }
         public ClusterVersion ClusterVersion { get; set; }
+        public ILoggerFactory LoggerFactory { get; set; }
 
         /// <summary>
         /// Stores a reference to the current grouping subquery
@@ -56,7 +50,8 @@ namespace Couchbase.Linq.QueryGeneration
                 MethodCallTranslatorProvider = MethodCallTranslatorProvider,
                 ParameterAggregator = ParameterAggregator,
                 Serializer = Serializer,
-                ClusterVersion = ClusterVersion
+                ClusterVersion = ClusterVersion,
+                LoggerFactory = LoggerFactory
             };
         }
     }

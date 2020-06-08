@@ -1,21 +1,7 @@
 ﻿{
-  "testSettings": {
-    "adminusername": "Administrator",
-    "adminpassword": "password"
-  },
-
   "couchbase": {
+    "connectionString":  "couchbase://localhost",
     "username": "Administrator",
-    "password": "password",
-    "enableConfigHeartbeart": false,
-    "servers": [
-      "http://localhost:8091"
-    ],
-    "buckets": [
-      {
-        "name": "beer-sample",
-        "useEnhancedDurability": true
-      }
-    ]
+    "password": "password"
   }
 }

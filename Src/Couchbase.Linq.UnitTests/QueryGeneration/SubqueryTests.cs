@@ -384,7 +384,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             var mockBucket = new Mock<IBucket>();
             mockBucket.SetupGet(e => e.Name).Returns("default");
-            mockBucket.Setup(e => e.GetClusterVersion()).Returns(FeatureVersions.ArrayInFromClause);
 
             var query =
                 from route in QueryFactory.Queryable<Route>(mockBucket.Object)

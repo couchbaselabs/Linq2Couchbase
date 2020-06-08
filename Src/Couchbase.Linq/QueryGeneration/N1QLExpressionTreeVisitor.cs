@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
+using Couchbase.Core.IO.Serializers;
 using Couchbase.Linq.QueryGeneration.Expressions;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
@@ -526,7 +527,7 @@ namespace Couchbase.Linq.QueryGeneration
                 // Then we can write this value to N1QL by visiting it as a constant expression.
 
                 var jsonString = QueryGenerationContext.Serializer.Serialize(namedParameter.Value);
-                var jsonValue = QueryGenerationContext.Serializer.Deserialize<object>(jsonString, 0, jsonString.Length);
+                var jsonValue = QueryGenerationContext.Serializer.Deserialize<object>(jsonString);
 
                 return Visit(System.Linq.Expressions.Expression.Constant(jsonValue));
             }

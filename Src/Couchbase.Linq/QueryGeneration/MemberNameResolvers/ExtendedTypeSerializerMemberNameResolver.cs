@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Linq;
 using System.Reflection;
-using Couchbase.Core.Serialization;
-using Newtonsoft.Json.Serialization;
+using Couchbase.Core.IO.Serializers;
 
 namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
 {
@@ -16,12 +14,7 @@ namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
 
         public ExtendedTypeSerializerMemberNameResolver(IExtendedTypeSerializer serializer)
         {
-            if (serializer == null)
-            {
-                throw new ArgumentNullException("serializer");
-            }
-
-            _serializer = serializer;
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
         public bool TryResolveMemberName(MemberInfo member, out string memberName)

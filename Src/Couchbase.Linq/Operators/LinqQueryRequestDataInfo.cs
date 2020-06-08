@@ -19,7 +19,7 @@ namespace Couchbase.Linq.Operators
 
         public Type DataType
         {
-            get { return typeof(LinqQueryRequest); }
+            get { return typeof(LinqQueryOptions); }
         }
 
         /// <summary>
@@ -47,7 +47,7 @@ namespace Couchbase.Linq.Operators
                 throw new ArgumentNullException("executor");
             }
 
-            var result = executor.ExecuteSingle<LinqQueryRequest>(queryModel, false);
+            var result = executor.ExecuteSingle<LinqQueryOptions>(queryModel, false);
 
             // Pass the value of ReturnDefaultWhenEmpty into the resulting LinqQueryRequest
             result.ReturnDefaultWhenEmpty = ReturnDefaultWhenEmpty;
@@ -62,7 +62,7 @@ namespace Couchbase.Linq.Operators
                 throw new ArgumentNullException("dataType");
             }
 
-            if (dataType != typeof(LinqQueryRequest))
+            if (dataType != typeof(LinqQueryOptions))
             {
                 throw new ArgumentException("Invalid dataType for LinqQueryRequestDataInfo.", "dataType");
             }

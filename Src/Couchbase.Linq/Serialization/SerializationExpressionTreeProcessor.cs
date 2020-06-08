@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Couchbase.Core.Serialization;
+using Couchbase.Core.IO.Serializers;
+using Couchbase.Linq.Utils;
 using Remotion.Linq.Parsing.Structure;
 
 namespace Couchbase.Linq.Serialization
@@ -21,15 +22,13 @@ namespace Couchbase.Linq.Serialization
         }
 
         /// <summary>
-        /// Creates a <see cref="SerializationExpressionTreeProcessor"/> from a <see cref="IBucketContext"/>.
+        /// Creates a <see cref="SerializationExpressionTreeProcessor"/> from a <see cref="ICluster"/>.
         /// </summary>
-        /// <param name="bucketContext">The <see cref="IBucketContext"/>.</param>
+        /// <param name="cluster">The <see cref="ICluster"/>.</param>
         /// <returns>The <see cref="SerializationExpressionTreeProcessor"/>.</returns>
-        public static SerializationExpressionTreeProcessor FromBucketContext(IBucketContext bucketContext)
+        public static SerializationExpressionTreeProcessor FromCluster(ICluster cluster)
         {
-            var serializerProvider = bucketContext.Bucket as ITypeSerializerProvider;
-
-            var serializer = serializerProvider?.Serializer ?? bucketContext.Configuration.Serializer.Invoke();
+            var serializer = cluster.ClusterServices.GetRequiredService<ITypeSerializer>();
 
             // ReSharper disable once SuspiciousTypeConversion.Global
             return new SerializationExpressionTreeProcessor(

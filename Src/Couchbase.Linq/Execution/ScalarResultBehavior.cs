@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Couchbase.Linq.Execution
 {
@@ -32,7 +30,7 @@ namespace Couchbase.Linq.Execution
         /// <typeparam name="T">Result type being extracted.</typeparam>
         /// <param name="source">Collection of <see cref="ScalarResult{T}"/>.</param>
         /// <returns>Collection of <typeparamref name="T"/>.</returns>
-        public IEnumerable<T> ApplyResultExtraction<T>(IEnumerable<ScalarResult<T>> source)
+        public IAsyncEnumerable<T> ApplyResultExtraction<T>(IAsyncEnumerable<ScalarResult<T>> source)
         {
             var result = source.Select(p => p.result);
 

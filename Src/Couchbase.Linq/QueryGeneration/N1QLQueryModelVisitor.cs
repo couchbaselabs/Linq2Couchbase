@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Couchbase.Annotations;
-using Couchbase.Core.Serialization;
+using Couchbase.Core.IO.Serializers;
 using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Execution;
 using Couchbase.Linq.Operators;
@@ -12,6 +11,7 @@ using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
 using Couchbase.Linq.QueryGeneration.FromParts;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Couchbase.Linq.Versioning;
+using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 using Remotion.Linq.Clauses;
 using Remotion.Linq.Clauses.Expressions;
@@ -44,7 +44,7 @@ namespace Couchbase.Linq.QueryGeneration
         #endregion
 
         private readonly N1QlQueryGenerationContext _queryGenerationContext;
-        private readonly QueryPartsAggregator _queryPartsAggregator = new QueryPartsAggregator();
+        private readonly QueryPartsAggregator _queryPartsAggregator;
         private readonly List<UnclaimedGroupJoin> _unclaimedGroupJoins = new List<UnclaimedGroupJoin>();
         private readonly ScalarResultBehavior _scalarResultBehavior = new ScalarResultBehavior();
 
@@ -77,19 +77,6 @@ namespace Couchbase.Linq.QueryGeneration
 
         private bool CanUseRawSelection => _queryGenerationContext.ClusterVersion >= FeatureVersions.SelectRaw;
 
-        public N1QlQueryModelVisitor(IMemberNameResolver memberNameResolver, IMethodCallTranslatorProvider methodCallTranslatorProvider,
-            ITypeSerializer serializer)
-        {
-            _queryGenerationContext = new N1QlQueryGenerationContext()
-            {
-                //MemberNameResolver = new JsonNetMemberNameResolver(ClusterHelper.Get().Configuration.SerializationSettings.ContractResolver),
-                //MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider()
-                MemberNameResolver = memberNameResolver,
-                MethodCallTranslatorProvider = methodCallTranslatorProvider,
-                Serializer = serializer
-            };
-        }
-
         public N1QlQueryModelVisitor(N1QlQueryGenerationContext queryGenerationContext) : this(queryGenerationContext, false)
         {
         }
@@ -97,13 +84,10 @@ namespace Couchbase.Linq.QueryGeneration
         /// <exception cref="ArgumentNullException"><paramref name="queryGenerationContext"/> is <see langword="null" />.</exception>
         public N1QlQueryModelVisitor(N1QlQueryGenerationContext queryGenerationContext, bool isSubQuery)
         {
-            if (queryGenerationContext == null)
-            {
-                throw new ArgumentNullException("queryGenerationContext");
-            }
-
-            _queryGenerationContext = queryGenerationContext;
+            _queryGenerationContext = queryGenerationContext ?? throw new ArgumentNullException(nameof(queryGenerationContext));
             _isSubQuery = isSubQuery;
+
+            _queryPartsAggregator = new QueryPartsAggregator(queryGenerationContext.LoggerFactory.CreateLogger<QueryPartsAggregator>());
 
             if (isSubQuery)
             {
@@ -174,7 +158,7 @@ namespace Couchbase.Linq.QueryGeneration
 
             var bucketConstantExpression = fromClause.FromExpression as ConstantExpression;
             if ((bucketConstantExpression != null) &&
-                typeof(IBucketQueryable).GetTypeInfo().IsAssignableFrom(bucketConstantExpression.Type))
+                typeof(ICollectionQueryable).GetTypeInfo().IsAssignableFrom(bucketConstantExpression.Type))
             {
                 if (_isSubQuery && !queryModel.BodyClauses.Any(p => p is UseKeysClause))
                 {
@@ -183,7 +167,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 _queryPartsAggregator.AddExtent(new FromPart(fromClause)
                 {
-                    Source = N1QlHelpers.EscapeIdentifier(((IBucketQueryable) bucketConstantExpression.Value).BucketName),
+                    Source = N1QlHelpers.EscapeIdentifier(((ICollectionQueryable) bucketConstantExpression.Value).BucketName),
                     ItemName = GetExtentName(fromClause)
                 });
             }
@@ -599,10 +583,6 @@ namespace Couchbase.Linq.QueryGeneration
             else if (resultOperator is ExplainResultOperator)
             {
                 _queryPartsAggregator.ExplainPart = "EXPLAIN ";
-            }
-            else if (resultOperator is ToQueryRequestResultOperator)
-            {
-                // Do nothing, conversion will be handled by BucketQueryExecutor
             }
             else if (resultOperator is AnyResultOperator)
             {
@@ -1169,7 +1149,7 @@ namespace Couchbase.Linq.QueryGeneration
 
             if (constantExpression != null)
             {
-                if (constantExpression.Value is IBucketQueryable bucketQueryable)
+                if (constantExpression.Value is ICollectionQueryable bucketQueryable)
                 {
                     bucketName = bucketQueryable.BucketName;
                 }
@@ -1322,7 +1302,7 @@ namespace Couchbase.Linq.QueryGeneration
 
             if (constantExpression != null)
             {
-                var bucketQueryable = constantExpression.Value as IBucketQueryable;
+                var bucketQueryable = constantExpression.Value as ICollectionQueryable;
                 if (bucketQueryable != null)
                 {
                     bucketName = bucketQueryable.BucketName;

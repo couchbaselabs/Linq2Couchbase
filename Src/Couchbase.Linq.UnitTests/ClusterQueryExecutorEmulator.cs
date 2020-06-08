@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core.Version;
 using Couchbase.Linq.Execution;
 using Couchbase.Linq.QueryGeneration;
-using Couchbase.N1QL;
+using Couchbase.Query;
+using Microsoft.Extensions.Logging;
 using Remotion.Linq;
 
 namespace Couchbase.Linq.UnitTests
@@ -17,9 +16,9 @@ namespace Couchbase.Linq.UnitTests
     /// This class fakes the result (always returns null or an empty list), but stores the query that was
     /// generated in the Query property.
     /// </summary>
-    internal class BucketQueryExecutorEmulator : IBucketQueryExecutor
+    internal class ClusterQueryExecutorEmulator : IClusterQueryExecutor
     {
-        public ScanConsistency? ScanConsistency { get; set; }
+        public QueryScanConsistency? ScanConsistency { get; set; }
         public TimeSpan? ScanWait { get; set; }
         public TimeSpan? Timeout { get; set; }
 
@@ -39,14 +38,9 @@ namespace Couchbase.Linq.UnitTests
 
         public bool UseStreaming { get; set; }
 
-        public BucketQueryExecutorEmulator(N1QLTestBase test, ClusterVersion clusterVersion)
+        public ClusterQueryExecutorEmulator(N1QLTestBase test, ClusterVersion clusterVersion)
         {
-            if (test == null)
-            {
-                throw new ArgumentNullException("test");
-            }
-
-            _test = test;
+            _test = test ?? throw new ArgumentNullException(nameof(test));
             _clusterVersion = clusterVersion;
         }
 
@@ -79,8 +73,9 @@ namespace Couchbase.Linq.UnitTests
             {
                 MemberNameResolver = Test.MemberNameResolver,
                 MethodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider(),
-                Serializer = new Core.Serialization.DefaultSerializer(),
-                ClusterVersion = _clusterVersion
+                Serializer = new Core.IO.Serializers.DefaultSerializer(),
+                ClusterVersion = _clusterVersion,
+                LoggerFactory = _test.LoggerFactory
             };
 
             var visitor = new N1QlQueryModelVisitor(queryGenerationContext);
@@ -88,12 +83,7 @@ namespace Couchbase.Linq.UnitTests
             return visitor.GetQuery();
         }
 
-        public Task<IEnumerable<T>> ExecuteCollectionAsync<T>(LinqQueryRequest queryResult, CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<T> ExecuteSingleAsync<T>(LinqQueryRequest queryRequest, CancellationToken cancellationToken)
+        public Task<IAsyncEnumerable<T>> ExecuteCollectionAsync<T>(string statement, LinqQueryOptions queryResult)
         {
             throw new NotImplementedException();
         }
