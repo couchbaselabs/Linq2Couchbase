@@ -1580,24 +1580,23 @@ namespace Couchbase.Linq.IntegrationTests
             }
         }
 
-        // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
-        //[Test]
-        //public void DateTime_DateAdd_UnixMillis()
-        //{
-        //    var context = new CollectionContext(TestSetup.Collection);
+        [Test]
+        public void DateTime_DateAdd_UnixMillis()
+        {
+            var context = new CollectionContext(TestSetup.Collection);
 
-        //    var beers = from beer in context.Query<Beer>()
-        //        where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
-        //        select new {beer.Name, Updated = N1QlFunctions.DateAdd(beer.UpdatedUnixMillis.Value, -10, N1QlDatePart.Day)};
+            var beers = from beer in context.Query<Beer>()
+                        where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
+                        select new { beer.Name, Updated = N1QlFunctions.DateAdd(beer.UpdatedUnixMillis.Value, -10, N1QlDatePart.Day) };
 
-        //    var results = beers.Take(1).ToList();
-        //    Assert.AreEqual(1, results.Count());
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
 
-        //    foreach (var b in results)
-        //    {
-        //        Console.WriteLine("Beer {0} was updated 10 days after {1:g}", b.Name, b.Updated);
-        //    }
-        //}
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} was updated 10 days after {1:g}", b.Name, b.Updated);
+            }
+        }
 
         [Test]
         public void DateTime_DateDiff()
@@ -1617,24 +1616,23 @@ namespace Couchbase.Linq.IntegrationTests
             }
         }
 
-        // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
-        //[Test]
-        //public void DateTime_DateDiff_UnixMillis()
-        //{
-        //    var context = new CollectionContext(TestSetup.Collection);
+        [Test]
+        public void DateTime_DateDiff_UnixMillis()
+        {
+            var context = new CollectionContext(TestSetup.Collection);
 
-        //    var beers = from beer in context.Query<Beer>()
-        //        where beer.Type == "beer"
-        //        select new {beer.Name, DaysOld = N1QlFunctions.DateDiff(DateTime.Now, beer.UpdatedUnixMillis.Value, N1QlDatePart.Day)};
+            var beers = from beer in context.Query<Beer>()
+                        where beer.Type == "beer"
+                        select new { beer.Name, DaysOld = N1QlFunctions.DateDiff(DateTime.Now, beer.UpdatedUnixMillis.Value, N1QlDatePart.Day) };
 
-        //    var results = beers.Take(1).ToList();
-        //    Assert.AreEqual(1, results.Count());
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
 
-        //    foreach (var b in results)
-        //    {
-        //        Console.WriteLine("Beer {0} is {1} days old", b.Name, b.DaysOld);
-        //    }
-        //}
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} is {1} days old", b.Name, b.DaysOld);
+            }
+        }
 
         [Test]
         public void DateTime_DatePart()
@@ -1654,24 +1652,23 @@ namespace Couchbase.Linq.IntegrationTests
             }
         }
 
-        // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
-        //[Test]
-        //public void DateTime_DatePart_UnixMillis()
-        //{
-        //    var context = new CollectionContext(TestSetup.Collection);
+        [Test]
+        public void DateTime_DatePart_UnixMillis()
+        {
+            var context = new CollectionContext(TestSetup.Collection);
 
-        //    var beers = from beer in context.Query<Beer>()
-        //        where beer.Type == "beer"
-        //        select new {beer.Name, Year = N1QlFunctions.DatePart(beer.UpdatedUnixMillis.Value, N1QlDatePart.Year)};
+            var beers = from beer in context.Query<Beer>()
+                        where beer.Type == "beer"
+                        select new { beer.Name, Year = N1QlFunctions.DatePart(beer.UpdatedUnixMillis.Value, N1QlDatePart.Year) };
 
-        //    var results = beers.Take(1).ToList();
-        //    Assert.AreEqual(1, results.Count());
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
 
-        //    foreach (var b in results)
-        //    {
-        //        Console.WriteLine("Beer {0} was updated in {1:0000}", b.Name, b.Year);
-        //    }
-        //}
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} was updated in {1:0000}", b.Name, b.Year);
+            }
+        }
 
         [Test]
         public void DateTime_DateTrunc()
@@ -1688,28 +1685,27 @@ namespace Couchbase.Linq.IntegrationTests
             }
         }
 
-        // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
-        //[Test]
-        //public async Task DateTime_DateTrunc_UnixMillis()
-        //{
-        //    var context = new CollectionContext(TestSetup.Collection);
+        [Test]
+        public async Task DateTime_DateTrunc_UnixMillis()
+        {
+            var context = new CollectionContext(TestSetup.Collection);
 
-        //    var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-        //    var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-        //    if (clusterVersion.Version == new Version(5, 5, 0))
-        //    {
-        //        Assert.Ignore("Skipping temporarily due to bug in 5.5 Beta https://issues.couchbase.com/browse/MB-29357");
-        //    }
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
+            if (clusterVersion.Version == new Version(5, 5, 0))
+            {
+                Assert.Ignore("Skipping temporarily due to bug in 5.5 Beta https://issues.couchbase.com/browse/MB-29357");
+            }
 
-        //    var beers = from beer in context.Query<Beer>()
-        //        where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
-        //        select new {beer.Name, Updated = N1QlFunctions.DateTrunc(beer.UpdatedUnixMillis.Value, N1QlDatePart.Month)};
+            var beers = from beer in context.Query<Beer>()
+                        where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
+                        select new { beer.Name, Updated = N1QlFunctions.DateTrunc(beer.UpdatedUnixMillis.Value, N1QlDatePart.Month) };
 
-        //    foreach (var b in beers.Take(1))
-        //    {
-        //        Console.WriteLine("Beer {0} is in {1:MMMM yyyy}", b.Name, b.Updated);
-        //    }
-        //}
+            foreach (var b in beers.Take(1))
+            {
+                Console.WriteLine("Beer {0} is in {1:MMMM yyyy}", b.Name, b.Updated);
+            }
+        }
 
         private async Task PrepareBeerDocuments()
         {
