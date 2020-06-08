@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Couchbase.Core.IO.Serializers;
 using Couchbase.Linq.UnitTests.Documents;
 using Moq;
 using Newtonsoft.Json;
@@ -269,26 +270,25 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             Assert.AreEqual(expected, n1QlQuery);
         }
 
-        // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
-        //[Test]
-        //public void Test_Where_With_UnixMillisecondsDateComparison()
-        //{
-        //    var mockBucket = new Mock<IBucket>();
-        //    mockBucket.SetupGet(e => e.Name).Returns("default");
+        [Test]
+        public void Test_Where_With_UnixMillisecondsDateComparison()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
 
-        //    var query =
-        //        QueryFactory.Queryable<UnixMillisecondsDocument>(mockBucket.Object)
-        //            .Where(e => e.DateTime >= new DateTime(2010, 1, 1, 0, 0, 0, DateTimeKind.Utc));
+            var query =
+                QueryFactory.Queryable<UnixMillisecondsDocument>(mockBucket.Object)
+                    .Where(e => e.DateTime >= new DateTime(2010, 1, 1, 0, 0, 0, DateTimeKind.Utc));
 
 
-        //    const string expected =
-        //        "SELECT `Extent1`.* FROM `default` as `Extent1` " +
-        //        "WHERE (`Extent1`.`DateTime` >= 1262304000000)";
+            const string expected =
+                "SELECT `Extent1`.* FROM `default` as `Extent1` " +
+                "WHERE (`Extent1`.`DateTime` >= 1262304000000)";
 
-        //    var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
-        //    Assert.AreEqual(expected, n1QlQuery);
-        //}
+            Assert.AreEqual(expected, n1QlQuery);
+        }
 
         [Test]
         public void Test_Where_With_DateTimeOffsetComparison()
@@ -334,12 +334,11 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
         #region Helpers
 
-        // TODO: Enabled UnixMillisecondsConverter once available https://issues.couchbase.com/browse/NCBC-2539
-        //public class UnixMillisecondsDocument
-        //{
-        //    [JsonConverter(typeof(UnixMillisecondsConverter))]
-        //    public DateTime DateTime { get; set; }
-        //}
+        public class UnixMillisecondsDocument
+        {
+            [JsonConverter(typeof(UnixMillisecondsConverter))]
+            public DateTime DateTime { get; set; }
+        }
 
         #endregion
     }
