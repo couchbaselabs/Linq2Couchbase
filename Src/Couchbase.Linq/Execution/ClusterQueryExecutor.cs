@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core.IO.Serializers;
 using Couchbase.Core.Version;
@@ -115,7 +116,19 @@ namespace Couchbase.Linq.Execution
         /// <returns>List of objects returned by the request.</returns>
         public IEnumerable<T> ExecuteCollection<T>(string statement, LinqQueryOptions queryOptions)
         {
-            return ExecuteCollectionAsync<T>(statement, queryOptions).Result.ToEnumerable();
+            return ExecuteCollectionAsync<T>(statement, queryOptions).ToEnumerable();
+        }
+
+        public IAsyncEnumerable<T> ExecuteCollectionAsync<T>(QueryModel queryModel, CancellationToken cancellationToken = default)
+        {
+            var statement = GenerateQuery(queryModel, out var scalarResultBehavior);
+
+            var queryOptions = new LinqQueryOptions(scalarResultBehavior);
+            ApplyQueryOptionsSettings(queryOptions);
+
+            queryOptions.CancellationToken(cancellationToken);
+
+            return ExecuteCollectionAsync<T>(statement, queryOptions);
         }
 
         /// <summary>
@@ -125,17 +138,26 @@ namespace Couchbase.Linq.Execution
         /// <param name="statement">Query to execute.</param>
         /// <param name="queryOptions">Options to control execution.</param>
         /// <returns>Task which contains a list of objects returned by the request when complete.</returns>
-        public async Task<IAsyncEnumerable<T>> ExecuteCollectionAsync<T>(string statement, LinqQueryOptions queryOptions)
+        public async IAsyncEnumerable<T> ExecuteCollectionAsync<T>(string statement, LinqQueryOptions queryOptions)
         {
+            // TODO: Make this more efficient with a custom enumerator
+
+            IAsyncEnumerable<T> result;
+
             if (!queryOptions.ScalarResultBehavior.ResultExtractionRequired)
             {
-                return await _cluster.QueryAsync<T>(statement, queryOptions).ConfigureAwait(false);
+                result = await _cluster.QueryAsync<T>(statement, queryOptions).ConfigureAwait(false);
             }
             else
             {
-                var result = await _cluster.QueryAsync<ScalarResult<T>>(statement, queryOptions).ConfigureAwait(false);
+                var tempResult = await _cluster.QueryAsync<ScalarResult<T>>(statement, queryOptions).ConfigureAwait(false);
 
-                return queryOptions.ScalarResultBehavior.ApplyResultExtraction(result);
+                result = queryOptions.ScalarResultBehavior.ApplyResultExtraction(tempResult);
+            }
+
+            await foreach (var row in result.ConfigureAwait(false))
+            {
+                yield return row;
             }
         }
 
