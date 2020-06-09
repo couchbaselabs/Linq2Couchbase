@@ -83,7 +83,7 @@ namespace Couchbase.Linq.UnitTests
             return visitor.GetQuery();
         }
 
-        public Task<IAsyncEnumerable<T>> ExecuteCollectionAsync<T>(string statement, LinqQueryOptions queryResult)
+        public IAsyncEnumerable<T> ExecuteCollectionAsync<T>(QueryModel queryModel, CancellationToken cancellationToken = default)
         {
             throw new NotImplementedException();
         }
