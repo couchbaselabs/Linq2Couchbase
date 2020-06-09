@@ -1436,61 +1436,6 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void First_Empty()
-        {
-            var context = new CollectionContext(TestSetup.Collection);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "abcdefg"
-                select new {beer.Name};
-
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                // ReSharper disable once UnusedVariable
-                var temp = beers.First();
-            });
-        }
-
-        [Test]
-        public void First_HasResult()
-        {
-            var context = new CollectionContext(TestSetup.Collection);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "beer"
-                select new {beer.Name};
-
-            Console.WriteLine(beers.First().Name);
-        }
-
-        [Test]
-        public void FirstOrDefault_Empty()
-        {
-            var context = new CollectionContext(TestSetup.Collection);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "abcdefg"
-                select new {beer.Name};
-
-            var aBeer = beers.FirstOrDefault();
-            Assert.IsNull(aBeer);
-        }
-
-        [Test]
-        public void FirstOrDefault_HasResult()
-        {
-            var context = new CollectionContext(TestSetup.Collection);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "beer"
-                select new {beer.Name};
-
-            var aBeer = beers.FirstOrDefault();
-            Assert.IsNotNull(aBeer);
-            Console.WriteLine(aBeer.Name);
-        }
-
-        [Test]
         public void Single_Empty()
         {
             var context = new CollectionContext(TestSetup.Collection);

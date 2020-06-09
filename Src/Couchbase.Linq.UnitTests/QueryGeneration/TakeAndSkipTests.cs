@@ -65,39 +65,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
-        public void Test_First()
-        {
-            var temp = CreateQueryable<Contact>("default").First();
-            var n1QlQuery = QueryExecutor.Query;
-
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1";
-
-            Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
-        public void Test_FirstOrDefault()
-        {
-            var temp = CreateQueryable<Contact>("default").FirstOrDefault();
-            var n1QlQuery = QueryExecutor.Query;
-
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1";
-
-            Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
-        public void Test_FirstWithSkip()
-        {
-            var temp = CreateQueryable<Contact>("default").Skip(10).First();
-            var n1QlQuery = QueryExecutor.Query;
-
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1 OFFSET 10";
-
-            Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
         public void Test_Single()
         {
             var temp = CreateQueryable<Contact>("default").Single();

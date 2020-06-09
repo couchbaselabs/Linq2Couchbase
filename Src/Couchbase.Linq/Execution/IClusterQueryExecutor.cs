@@ -37,5 +37,7 @@ namespace Couchbase.Linq.Execution
         void ConsistentWith(MutationState state);
 
         IAsyncEnumerable<T> ExecuteCollectionAsync<T>(QueryModel queryModel, CancellationToken cancellationToken = default);
+
+        Task<T> ExecuteSingleAsync<T>(QueryModel queryModel, bool returnDefaultWhenEmpty, CancellationToken cancellationToken = default);
     }
 }

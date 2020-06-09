@@ -562,7 +562,7 @@ namespace Couchbase.Linq.QueryGeneration
                 _queryPartsAggregator.AddOffsetPart(" OFFSET {0}",
                     Convert.ToInt32(GetN1QlExpression(skipResultOperator.Count)));
             }
-            else if (resultOperator is FirstResultOperator)
+            else if (resultOperator is FirstResultOperator || resultOperator is FirstAsyncResultOperator)
             {
                 // We can save query execution time with a short circuit for .First()
 

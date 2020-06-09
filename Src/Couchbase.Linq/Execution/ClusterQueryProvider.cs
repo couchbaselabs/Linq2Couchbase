@@ -43,7 +43,7 @@ namespace Couchbase.Linq.Execution
             }
             else
             {
-                throw new NotImplementedException("Currently only supporting async streams, no aggregates or first/single.");
+                return (T) streamedDataInfo.ExecuteQueryModel(queryModel, Executor).Value;
             }
         }
     }
