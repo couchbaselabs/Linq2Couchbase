@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core.IO.Serializers;
@@ -126,9 +127,7 @@ namespace Couchbase.Linq.Execution
             var queryOptions = new LinqQueryOptions(scalarResultBehavior);
             ApplyQueryOptionsSettings(queryOptions);
 
-            queryOptions.CancellationToken(cancellationToken);
-
-            return ExecuteCollectionAsync<T>(statement, queryOptions);
+            return ExecuteCollectionAsync<T>(statement, queryOptions, cancellationToken);
         }
 
         /// <summary>
@@ -137,10 +136,14 @@ namespace Couchbase.Linq.Execution
         /// <typeparam name="T">Type returned by the query.</typeparam>
         /// <param name="statement">Query to execute.</param>
         /// <param name="queryOptions">Options to control execution.</param>
+        /// <param name="cancellationToken">Cancellation token.</param>
         /// <returns>Task which contains a list of objects returned by the request when complete.</returns>
-        public async IAsyncEnumerable<T> ExecuteCollectionAsync<T>(string statement, LinqQueryOptions queryOptions)
+        public async IAsyncEnumerable<T> ExecuteCollectionAsync<T>(string statement, LinqQueryOptions queryOptions,
+            [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
             // TODO: Make this more efficient with a custom enumerator
+
+            queryOptions.CancellationToken(cancellationToken);
 
             IAsyncEnumerable<T> result;
 
@@ -155,7 +158,7 @@ namespace Couchbase.Linq.Execution
                 result = queryOptions.ScalarResultBehavior.ApplyResultExtraction(tempResult);
             }
 
-            await foreach (var row in result.ConfigureAwait(false))
+            await foreach (var row in result.WithCancellation(cancellationToken).ConfigureAwait(false))
             {
                 yield return row;
             }
@@ -173,6 +176,17 @@ namespace Couchbase.Linq.Execution
                 : ExecuteCollection<T>(queryModel).Single();
 
             return result;
+        }
+
+        public Task<T> ExecuteSingleAsync<T>(QueryModel queryModel, bool returnDefaultWhenEmpty, CancellationToken cancellationToken = default)
+        {
+            // ReSharper disable MethodSupportsCancellation
+            var result = returnDefaultWhenEmpty
+                ? ExecuteCollectionAsync<T>(queryModel).SingleOrDefaultAsync(cancellationToken)
+                : ExecuteCollectionAsync<T>(queryModel).SingleAsync(cancellationToken);
+            // ReSharper restore MethodSupportsCancellation
+
+            return result.AsTask();
         }
 
         public string GenerateQuery(QueryModel queryModel, out ScalarResultBehavior scalarResultBehavior)

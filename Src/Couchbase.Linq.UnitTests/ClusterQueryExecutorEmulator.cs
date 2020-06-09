@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core.Version;
@@ -85,7 +86,17 @@ namespace Couchbase.Linq.UnitTests
 
         public IAsyncEnumerable<T> ExecuteCollectionAsync<T>(QueryModel queryModel, CancellationToken cancellationToken = default)
         {
-            throw new NotImplementedException();
+            ExecuteCollection<T>(queryModel);
+
+            return AsyncEnumerable.Empty<T>();
+        }
+
+        public Task<T> ExecuteSingleAsync<T>(QueryModel queryModel, bool returnDefaultWhenEmpty,
+            CancellationToken cancellationToken = default)
+        {
+            ExecuteCollection<T>(queryModel);
+
+            return Task.FromResult(default(T));
         }
     }
 }

@@ -11,9 +11,9 @@ using Remotion.Linq.Parsing.ExpressionVisitors;
 namespace Couchbase.Linq.Extensions
 {
     /// <summary>
-    /// Extentions to <see cref="IQueryable{T}" /> for use in queries against a <see cref="CollectionContext"/>.
+    /// Extensions to <see cref="IQueryable{T}" /> for use in queries against a <see cref="CollectionContext"/>.
     /// </summary>
-    public static class QueryExtensions
+    public static partial class QueryExtensions
     {
         #region Nest
 

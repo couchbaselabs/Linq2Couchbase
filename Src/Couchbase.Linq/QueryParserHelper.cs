@@ -1,4 +1,5 @@
 ﻿using Couchbase.Linq.Clauses;
+using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
 using Couchbase.Linq.Serialization;
@@ -51,6 +52,9 @@ namespace Couchbase.Linq
             //register the "ExtentName" expression node parser
             nodeTypeRegistry.Register(ExtentNameExpressionNode.SupportedMethods,
                 typeof(ExtentNameExpressionNode));
+
+            //register the various asynchronous expression nodes
+            nodeTypeRegistry.Register(FirstAsyncExpressionNode.GetSupportedMethods(), typeof(FirstAsyncExpressionNode));
 
             //This creates all the default node types
             var nodeTypeProvider = ExpressionTreeParser.CreateDefaultNodeTypeProvider();
