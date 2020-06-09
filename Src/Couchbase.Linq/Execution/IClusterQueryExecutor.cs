@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Query;
@@ -35,12 +36,6 @@ namespace Couchbase.Linq.Execution
         /// <remarks>If called multiple times, the states from the calls are combined.</remarks>
         void ConsistentWith(MutationState state);
 
-        /// <summary>
-        /// Asynchronously execute a <see cref="LinqQueryOptions"/>.
-        /// </summary>
-        /// <typeparam name="T">Type returned by the query.</typeparam>
-        /// <param name="queryRequest">Request to execute.</param>
-        /// <returns>Task which contains a list of objects returned by the request when complete.</returns>
-        Task<IAsyncEnumerable<T>> ExecuteCollectionAsync<T>(string statement, LinqQueryOptions queryRequest);
+        IAsyncEnumerable<T> ExecuteCollectionAsync<T>(QueryModel queryModel, CancellationToken cancellationToken = default);
     }
 }

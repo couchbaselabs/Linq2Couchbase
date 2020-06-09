@@ -50,6 +50,23 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public async Task Map2PocoTestsAsync()
+        {
+            var context = new CollectionContext(TestSetup.Collection);
+
+            var beers = from b in context.Query<Beer>()
+                select b;
+
+            var results = await ((IAsyncEnumerable<Beer>) beers.Take(1)).ToListAsync();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var beer in results)
+            {
+                Console.WriteLine(beer.Name);
+            }
+        }
+
+        [Test]
         public void Map2PocoTests_Simple_Projections()
         {
             var context = new CollectionContext(TestSetup.Collection);
