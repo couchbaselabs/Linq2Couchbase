@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Couchbase.Linq.Execution;
 
 namespace Couchbase.Linq.Extensions
 {
@@ -134,35 +132,6 @@ namespace Couchbase.Linq.Extensions
 
             return ExecuteAsync<T, Task<T>>(QueryExtensionMethods.FirstOrDefaultAsyncWithPredicate, source, predicate,
                 cancellationToken);
-        }
-
-        private static TResult ExecuteAsync<TSource, TResult>(
-            MethodInfo operatorMethodInfo,
-            IQueryable<TSource> source,
-            Expression expression,
-            CancellationToken cancellationToken = default)
-        {
-            if (source.Provider is IAsyncQueryProvider provider)
-            {
-                if (operatorMethodInfo.IsGenericMethod)
-                {
-                    operatorMethodInfo
-                        = operatorMethodInfo.GetGenericArguments().Length == 2
-                            ? operatorMethodInfo.MakeGenericMethod(typeof(TSource), typeof(TResult).GetGenericArguments().Single())
-                            : operatorMethodInfo.MakeGenericMethod(typeof(TSource));
-                }
-
-                var updatedExpression = Expression.Call(
-                    instance: null,
-                    method: operatorMethodInfo,
-                    arguments: expression == null
-                        ? new[] {source.Expression}
-                        : new[] {source.Expression, expression});
-
-                return provider.ExecuteAsync<TResult>(updatedExpression, cancellationToken);
-            }
-
-            throw new InvalidOperationException("The provided IQueryable is not backed by an IAsyncQueryProvider.");
         }
     }
 }

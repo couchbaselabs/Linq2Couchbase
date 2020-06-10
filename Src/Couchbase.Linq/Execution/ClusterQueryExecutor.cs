@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Couchbase.Core.IO.Serializers;
 using Couchbase.Core.Version;
+using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
@@ -26,24 +27,6 @@ namespace Couchbase.Linq.Execution
 
         private ITypeSerializer _serializer;
 
-        /// <summary>
-        /// Specifies the consistency guarantee/constraint for index scanning.
-        /// </summary>
-        public QueryScanConsistency? ScanConsistency { get; set; }
-
-        /// <summary>
-        /// Specifies the maximum time the client is willing to wait for an index to catch up to the consistency requirement in the request.
-        /// If an index has to catch up, and the time is exceed doing so, an error is returned.
-        /// </summary>
-        public TimeSpan? ScanWait { get; set; }
-
-        /// <summary>
-        /// Specifies the maximum time the server should wait for the QueryRequest to execute.
-        /// </summary>
-        public TimeSpan? Timeout { get; set; }
-
-        public MutationState MutationState { get; private set; }
-
         private ITypeSerializer Serializer =>
             _serializer ??= _cluster.ClusterServices.GetRequiredService<ITypeSerializer>();
 
@@ -58,54 +41,40 @@ namespace Couchbase.Linq.Execution
             _clusterVersionProvider = cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
         }
 
-        /// <summary>
-        /// Requires that the indexes but up to date with a <see cref="Query.MutationState"/> before the query is executed.
-        /// </summary>
-        /// <param name="state"><see cref="Query.MutationState"/> used for conistency controls.</param>
-        /// <remarks>If called multiple times, the states from the calls are combined.</remarks>
-        public void ConsistentWith(MutationState state)
+        private LinqQueryOptions GetQueryOptions(QueryModel queryModel, ScalarResultBehavior scalarResultBehavior)
         {
-            if (state == null)
+            var queryOptions = new LinqQueryOptions(scalarResultBehavior);
+
+            MutationState combinedMutationState = null;
+
+            foreach (var bodyClause in queryModel.BodyClauses)
             {
-                return;
+                switch (bodyClause)
+                {
+                    case ScanConsistencyClause scanConsistency:
+                        queryOptions.ScanConsistency(scanConsistency.ScanConsistency);
+                        break;
+
+                    case ConsistentWithClause consistentWith:
+                        combinedMutationState ??= new MutationState();
+                        combinedMutationState.Add(consistentWith.MutationState);
+                        break;
+                }
             }
 
-            if (MutationState == null)
+            if (combinedMutationState != null)
             {
-                MutationState = new MutationState();
+                queryOptions.ConsistentWith(combinedMutationState);
             }
 
-            MutationState.Add(state);
-        }
-
-        private void ApplyQueryOptionsSettings(LinqQueryOptions queryOptions)
-        {
-            if (ScanConsistency.HasValue)
-            {
-                queryOptions.ScanConsistency(ScanConsistency.Value);
-            }
-            if (ScanWait.HasValue)
-            {
-                queryOptions.ScanWait(ScanWait.Value);
-            }
-            if (Timeout.HasValue)
-            {
-                queryOptions.Timeout(Timeout.Value);
-            }
-            if (MutationState != null)
-            {
-                queryOptions.ConsistentWith(MutationState);
-            }
+            return queryOptions;
         }
 
         public IEnumerable<T> ExecuteCollection<T>(QueryModel queryModel)
         {
             var statement = GenerateQuery(queryModel, out var scalarResultBehavior);
 
-            var queryOptions = new LinqQueryOptions(scalarResultBehavior);
-            ApplyQueryOptionsSettings(queryOptions);
-
-            return ExecuteCollection<T>(statement, queryOptions);
+            return ExecuteCollection<T>(statement, GetQueryOptions(queryModel, scalarResultBehavior));
         }
 
         /// <summary>
@@ -124,10 +93,7 @@ namespace Couchbase.Linq.Execution
         {
             var statement = GenerateQuery(queryModel, out var scalarResultBehavior);
 
-            var queryOptions = new LinqQueryOptions(scalarResultBehavior);
-            ApplyQueryOptionsSettings(queryOptions);
-
-            return ExecuteCollectionAsync<T>(statement, queryOptions, cancellationToken);
+            return ExecuteCollectionAsync<T>(statement, GetQueryOptions(queryModel, scalarResultBehavior), cancellationToken);
         }
 
         /// <summary>
