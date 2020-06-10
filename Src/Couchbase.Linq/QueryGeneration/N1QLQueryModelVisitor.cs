@@ -568,7 +568,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 _queryPartsAggregator.AddLimitPart(" LIMIT {0}", 1);
             }
-            else if (resultOperator is SingleResultOperator)
+            else if (resultOperator is SingleResultOperator || resultOperator is SingleAsyncResultOperator)
             {
                 // We can save query execution time with a short circuit for .Single()
                 // But we have to get at least 2 results so we know if there was more than 1
