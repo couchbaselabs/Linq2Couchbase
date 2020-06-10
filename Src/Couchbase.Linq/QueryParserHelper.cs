@@ -29,29 +29,15 @@ namespace Couchbase.Linq
             //Create Custom node registry
             var nodeTypeRegistry = new MethodInfoBasedNodeTypeRegistry();
 
-            //register the "Nest" clause type
-            nodeTypeRegistry.Register(NestExpressionNode.SupportedMethods,
-                typeof(NestExpressionNode));
-
-            //register the "Explain" expression node parser
-            nodeTypeRegistry.Register(ExplainExpressionNode.SupportedMethods,
-                typeof(ExplainExpressionNode));
-
-            //register the "UseKeys" expression node parser
-            nodeTypeRegistry.Register(UseKeysExpressionNode.SupportedMethods,
-                typeof(UseKeysExpressionNode));
-
-            //register the "UseIndex" expression node parser
-            nodeTypeRegistry.Register(UseIndexExpressionNode.SupportedMethods,
-                typeof(UseIndexExpressionNode));
-
-            //register the "UseHash" expression node parser
-            nodeTypeRegistry.Register(UseHashExpressionNode.SupportedMethods,
-                typeof(UseHashExpressionNode));
-
-            //register the "ExtentName" expression node parser
-            nodeTypeRegistry.Register(ExtentNameExpressionNode.SupportedMethods,
-                typeof(ExtentNameExpressionNode));
+            //register the nodes for special Couchbase clauses
+            nodeTypeRegistry.Register(NestExpressionNode.SupportedMethods, typeof(NestExpressionNode));
+            nodeTypeRegistry.Register(ExplainExpressionNode.SupportedMethods, typeof(ExplainExpressionNode));
+            nodeTypeRegistry.Register(UseKeysExpressionNode.SupportedMethods, typeof(UseKeysExpressionNode));
+            nodeTypeRegistry.Register(UseIndexExpressionNode.SupportedMethods, typeof(UseIndexExpressionNode));
+            nodeTypeRegistry.Register(UseHashExpressionNode.SupportedMethods, typeof(UseHashExpressionNode));
+            nodeTypeRegistry.Register(ExtentNameExpressionNode.SupportedMethods, typeof(ExtentNameExpressionNode));
+            nodeTypeRegistry.Register(ScanConsistencyExpressionNode.GetSupportedMethods(), typeof(ScanConsistencyExpressionNode));
+            nodeTypeRegistry.Register(ConsistentWithExpressionNode.GetSupportedMethods(), typeof(ConsistentWithExpressionNode));
 
             //register the various asynchronous expression nodes
             nodeTypeRegistry.Register(FirstAsyncExpressionNode.GetSupportedMethods(), typeof(FirstAsyncExpressionNode));
