@@ -57,7 +57,7 @@ namespace Couchbase.Linq.IntegrationTests
             var beers = from b in context.Query<Beer>()
                 select b;
 
-            var results = await ((IAsyncEnumerable<Beer>) beers.Take(1)).ToListAsync();
+            var results = await beers.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count());
 
             foreach (var beer in results)
