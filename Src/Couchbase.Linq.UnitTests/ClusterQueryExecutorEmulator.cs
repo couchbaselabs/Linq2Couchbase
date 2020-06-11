@@ -78,5 +78,12 @@ namespace Couchbase.Linq.UnitTests
 
             return Task.FromResult(default(T));
         }
+
+        public Task<T> ExecuteScalarAsync<T>(QueryModel queryModel, CancellationToken cancellationToken = default)
+        {
+            ExecuteCollection<T>(queryModel);
+
+            return Task.FromResult(default(T));
+        }
     }
 }

@@ -130,19 +130,16 @@ namespace Couchbase.Linq.Execution
             }
         }
 
-        public T ExecuteScalar<T>(QueryModel queryModel)
-        {
-            return ExecuteSingle<T>(queryModel, false);
-        }
+        public T ExecuteScalar<T>(QueryModel queryModel)=>
+            ExecuteSingle<T>(queryModel, false);
 
-        public T ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty)
-        {
-            var result = returnDefaultWhenEmpty
+        public T ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty) =>
+            returnDefaultWhenEmpty
                 ? ExecuteCollection<T>(queryModel).SingleOrDefault()
                 : ExecuteCollection<T>(queryModel).Single();
 
-            return result;
-        }
+        public Task<T> ExecuteScalarAsync<T>(QueryModel queryModel, CancellationToken cancellationToken = default) =>
+            ExecuteSingleAsync<T>(queryModel, false, cancellationToken);
 
         public Task<T> ExecuteSingleAsync<T>(QueryModel queryModel, bool returnDefaultWhenEmpty, CancellationToken cancellationToken = default)
         {

@@ -42,6 +42,8 @@ namespace Couchbase.Linq
             //register the various asynchronous expression nodes
             nodeTypeRegistry.Register(FirstAsyncExpressionNode.GetSupportedMethods(), typeof(FirstAsyncExpressionNode));
             nodeTypeRegistry.Register(SingleAsyncExpressionNode.GetSupportedMethods(), typeof(SingleAsyncExpressionNode));
+            nodeTypeRegistry.Register(CountAsyncExpressionNode.GetSupportedMethods(), typeof(CountAsyncExpressionNode));
+            nodeTypeRegistry.Register(LongCountAsyncExpressionNode.GetSupportedMethods(), typeof(LongCountAsyncExpressionNode));
 
             //This creates all the default node types
             var nodeTypeProvider = ExpressionTreeParser.CreateDefaultNodeTypeProvider();
