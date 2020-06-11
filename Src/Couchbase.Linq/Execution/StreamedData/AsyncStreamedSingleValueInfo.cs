@@ -13,7 +13,7 @@ namespace Couchbase.Linq.Execution.StreamedData
     {
         private static readonly MethodInfo ExecuteMethod =
             typeof(AsyncStreamedSingleValueInfo).GetMethod(nameof(ExecuteSingleQueryModel),
-                new[] {typeof(QueryModel), typeof(IClusterQueryExecutor)});
+                new[] {typeof(QueryModel), typeof(IAsyncQueryExecutor)});
 
         public bool ReturnDefaultWhenEmpty { get; }
 
@@ -33,15 +33,15 @@ namespace Couchbase.Linq.Execution.StreamedData
             {
                 throw new ArgumentNullException(nameof(executor));
             }
-            if (!(executor is IClusterQueryExecutor asyncExecutor))
+            if (!(executor is IAsyncQueryExecutor asyncExecutor))
             {
-                throw new ArgumentException($"{nameof(executor)} must implement {typeof(IClusterQueryExecutor)} for asynchronous queries.");
+                throw new ArgumentException($"{nameof(executor)} must implement {typeof(IAsyncQueryExecutor)} for asynchronous queries.");
             }
 
             var executeMethod = ExecuteMethod.MakeGenericMethod(InternalType);
 
             // wrap executeMethod into a delegate instead of calling Invoke in order to allow for exceptions that are bubbled up correctly
-            var func = (Func<QueryModel, IClusterQueryExecutor, object>) executeMethod.CreateDelegate (typeof (Func<QueryModel, IClusterQueryExecutor, object>), this);
+            var func = (Func<QueryModel, IAsyncQueryExecutor, object>) executeMethod.CreateDelegate (typeof (Func<QueryModel, IAsyncQueryExecutor, object>), this);
             var result = func(queryModel, asyncExecutor);
 
             return new AsyncStreamedValue(result, this);
@@ -50,7 +50,7 @@ namespace Couchbase.Linq.Execution.StreamedData
         protected override AsyncStreamedValueInfo CloneWithNewDataType(Type dataType) =>
             new AsyncStreamedSingleValueInfo (dataType, ReturnDefaultWhenEmpty);
 
-        public object ExecuteSingleQueryModel<T>(QueryModel queryModel, IClusterQueryExecutor executor)
+        public object ExecuteSingleQueryModel<T>(QueryModel queryModel, IAsyncQueryExecutor executor)
         {
             if (queryModel == null)
             {

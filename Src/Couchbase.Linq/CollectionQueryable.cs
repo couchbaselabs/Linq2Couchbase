@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using Couchbase.KeyValue;
@@ -14,8 +13,7 @@ namespace Couchbase.Linq
     /// The main entry point and executor of the query.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class CollectionQueryable<T> : QueryableBase<T>, ICollectionQueryable<T>, IAsyncEnumerable<T>,
-        IClusterQueryExecutorProvider
+    internal class CollectionQueryable<T> : QueryableBase<T>, ICollectionQueryable<T>
     {
         private readonly ICouchbaseCollection _collection;
 
@@ -31,19 +29,13 @@ namespace Couchbase.Linq
         public string BucketName => _collection.Scope.Bucket.Name;
 
         /// <summary>
-        /// Get the <see cref="IClusterQueryExecutor"/>.
-        /// </summary>
-        public IClusterQueryExecutor ClusterQueryExecutor =>
-            (IClusterQueryExecutor) ((ClusterQueryProvider) Provider).Executor;
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="CollectionQueryable{T}"/> class.
         /// </summary>
         /// <param name="collection">The collection.</param>
         /// <param name="queryParser">The query parser.</param>
         /// <param name="executor">The executor.</param>
         /// <exception cref="ArgumentNullException"><paramref name="collection" /> is <see langword="null" />.</exception>
-        public CollectionQueryable(ICouchbaseCollection collection, IQueryParser queryParser, IClusterQueryExecutor executor)
+        public CollectionQueryable(ICouchbaseCollection collection, IQueryParser queryParser, IAsyncQueryExecutor executor)
             : base(new ClusterQueryProvider(queryParser, executor))
         {
             _collection = collection ?? throw new ArgumentNullException(nameof(collection));
@@ -55,7 +47,7 @@ namespace Couchbase.Linq
         /// <remarks>Used to build new expressions as more methods are applied to the query.</remarks>
         /// <param name="provider">The provider.</param>
         /// <param name="expression">The expression.</param>
-        public CollectionQueryable(ClusterQueryProvider provider, Expression expression)
+        public CollectionQueryable(IAsyncQueryProvider provider, Expression expression)
             : base(provider, expression)
         {
         }
