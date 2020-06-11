@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using System.Threading;
 using System.Threading.Tasks;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.StreamedData;
@@ -11,6 +13,10 @@ namespace Couchbase.Linq.Execution.StreamedData
     /// </summary>
     internal abstract class AsyncStreamedValueInfo : IStreamedDataInfo
     {
+        private static readonly MethodInfo ExecuteMethod =
+            typeof(AsyncStreamedValueInfo).GetMethod(nameof(ExecuteQueryModelAsync),
+                new[] {typeof(QueryModel), typeof(IClusterQueryExecutor), typeof(CancellationToken)});
+
         /// <inheritdoc />
         /// <remarks>
         /// This will always be a Task&lt;T&gt;, where T is <see cref="InternalType"/>.
@@ -35,7 +41,37 @@ namespace Couchbase.Linq.Execution.StreamedData
         }
 
         /// <inheritdoc />
-        public abstract IStreamedData ExecuteQueryModel(QueryModel queryModel, IQueryExecutor executor);
+        public IStreamedData ExecuteQueryModel(QueryModel queryModel, IQueryExecutor executor) =>
+            ExecuteQueryModel(queryModel, executor, default);
+
+        /// <inheritdoc cref="IStreamedDataInfo.ExecuteQueryModel" />
+        public IStreamedData ExecuteQueryModel(QueryModel queryModel, IQueryExecutor executor, CancellationToken cancellationToken)
+        {
+            if (queryModel == null)
+            {
+                throw new ArgumentNullException(nameof(queryModel));
+            }
+            if (executor == null)
+            {
+                throw new ArgumentNullException(nameof(executor));
+            }
+            if (!(executor is IClusterQueryExecutor asyncExecutor))
+            {
+                throw new ArgumentException($"{nameof(executor)} must implement {typeof(IClusterQueryExecutor)} for asynchronous queries.");
+            }
+
+            var executeMethod = ExecuteMethod.MakeGenericMethod(InternalType);
+
+            // wrap executeMethod into a delegate instead of calling Invoke in order to allow for exceptions that are bubbled up correctly
+            var func = (Func<QueryModel, IClusterQueryExecutor, CancellationToken, Task>)
+                executeMethod.CreateDelegate(typeof (Func<QueryModel, IClusterQueryExecutor, CancellationToken, Task>), this);
+            var result = func(queryModel, asyncExecutor, cancellationToken);
+
+            return new AsyncStreamedValue(result, this);
+        }
+
+        public abstract Task<T> ExecuteQueryModelAsync<T>(QueryModel queryModel, IClusterQueryExecutor executor,
+            CancellationToken cancellationToken = default);
 
         protected abstract AsyncStreamedValueInfo CloneWithNewDataType (Type dataType);
 

@@ -1,4 +1,5 @@
-﻿using Remotion.Linq.Clauses.StreamedData;
+﻿using System.Threading.Tasks;
+using Remotion.Linq.Clauses.StreamedData;
 
 namespace Couchbase.Linq.Execution.StreamedData
 {
@@ -14,7 +15,7 @@ namespace Couchbase.Linq.Execution.StreamedData
 
         IStreamedDataInfo IStreamedData.DataInfo => DataInfo;
 
-        public AsyncStreamedValue(object value, AsyncStreamedValueInfo asyncStreamedValueInfo)
+        public AsyncStreamedValue(Task value, AsyncStreamedValueInfo asyncStreamedValueInfo)
         {
             Value = value;
             DataInfo = asyncStreamedValueInfo;

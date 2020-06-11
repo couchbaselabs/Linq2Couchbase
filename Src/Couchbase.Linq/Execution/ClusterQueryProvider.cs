@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using System.Threading;
+using Couchbase.Linq.Execution.StreamedData;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.StreamedData;
 using Remotion.Linq.Parsing.Structure;
@@ -40,6 +41,10 @@ namespace Couchbase.Linq.Execution
                 var executeAsyncMethod = ExecuteAsyncMethod.MakeGenericMethod(sequence.ResultItemType);
 
                 return (T) executeAsyncMethod.Invoke(Executor, new object[] {queryModel, cancellationToken});
+            }
+            else if (streamedDataInfo is AsyncStreamedValueInfo streamedValue)
+            {
+                return (T) streamedValue.ExecuteQueryModel(queryModel, Executor, cancellationToken).Value;
             }
             else
             {
