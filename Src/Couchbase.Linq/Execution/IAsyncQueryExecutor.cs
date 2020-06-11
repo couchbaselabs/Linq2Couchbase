@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using Couchbase.Linq.QueryGeneration;
 using Remotion.Linq;
 
 namespace Couchbase.Linq.Execution
 {
     /// <summary>
-    /// Extends <see cref="IQueryExecutor"/> with routines to execute a <see cref="LinqQueryOptions"/> asynchronously.
+    /// Extends <see cref="IQueryExecutor"/> with routines to execute queries asynchronously.
     /// </summary>
-    internal interface IClusterQueryExecutor : IQueryExecutor
+    internal interface IAsyncQueryExecutor : IQueryExecutor
     {
         IAsyncEnumerable<T> ExecuteCollectionAsync<T>(QueryModel queryModel, CancellationToken cancellationToken = default);
 
