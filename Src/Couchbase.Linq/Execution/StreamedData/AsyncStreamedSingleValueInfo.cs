@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Remotion.Linq;
@@ -13,14 +12,18 @@ namespace Couchbase.Linq.Execution.StreamedData
     /// </summary>
     internal class AsyncStreamedSingleValueInfo : AsyncStreamedValueInfo
     {
-        private static readonly MethodInfo ExecuteMethod =
-            typeof(AsyncStreamedSingleValueInfo).GetMethod(nameof(ExecuteSingleQueryModel),
-                new[] {typeof(QueryModel), typeof(IAsyncQueryExecutor)});
+        public bool ReturnDefaultWhenEmpty { get; }
+
+        public AsyncStreamedSingleValueInfo(Type dataType, bool returnDefaultWhenEmpty)
+            : base(dataType)
+        {
+            ReturnDefaultWhenEmpty = returnDefaultWhenEmpty;
+        }
 
         protected override AsyncStreamedValueInfo CloneWithNewDataType(Type dataType) =>
             new AsyncStreamedSingleValueInfo (dataType, ReturnDefaultWhenEmpty);
 
-        public override Task<T> ExecuteQueryModelAsync<T>(QueryModel queryModel, IClusterQueryExecutor executor,
+        public override Task<T> ExecuteQueryModelAsync<T>(QueryModel queryModel, IAsyncQueryExecutor executor,
             CancellationToken cancellationToken = default)
         {
             if (queryModel == null)
