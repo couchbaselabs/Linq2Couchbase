@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using Couchbase.Linq.Execution.StreamedData;
 using Remotion.Linq;
@@ -15,10 +13,10 @@ namespace Couchbase.Linq.Execution
     internal class ClusterQueryProvider : QueryProviderBase, IAsyncQueryProvider
     {
         public static readonly MethodInfo ExecuteAsyncMethod =
-            typeof(IClusterQueryExecutor).GetMethod("ExecuteCollectionAsync",
+            typeof(IAsyncQueryExecutor).GetMethod("ExecuteCollectionAsync",
                 new[] {typeof(QueryModel), typeof(CancellationToken)});
 
-        public ClusterQueryProvider(IQueryParser queryParser, IQueryExecutor executor)
+        public ClusterQueryProvider(IQueryParser queryParser, IAsyncQueryExecutor executor)
             : base(queryParser, executor)
         {
         }

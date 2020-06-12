@@ -57,7 +57,7 @@ namespace Couchbase.Linq.IntegrationTests
             var beers = from b in context.Query<Beer>()
                 select b;
 
-            var results = await ((IAsyncEnumerable<Beer>) beers.Take(1)).ToListAsync();
+            var results = await beers.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count());
 
             foreach (var beer in results)
@@ -1433,93 +1433,6 @@ namespace Couchbase.Linq.IntegrationTests
                 Console.WriteLine("Brewery {0} has {1} beers with {2:f2} average ABV", brewery.breweryName,
                     brewery.count, brewery.avgAbv);
             }
-        }
-
-        [Test]
-        public void Single_Empty()
-        {
-            var context = new CollectionContext(TestSetup.Collection);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "abcdefg"
-                select new {beer.Name};
-
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                // ReSharper disable once UnusedVariable
-                var temp = beers.Single();
-            });
-        }
-
-        [Test]
-        public void Single_HasResult()
-        {
-            var context = new CollectionContext(TestSetup.Collection);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Name == "21A IPA"
-                select new {beer.Name};
-
-            Console.WriteLine(beers.Single().Name);
-        }
-
-        [Test]
-        public void Single_HasManyResults()
-        {
-            var context = new CollectionContext(TestSetup.Collection);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "beer"
-                select new {beer.Name};
-
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                // ReSharper disable once UnusedVariable
-                var temp = beers.Single();
-            });
-        }
-
-        [Test]
-        public void SingleOrDefault_Empty()
-        {
-            var context = new CollectionContext(TestSetup.Collection);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "abcdefg"
-                select new {beer.Name};
-
-            var aBeer = beers.SingleOrDefault();
-            Assert.IsNull(aBeer);
-        }
-
-        [Test]
-        public void SingleOrDefault_HasResult()
-        {
-            var context = new CollectionContext(TestSetup.Collection);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Name == "21A IPA"
-                select new {beer.Name};
-
-            var aBeer = beers.SingleOrDefault();
-            Assert.IsNotNull(aBeer);
-            Console.WriteLine(aBeer.Name);
-        }
-
-        [Test]
-        public void SingleOrDefault_HasManyResults()
-        {
-            var context = new CollectionContext(TestSetup.Collection);
-
-            var beers = from beer in context.Query<Beer>()
-                where beer.Type == "beer"
-                select new {beer.Name};
-
-            Assert.Throws<InvalidOperationException>(() =>
-            {
-                // ReSharper disable once UnusedVariable
-                var temp = beers.SingleOrDefault();
-            });
         }
 
         #region "Date/time functions"

@@ -13,13 +13,9 @@ namespace Couchbase.Linq.Execution.StreamedData
     /// </summary>
     internal class AsyncStreamedSingleValueInfo : AsyncStreamedValueInfo
     {
-        public bool ReturnDefaultWhenEmpty { get; }
-
-        public AsyncStreamedSingleValueInfo(Type dataType, bool returnDefaultWhenEmpty)
-            : base(dataType)
-        {
-            ReturnDefaultWhenEmpty = returnDefaultWhenEmpty;
-        }
+        private static readonly MethodInfo ExecuteMethod =
+            typeof(AsyncStreamedSingleValueInfo).GetMethod(nameof(ExecuteSingleQueryModel),
+                new[] {typeof(QueryModel), typeof(IAsyncQueryExecutor)});
 
         protected override AsyncStreamedValueInfo CloneWithNewDataType(Type dataType) =>
             new AsyncStreamedSingleValueInfo (dataType, ReturnDefaultWhenEmpty);

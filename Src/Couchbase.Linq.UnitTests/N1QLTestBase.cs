@@ -108,7 +108,7 @@ namespace Couchbase.Linq.UnitTests
             return CreateQueryable<T>(bucketName, QueryExecutor);
         }
 
-        internal virtual IQueryable<T> CreateQueryable<T>(string bucketName, IClusterQueryExecutor queryExecutor)
+        internal virtual IQueryable<T> CreateQueryable<T>(string bucketName, IAsyncQueryExecutor queryExecutor)
         {
             var mockCluster = new Mock<ICluster>();
             mockCluster

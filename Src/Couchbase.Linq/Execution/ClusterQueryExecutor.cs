@@ -19,7 +19,7 @@ using Remotion.Linq;
 
 namespace Couchbase.Linq.Execution
 {
-    internal class ClusterQueryExecutor : IClusterQueryExecutor
+    internal class ClusterQueryExecutor : IAsyncQueryExecutor
     {
         private readonly ICluster _cluster;
         private readonly ILogger<ClusterQueryExecutor> _logger;
