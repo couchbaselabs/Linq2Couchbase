@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Remotion.Linq;
 using Remotion.Linq.Clauses.StreamedData;
 
@@ -15,53 +17,23 @@ namespace Couchbase.Linq.Execution.StreamedData
             typeof(AsyncStreamedSingleValueInfo).GetMethod(nameof(ExecuteSingleQueryModel),
                 new[] {typeof(QueryModel), typeof(IAsyncQueryExecutor)});
 
-        public bool ReturnDefaultWhenEmpty { get; }
-
-        public AsyncStreamedSingleValueInfo(Type dataType, bool returnDefaultWhenEmpty)
-            : base(dataType)
-        {
-            ReturnDefaultWhenEmpty = returnDefaultWhenEmpty;
-        }
-
-        public override IStreamedData ExecuteQueryModel(QueryModel queryModel, IQueryExecutor executor)
-        {
-            if (queryModel == null)
-            {
-                throw new ArgumentNullException(nameof(queryModel));
-            }
-            if (executor == null)
-            {
-                throw new ArgumentNullException(nameof(executor));
-            }
-            if (!(executor is IAsyncQueryExecutor asyncExecutor))
-            {
-                throw new ArgumentException($"{nameof(executor)} must implement {typeof(IAsyncQueryExecutor)} for asynchronous queries.");
-            }
-
-            var executeMethod = ExecuteMethod.MakeGenericMethod(InternalType);
-
-            // wrap executeMethod into a delegate instead of calling Invoke in order to allow for exceptions that are bubbled up correctly
-            var func = (Func<QueryModel, IAsyncQueryExecutor, object>) executeMethod.CreateDelegate (typeof (Func<QueryModel, IAsyncQueryExecutor, object>), this);
-            var result = func(queryModel, asyncExecutor);
-
-            return new AsyncStreamedValue(result, this);
-        }
-
         protected override AsyncStreamedValueInfo CloneWithNewDataType(Type dataType) =>
             new AsyncStreamedSingleValueInfo (dataType, ReturnDefaultWhenEmpty);
 
-        public object ExecuteSingleQueryModel<T>(QueryModel queryModel, IAsyncQueryExecutor executor)
+        public override Task<T> ExecuteQueryModelAsync<T>(QueryModel queryModel, IClusterQueryExecutor executor,
+            CancellationToken cancellationToken = default)
         {
             if (queryModel == null)
             {
                 throw new ArgumentNullException(nameof(queryModel));
             }
+
             if (executor == null)
             {
                 throw new ArgumentNullException(nameof(executor));
             }
 
-            return executor.ExecuteSingleAsync<T>(queryModel, ReturnDefaultWhenEmpty);
+            return executor.ExecuteSingleAsync<T>(queryModel, ReturnDefaultWhenEmpty, cancellationToken);
         }
 
         // ReSharper disable PossibleNullReferenceException
