@@ -15,7 +15,7 @@ namespace Couchbase.Linq.Execution.StreamedData
     {
         private static readonly MethodInfo ExecuteMethod =
             typeof(AsyncStreamedValueInfo).GetMethod(nameof(ExecuteQueryModelAsync),
-                new[] {typeof(QueryModel), typeof(IClusterQueryExecutor), typeof(CancellationToken)});
+                new[] {typeof(QueryModel), typeof(IAsyncQueryExecutor), typeof(CancellationToken)});
 
         /// <inheritdoc />
         /// <remarks>
@@ -55,22 +55,22 @@ namespace Couchbase.Linq.Execution.StreamedData
             {
                 throw new ArgumentNullException(nameof(executor));
             }
-            if (!(executor is IClusterQueryExecutor asyncExecutor))
+            if (!(executor is IAsyncQueryExecutor asyncExecutor))
             {
-                throw new ArgumentException($"{nameof(executor)} must implement {typeof(IClusterQueryExecutor)} for asynchronous queries.");
+                throw new ArgumentException($"{nameof(executor)} must implement {typeof(IAsyncQueryExecutor)} for asynchronous queries.");
             }
 
             var executeMethod = ExecuteMethod.MakeGenericMethod(InternalType);
 
             // wrap executeMethod into a delegate instead of calling Invoke in order to allow for exceptions that are bubbled up correctly
-            var func = (Func<QueryModel, IClusterQueryExecutor, CancellationToken, Task>)
-                executeMethod.CreateDelegate(typeof (Func<QueryModel, IClusterQueryExecutor, CancellationToken, Task>), this);
+            var func = (Func<QueryModel, IAsyncQueryExecutor, CancellationToken, Task>)
+                executeMethod.CreateDelegate(typeof (Func<QueryModel, IAsyncQueryExecutor, CancellationToken, Task>), this);
             var result = func(queryModel, asyncExecutor, cancellationToken);
 
             return new AsyncStreamedValue(result, this);
         }
 
-        public abstract Task<T> ExecuteQueryModelAsync<T>(QueryModel queryModel, IClusterQueryExecutor executor,
+        public abstract Task<T> ExecuteQueryModelAsync<T>(QueryModel queryModel, IAsyncQueryExecutor executor,
             CancellationToken cancellationToken = default);
 
         protected abstract AsyncStreamedValueInfo CloneWithNewDataType (Type dataType);
