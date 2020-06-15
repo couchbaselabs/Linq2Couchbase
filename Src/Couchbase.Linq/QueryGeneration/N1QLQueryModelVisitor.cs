@@ -675,7 +675,8 @@ namespace Couchbase.Linq.QueryGeneration
                 _queryPartsAggregator.AggregateFunction = "AVG";
                 _isAggregated = true;
             }
-            else if ((resultOperator is CountResultOperator) || (resultOperator is LongCountResultOperator))
+            else if ((resultOperator is CountResultOperator) || (resultOperator is LongCountResultOperator) ||
+                     (resultOperator is CountAsyncResultOperator) || (resultOperator is LongCountAsyncResultOperator))
             {
                 if (_queryPartsAggregator.IsArraySubquery)
                 {

@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Linq;
 using System.Threading.Tasks;
-using Couchbase.Core;
+using Couchbase.Linq.Extensions;
 using Couchbase.Linq.UnitTests.Documents;
 using Couchbase.Linq.Versioning;
 using Moq;
@@ -24,7 +21,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         public void Test_Avg()
         {
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default").Average(p => p.Abv);
+            _ = CreateQueryable<Beer>("default").Average(p => p.Abv);
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
@@ -39,7 +36,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
 
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default", queryExecutor).Average(p => p.Abv);
+            _ = CreateQueryable<Beer>("default", queryExecutor).Average(p => p.Abv);
             var n1QlQuery = queryExecutor.Query;
 
             const string expected =
@@ -52,11 +49,37 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         public void Test_Count()
         {
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default").Count();
+            _ = CreateQueryable<Beer>("default").Count();
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
                 "SELECT COUNT(*) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public async Task Test_CountAsync()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").CountAsync();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT COUNT(*) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public async Task Test_CountAsync_WithPredicate()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").CountAsync(p => p.Abv == 1);
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT COUNT(*) as `result` FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 1)";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -67,7 +90,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
 
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default", queryExecutor).Count();
+            _ = CreateQueryable<Beer>("default", queryExecutor).Count();
             var n1QlQuery = queryExecutor.Query;
 
             const string expected =
@@ -80,7 +103,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         public void Test_CountAfterSelectProjection()
         {
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default")
+            _ = CreateQueryable<Beer>("default")
                 .Select(p => new { p.Name, p.Description})
                 .Count();
             var n1QlQuery = QueryExecutor.Query;
@@ -97,7 +120,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
 
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default", queryExecutor)
+            _ = CreateQueryable<Beer>("default", queryExecutor)
                 .Select(p => new { p.Name, p.Description })
                 .Count();
             var n1QlQuery = queryExecutor.Query;
@@ -112,7 +135,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         public void Test_CountProperty()
         {
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default").Select(p => p.Name).Count();
+            _ = CreateQueryable<Beer>("default").Select(p => p.Name).Count();
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
@@ -125,7 +148,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         public void Test_CountDistinct()
         {
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default").Select(p => p.Name).Distinct().Count();
+            _ = CreateQueryable<Beer>("default").Select(p => p.Name).Distinct().Count();
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
@@ -138,7 +161,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         public void Test_LongCount()
         {
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default").LongCount();
+            _ = CreateQueryable<Beer>("default").LongCount();
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
@@ -148,10 +171,36 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public async Task Test_LongCountAsync()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").LongCountAsync();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT COUNT(*) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public async Task Test_LongCountAsync_WithPredicate()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").LongCountAsync(p => p.Abv == 1);
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT COUNT(*) as `result` FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 1)";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_Min()
         {
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default").Min(p => p.Abv);
+            _ = CreateQueryable<Beer>("default").Min(p => p.Abv);
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
@@ -164,7 +213,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         public void Test_Max()
         {
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default").Max(p => p.Abv);
+            _ = CreateQueryable<Beer>("default").Max(p => p.Abv);
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
@@ -177,7 +226,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         public void Test_Sum()
         {
             // ReSharper disable once UnusedVariable
-            var temp = CreateQueryable<Beer>("default").Sum(p => p.Abv);
+            _ = CreateQueryable<Beer>("default").Sum(p => p.Abv);
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
