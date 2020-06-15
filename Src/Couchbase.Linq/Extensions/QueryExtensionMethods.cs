@@ -19,6 +19,10 @@ namespace Couchbase.Linq.Extensions
         public static MethodInfo SingleOrDefaultAsyncNoPredicate { get; }
         public static MethodInfo SingleOrDefaultAsyncWithPredicate { get; }
 
+        public static MethodInfo AnyAsyncNoPredicate { get; }
+        public static MethodInfo AnyAsyncWithPredicate { get; }
+        public static MethodInfo AllAsync { get; }
+
         public static MethodInfo CountAsyncNoPredicate { get; }
         public static MethodInfo CountAsyncWithPredicate { get; }
         public static MethodInfo LongCountAsyncNoPredicate { get; }
@@ -58,6 +62,13 @@ namespace Couchbase.Linq.Extensions
                 p.Name == nameof(QueryExtensions.SingleOrDefaultAsync) && p.GetParameters().Length == 1);
             SingleOrDefaultAsyncWithPredicate = allMethods.Single(p =>
                 p.Name == nameof(QueryExtensions.SingleOrDefaultAsync) && p.GetParameters().Length == 2 && p.GetParameters().Last().ParameterType != typeof(CancellationToken));
+
+            AnyAsyncNoPredicate = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.AnyAsync) && p.GetParameters().Length == 1);
+            AnyAsyncWithPredicate = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.AnyAsync) && p.GetParameters().Length == 2 && p.GetParameters().Last().ParameterType != typeof(CancellationToken));
+            AllAsync = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.AllAsync) && p.GetParameters().Length == 2 && p.GetParameters().Last().ParameterType != typeof(CancellationToken));
 
             CountAsyncNoPredicate = allMethods.Single(p =>
                 p.Name == nameof(QueryExtensions.CountAsync) && p.GetParameters().Length == 1);
