@@ -584,7 +584,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _queryPartsAggregator.ExplainPart = "EXPLAIN ";
             }
-            else if (resultOperator is AnyResultOperator)
+            else if (resultOperator is AnyResultOperator || resultOperator is AnyAsyncResultOperator)
             {
                 _queryPartsAggregator.QueryType =
                     _queryPartsAggregator.QueryType == N1QlQueryType.Array ? N1QlQueryType.ArrayAny :
@@ -607,7 +607,7 @@ namespace Couchbase.Linq.QueryGeneration
                     ScalarResultBehavior.NoRowsResult = false;
                 }
             }
-            else if (resultOperator is AllResultOperator)
+            else if (resultOperator is AllResultOperator || resultOperator is AllAsyncResultOperator)
             {
                 _queryPartsAggregator.QueryType =
                     _queryPartsAggregator.QueryType == N1QlQueryType.Array ? N1QlQueryType.ArrayAll :
@@ -645,8 +645,13 @@ namespace Couchbase.Linq.QueryGeneration
                     ScalarResultBehavior.NoRowsResult = true;
                 }
 
-                var allResultOperator = (AllResultOperator) resultOperator;
-                _queryPartsAggregator.WhereAllPart = GetN1QlExpression(allResultOperator.Predicate);
+                var predicate = resultOperator switch
+                {
+                    AllResultOperator allResultOperator => allResultOperator.Predicate,
+                    AllAsyncResultOperator allAsyncResultOperator => allAsyncResultOperator.Predicate,
+                    _ => null
+                };
+                _queryPartsAggregator.WhereAllPart = GetN1QlExpression(predicate);
 
                 if (prefixedExtents)
                 {
