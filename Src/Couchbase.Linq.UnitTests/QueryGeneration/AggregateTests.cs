@@ -46,6 +46,47 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public async Task Test_AvgAsync()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").AverageAsync(p => p.Abv);
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT AVG(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public async Task Test_AvgAsync_NoSelector()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").Select(p => p.Abv).AverageAsync();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT AVG(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public async Task Test_AvgAsync_Raw()
+        {
+            var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
+
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default", queryExecutor).AverageAsync(p => p.Abv);
+            var n1QlQuery = queryExecutor.Query;
+
+            const string expected =
+                "SELECT RAW AVG(`Extent1`.`abv`) FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_Count()
         {
             // ReSharper disable once UnusedVariable
