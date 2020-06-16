@@ -704,7 +704,7 @@ namespace Couchbase.Linq.QueryGeneration
                 _queryPartsAggregator.AggregateFunction = "MIN";
                 _isAggregated = true;
             }
-            else if (resultOperator is SumResultOperator)
+            else if (resultOperator is SumResultOperator || resultOperator is SumAsyncResultOperator)
             {
                 _queryPartsAggregator.AggregateFunction = "SUM";
                 _isAggregated = true;

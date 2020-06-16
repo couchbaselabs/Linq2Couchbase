@@ -28,6 +28,9 @@ namespace Couchbase.Linq.Extensions
         public static MethodInfo LongCountAsyncNoPredicate { get; }
         public static MethodInfo LongCountAsyncWithPredicate { get; }
 
+        public static MethodInfo SumAsyncNoSelector { get; }
+        public static MethodInfo SumAsyncWithSelector { get; }
+
         public static MethodInfo Nest { get; }
         public static MethodInfo LeftOuterNest { get; }
         public static MethodInfo Explain { get; }
@@ -78,6 +81,11 @@ namespace Couchbase.Linq.Extensions
                 p.Name == nameof(QueryExtensions.LongCountAsync) && p.GetParameters().Length == 1);
             LongCountAsyncWithPredicate = allMethods.Single(p =>
                 p.Name == nameof(QueryExtensions.LongCountAsync) && p.GetParameters().Length == 2 && p.GetParameters().Last().ParameterType != typeof(CancellationToken));
+
+            SumAsyncNoSelector = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.SumAsync) && p.GetParameters().Length == 1);
+            SumAsyncWithSelector = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.SumAsync) && p.GetParameters().Length == 2 && p.GetParameters().Last().ParameterType != typeof(CancellationToken));
 
             Nest = allMethods.Single(p => p.Name == nameof(QueryExtensions.Nest));
             LeftOuterNest = allMethods.Single(p => p.Name == nameof(QueryExtensions.LeftOuterNest));
