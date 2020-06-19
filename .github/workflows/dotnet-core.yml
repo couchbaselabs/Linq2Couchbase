@@ -22,4 +22,4 @@ jobs:
     - name: Build
       run: dotnet build --configuration Release --no-restore Src/couchbase-net-linq.sln
     - name: Test
-      run: dotnet test --no-restore --verbosity normal Src/couchbase-net-linq.sln
+      run: dotnet test --no-restore --verbosity normal Src/Couchbase.Linq.UnitTests/Couchbase.Linq.UnitTests.csproj
