@@ -235,6 +235,32 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             Assert.AreEqual(expected, n1QlQuery);
         }
 
+        [Test]
+        public async Task Test_SumAsync_NoSelector()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").Select(p => p.Abv).SumAsync();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT SUM(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public async Task Test_SumAsync_WithSelector()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").SumAsync(p => p.Abv);
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT SUM(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
         #endregion
 
         #region "Group By"
