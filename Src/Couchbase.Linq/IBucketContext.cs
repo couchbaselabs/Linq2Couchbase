@@ -7,16 +7,16 @@ namespace Couchbase.Linq
     /// Provides a single point of entry to a Couchbase collection which makes it easier to compose
     /// and execute queries and to group together changes which will be submitted back into the bucket.
     /// </summary>
-    public interface ICollectionContext : ICollectionQueryable
+    public interface IBucketContext : ICollectionQueryable
     {
         /// <summary>
-        /// Gets the collection the <see cref="ICollectionContext"/> was created against.
+        /// Gets the bucket the <see cref="IBucketContext"/> was created against.
         /// </summary>
         /// <value>The <see cref="ICouchbaseCollection"/>.</value>
-        ICouchbaseCollection Collection { get; }
+        IBucket Bucket { get; }
 
         /// <summary>
-        /// Queries the current <see cref="ICouchbaseCollection" /> for entities of type T. This is the target of
+        /// Queries the current <see cref="IBucket" /> for entities of type T. This is the target of
         /// a LINQ query and requires that the associated JSON document have a type property that is the same as T.
         /// </summary>
         /// <typeparam name="T">An entity or POCO representing the object graph of a JSON document.</typeparam>
@@ -24,7 +24,7 @@ namespace Couchbase.Linq
         IQueryable<T> Query<T>();
 
         /// <summary>
-        /// Queries the current <see cref="ICouchbaseCollection" /> for entities of type T. This is the target of
+        /// Queries the current <see cref="IBucket" /> for entities of type T. This is the target of
         /// a LINQ query and requires that the associated JSON document have a type property that is the same as T.
         /// </summary>
         /// <typeparam name="T">An entity or POCO representing the object graph of a JSON document.</typeparam>

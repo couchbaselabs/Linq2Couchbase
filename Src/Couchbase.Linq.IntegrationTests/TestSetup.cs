@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Couchbase.KeyValue;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.IntegrationTests
@@ -10,7 +9,7 @@ namespace Couchbase.Linq.IntegrationTests
     {
         public static ICluster Cluster { get; private set; }
 
-        public static ICouchbaseCollection Collection { get; private set; }
+        public static IBucket Bucket { get; private set; }
 
         [OneTimeSetUp]
         public async Task SetUp()
@@ -21,7 +20,7 @@ namespace Couchbase.Linq.IntegrationTests
             var bucket = await Cluster.BucketAsync("beer-sample");
             await EnsurePrimaryIndexExists(bucket);
 
-            Collection = bucket.DefaultCollection();
+            Bucket = bucket;
         }
 
         [OneTimeTearDown]
@@ -30,7 +29,7 @@ namespace Couchbase.Linq.IntegrationTests
             Cluster.Dispose();
 
             Cluster = null;
-            Collection = null;
+            Bucket = null;
         }
     }
 }

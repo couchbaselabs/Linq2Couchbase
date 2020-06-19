@@ -9,9 +9,9 @@ namespace Couchbase.Linq.UnitTests
     /// <summary>
     /// A concrete DbContext for the beer-sample example bucket.
     /// </summary>
-    public class BeerSample : CollectionContext
+    public class BeerSample : BucketContext
     {
-        public BeerSample(ICouchbaseCollection collection) : base(collection)
+        public BeerSample(IBucket bucket) : base(bucket)
         {
             //Two ways of applying a filter are included in this example.
             //This is by implementing IDocumentFilter and then adding explicitly.

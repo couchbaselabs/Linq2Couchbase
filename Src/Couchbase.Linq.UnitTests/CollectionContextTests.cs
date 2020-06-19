@@ -12,10 +12,10 @@ namespace Couchbase.Linq.UnitTests
         [Test]
         public void Can_Get_The_Bucket_The_Context_Was_Created_With()
         {
-            var collection = new Mock<ICouchbaseCollection>();
-            var context = new CollectionContext(collection.Object);
+            var bucket = new Mock<IBucket>();
+            var context = new BucketContext(bucket.Object);
 
-            Assert.AreSame(collection.Object, context.Collection);
+            Assert.AreSame(bucket.Object, context.Bucket);
         }
 
         [Test]
@@ -35,9 +35,11 @@ namespace Couchbase.Linq.UnitTests
             var mockCollection = new Mock<ICouchbaseCollection>();
             mockCollection
                 .SetupGet(p => p.Scope.Bucket)
-                .Returns(mockBucket.Object);
+                .Returns(() => mockBucket.Object);
 
-            var ctx = new CollectionContext(mockCollection.Object);
+            mockBucket.Setup(e => e.DefaultCollection()).Returns(mockCollection.Object);
+
+            var ctx = new BucketContext(mockBucket.Object);
 
             // Act
 
@@ -67,9 +69,11 @@ namespace Couchbase.Linq.UnitTests
             var mockCollection = new Mock<ICouchbaseCollection>();
             mockCollection
                 .SetupGet(p => p.Scope.Bucket)
-                .Returns(mockBucket.Object);
+                .Returns(() => mockBucket.Object);
 
-            var ctx = new CollectionContext(mockCollection.Object);
+            mockBucket.Setup(e => e.DefaultCollection()).Returns(mockCollection.Object);
+
+            var ctx = new BucketContext(mockBucket.Object);
 
             // Act
 
@@ -99,9 +103,11 @@ namespace Couchbase.Linq.UnitTests
             var mockCollection = new Mock<ICouchbaseCollection>();
             mockCollection
                 .SetupGet(p => p.Scope.Bucket)
-                .Returns(mockBucket.Object);
+                .Returns(() => mockBucket.Object);
 
-            var ctx = new CollectionContext(mockCollection.Object);
+            mockBucket.Setup(e => e.DefaultCollection()).Returns(mockCollection.Object);
+
+            var ctx = new BucketContext(mockBucket.Object);
 
             // Act
 

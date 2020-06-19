@@ -15,7 +15,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Test_Basic_Query()
         {
-            var db = new CollectionContext(TestSetup.Collection);
+            var db = new BucketContext(TestSetup.Bucket);
             var query = from x in db.Query<Beer>()
                 where x.Type == "beer"
                 select x;
