@@ -15,7 +15,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AnyNestedArrayWithFilter()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweries = (from b in context.Query<Brewery>()
                 where b.Type == "brewery" && b.Address.Any(p => p == "563 Second Street")
@@ -30,7 +30,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task AnyNestedArrayWithFilter_UsesArrayIndex()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -60,7 +60,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AnyOnMainDocument_ReturnsTrue()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var hasBreweries = (from b in context.Query<Brewery>()
                 where b.Type == "brewery"
@@ -73,7 +73,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AnyOnMainDocument_ReturnsFalse()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var hasFaketype = (from b in context.Query<Brewery>()
                 where b.Type == "faketype"
@@ -87,7 +87,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task AnyAsyncOnMainDocument_ReturnsTrue()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var hasBreweries = await (from b in context.Query<Brewery>()
                     where b.Type == "brewery"
@@ -100,7 +100,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task AnyAsyncOnMainDocument_ReturnsFalse()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var hasFaketype = await (from b in context.Query<Brewery>()
                     where b.Type == "faketype"
@@ -113,7 +113,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AllNestedArray()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweries = (from b in context.Query<Brewery>()
                 where b.Type == "brewery" && b.Address.All(p => p == "563 Second Street")
@@ -128,7 +128,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AllNestedArrayPrefiltered()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             // Note: This query isn't very useful in the real world
             // However, it does demonstrate how to prefilter the collection before all is run
@@ -151,7 +151,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AllOnMainDocument_ReturnsFalse()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var isAllBreweries = context.Query<Brewery>().All(p => p.Type == "brewery");
 
@@ -161,7 +161,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AllOnMainDocument_ReturnsTrue()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var allBreweriesHaveAddress = (from b in context.Query<Brewery>()
                 where b.Type == "brewery"
@@ -174,7 +174,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task AllAsyncOnMainDocument_ReturnsFalse()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var isAllBreweries = await context.Query<Brewery>().AllAsync(p => p.Type == "brewery");
 
@@ -184,7 +184,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task AllAsyncOnMainDocument_ReturnsTrue()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var allBreweriesHaveAddress = await (from b in context.Query<Brewery>()
                     where b.Type == "brewery"

@@ -13,7 +13,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Average_WithSelector()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var avg = context.Query<Beer>()
                 .Where(p => p.Type == "beer" && N1QlFunctions.IsValued(p.Abv))
@@ -26,7 +26,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task AverageAsync_NoSelector()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var avg = await context.Query<Beer>()
                 .Where(p => p.Type == "beer" && N1QlFunctions.IsValued(p.Abv))
@@ -40,7 +40,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task AverageAsync_WithSelector()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var avg = await context.Query<Beer>()
                 .Where(p => p.Type == "beer" && N1QlFunctions.IsValued(p.Abv))

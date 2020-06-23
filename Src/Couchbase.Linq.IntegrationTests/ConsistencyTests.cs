@@ -16,7 +16,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task ScanConsistency()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from b in context.Query<Beer>().ScanConsistency(QueryScanConsistency.RequestPlus)
                 select b;
@@ -28,9 +28,9 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task ConsistentWith()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
-            var upsertResult = await TestSetup.Collection.UpsertAsync("test-mutation", new {a = "a"});
+            var upsertResult = await TestSetup.Bucket.DefaultCollection().UpsertAsync("test-mutation", new {a = "a"});
             try
             {
                 var mutationState = MutationState.From(upsertResult);
@@ -43,7 +43,7 @@ namespace Couchbase.Linq.IntegrationTests
             }
             finally
             {
-                await TestSetup.Collection.RemoveAsync("test-mutation");
+                await TestSetup.Bucket.DefaultCollection().RemoveAsync("test-mutation");
             }
         }
     }

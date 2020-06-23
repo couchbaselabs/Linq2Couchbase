@@ -13,7 +13,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Sum_NoSelector()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -25,7 +25,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task SumAsync_NoSelector()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -37,7 +37,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task SumAsync_WithSelector()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"

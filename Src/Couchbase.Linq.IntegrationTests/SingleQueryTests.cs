@@ -15,7 +15,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Single_Empty()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -31,7 +31,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SingleAsync_Empty()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -43,7 +43,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Single_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Name == "21A IPA"
@@ -55,7 +55,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task SingleAsync_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Name == "21A IPA"
@@ -67,7 +67,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task SingleAsync_WithPredicate_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 select new {beer.Name};
@@ -80,7 +80,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Single_HasManyResults()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -96,7 +96,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SingleAsync_HasManyResults()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -108,7 +108,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SingleOrDefault_Empty()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -121,7 +121,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task SingleOrDefaultAsync_Empty()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -134,7 +134,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SingleOrDefault_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Name == "21A IPA"
@@ -148,7 +148,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task SingleOrDefaultAsync_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Name == "21A IPA"
@@ -162,7 +162,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task SingleOrDefaultAsync_WithPredicate_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 select new {beer.Name};
@@ -175,7 +175,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SingleOrDefault_HasManyResults()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -191,7 +191,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SingleOrDefaultAsync_HasManyResults()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"

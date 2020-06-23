@@ -13,7 +13,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void First_Empty()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -29,7 +29,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void FirstAsync_Empty()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -41,7 +41,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void First_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -53,7 +53,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task FirstAsync_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -65,7 +65,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task FirstAsync_WithPredicate_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -79,7 +79,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void FirstOrDefault_Empty()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -92,7 +92,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task FirstOrDefaultAsync_Empty()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "abcdefg"
@@ -105,7 +105,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void FirstOrDefault_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -119,7 +119,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task FirstOrDefaultAsync_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -133,7 +133,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task FirstOrDefaultAsync_WithPredicate_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"

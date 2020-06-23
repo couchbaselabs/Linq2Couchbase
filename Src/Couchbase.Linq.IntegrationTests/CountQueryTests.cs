@@ -13,7 +13,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Count_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -25,7 +25,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task CountAsync_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -37,7 +37,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task CountAsync_WithPredicate_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -51,7 +51,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void LongCount_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -63,7 +63,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task LongCountAsync_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -75,7 +75,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task LongCountAsync_WithPredicate_HasResult()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"

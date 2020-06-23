@@ -8,44 +8,33 @@ namespace Couchbase.Linq
     /// Provides a single point of entry to a Couchbase bucket which makes it easier to compose
     /// and execute queries and to group together changes which will be submitted back into the bucket.
     /// </summary>
-    public class CollectionContext : ICollectionContext
+    public class BucketContext : IBucketContext
     {
         /// <summary>
-        /// Creates a new CollectionContext for a given Couchbase collection.
+        /// Creates a new BucketContext for a given Couchbase bucket.
         /// </summary>
-        /// <param name="collection">Collection referenced by the new CollectionContext.</param>
-        public CollectionContext(ICouchbaseCollection collection)
+        /// <param name="bucket">Bucket referenced by the new BucketContext.</param>
+        public BucketContext(IBucket bucket)
         {
-            Collection = collection;
+            Bucket = bucket;
         }
 
         /// <summary>
-        /// Gets the collection the <see cref="ICollectionContext"/> was created against.
+        /// Gets the bucket the <see cref="IBucketContext"/> was created against.
         /// </summary>
         /// <value>The <see cref="IBucket"/>.</value>
-        public ICouchbaseCollection Collection { get; private set; }
+        public IBucket Bucket { get; }
 
-        /// <summary>
-        /// Queries the current <see cref="IBucket" /> for entities of type T. This is the target of
-        /// a LINQ query and requires that the associated JSON document have a type property that is the same as T.
-        /// </summary>
-        /// <typeparam name="T">An entity or POCO representing the object graph of a JSON document.</typeparam>
-        /// <returns><see cref="IQueryable{T}" /> which can be used to query the bucket.</returns>
+        /// <inheritdoc />
         public IQueryable<T> Query<T>()
         {
             return Query<T>(BucketQueryOptions.None);
         }
 
-        /// <summary>
-        /// Queries the current <see cref="IBucket" /> for entities of type T. This is the target of
-        /// a LINQ query and requires that the associated JSON document have a type property that is the same as T.
-        /// </summary>
-        /// <typeparam name="T">An entity or POCO representing the object graph of a JSON document.</typeparam>
-        /// <param name="options">Options to control the returned query.</param>
-        /// <returns><see cref="IQueryable{T}" /> which can be used to query the bucket.</returns>
+        /// <inheritdoc />
         public IQueryable<T> Query<T>(BucketQueryOptions options)
         {
-            IQueryable<T> query = new CollectionQueryable<T>(Collection);
+            IQueryable<T> query = new CollectionQueryable<T>(Bucket.DefaultCollection());
 
             if ((options & BucketQueryOptions.SuppressFilters) == BucketQueryOptions.None)
             {
@@ -56,13 +45,13 @@ namespace Couchbase.Linq
         }
 
         /// <inheritdoc />
-        public string CollectionName => Collection.Name;
+        public string CollectionName => "_default";
 
         /// <inheritdoc />
-        public string ScopeName => Collection.Scope.Name;
+        public string ScopeName => "_default";
 
         /// <inheritdoc />
-        public string BucketName => Collection.Scope.Bucket.Name;
+        public string BucketName => Bucket.Name;
     }
 }
 

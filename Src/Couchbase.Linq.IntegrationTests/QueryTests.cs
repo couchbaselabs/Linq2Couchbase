@@ -16,14 +16,14 @@ namespace Couchbase.Linq.IntegrationTests
     [TestFixture]
     public class QueryTests : N1QlTestBase
     {
-        private ICouchbaseCollection _travelSample;
+        private IBucket _travelSample;
 
         [OneTimeSetUp]
         public async Task OneTimeSetup()
         {
             await PrepareBeerDocuments();
 
-            _travelSample = (await TestSetup.Cluster.BucketAsync("travel-sample")).DefaultCollection();
+            _travelSample = await TestSetup.Cluster.BucketAsync("travel-sample");
         }
 
         [SetUp]
@@ -35,7 +35,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from b in context.Query<Beer>()
                 select b;
@@ -52,7 +52,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task Map2PocoTestsAsync()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from b in context.Query<Beer>()
                 select b;
@@ -69,7 +69,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from b in context.Query<Beer>()
                 select new {name = b.Name, abv = b.Abv};
@@ -86,7 +86,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_StronglyTyped_Projections()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from b in context.Query<Beer>()
                 select new Beer {Name = b.Name, Abv = b.Abv};
@@ -103,7 +103,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_Where()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from b in context.Query<Beer>()
                 where b.Type == "beer"
@@ -121,7 +121,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_WhereNot()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from b in context.Query<Beer>()
                 where b.Type == "beer" && !(b.Abv < 4)
@@ -139,7 +139,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_WhereDateTime()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from b in context.Query<Beer>()
                 where (b.Type == "beer") && (b.Updated >= new DateTime(2010, 1, 1))
@@ -157,7 +157,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_WhereEnum()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = (from b in context.Query<BeerWithEnum>()
                 where (b.Type == "beer") && (b.Style == BeerStyle.OatmealStout)
@@ -177,7 +177,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_StartsWith()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from b in context.Query<Beer>()
                         where b.Type == "beer" && b.Name.StartsWith("563")
@@ -195,7 +195,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_EndsWithExpression()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             // This query is not useful, but tests more advanced string contains use cases
             var beers = from b in context.Query<Beer>()
@@ -214,7 +214,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_Limit()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = (from b in context.Query<Beer>()
                 where b.Type == "beer"
@@ -234,7 +234,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_Meta()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var beers = (from b in context.Query<Beer>()
@@ -254,7 +254,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_Key()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var beers = (from b in context.Query<Beer>()
@@ -275,7 +275,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Explain()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var explanation = (from b in context.Query<Beer>()
@@ -289,7 +289,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Explain_QueryWithPropertyExtraction()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var explanation = (from b in context.Query<Beer>()
@@ -303,7 +303,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_NewObjectsInArray()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var query = from brewery in context.Query<Brewery>()
@@ -330,7 +330,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NoProjection_Meta()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var beers = (from b in context.Query<Beer>()
@@ -350,7 +350,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NoProjection_Number()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var beers = (from b in context.Query<Beer>()
@@ -370,7 +370,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void UseKeys_SelectDocuments()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var query =
@@ -394,9 +394,9 @@ namespace Couchbase.Linq.IntegrationTests
             // in the actual USE INDEX clause itself in this query, since the index isn't used in the predicate.
             // In a real world query, this should be a specific index helpful to the query.
 
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
-            await EnsureIndexExists(context.Collection.Scope.Bucket, "brewery_id", "brewery_id");
+            await EnsureIndexExists(context.Bucket, "brewery_id", "brewery_id");
 
 
 
@@ -421,7 +421,7 @@ namespace Couchbase.Linq.IntegrationTests
             // in the actual USE INDEX clause itself in this query, since the index isn't used in the predicate.
             // In a real world query, this should be a specific index helpful to the query.
 
-            var context = new CollectionContext(_travelSample);
+            var context = new BucketContext(_travelSample);
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -451,7 +451,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task UseHash_SelectDocuments()
         {
-            var context = new CollectionContext(_travelSample);
+            var context = new BucketContext(_travelSample);
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -483,7 +483,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task UseHashAndIndex_SelectDocuments()
         {
-            var context = new CollectionContext(_travelSample);
+            var context = new BucketContext(_travelSample);
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -516,7 +516,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void Map2PocoTests_Simple_Projections_TypeFilterAttribute()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var beers = (from b in context.Query<BeerFiltered>()
@@ -531,7 +531,7 @@ namespace Couchbase.Linq.IntegrationTests
         {
             DocumentFilterManager.SetFilter(new BreweryFilter());
 
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var breweries = (from b in context.Query<Brewery>()
@@ -543,7 +543,7 @@ namespace Couchbase.Linq.IntegrationTests
 
         public void Map2PocoTests_Simple_Projections_MetaWhere()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var beers = (from b in context.Query<Beer>()
@@ -562,7 +562,7 @@ namespace Couchbase.Linq.IntegrationTests
 
         public void Map2PocoTests_Simple_Projections_MetaId()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var beers = (from b in context.Query<Beer>()
@@ -581,7 +581,7 @@ namespace Couchbase.Linq.IntegrationTests
 
         public void AnyAllTests_AnyNestedArray()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var breweries = (from b in context.Query<Brewery>()
@@ -596,7 +596,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_InnerJoin_Simple()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var beers = from beer in context.Query<Beer>()
@@ -616,7 +616,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_InnerJoin_SortAndFilter()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var beers = from beer in context.Query<Beer>()
@@ -638,7 +638,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_InnerJoin_Prefiltered()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var beers = from beer in context.Query<Beer>().Where(p => p.Type == "beer")
@@ -660,9 +660,9 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task JoinTests_InnerJoin_IndexJoin()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
-            await EnsureIndexExists(context.Collection.Scope.Bucket, "brewery_id", "brewery_id");
+            await EnsureIndexExists(context.Bucket, "brewery_id", "brewery_id");
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -689,7 +689,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task JoinTests_InnerJoin_AnsiJoin()
         {
-            var context = new CollectionContext(_travelSample);
+            var context = new BucketContext(_travelSample);
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -716,7 +716,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task JoinTests_InnerJoin_AnsiJoinPrefiltered()
         {
-            var context = new CollectionContext(_travelSample);
+            var context = new BucketContext(_travelSample);
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -742,7 +742,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_LeftJoin_Simple()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 join breweryGroup in context.Query<Brewery>()
@@ -762,7 +762,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_LeftJoin_SortAndFilter()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 join breweryGroup in context.Query<Brewery>()
@@ -784,7 +784,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void JoinTests_LeftJoin_Prefiltered()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>().Where(p => p.Type == "beer")
                 join breweryGroup in context.Query<Brewery>().Where(p => p.Type == "brewery")
@@ -806,9 +806,9 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task JoinTests_LeftJoin_IndexJoin()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
-            await EnsureIndexExists(context.Collection.Scope.Bucket, "brewery_id", "brewery_id");
+            await EnsureIndexExists(context.Bucket, "brewery_id", "brewery_id");
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -838,7 +838,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task JoinTests_LeftJoin_AnsiJoin()
         {
-            var context = new CollectionContext(_travelSample);
+            var context = new BucketContext(_travelSample);
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -866,7 +866,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task JoinTests_LeftJoin_AnsiJoinPrefiltered()
         {
-            var context = new CollectionContext(_travelSample);
+            var context = new BucketContext(_travelSample);
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -893,7 +893,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NestTests_Unnest_Simple()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var breweries = from brewery in context.Query<Brewery>()
@@ -912,7 +912,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NestTests_Unnest_Sort()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var breweries = from brewery in context.Query<Brewery>()
@@ -932,7 +932,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void NestTests_Unnest_Scalar()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var breweries = from brewery in context.Query<Brewery>()
@@ -951,9 +951,9 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task NestTests_Nest_IndexJoin()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
-            await EnsureIndexExists(context.Collection.Scope.Bucket, "brewery_id", "brewery_id");
+            await EnsureIndexExists(context.Bucket, "brewery_id", "brewery_id");
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -982,9 +982,9 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task NestTests_Nest_IndexJoinPrefiltered()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
-            await EnsureIndexExists(context.Collection.Scope.Bucket, "brewery_id", "brewery_id");
+            await EnsureIndexExists(context.Bucket, "brewery_id", "brewery_id");
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -1013,7 +1013,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task Test_AnsiNest_Prefiltered()
         {
-            var context = new CollectionContext(_travelSample);
+            var context = new BucketContext(_travelSample);
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -1042,7 +1042,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_ArraySubqueryWithFilter()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweries = from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery"
@@ -1061,7 +1061,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_ArraySubqueryContains()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweries = from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery" && brewery.Address.Contains("563 Second Street")
@@ -1080,7 +1080,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_StaticArraySubqueryContains()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweryNames = new[] { "21st Amendment Brewery Cafe", "357" };
             var breweries = from brewery in context.Query<Brewery>()
@@ -1100,7 +1100,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_ArraySubquerySelectNewObject()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweries = from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery"
@@ -1120,7 +1120,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_ArraySubquerySorted()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweries = from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery"
@@ -1140,7 +1140,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_Union()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var names = (from brewery in context.Query<Brewery>()
                 where brewery.Type == "brewery"
@@ -1162,7 +1162,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void SubqueryTests_UnionAll()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var names = (from brewery in context.Query<Brewery>()
                          where brewery.Type == "brewery"
@@ -1184,7 +1184,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_SimpleCount()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var count = context.Query<Beer>().Count(p => p.Type == "beer");
             Assert.Greater(count, 0);
@@ -1194,7 +1194,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_GroupBy()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweries =
                 from beer in context.Query<Beer>()
@@ -1217,7 +1217,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_Having()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweries =
                 from beer in context.Query<Beer>()
@@ -1241,7 +1241,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_OrderByAggregate()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweries =
                 from beer in context.Query<Beer>()
@@ -1264,7 +1264,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void AggregateTests_JoinBeforeGroupByAndMultipartKey()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var breweries =
                 from beer in context.Query<Beer>()
@@ -1289,7 +1289,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DateTime_DateAdd()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1307,7 +1307,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DateTime_DateAdd_UnixMillis()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                         where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
@@ -1325,7 +1325,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DateTime_DateDiff()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1343,7 +1343,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DateTime_DateDiff_UnixMillis()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                         where beer.Type == "beer"
@@ -1361,7 +1361,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DateTime_DatePart()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1379,7 +1379,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DateTime_DatePart_UnixMillis()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                         where beer.Type == "beer"
@@ -1397,7 +1397,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DateTime_DateTrunc()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
                 where beer.Type == "beer"
@@ -1412,7 +1412,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public async Task DateTime_DateTrunc_UnixMillis()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
@@ -1446,7 +1446,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DictionaryTests_Indexer()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var breweries =
@@ -1461,7 +1461,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DictionaryTests_ContainsKey()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var breweries =
@@ -1476,7 +1476,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DictionaryTests_Keys()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var breweries =
@@ -1492,7 +1492,7 @@ namespace Couchbase.Linq.IntegrationTests
         [Test]
         public void DictionaryTests_Values()
         {
-            var context = new CollectionContext(TestSetup.Collection);
+            var context = new BucketContext(TestSetup.Bucket);
 
 
             var breweries =

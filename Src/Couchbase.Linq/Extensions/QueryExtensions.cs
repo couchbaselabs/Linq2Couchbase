@@ -10,7 +10,7 @@ using Couchbase.Linq.Execution;
 namespace Couchbase.Linq.Extensions
 {
     /// <summary>
-    /// Extensions to <see cref="IQueryable{T}" /> for use in queries against a <see cref="CollectionContext"/>.
+    /// Extensions to <see cref="IQueryable{T}" /> for use in queries against a <see cref="BucketContext"/>.
     /// </summary>
     public static partial class QueryExtensions
     {
