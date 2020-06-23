@@ -1182,17 +1182,6 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void AggregateTests_SimpleAverage()
-        {
-            var context = new BucketContext(TestSetup.Bucket);
-
-            var avg =
-                context.Query<Beer>().Where(p => p.Type == "beer" && N1QlFunctions.IsValued(p.Abv)).Average(p => p.Abv);
-            Assert.Greater(avg, 0);
-            Console.WriteLine("Average ABV of all beers is {0}", avg);
-        }
-
-        [Test]
         public void AggregateTests_SimpleCount()
         {
             var context = new BucketContext(TestSetup.Bucket);

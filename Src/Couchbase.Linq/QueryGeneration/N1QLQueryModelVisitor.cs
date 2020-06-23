@@ -675,7 +675,7 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 VisitGroupResultOperator((GroupResultOperator)resultOperator, queryModel);
             }
-            else if (resultOperator is AverageResultOperator)
+            else if (resultOperator is AverageResultOperator || resultOperator is AverageAsyncResultOperator)
             {
                 _queryPartsAggregator.AggregateFunction = "AVG";
                 _isAggregated = true;

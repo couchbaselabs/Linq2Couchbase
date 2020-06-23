@@ -47,6 +47,7 @@ namespace Couchbase.Linq
             nodeTypeRegistry.Register(CountAsyncExpressionNode.GetSupportedMethods(), typeof(CountAsyncExpressionNode));
             nodeTypeRegistry.Register(LongCountAsyncExpressionNode.GetSupportedMethods(), typeof(LongCountAsyncExpressionNode));
             nodeTypeRegistry.Register(SumAsyncExpressionNode.GetSupportedMethods(), typeof(SumAsyncExpressionNode));
+            nodeTypeRegistry.Register(AverageAsyncExpressionNode.GetSupportedMethods(), typeof(AverageAsyncExpressionNode));
 
             //This creates all the default node types
             var nodeTypeProvider = ExpressionTreeParser.CreateDefaultNodeTypeProvider();
