@@ -548,194 +548,205 @@ namespace Couchbase.Linq.QueryGeneration
 
         public override void VisitResultOperator(ResultOperatorBase resultOperator, QueryModel queryModel, int index)
         {
-            if ((resultOperator is TakeResultOperator))
+            switch (resultOperator)
             {
-                var takeResultOperator = resultOperator as TakeResultOperator;
+                case TakeResultOperator takeResultOperator:
+                    _queryPartsAggregator.AddLimitPart(" LIMIT {0}",
+                        Convert.ToInt32(GetN1QlExpression(takeResultOperator.Count)));
+                    break;
 
-                _queryPartsAggregator.AddLimitPart(" LIMIT {0}",
-                    Convert.ToInt32(GetN1QlExpression(takeResultOperator.Count)));
-            }
-            else if (resultOperator is SkipResultOperator)
-            {
-                var skipResultOperator = resultOperator as SkipResultOperator;
+                case SkipResultOperator skipResultOperator:
+                    _queryPartsAggregator.AddOffsetPart(" OFFSET {0}",
+                        Convert.ToInt32(GetN1QlExpression(skipResultOperator.Count)));
+                    break;
 
-                _queryPartsAggregator.AddOffsetPart(" OFFSET {0}",
-                    Convert.ToInt32(GetN1QlExpression(skipResultOperator.Count)));
-            }
-            else if (resultOperator is FirstResultOperator || resultOperator is FirstAsyncResultOperator)
-            {
-                // We can save query execution time with a short circuit for .First()
+                case FirstResultOperator _:
+                case FirstAsyncResultOperator _:
+                    // We can save query execution time with a short circuit for .First()
 
-                _queryPartsAggregator.AddLimitPart(" LIMIT {0}", 1);
-            }
-            else if (resultOperator is SingleResultOperator || resultOperator is SingleAsyncResultOperator)
-            {
-                // We can save query execution time with a short circuit for .Single()
-                // But we have to get at least 2 results so we know if there was more than 1
+                    _queryPartsAggregator.AddLimitPart(" LIMIT {0}", 1);
+                    break;
 
-                _queryPartsAggregator.AddLimitPart(" LIMIT {0}", 2);
-            }
-            else if (resultOperator is DistinctResultOperator)
-            {
-                var distinctResultOperator = resultOperator as DistinctResultOperator;
-                _queryPartsAggregator.AddDistinctPart("DISTINCT ");
-            }
-            else if (resultOperator is ExplainResultOperator)
-            {
-                _queryPartsAggregator.ExplainPart = "EXPLAIN ";
-            }
-            else if (resultOperator is AnyResultOperator || resultOperator is AnyAsyncResultOperator)
-            {
-                _queryPartsAggregator.QueryType =
-                    _queryPartsAggregator.QueryType == N1QlQueryType.Array ? N1QlQueryType.ArrayAny :
+                case SingleResultOperator _:
+                case SingleAsyncResultOperator _:
+                    // We can save query execution time with a short circuit for .Single()
+                    // But we have to get at least 2 results so we know if there was more than 1
+
+                    _queryPartsAggregator.AddLimitPart(" LIMIT {0}", 2);
+                    break;
+
+                case DistinctResultOperator _:
+                    _queryPartsAggregator.AddDistinctPart("DISTINCT ");
+                    break;
+
+                case ExplainResultOperator _:
+                    _queryPartsAggregator.ExplainPart = "EXPLAIN ";
+                    break;
+
+                case AnyResultOperator _:
+                case AnyAsyncResultOperator _:
+                    _queryPartsAggregator.QueryType =
+                        _queryPartsAggregator.QueryType == N1QlQueryType.Array ? N1QlQueryType.ArrayAny :
                         _queryPartsAggregator.QueryType == N1QlQueryType.Subquery ? N1QlQueryType.SubqueryAny : N1QlQueryType.MainQueryAny;
 
-                if (_queryPartsAggregator.QueryType == N1QlQueryType.SubqueryAny)
-                {
-                    // For any Any query this value won't be used
-                    // But we'll generate it for consistency
+                    if (_queryPartsAggregator.QueryType == N1QlQueryType.SubqueryAny)
+                    {
+                        // For any Any query this value won't be used
+                        // But we'll generate it for consistency
 
-                    _queryPartsAggregator.PropertyExtractionPart =
-                        _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName();
-                }
-                else if (_queryPartsAggregator.QueryType == N1QlQueryType.MainQueryAny)
-                {
-                    // Result must be extracted from the result attribute on the returned JSON document
-                    // If no rows are returned, for an Any operation we should return false.
+                        _queryPartsAggregator.PropertyExtractionPart =
+                            _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName();
+                    }
+                    else if (_queryPartsAggregator.QueryType == N1QlQueryType.MainQueryAny)
+                    {
+                        // Result must be extracted from the result attribute on the returned JSON document
+                        // If no rows are returned, for an Any operation we should return false.
 
-                    ScalarResultBehavior.ResultExtractionRequired = true;
-                    ScalarResultBehavior.NoRowsResult = false;
-                }
-            }
-            else if (resultOperator is AllResultOperator || resultOperator is AllAsyncResultOperator)
-            {
-                _queryPartsAggregator.QueryType =
-                    _queryPartsAggregator.QueryType == N1QlQueryType.Array ? N1QlQueryType.ArrayAll :
+                        ScalarResultBehavior.ResultExtractionRequired = true;
+                        ScalarResultBehavior.NoRowsResult = false;
+                    }
+
+                    break;
+
+                case AllResultOperator _:
+                case AllAsyncResultOperator _:
+                {
+                    _queryPartsAggregator.QueryType =
+                        _queryPartsAggregator.QueryType == N1QlQueryType.Array ? N1QlQueryType.ArrayAll :
                         _queryPartsAggregator.QueryType == N1QlQueryType.Subquery ? N1QlQueryType.SubqueryAll : N1QlQueryType.MainQueryAll;
 
-                bool prefixedExtents = false;
-                if (_queryPartsAggregator.QueryType == N1QlQueryType.SubqueryAll)
-                {
-                    // We're putting allResultOperator.Predicate in the SATISFIES clause of an ALL clause
-                    // Each extent of the subquery will be a property returned by the subquery
-                    // So we need to prefix the references to the subquery in the predicate with the iterator name from the ALL clause
+                    bool prefixedExtents = false;
+                    if (_queryPartsAggregator.QueryType == N1QlQueryType.SubqueryAll)
+                    {
+                        // We're putting allResultOperator.Predicate in the SATISFIES clause of an ALL clause
+                        // Each extent of the subquery will be a property returned by the subquery
+                        // So we need to prefix the references to the subquery in the predicate with the iterator name from the ALL clause
 
-                    _queryPartsAggregator.PropertyExtractionPart =
-                        _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName();
+                        _queryPartsAggregator.PropertyExtractionPart =
+                            _queryGenerationContext.ExtentNameProvider.GetUnlinkedExtentName();
 
-                    prefixedExtents = true;
-                    _queryGenerationContext.ExtentNameProvider.Prefix = _queryPartsAggregator.PropertyExtractionPart + ".";
-                }
-                else if (_queryPartsAggregator.QueryType == N1QlQueryType.ArrayAll)
-                {
-                    // We're dealing with an array-type subquery
-                    // If there is any pre-filtering on the array using a Where clause, these statements will be
-                    // referencing the query source using the default extent name.  When we apply the SATISFIES clause
-                    // we'll need to use a new extent name to reference the results of the internal WHERE clause.
+                        prefixedExtents = true;
+                        _queryGenerationContext.ExtentNameProvider.Prefix = _queryPartsAggregator.PropertyExtractionPart + ".";
+                    }
+                    else if (_queryPartsAggregator.QueryType == N1QlQueryType.ArrayAll)
+                    {
+                        // We're dealing with an array-type subquery
+                        // If there is any pre-filtering on the array using a Where clause, these statements will be
+                        // referencing the query source using the default extent name.  When we apply the SATISFIES clause
+                        // we'll need to use a new extent name to reference the results of the internal WHERE clause.
 
-                    _queryPartsAggregator.PropertyExtractionPart =
-                        _queryGenerationContext.ExtentNameProvider.GenerateNewExtentName(queryModel.MainFromClause);
-                }
-                else if (_queryPartsAggregator.QueryType == N1QlQueryType.MainQueryAll)
-                {
-                    // Result must be extracted from the result attribute on the returned JSON document
-                    // If no rows are returned, for an All operation we should return true.
+                        _queryPartsAggregator.PropertyExtractionPart =
+                            _queryGenerationContext.ExtentNameProvider.GenerateNewExtentName(queryModel.MainFromClause);
+                    }
+                    else if (_queryPartsAggregator.QueryType == N1QlQueryType.MainQueryAll)
+                    {
+                        // Result must be extracted from the result attribute on the returned JSON document
+                        // If no rows are returned, for an All operation we should return true.
 
-                    ScalarResultBehavior.ResultExtractionRequired = true;
-                    ScalarResultBehavior.NoRowsResult = true;
-                }
+                        ScalarResultBehavior.ResultExtractionRequired = true;
+                        ScalarResultBehavior.NoRowsResult = true;
+                    }
 
-                var predicate = resultOperator switch
-                {
-                    AllResultOperator allResultOperator => allResultOperator.Predicate,
-                    AllAsyncResultOperator allAsyncResultOperator => allAsyncResultOperator.Predicate,
-                    _ => null
-                };
-                _queryPartsAggregator.WhereAllPart = GetN1QlExpression(predicate);
+                    var predicate = resultOperator switch
+                    {
+                        AllResultOperator allResultOperator => allResultOperator.Predicate,
+                        AllAsyncResultOperator allAsyncResultOperator => allAsyncResultOperator.Predicate,
+                        _ => null
+                    };
+                    _queryPartsAggregator.WhereAllPart = GetN1QlExpression(predicate);
 
-                if (prefixedExtents)
-                {
-                    _queryGenerationContext.ExtentNameProvider.Prefix = null;
-                }
-            }
-            else if (resultOperator is ContainsResultOperator)
-            {
-                if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
-                {
-                    throw new NotSupportedException("Contains is only supported in N1QL against nested or constant arrays.");
+                    if (prefixedExtents)
+                    {
+                        _queryGenerationContext.ExtentNameProvider.Prefix = null;
+                    }
+
+                    break;
                 }
 
-                var containsResultOperator = (ContainsResultOperator) resultOperator;
+                case ContainsResultOperator containsResultOperator:
+                    if (_queryPartsAggregator.QueryType != N1QlQueryType.Array)
+                    {
+                        throw new NotSupportedException(
+                            "Contains is only supported in N1QL against nested or constant arrays.");
+                    }
 
-                // Use a wrapping function to wrap the subquery with an IN statement
+                    // Use a wrapping function to wrap the subquery with an IN statement
 
-                _queryPartsAggregator.AddWrappingFunction(GetN1QlExpression(containsResultOperator.Item) + " IN ");
-            }
-            else if (resultOperator is GroupResultOperator)
-            {
-                VisitGroupResultOperator((GroupResultOperator)resultOperator, queryModel);
-            }
-            else if (resultOperator is AverageResultOperator || resultOperator is AverageAsyncResultOperator)
-            {
-                _queryPartsAggregator.AggregateFunction = "AVG";
-                _isAggregated = true;
-            }
-            else if ((resultOperator is CountResultOperator) || (resultOperator is LongCountResultOperator) ||
-                     (resultOperator is CountAsyncResultOperator) || (resultOperator is LongCountAsyncResultOperator))
-            {
-                if (_queryPartsAggregator.IsArraySubquery)
+                    _queryPartsAggregator.AddWrappingFunction(GetN1QlExpression(containsResultOperator.Item) + " IN ");
+                    break;
+
+                case GroupResultOperator groupResultOperator:
+                    VisitGroupResultOperator(groupResultOperator, queryModel);
+                    break;
+
+                case AverageResultOperator _:
+                case AverageAsyncResultOperator _:
+                    _queryPartsAggregator.AggregateFunction = "AVG";
+                    _isAggregated = true;
+                    break;
+
+                case CountResultOperator _:
+                case LongCountResultOperator _:
+                case CountAsyncResultOperator _:
+                case LongCountAsyncResultOperator _:
+                    if (_queryPartsAggregator.IsArraySubquery)
+                    {
+                        _queryPartsAggregator.AddWrappingFunction("ARRAY_LENGTH");
+                    }
+                    else
+                    {
+                        _queryPartsAggregator.AggregateFunction = "COUNT";
+                    }
+
+                    _isAggregated = true;
+                    break;
+
+                case MaxResultOperator _:
+                    _queryPartsAggregator.AggregateFunction = "MAX";
+                    _isAggregated = true;
+                    break;
+
+                case MinResultOperator _:
+                    _queryPartsAggregator.AggregateFunction = "MIN";
+                    _isAggregated = true;
+                    break;
+
+                case SumResultOperator _:
+                case SumAsyncResultOperator _:
+                    _queryPartsAggregator.AggregateFunction = "SUM";
+                    _isAggregated = true;
+                    break;
+
+                case UnionResultOperator unionResultOperator:
                 {
-                    _queryPartsAggregator.AddWrappingFunction("ARRAY_LENGTH");
+                    EnsureNotArraySubquery();
+
+                    var source = unionResultOperator.Source2 as SubQueryExpression;
+                    if (source == null)
+                    {
+                        throw new NotSupportedException("Union is only support against query sources.");
+                    }
+
+                    VisitUnion(source, true);
+                    break;
                 }
-                else
+
+                case ConcatResultOperator concatResultOperator:
                 {
-                    _queryPartsAggregator.AggregateFunction = "COUNT";
+                    EnsureNotArraySubquery();
+
+                    var source = concatResultOperator.Source2 as SubQueryExpression;
+                    if (source == null)
+                    {
+                        throw new NotSupportedException("Concat is only support against query sources.");
+                    }
+
+                    VisitUnion(source, false);
+                    break;
                 }
 
-                _isAggregated = true;
-            }
-            else if (resultOperator is MaxResultOperator)
-            {
-                _queryPartsAggregator.AggregateFunction = "MAX";
-                _isAggregated = true;
-            }
-            else if (resultOperator is MinResultOperator)
-            {
-                _queryPartsAggregator.AggregateFunction = "MIN";
-                _isAggregated = true;
-            }
-            else if (resultOperator is SumResultOperator || resultOperator is SumAsyncResultOperator)
-            {
-                _queryPartsAggregator.AggregateFunction = "SUM";
-                _isAggregated = true;
-            }
-            else if (resultOperator is UnionResultOperator)
-            {
-                EnsureNotArraySubquery();
-
-                var source = ((UnionResultOperator) resultOperator).Source2 as SubQueryExpression;
-                if (source == null)
-                {
-                    throw new NotSupportedException("Union is only support against query sources.");
-                }
-
-                VisitUnion(source, true);
-            }
-            else if (resultOperator is ConcatResultOperator)
-            {
-                EnsureNotArraySubquery();
-
-                var source = ((ConcatResultOperator)resultOperator).Source2 as SubQueryExpression;
-                if (source == null)
-                {
-                    throw new NotSupportedException("Concat is only support against query sources.");
-                }
-
-                VisitUnion(source, false);
-            }
-            else
-            {
-                throw new NotSupportedException(string.Format("{0} is not supported.", resultOperator.GetType().Name));
+                default:
+                    throw new NotSupportedException(string.Format("{0} is not supported.", resultOperator.GetType().Name));
             }
 
             base.VisitResultOperator(resultOperator, queryModel, index);
