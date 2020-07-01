@@ -702,11 +702,13 @@ namespace Couchbase.Linq.QueryGeneration
                     break;
 
                 case MaxResultOperator _:
+                case MaxAsyncResultOperator _:
                     _queryPartsAggregator.AggregateFunction = "MAX";
                     _isAggregated = true;
                     break;
 
                 case MinResultOperator _:
+                case MinAsyncResultOperator _:
                     _queryPartsAggregator.AggregateFunction = "MIN";
                     _isAggregated = true;
                     break;

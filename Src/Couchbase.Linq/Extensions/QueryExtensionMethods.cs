@@ -33,6 +33,11 @@ namespace Couchbase.Linq.Extensions
         public static MethodInfo AverageAsyncNoSelector { get; }
         public static MethodInfo AverageAsyncWithSelector { get; }
 
+        public static MethodInfo MinAsyncNoSelector { get; }
+        public static MethodInfo MinAsyncWithSelector { get; }
+        public static MethodInfo MaxAsyncNoSelector { get; }
+        public static MethodInfo MaxAsyncWithSelector { get; }
+
         public static MethodInfo Nest { get; }
         public static MethodInfo LeftOuterNest { get; }
         public static MethodInfo Explain { get; }
@@ -92,6 +97,15 @@ namespace Couchbase.Linq.Extensions
                 p.Name == nameof(QueryExtensions.AverageAsync) && p.GetParameters().Length == 1);
             AverageAsyncWithSelector = allMethods.Single(p =>
                 p.Name == nameof(QueryExtensions.AverageAsync) && p.GetParameters().Length == 2 && p.GetParameters().Last().ParameterType != typeof(CancellationToken));
+
+            MinAsyncNoSelector = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.MinAsync) && p.GetParameters().Length == 1);
+            MinAsyncWithSelector = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.MinAsync) && p.GetParameters().Length == 2 && p.GetParameters().Last().ParameterType != typeof(CancellationToken));
+            MaxAsyncNoSelector = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.MaxAsync) && p.GetParameters().Length == 1);
+            MaxAsyncWithSelector = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.MaxAsync) && p.GetParameters().Length == 2 && p.GetParameters().Last().ParameterType != typeof(CancellationToken));
 
             Nest = allMethods.Single(p => p.Name == nameof(QueryExtensions.Nest));
             LeftOuterNest = allMethods.Single(p => p.Name == nameof(QueryExtensions.LeftOuterNest));
