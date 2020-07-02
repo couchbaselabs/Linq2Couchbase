@@ -287,6 +287,20 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public async Task Map2PocoTests_ExplainAsync()
+        {
+            var context = new BucketContext(TestSetup.Bucket);
+
+
+            var explanation = await (from b in context.Query<Beer>()
+                    where b.Type == "beer"
+                    select b).
+                ExplainAsync();
+
+            Console.WriteLine(explanation);
+        }
+
+        [Test]
         public void Map2PocoTests_Explain_QueryWithPropertyExtraction()
         {
             var context = new BucketContext(TestSetup.Bucket);
