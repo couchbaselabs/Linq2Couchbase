@@ -31,7 +31,8 @@ namespace Couchbase.Linq
 
             //register the nodes for special Couchbase clauses
             nodeTypeRegistry.Register(NestExpressionNode.SupportedMethods, typeof(NestExpressionNode));
-            nodeTypeRegistry.Register(ExplainExpressionNode.SupportedMethods, typeof(ExplainExpressionNode));
+            nodeTypeRegistry.Register(ExplainExpressionNode.GetSupportedMethods(), typeof(ExplainExpressionNode));
+            nodeTypeRegistry.Register(ExplainAsyncExpressionNode.GetSupportedMethods(), typeof(ExplainAsyncExpressionNode));
             nodeTypeRegistry.Register(UseKeysExpressionNode.SupportedMethods, typeof(UseKeysExpressionNode));
             nodeTypeRegistry.Register(UseIndexExpressionNode.SupportedMethods, typeof(UseIndexExpressionNode));
             nodeTypeRegistry.Register(UseHashExpressionNode.SupportedMethods, typeof(UseHashExpressionNode));

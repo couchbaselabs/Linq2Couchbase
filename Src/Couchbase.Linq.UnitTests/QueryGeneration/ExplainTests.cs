@@ -19,18 +19,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         [Test]
         public void Test_Explain_Keyword()
         {
-            var mockBucket = new Mock<IBucket>();
-            mockBucket.SetupGet(e => e.Name).Returns("default");
-
-            var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
+            var query = CreateQueryable<Contact>("default")
                 .Select(c => new {age = c.Age});
 
-            var explainQuery = Expression.Call(null, 
-                typeof(QueryExtensions).GetTypeInfo().GetMethod("Explain").MakeGenericMethod(query.ElementType), query.Expression);
+            _ = query.Explain();
+            var n1QlQuery = QueryExecutor.Query;
 
             const string expected = "EXPLAIN SELECT `Extent1`.`age` as `age` FROM `default` as `Extent1`";
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, explainQuery);
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public async Task Test_ExplainAsync_Keyword()
+        {
+            var query = CreateQueryable<Contact>("default")
+                .Select(c => new {age = c.Age});
+
+            _ = await query.ExplainAsync();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected = "EXPLAIN SELECT `Extent1`.`age` as `age` FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }

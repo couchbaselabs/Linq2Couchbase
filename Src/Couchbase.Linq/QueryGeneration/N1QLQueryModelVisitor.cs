@@ -580,6 +580,7 @@ namespace Couchbase.Linq.QueryGeneration
                     break;
 
                 case ExplainResultOperator _:
+                case ExplainAsyncResultOperator _:
                     _queryPartsAggregator.ExplainPart = "EXPLAIN ";
                     break;
 

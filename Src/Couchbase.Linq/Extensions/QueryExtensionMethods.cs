@@ -41,6 +41,7 @@ namespace Couchbase.Linq.Extensions
         public static MethodInfo Nest { get; }
         public static MethodInfo LeftOuterNest { get; }
         public static MethodInfo Explain { get; }
+        public static MethodInfo ExplainAsync { get; }
 
         public static MethodInfo UseKeys { get; }
         public static MethodInfo UseIndexWithType { get; }
@@ -110,6 +111,8 @@ namespace Couchbase.Linq.Extensions
             Nest = allMethods.Single(p => p.Name == nameof(QueryExtensions.Nest));
             LeftOuterNest = allMethods.Single(p => p.Name == nameof(QueryExtensions.LeftOuterNest));
             Explain = allMethods.Single(p => p.Name == nameof(QueryExtensions.Explain));
+            ExplainAsync = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.ExplainAsync) && p.GetParameters().Length == 1);
 
             UseKeys = allMethods.Single(p => p.Name == nameof(QueryExtensions.UseKeys));
             UseIndexWithType = allMethods.Single(p => p.Name == nameof(QueryExtensions.UseIndex) && p.GetParameters().Length == 3);
