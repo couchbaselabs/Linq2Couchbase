@@ -237,11 +237,39 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             Assert.AreEqual(expected, n1QlQuery);
         }
 
+        #region Min/Max
+
         [Test]
         public void Test_Min()
         {
             // ReSharper disable once UnusedVariable
             _ = CreateQueryable<Beer>("default").Min(p => p.Abv);
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT MIN(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public async Task Test_MinAsync_NoSelector()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").Select(p => p.Abv).MinAsync();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT MIN(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public async Task Test_MinAsync_WithSelector()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").MinAsync(p => p.Abv);
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
@@ -262,6 +290,34 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        [Test]
+        public async Task Test_MaxAsync_NoSelector()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").Select(p => p.Abv).MaxAsync();
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT MAX(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public async Task Test_MaxAsync_WithSelector()
+        {
+            // ReSharper disable once UnusedVariable
+            _ = await CreateQueryable<Beer>("default").MaxAsync(p => p.Abv);
+            var n1QlQuery = QueryExecutor.Query;
+
+            const string expected =
+                "SELECT MAX(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
 
         [Test]
         public void Test_Sum()
