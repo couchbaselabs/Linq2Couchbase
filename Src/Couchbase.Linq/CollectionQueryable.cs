@@ -56,10 +56,14 @@ namespace Couchbase.Linq
         /// Initializes a new instance of the <see cref="CollectionQueryable{T}"/> class.
         /// </summary>
         /// <param name="collection">The collection.</param>
-        public CollectionQueryable(ICouchbaseCollection collection)
+        /// <param name="queryTimeout">Query timeout, if null uses cluster default.</param>
+        public CollectionQueryable(ICouchbaseCollection collection, TimeSpan? queryTimeout)
             : this(collection,
                 QueryParserHelper.CreateQueryParser(collection.Scope.Bucket.Cluster),
-                new ClusterQueryExecutor(collection.Scope.Bucket.Cluster))
+                new ClusterQueryExecutor(collection.Scope.Bucket.Cluster)
+                {
+                    QueryTimeout = queryTimeout
+                })
         {
         }
 

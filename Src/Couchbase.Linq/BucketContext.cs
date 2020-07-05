@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using Couchbase.KeyValue;
+﻿using System;
+using System.Linq;
 using Couchbase.Linq.Filters;
 
 namespace Couchbase.Linq
@@ -19,22 +19,20 @@ namespace Couchbase.Linq
             Bucket = bucket;
         }
 
-        /// <summary>
-        /// Gets the bucket the <see cref="IBucketContext"/> was created against.
-        /// </summary>
-        /// <value>The <see cref="IBucket"/>.</value>
+        /// <inheritdoc />
         public IBucket Bucket { get; }
 
         /// <inheritdoc />
-        public IQueryable<T> Query<T>()
-        {
-            return Query<T>(BucketQueryOptions.None);
-        }
+        public TimeSpan? QueryTimeout { get; set; }
+
+        /// <inheritdoc />
+        public IQueryable<T> Query<T>() =>
+            Query<T>(BucketQueryOptions.None);
 
         /// <inheritdoc />
         public IQueryable<T> Query<T>(BucketQueryOptions options)
         {
-            IQueryable<T> query = new CollectionQueryable<T>(Bucket.DefaultCollection());
+            IQueryable<T> query = new CollectionQueryable<T>(Bucket.DefaultCollection(), QueryTimeout);
 
             if ((options & BucketQueryOptions.SuppressFilters) == BucketQueryOptions.None)
             {
@@ -43,15 +41,6 @@ namespace Couchbase.Linq
 
             return query;
         }
-
-        /// <inheritdoc />
-        public string CollectionName => "_default";
-
-        /// <inheritdoc />
-        public string ScopeName => "_default";
-
-        /// <inheritdoc />
-        public string BucketName => Bucket.Name;
     }
 }
 
