@@ -58,6 +58,11 @@ namespace Couchbase.Linq.Execution
                     case ConsistentWithClause consistentWith:
                         combinedMutationState ??= new MutationState();
                         combinedMutationState.Add(consistentWith.MutationState);
+
+                        if (consistentWith.ScanWait != null)
+                        {
+                            queryOptions.ScanWait(consistentWith.ScanWait.Value);
+                        }
                         break;
                 }
             }

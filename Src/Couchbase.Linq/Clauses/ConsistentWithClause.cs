@@ -16,15 +16,22 @@ namespace Couchbase.Linq.Clauses
         /// Initializes a new instance of the <see cref="ConsistentWithClause" /> class.
         /// </summary>
         /// <param name="mutationState">Mutation state for the query.</param>
-        public ConsistentWithClause(MutationState mutationState)
+        /// <param name="scanWait">Time to wait for index scan.</param>
+        public ConsistentWithClause(MutationState mutationState, TimeSpan? scanWait)
         {
             MutationState = mutationState;
+            ScanWait = scanWait;
         }
 
         /// <summary>
         /// Mutation state for the query.
         /// </summary>
         public MutationState MutationState { get; set; }
+
+        /// <summary>
+        /// Time to wait for index scan.
+        /// </summary>
+        public TimeSpan? ScanWait { get; }
 
         /// <inheritdoc />
         public virtual void Accept(IQueryModelVisitor visitor, QueryModel queryModel, int index)
@@ -35,7 +42,7 @@ namespace Couchbase.Linq.Clauses
         /// <inheritdoc />
         public IBodyClause Clone(CloneContext cloneContext)
         {
-            return new ConsistentWithClause(MutationState);
+            return new ConsistentWithClause(MutationState, ScanWait);
         }
 
         /// <inheritdoc />

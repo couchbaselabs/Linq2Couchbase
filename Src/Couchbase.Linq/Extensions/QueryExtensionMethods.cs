@@ -49,6 +49,7 @@ namespace Couchbase.Linq.Extensions
 
         public static MethodInfo ScanConsistency { get; }
         public static MethodInfo ConsistentWith { get; }
+        public static MethodInfo ConsistentWithScanWait { get; }
 
         static QueryExtensionMethods()
         {
@@ -119,7 +120,10 @@ namespace Couchbase.Linq.Extensions
             UseHash = allMethods.Single(p => p.Name == nameof(QueryExtensions.UseHash));
 
             ScanConsistency = allMethods.Single(p => p.Name == nameof(QueryExtensions.ScanConsistency));
-            ConsistentWith = allMethods.Single(p => p.Name == nameof(QueryExtensions.ConsistentWith));
+            ConsistentWith = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.ConsistentWith) && p.GetParameters().Length == 2);
+            ConsistentWithScanWait = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.ConsistentWith) && p.GetParameters().Length == 3);
         }
     }
 }
