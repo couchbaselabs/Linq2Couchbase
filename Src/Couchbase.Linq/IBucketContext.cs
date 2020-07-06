@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using Couchbase.KeyValue;
+﻿using System;
+using System.Linq;
 
 namespace Couchbase.Linq
 {
@@ -7,13 +7,18 @@ namespace Couchbase.Linq
     /// Provides a single point of entry to a Couchbase collection which makes it easier to compose
     /// and execute queries and to group together changes which will be submitted back into the bucket.
     /// </summary>
-    public interface IBucketContext : ICollectionQueryable
+    public interface IBucketContext
     {
         /// <summary>
         /// Gets the bucket the <see cref="IBucketContext"/> was created against.
         /// </summary>
-        /// <value>The <see cref="ICouchbaseCollection"/>.</value>
+        /// <value>The <see cref="IBucket"/>.</value>
         IBucket Bucket { get; }
+
+        /// <summary>
+        /// Query timeout, if null uses cluster default.
+        /// </summary>
+        TimeSpan? QueryTimeout { get; set; }
 
         /// <summary>
         /// Queries the current <see cref="IBucket" /> for entities of type T. This is the target of

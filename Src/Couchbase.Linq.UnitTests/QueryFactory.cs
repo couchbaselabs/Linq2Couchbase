@@ -38,7 +38,7 @@ namespace Couchbase.Linq.UnitTests
                 .SetupGet(p => p.Scope.Bucket)
                 .Returns(mockBucket.Object);
 
-            return new CollectionQueryable<T>(mockCollection.Object);
+            return new CollectionQueryable<T>(mockCollection.Object, default);
         }
     }
 }

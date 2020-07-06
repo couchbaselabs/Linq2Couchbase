@@ -31,6 +31,11 @@ namespace Couchbase.Linq.Execution
             _serializer ??= _cluster.ClusterServices.GetRequiredService<ITypeSerializer>();
 
         /// <summary>
+        /// Query timeout, if null uses cluster default.
+        /// </summary>
+        public TimeSpan? QueryTimeout { get; set; }
+
+        /// <summary>
         /// Creates a new BucketQueryExecutor.
         /// </summary>
         /// <param name="cluster"><see cref="ICluster"/> to query.</param>
@@ -65,6 +70,11 @@ namespace Couchbase.Linq.Execution
             if (combinedMutationState != null)
             {
                 queryOptions.ConsistentWith(combinedMutationState);
+            }
+
+            if (QueryTimeout != null)
+            {
+                queryOptions.Timeout(QueryTimeout.Value);
             }
 
             return queryOptions;
