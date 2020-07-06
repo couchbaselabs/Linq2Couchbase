@@ -46,5 +46,27 @@ namespace Couchbase.Linq.IntegrationTests
                 await TestSetup.Bucket.DefaultCollection().RemoveAsync("test-mutation");
             }
         }
+
+        [Test]
+        public async Task ConsistentWith_ScanWait()
+        {
+            var context = new BucketContext(TestSetup.Bucket);
+
+            var upsertResult = await TestSetup.Bucket.DefaultCollection().UpsertAsync("test-mutation", new {a = "a"});
+            try
+            {
+                var mutationState = MutationState.From(upsertResult);
+
+                var beers = from b in context.Query<Beer>().ConsistentWith(mutationState, TimeSpan.FromSeconds(10))
+                    select b;
+
+                var beer = await beers.FirstAsync();
+                Console.WriteLine(beer.Name);
+            }
+            finally
+            {
+                await TestSetup.Bucket.DefaultCollection().RemoveAsync("test-mutation");
+            }
+        }
     }
 }
