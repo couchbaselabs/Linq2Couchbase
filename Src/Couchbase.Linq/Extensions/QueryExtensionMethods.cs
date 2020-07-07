@@ -48,6 +48,7 @@ namespace Couchbase.Linq.Extensions
         public static MethodInfo UseHash { get; }
 
         public static MethodInfo ScanConsistency { get; }
+        public static MethodInfo ScanConsistencyWithScanWait { get; }
         public static MethodInfo ConsistentWith { get; }
         public static MethodInfo ConsistentWithScanWait { get; }
 
@@ -119,7 +120,10 @@ namespace Couchbase.Linq.Extensions
             UseIndexWithType = allMethods.Single(p => p.Name == nameof(QueryExtensions.UseIndex) && p.GetParameters().Length == 3);
             UseHash = allMethods.Single(p => p.Name == nameof(QueryExtensions.UseHash));
 
-            ScanConsistency = allMethods.Single(p => p.Name == nameof(QueryExtensions.ScanConsistency));
+            ScanConsistency = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.ScanConsistency) && p.GetParameters().Length == 2);
+            ScanConsistencyWithScanWait = allMethods.Single(p =>
+                p.Name == nameof(QueryExtensions.ScanConsistency) && p.GetParameters().Length == 3);
             ConsistentWith = allMethods.Single(p =>
                 p.Name == nameof(QueryExtensions.ConsistentWith) && p.GetParameters().Length == 2);
             ConsistentWithScanWait = allMethods.Single(p =>
