@@ -14,15 +14,20 @@ namespace Couchbase.Linq.Clauses
     /// </summary>
     internal class ScanConsistencyExpressionNode : MethodCallExpressionNodeBase
     {
-        public static IEnumerable<MethodInfo> GetSupportedMethods() =>
-            new[] {QueryExtensionMethods.ScanConsistency};
+        public static IEnumerable<MethodInfo> GetSupportedMethods() => new[]
+        {
+            QueryExtensionMethods.ScanConsistency,
+            QueryExtensionMethods.ScanConsistencyWithScanWait
+        };
 
         /// <summary>
         /// Creates a new ScanConsistencyExpressionNode.
         /// </summary>
         /// <param name="parseInfo">Method parse info.</param>
         /// <param name="scanConsistency">Scan consistency for the query.</param>
-        public ScanConsistencyExpressionNode(MethodCallExpressionParseInfo parseInfo, ConstantExpression scanConsistency)
+        /// <param name="scanWait">Time to wait for index scan.</param>
+        public ScanConsistencyExpressionNode(MethodCallExpressionParseInfo parseInfo, ConstantExpression scanConsistency,
+            ConstantExpression scanWait)
             : base(parseInfo)
         {
             if (scanConsistency == null)
@@ -33,14 +38,24 @@ namespace Couchbase.Linq.Clauses
             {
                 throw new ArgumentException($"{nameof(scanConsistency)} must return a {typeof(QueryScanConsistency)}", nameof(scanConsistency));
             }
+            if (scanWait != null && scanWait.Type != typeof(TimeSpan))
+            {
+                throw new ArgumentException($"{nameof(scanWait)} must return a {typeof(TimeSpan)}", nameof(scanWait));
+            }
 
             ScanConsistency = scanConsistency;
+            ScanWait = scanWait;
         }
 
         /// <summary>
         /// Scan consistency for the query.
         /// </summary>
         public ConstantExpression ScanConsistency { get; }
+
+        /// <summary>
+        /// Time to wait for index scan.
+        /// </summary>
+        public ConstantExpression ScanWait { get; }
 
         /// <inheritdoc />
         public override Expression Resolve(ParameterExpression inputParameter, Expression expressionToBeResolved,
@@ -53,7 +68,9 @@ namespace Couchbase.Linq.Clauses
         protected override void ApplyNodeSpecificSemantics(QueryModel queryModel,
             ClauseGenerationContext clauseGenerationContext)
         {
-            queryModel.BodyClauses.Add(new ScanConsistencyClause((QueryScanConsistency) ScanConsistency.Value));
+            queryModel.BodyClauses.Add(new ScanConsistencyClause(
+                (QueryScanConsistency) ScanConsistency.Value,
+                (TimeSpan?) ScanWait?.Value));
         }
     }
 }

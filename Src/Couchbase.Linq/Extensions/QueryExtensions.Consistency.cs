@@ -28,6 +28,28 @@ namespace Couchbase.Linq.Extensions
         }
 
         /// <summary>
+        /// Specifies the consistency guarantee/constraint for index scanning.
+        /// </summary>
+        /// <param name="source">Sets scan consistency for this query.  Must be a Couchbase LINQ query.</param>
+        /// <param name="scanConsistency">Specify the consistency guarantee/constraint for index scanning.</param>
+        /// <param name="scanWait">Time to wait for index scan.</param>
+        /// <remarks>The default is <see cref="QueryScanConsistency.NotBounded"/>.</remarks>
+        public static IQueryable<T> ScanConsistency<T>(this IQueryable<T> source, QueryScanConsistency scanConsistency, TimeSpan scanWait)
+        {
+            if (source == null)
+            {
+                throw new ArgumentNullException(nameof(source));
+            }
+
+            return source.Provider.CreateQuery<T>(
+                Expression.Call(
+                    QueryExtensionMethods.ScanConsistencyWithScanWait.MakeGenericMethod(typeof(T)),
+                    source.Expression,
+                    Expression.Constant(scanConsistency),
+                    Expression.Constant(scanWait)));
+        }
+
+        /// <summary>
         /// Requires that the indexes but up to date with a <see cref="MutationState"/> before the query is executed.
         /// </summary>
         /// <param name="source">Sets consistency requirement for this query.  Must be a Couchbase LINQ query.</param>

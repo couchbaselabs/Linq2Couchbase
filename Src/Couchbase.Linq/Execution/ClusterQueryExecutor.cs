@@ -58,6 +58,11 @@ namespace Couchbase.Linq.Execution
                 {
                     case ScanConsistencyClause scanConsistency:
                         queryOptions.ScanConsistency(scanConsistency.ScanConsistency);
+
+                        if (scanConsistency.ScanWait != null)
+                        {
+                            queryOptions.ScanWait(scanConsistency.ScanWait.Value);
+                        }
                         break;
 
                     case ConsistentWithClause consistentWith:

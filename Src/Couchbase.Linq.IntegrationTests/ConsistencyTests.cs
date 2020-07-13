@@ -26,6 +26,19 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public async Task ScanConsistency_ScanWait()
+        {
+            var context = new BucketContext(TestSetup.Bucket);
+
+            var beers = from b in context.Query<Beer>().ScanConsistency(QueryScanConsistency.RequestPlus, TimeSpan.FromSeconds(10))
+                select b;
+
+            var beer = await beers.FirstAsync();
+            Console.WriteLine(beer.Name);
+        }
+
+
+        [Test]
         public async Task ConsistentWith()
         {
             var context = new BucketContext(TestSetup.Bucket);
