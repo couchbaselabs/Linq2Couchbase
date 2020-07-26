@@ -21,7 +21,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="CouchbaseNetClient" Version="3.0.2" />
+    <PackageReference Include="CouchbaseNetClient" Version="3.0.3" />
     <PackageReference Include="Newtonsoft.Json" Version="11.0.2" />
     <PackageReference Include="Remotion.Linq" Version="2.2.0" />
   </ItemGroup>

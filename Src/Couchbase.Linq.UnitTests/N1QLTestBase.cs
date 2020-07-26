@@ -5,6 +5,7 @@ using Couchbase.Core.IO.Serializers;
 using Couchbase.Core.Version;
 using Couchbase.KeyValue;
 using Couchbase.Linq.Execution;
+using Couchbase.Linq.Filters;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Microsoft.Extensions.DependencyInjection;
@@ -48,6 +49,7 @@ namespace Couchbase.Linq.UnitTests
 
             var services = new ServiceCollection();
 
+            services.AddSingleton(new DocumentFilterManager());
             services.AddSingleton<ITypeSerializer>(serializer);
             services.AddLogging();
             services.AddSingleton(Mock.Of<IClusterVersionProvider>());

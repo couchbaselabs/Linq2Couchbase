@@ -26,12 +26,6 @@ namespace Couchbase.Linq.IntegrationTests
             _travelSample = await TestSetup.Cluster.BucketAsync("travel-sample");
         }
 
-        [SetUp]
-        public void TestSetUp()
-        {
-            Filters.DocumentFilterManager.Clear();
-        }
-
         [Test]
         public void Map2PocoTests()
         {
@@ -541,12 +535,20 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
-        public void Map2PocoTests_Simple_Projections_TypeFilterRuntime()
+        public async Task Map2PocoTests_Simple_Projections_TypeFilterRuntime()
         {
-            DocumentFilterManager.SetFilter(new BreweryFilter());
+            var configuration = TestConfigurations.DefaultConfig(linqConfig =>
+            {
+                linqConfig.DocumentFilterManager.SetFilter(new BreweryFilter());
+            });
 
-            var context = new BucketContext(TestSetup.Bucket);
+            await using var cluster = await Couchbase.Cluster.ConnectAsync(configuration);
+            await cluster.WaitUntilReadyAsync(TimeSpan.FromSeconds(10));
 
+            var bucket = await cluster.BucketAsync("beer-sample");
+            await EnsurePrimaryIndexExists(bucket);
+
+            var context = new BucketContext(bucket);
 
             var breweries = (from b in context.Query<Brewery>()
                 select new {type = b.Type})

@@ -3,6 +3,7 @@ using Couchbase.KeyValue;
 using Couchbase.Linq.Filters;
 
 using Couchbase.Linq.IntegrationTests.Documents;
+using Couchbase.Linq.Utils;
 
 namespace Couchbase.Linq.IntegrationTests
 {
@@ -21,7 +22,8 @@ namespace Couchbase.Linq.IntegrationTests
             //Two ways of applying a filter are included in this example.
             //This is by implementing IDocumentFilter and then adding explicitly.
             //adding it to the DocumentFilterManager
-            DocumentFilterManager.SetFilter(new BreweryFilter());
+
+            bucket.Cluster.ClusterServices.GetRequiredService<DocumentFilterManager>().SetFilter(new BreweryFilter());
         }
 
         public IQueryable<BeerFiltered> Beers

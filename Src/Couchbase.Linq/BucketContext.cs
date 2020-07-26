@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Couchbase.Linq.Filters;
+using Couchbase.Linq.Utils;
 
 namespace Couchbase.Linq
 {
@@ -10,6 +11,8 @@ namespace Couchbase.Linq
     /// </summary>
     public class BucketContext : IBucketContext
     {
+        private readonly DocumentFilterManager _documentFilterManager;
+
         /// <summary>
         /// Creates a new BucketContext for a given Couchbase bucket.
         /// </summary>
@@ -17,6 +20,17 @@ namespace Couchbase.Linq
         public BucketContext(IBucket bucket)
         {
             Bucket = bucket;
+
+            try
+            {
+                _documentFilterManager =
+                    bucket.Cluster.ClusterServices.GetRequiredService<DocumentFilterManager>();
+            }
+            catch (InvalidOperationException)
+            {
+                throw new CouchbaseException(
+                    $"{nameof(DocumentFilterManager)} has not been registered with the Couchbase Cluster. Be sure {nameof(LinqClusterOptionsExtensions.AddLinq)} is called on ${nameof(ClusterOptions)} during bootstrap.");
+            }
         }
 
         /// <inheritdoc />
@@ -36,7 +50,7 @@ namespace Couchbase.Linq
 
             if ((options & BucketQueryOptions.SuppressFilters) == BucketQueryOptions.None)
             {
-                query = DocumentFilterManager.ApplyFilters(query);
+                query = _documentFilterManager.ApplyFilters(query);
             }
 
             return query;
