@@ -7,15 +7,23 @@ using NUnit.Framework;
 namespace Couchbase.Linq.UnitTests
 {
     [TestFixture]
-    public class CollectionContextTests : N1QLTestBase
+    public class BucketContextTests : N1QLTestBase
     {
         [Test]
         public void Can_Get_The_Bucket_The_Context_Was_Created_With()
         {
-            var bucket = new Mock<IBucket>();
-            var context = new BucketContext(bucket.Object);
+            var mockCluster = new Mock<ICluster>();
+            mockCluster
+                .Setup(p => p.ClusterServices)
+                .Returns(ServiceProvider);
 
-            Assert.AreSame(bucket.Object, context.Bucket);
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            mockBucket.SetupGet(e => e.Cluster).Returns(mockCluster.Object);
+
+            var context = new BucketContext(mockBucket.Object);
+
+            Assert.AreSame(mockBucket.Object, context.Bucket);
         }
 
         [Test]

@@ -1,9 +1,11 @@
 ﻿using System;
 
+#nullable enable
+
 namespace Couchbase.Linq.Filters
 {
     /// <summary>
-    /// Abstract base class for attribute-based <see cref="IDocumentFilter{T}">IDocumentFilter</see> implementations
+    /// Abstract base class for attribute-based <see cref="IDocumentFilter{T}" /> implementations.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
     public abstract class DocumentFilterAttribute : Attribute
@@ -18,7 +20,6 @@ namespace Couchbase.Linq.Filters
         /// </summary>
         /// <typeparam name="T">Type of the document being filtered.</typeparam>
         /// <returns>The <see cref="IDocumentFilter{T}"/> to be applied by this attribute.</returns>
-        public abstract IDocumentFilter<T> GetFilter<T>();
-
+        public abstract IDocumentFilter<T> CreateFilter<T>();
     }
 }
