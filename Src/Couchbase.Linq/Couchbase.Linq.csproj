@@ -17,6 +17,10 @@
     <RootNamespace>Couchbase.Linq</RootNamespace>
     <AssemblyName>Couchbase.Linq</AssemblyName>
 
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+
     <LangVersion>8</LangVersion>
   </PropertyGroup>
 
