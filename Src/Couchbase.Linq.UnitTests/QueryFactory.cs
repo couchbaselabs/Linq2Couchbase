@@ -1,11 +1,9 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Couchbase.Core.IO.Serializers;
 using Couchbase.Core.Version;
 using Couchbase.KeyValue;
+using Couchbase.Linq.Serialization;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.Logging;
 using Moq;
 
 namespace Couchbase.Linq.UnitTests
@@ -23,6 +21,9 @@ namespace Couchbase.Linq.UnitTests
             services.AddSingleton<ITypeSerializer>(serializer);
             services.AddLogging();
             services.AddSingleton(Mock.Of<IClusterVersionProvider>());
+            services.AddSingleton<ISerializationConverterProvider>(
+                new DefaultSerializationConverterProvider(serializer,
+                    TypeBasedSerializationConverterRegistry.CreateDefaultRegistry()));
 
             var mockCluster = new Mock<ICluster>();
             mockCluster
