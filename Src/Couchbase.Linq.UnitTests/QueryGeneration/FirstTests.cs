@@ -15,7 +15,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var temp = CreateQueryable<Contact>("default").First();
             var n1QlQuery = QueryExecutor.Query;
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` LIMIT 1";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -26,7 +26,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var temp = CreateQueryable<Contact>("default").FirstOrDefault();
             var n1QlQuery = QueryExecutor.Query;
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` LIMIT 1";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -37,7 +37,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var temp = CreateQueryable<Contact>("default").Skip(10).First();
             var n1QlQuery = QueryExecutor.Query;
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1 OFFSET 10";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` LIMIT 1 OFFSET 10";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -48,7 +48,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var temp = await CreateQueryable<Contact>("default").FirstAsync();
             var n1QlQuery = QueryExecutor.Query;
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` LIMIT 1";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -59,7 +59,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var temp = await CreateQueryable<Contact>("default").FirstAsync(p => p.Age > 5);
             var n1QlQuery = QueryExecutor.Query;
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`age` > 5) LIMIT 1";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`age` > 5) LIMIT 1";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -70,7 +70,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var temp = await CreateQueryable<Contact>("default").FirstOrDefaultAsync();
             var n1QlQuery = QueryExecutor.Query;
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` LIMIT 1";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -81,7 +81,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var temp = await CreateQueryable<Contact>("default").FirstOrDefaultAsync(p => p.Age > 5);
             var n1QlQuery = QueryExecutor.Query;
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`age` > 5) LIMIT 1";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`age` > 5) LIMIT 1";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -92,7 +92,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var temp = await CreateQueryable<Contact>("default").Skip(10).FirstAsync();
             var n1QlQuery = QueryExecutor.Query;
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 1 OFFSET 10";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` LIMIT 1 OFFSET 10";
 
             Assert.AreEqual(expected, n1QlQuery);
         }

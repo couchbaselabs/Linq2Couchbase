@@ -37,7 +37,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => e)
                     .Skip(10);
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1`";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -56,7 +56,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Skip(10)
                     .Take(10);
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` LIMIT 10 OFFSET 10";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` LIMIT 10 OFFSET 10";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

@@ -26,7 +26,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Where(e => e.FirstName != "Test");
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`fname` != 'Test')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`fname` != 'Test')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -206,7 +206,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(e => e.Abv == 0.5M);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 0.5)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 0.5)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -227,7 +227,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Where(e => e.Abv == 0.5M);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 0.5)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 0.5)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

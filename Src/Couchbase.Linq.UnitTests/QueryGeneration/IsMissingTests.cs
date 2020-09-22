@@ -23,7 +23,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Where(p => N1QlFunctions.IsMissing(p.Age));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`age` IS MISSING";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`age` IS MISSING";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -39,7 +39,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Where(p => N1QlFunctions.IsMissing(p, "test"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`test` IS MISSING";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`test` IS MISSING";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -55,7 +55,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Where(p => N1QlFunctions.IsNotMissing(p.Age));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`age` IS NOT MISSING";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`age` IS NOT MISSING";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -71,7 +71,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Where(p => N1QlFunctions.IsNotMissing(p, "test"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`test` IS NOT MISSING";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`test` IS NOT MISSING";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -103,7 +103,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Where(p => N1QlFunctions.IsValued(p.Age));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`age` IS VALUED";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`age` IS VALUED";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -119,7 +119,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Where(p => N1QlFunctions.IsValued(p, "test"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`test` IS VALUED";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`test` IS VALUED";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -135,7 +135,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Where(p => N1QlFunctions.IsNotValued(p.Age));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`age` IS NOT VALUED";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`age` IS NOT VALUED";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -151,7 +151,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Contact>(mockBucket.Object)
                 .Where(p => N1QlFunctions.IsNotValued(p, "test"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`test` IS NOT VALUED";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`test` IS NOT VALUED";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

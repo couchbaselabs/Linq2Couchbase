@@ -32,13 +32,6 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(TestSetup.Bucket);
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.ArrayIndexes)
-            {
-                Assert.Ignore("Cluster does not support array indexes, test skipped.");
-            }
-
             // This test requires the following index:
             //   CREATE INDEX brewery_address ON `beer-sample` (DISTINCT ARRAY x FOR x IN address END) WHERE type = 'brewery'
 
@@ -47,10 +40,10 @@ namespace Couchbase.Linq.IntegrationTests
 
 
 
-            var explanation = (from b in context.Query<Brewery>()
+            var explanation = await (from b in context.Query<Brewery>()
                                where b.Type == "brewery" && b.Address.AsQueryable("x").Any(p => p == "563 Second Street")
                                select new { name = b.Name, address = b.Address }).
-                Explain();
+                ExplainAsync();
 
             Assert.AreEqual("DistinctScan", explanation.plan["~children"][0]["#operator"].ToString());
             Assert.True(explanation.plan["~children"][0].scan["#operator"].ToString().StartsWith("IndexScan"));

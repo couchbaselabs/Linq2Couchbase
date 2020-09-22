@@ -78,7 +78,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             // See if this group join is a LEFT OUTER NEST
-            var ansiJoinPart = _queyPartsAggregator.Extents.OfType<AnsiJoinPart>()
+            var ansiJoinPart = _queyPartsAggregator.Extents.OfType<JoinPart>()
                 .FirstOrDefault(p => p.QuerySource == groupJoinClause);
 
             if (ansiJoinPart != null && ansiJoinPart.JoinType == JoinTypes.LeftNest)

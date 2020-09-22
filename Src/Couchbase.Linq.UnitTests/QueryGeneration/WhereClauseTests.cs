@@ -282,7 +282,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` " +
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` " +
                 "WHERE (`Extent1`.`DateTime` >= 1262304000000)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
