@@ -21,9 +21,6 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: '3.1.301'
-    - name: Setup side by side .NET SDKs on *nix
-      run: |
-        rsync -a ${DOTNET_ROOT/3.1.301/2.1.807}/* $DOTNET_ROOT/
     - name: Install dependencies
       run: dotnet restore Src/couchbase-net-linq.sln
     - name: Build
