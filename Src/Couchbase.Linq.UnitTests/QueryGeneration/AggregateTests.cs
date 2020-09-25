@@ -25,21 +25,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT AVG(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
-
-            Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
-        public void Test_Avg_Raw()
-        {
-            var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
-
-            // ReSharper disable once UnusedVariable
-            _ = CreateQueryable<Beer>("default", queryExecutor).Average(p => p.Abv);
-            var n1QlQuery = queryExecutor.Query;
-
-            const string expected =
                 "SELECT RAW AVG(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
@@ -53,7 +38,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT AVG(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW AVG(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -64,21 +49,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             // ReSharper disable once UnusedVariable
             _ = await CreateQueryable<Beer>("default").Select(p => p.Abv).AverageAsync();
             var n1QlQuery = QueryExecutor.Query;
-
-            const string expected =
-                "SELECT AVG(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
-
-            Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
-        public async Task Test_AvgAsync_Raw()
-        {
-            var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
-
-            // ReSharper disable once UnusedVariable
-            _ = await CreateQueryable<Beer>("default", queryExecutor).AverageAsync(p => p.Abv);
-            var n1QlQuery = queryExecutor.Query;
 
             const string expected =
                 "SELECT RAW AVG(`Extent1`.`abv`) FROM `default` as `Extent1`";
@@ -94,7 +64,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT COUNT(*) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW COUNT(*) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -107,7 +77,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT COUNT(*) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW COUNT(*) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -120,22 +90,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT COUNT(*) as `result` FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 1)";
-
-            Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
-        public void Test_Count_Raw()
-        {
-            var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
-
-            // ReSharper disable once UnusedVariable
-            _ = CreateQueryable<Beer>("default", queryExecutor).Count();
-            var n1QlQuery = queryExecutor.Query;
-
-            const string expected =
-                "SELECT RAW COUNT(*) FROM `default` as `Extent1`";
+                "SELECT RAW COUNT(*) FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 1)";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -148,23 +103,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Select(p => new { p.Name, p.Description})
                 .Count();
             var n1QlQuery = QueryExecutor.Query;
-
-            const string expected =
-                "SELECT COUNT({\"Name\": `Extent1`.`name`, \"Description\": `Extent1`.`description`}) as `result` FROM `default` as `Extent1`";
-
-            Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
-        public void Test_CountAfterSelectProjection_Raw()
-        {
-            var queryExecutor = new ClusterQueryExecutorEmulator(this, FeatureVersions.SelectRaw);
-
-            // ReSharper disable once UnusedVariable
-            _ = CreateQueryable<Beer>("default", queryExecutor)
-                .Select(p => new { p.Name, p.Description })
-                .Count();
-            var n1QlQuery = queryExecutor.Query;
 
             const string expected =
                 "SELECT RAW COUNT({\"Name\": `Extent1`.`name`, \"Description\": `Extent1`.`description`}) FROM `default` as `Extent1`";
@@ -180,7 +118,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT COUNT(`Extent1`.`name`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW COUNT(`Extent1`.`name`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -193,7 +131,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT COUNT(DISTINCT `Extent1`.`name`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW COUNT(DISTINCT `Extent1`.`name`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -206,7 +144,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT COUNT(*) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW COUNT(*) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -219,7 +157,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT COUNT(*) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW COUNT(*) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -232,7 +170,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT COUNT(*) as `result` FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 1)";
+                "SELECT RAW COUNT(*) FROM `default` as `Extent1` WHERE (`Extent1`.`abv` = 1)";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -247,7 +185,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT MIN(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW MIN(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -260,7 +198,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT MIN(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW MIN(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -273,7 +211,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT MIN(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW MIN(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -286,7 +224,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT MAX(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW MAX(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -299,7 +237,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT MAX(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW MAX(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -312,7 +250,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT MAX(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW MAX(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -327,7 +265,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT SUM(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW SUM(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -340,7 +278,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT SUM(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW SUM(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -353,7 +291,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var n1QlQuery = QueryExecutor.Query;
 
             const string expected =
-                "SELECT SUM(`Extent1`.`abv`) as `result` FROM `default` as `Extent1`";
+                "SELECT RAW SUM(`Extent1`.`abv`) FROM `default` as `Extent1`";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -375,7 +313,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 select g.Key;
 
             const string expected =
-                "SELECT `Extent1`.`brewery_id` as `result` " +
+                "SELECT RAW `Extent1`.`brewery_id` " +
                 "FROM `default` as `Extent1` " +
                 "GROUP BY `Extent1`.`brewery_id`";
 
@@ -467,7 +405,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected =
                 "SELECT `Extent2`.`name` as `breweryName`, AVG(`Extent1`.`abv`) as `avgAbv` " +
                 "FROM `default` as `Extent1` " +
-                "INNER JOIN `default` as `Extent2` ON KEYS `Extent1`.`brewery_id` " +
+                "INNER JOIN `default` as `Extent2` ON (`Extent1`.`brewery_id` = META(`Extent2`).id) " +
                 "GROUP BY `Extent2`.`name`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
@@ -496,7 +434,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected =
                 "SELECT `Extent2`.`name` as `breweryName`, AVG(`Extent1`.`abv`) as `avgAbv` " +
                 "FROM `default` as `Extent1` " +
-                "INNER JOIN `default` as `Extent2` ON KEYS `Extent1`.`brewery_id` " +
+                "INNER JOIN `default` as `Extent2` ON (`Extent1`.`brewery_id` = META(`Extent2`).id) " +
                 "GROUP BY `Extent2`.`name` " +
                 "ORDER BY `Extent2`.`name` ASC";
 
@@ -522,7 +460,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected =
                 "SELECT `Extent2`.`name` as `breweryName`, AVG(`Extent1`.`abv`) as `avgAbv` " +
                 "FROM `default` as `Extent1` " +
-                "INNER JOIN `default` as `Extent2` ON KEYS `Extent1`.`brewery_id` " +
+                "INNER JOIN `default` as `Extent2` ON (`Extent1`.`brewery_id` = META(`Extent2`).id) " +
                 "GROUP BY `Extent2`.`name` " +
                 "ORDER BY AVG(`Extent1`.`abv`) DESC";
 
@@ -552,7 +490,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected =
                 "SELECT `Extent2`.`name` as `breweryName`, AVG(`Extent1`.`abv`) as `avgAbv` " +
                 "FROM `default` as `Extent1` " +
-                "INNER JOIN `default` as `Extent2` ON KEYS `Extent1`.`brewery_id` " +
+                "INNER JOIN `default` as `Extent2` ON (`Extent1`.`brewery_id` = META(`Extent2`).id) " +
                 "GROUP BY `Extent2`.`name` " +
                 "HAVING (`Extent2`.`name` >= 'N')";
 
@@ -578,7 +516,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected =
                 "SELECT `Extent2`.`name` as `breweryName`, AVG(`Extent1`.`abv`) as `avgAbv` " +
                 "FROM `default` as `Extent1` " +
-                "INNER JOIN `default` as `Extent2` ON KEYS `Extent1`.`brewery_id` " +
+                "INNER JOIN `default` as `Extent2` ON (`Extent1`.`brewery_id` = META(`Extent2`).id) " +
                 "GROUP BY `Extent2`.`name` " +
                 "HAVING (AVG(`Extent1`.`abv`) >= 6)";
 
@@ -600,7 +538,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Route>(mockBucket.Object)
                 .Where(p => p.Schedule.Count() > 1);
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.ArrayInFromClause);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             const string expected =
                 "SELECT RAW `Extent1` FROM `default` as `Extent1` " +
@@ -618,7 +556,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<Route>(mockBucket.Object)
                 .Where(p => p.Schedule.Count(q => q.Day == 0) > 1);
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.ArrayInFromClause);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             const string expected =
                 "SELECT RAW `Extent1` FROM `default` as `Extent1` " +

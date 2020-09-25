@@ -22,7 +22,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .ToArray();
             var n1QlQuery = QueryExecutor.Query;
 
-            const string expected = "SELECT `Extent1`.* " +
+            const string expected = "SELECT RAW `Extent1` " +
                 "FROM `default` as `Extent1` USE INDEX (`IndexName` USING GSI) " +
                 "WHERE (`Extent1`.`type` = 'contact')";
 
@@ -53,7 +53,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .ToArray();
             var n1QlQuery = QueryExecutor.Query;
 
-            const string expected = "SELECT `Extent1`.* " +
+            const string expected = "SELECT RAW `Extent1` " +
                 "FROM `default` as `Extent1` USE INDEX (`IndexName` USING VIEW) " +
                 "WHERE (`Extent1`.`type` = 'contact')";
 
@@ -105,7 +105,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     on route.DestinationAirport equals airport.Faa
                 select new {route, airport};
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             const string expected = "SELECT `Extent1` as `route`, `Extent2` as `airport` " +
                                     "FROM `default` as `Extent1` " +
@@ -126,7 +126,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     on airport.Faa equals route.DestinationAirport into routes
                 select new {airport, routes};
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             const string expected = "SELECT `Extent1` as `airport`, `Extent2` as `routes` " +
                                     "FROM `default` as `Extent1` " +
@@ -134,21 +134,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                                     "ON (`Extent1`.`faa` = `Extent2`.`destinationairport`)";
 
             Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
-        public void Test_UseIndexRightSideOfJoin_PreAnsiNotSupported()
-        {
-            var mockBucket = new Mock<IBucket>();
-            mockBucket.SetupGet(e => e.Name).Returns("default");
-
-            var query = from route in QueryFactory.Queryable<Route>(mockBucket.Object)
-                join airport in QueryFactory.Queryable<Airport>(mockBucket.Object).UseIndex("IndexName")
-                    on route.DestinationAirport equals airport.Faa
-                select new {route, airport};
-
-            Assert.Throws<NotSupportedException>(
-                () => CreateN1QlQuery(mockBucket.Object, query.Expression));
         }
 
         [Test]
@@ -162,7 +147,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     on route.DestinationAirport equals airport.Faa
                 select new {route, airport};
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             const string expected = "SELECT `Extent1` as `route`, `Extent2` as `airport` " +
                                     "FROM `default` as `Extent1` USE INDEX (`IndexName2` USING GSI) " +
@@ -183,7 +168,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     on airport.Faa equals route.DestinationAirport into routes
                 select new {airport, routes};
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             const string expected = "SELECT `Extent1` as `airport`, `Extent2` as `routes` " +
                                     "FROM `default` as `Extent1` USE INDEX (`IndexName2` USING GSI) " +
@@ -206,7 +191,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     on route.DestinationAirport equals airport.Faa
                 select new {route, airport};
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             var expected =  "SELECT `Extent1` as `route`, `Extent2` as `airport` " +
                             "FROM `default` as `Extent1` " +
@@ -229,7 +214,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     on airport.Faa equals route.DestinationAirport into routes
                 select new {airport, routes};
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             var expected = "SELECT `Extent1` as `airport`, `Extent2` as `routes` " +
                            "FROM `default` as `Extent1` " +
@@ -237,21 +222,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                            "ON (`Extent1`.`faa` = `Extent2`.`destinationairport`)";
 
             Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
-        public void Test_UseHash_PreAnsiNotSupported()
-        {
-            var mockBucket = new Mock<IBucket>();
-            mockBucket.SetupGet(e => e.Name).Returns("default");
-
-            var query = from route in QueryFactory.Queryable<Route>(mockBucket.Object)
-                join airport in QueryFactory.Queryable<Airport>(mockBucket.Object).UseHash(HashHintType.Build)
-                    on route.DestinationAirport equals airport.Faa
-                select new {route, airport};
-
-            Assert.Throws<NotSupportedException>(
-                () => CreateN1QlQuery(mockBucket.Object, query.Expression));
         }
 
         [Test]
@@ -264,7 +234,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 select route;
 
             Assert.Throws<NotSupportedException>(
-                () => CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin));
+                () => CreateN1QlQuery(mockBucket.Object, query.Expression));
         }
 
         [Test]
@@ -279,7 +249,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 select route;
 
             Assert.Throws<NotSupportedException>(
-                () => CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin));
+                () => CreateN1QlQuery(mockBucket.Object, query.Expression));
         }
 
         [Test]
@@ -293,7 +263,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     on route.DestinationAirport equals airport.Faa
                 select new {route, airport};
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             const string expected = "SELECT `Extent1` as `route`, `Extent2` as `airport` " +
                                     "FROM `default` as `Extent1` " +
@@ -314,7 +284,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     on airport.Faa equals route.DestinationAirport into routes
                 select new {airport, routes};
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.AnsiJoin);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             const string expected = "SELECT `Extent1` as `airport`, `Extent2` as `routes` " +
                                     "FROM `default` as `Extent1` " +

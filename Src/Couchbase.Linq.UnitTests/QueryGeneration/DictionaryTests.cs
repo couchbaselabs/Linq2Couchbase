@@ -23,7 +23,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryInterface>(mockBucket.Object)
                 .Select(p => p.Dictionary["key"]);
 
-            const string expected = "SELECT `Extent1`.`Dictionary`.`key` as `result` FROM `default` as `Extent1`";
+            const string expected = "SELECT RAW `Extent1`.`Dictionary`.`key` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -39,7 +39,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryClass>(mockBucket.Object)
                 .Select(p => p.Dictionary["key"]);
 
-            const string expected = "SELECT `Extent1`.`Dictionary`.`key` as `result` FROM `default` as `Extent1`";
+            const string expected = "SELECT RAW `Extent1`.`Dictionary`.`key` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -55,7 +55,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryInterfaceUntyped>(mockBucket.Object)
                 .Select(p => p.Dictionary["key"]);
 
-            const string expected = "SELECT `Extent1`.`Dictionary`.`key` as `result` FROM `default` as `Extent1`";
+            const string expected = "SELECT RAW `Extent1`.`Dictionary`.`key` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -75,7 +75,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryInterface>(mockBucket.Object)
                 .Where(p => p.Dictionary.ContainsKey("key"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`Dictionary`.`key` IS NOT MISSING";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`Dictionary`.`key` IS NOT MISSING";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -91,7 +91,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryClass>(mockBucket.Object)
                 .Where(p => p.Dictionary.ContainsKey("key"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`Dictionary`.`key` IS NOT MISSING";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`Dictionary`.`key` IS NOT MISSING";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -107,7 +107,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryInterfaceUntyped>(mockBucket.Object)
                 .Where(p => p.Dictionary.Contains("key"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`Dictionary`.`key` IS NOT MISSING";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`Dictionary`.`key` IS NOT MISSING";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -127,7 +127,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryInterface>(mockBucket.Object)
                 .Select(p => p.Dictionary.Keys);
 
-            const string expected = "SELECT OBJECT_NAMES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+            const string expected = "SELECT RAW OBJECT_NAMES(`Extent1`.`Dictionary`) FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -143,7 +143,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryClass>(mockBucket.Object)
                 .Select(p => p.Dictionary.Keys);
 
-            const string expected = "SELECT OBJECT_NAMES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+            const string expected = "SELECT RAW OBJECT_NAMES(`Extent1`.`Dictionary`) FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -159,7 +159,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryInterfaceUntyped>(mockBucket.Object)
                 .Select(p => p.Dictionary.Keys);
 
-            const string expected = "SELECT OBJECT_NAMES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+            const string expected = "SELECT RAW OBJECT_NAMES(`Extent1`.`Dictionary`) FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -179,7 +179,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryInterface>(mockBucket.Object)
                 .Select(p => p.Dictionary.Values);
 
-            const string expected = "SELECT OBJECT_VALUES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+            const string expected = "SELECT RAW OBJECT_VALUES(`Extent1`.`Dictionary`) FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -195,7 +195,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryClass>(mockBucket.Object)
                 .Select(p => p.Dictionary.Values);
 
-            const string expected = "SELECT OBJECT_VALUES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+            const string expected = "SELECT RAW OBJECT_VALUES(`Extent1`.`Dictionary`) FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -211,7 +211,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = QueryFactory.Queryable<DictionaryInterfaceUntyped>(mockBucket.Object)
                 .Select(p => p.Dictionary.Values);
 
-            const string expected = "SELECT OBJECT_VALUES(`Extent1`.`Dictionary`) as `result` FROM `default` as `Extent1`";
+            const string expected = "SELECT RAW OBJECT_VALUES(`Extent1`.`Dictionary`) FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

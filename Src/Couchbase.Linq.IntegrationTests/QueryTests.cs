@@ -431,13 +431,6 @@ namespace Couchbase.Linq.IntegrationTests
 
             var context = new BucketContext(_travelSample);
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.AnsiJoin)
-            {
-                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
-            }
-
             var query =
                 from route in context.Query<Route>()
                 join airport in context.Query<Airport>()
@@ -447,7 +440,7 @@ namespace Couchbase.Linq.IntegrationTests
                 where route.Type == "route"
                 select new { airport.AirportName, route.Airline };
 
-            var results = query.Take(1).ToList();
+            var results = await query.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count);
 
             foreach (var b in results)
@@ -461,15 +454,6 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(_travelSample);
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.AnsiJoin)
-            {
-                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
-            }
-
-
-
             var query =
                 from route in context.Query<Route>()
                 join airport in context.Query<Airport>()
@@ -479,7 +463,7 @@ namespace Couchbase.Linq.IntegrationTests
                 where route.Type == "route"
                 select new { airport.AirportName, route.Airline };
 
-            var results = query.Take(1).ToList();
+            var results = await query.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count);
 
             foreach (var b in results)
@@ -493,15 +477,6 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(_travelSample);
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.AnsiJoin)
-            {
-                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
-            }
-
-
-
             var query =
                 from route in context.Query<Route>()
                 join airport in context.Query<Airport>()
@@ -512,7 +487,7 @@ namespace Couchbase.Linq.IntegrationTests
                 where route.Type == "route"
                 select new { airport.AirportName, route.Airline };
 
-            var results = query.Take(1).ToList();
+            var results = await query.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count);
 
             foreach (var b in results)
@@ -680,20 +655,13 @@ namespace Couchbase.Linq.IntegrationTests
 
             await EnsureIndexExists(context.Bucket, "brewery_id", "brewery_id");
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.IndexJoin)
-            {
-                Assert.Ignore("Cluster does not support index joins, test skipped.");
-            }
-
             var beers = from brewery in context.Query<Brewery>()
                         join beer in context.Query<Beer>()
                             on N1QlFunctions.Key(brewery) equals beer.BreweryId
                         where (beer.Type == "beer") && (brewery.Type == "brewery")
                         select new { beer.Name, beer.Abv, BreweryName = brewery.Name };
 
-            var results = beers.Take(1).ToList();
+            var results = await beers.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count());
 
             foreach (var b in results)
@@ -707,20 +675,13 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(_travelSample);
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.AnsiJoin)
-            {
-                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
-            }
-
             var routes = from route in context.Query<Route>()
                 join airport in context.Query<Airport>()
                     on route.DestinationAirport equals airport.Faa
                 where (route.Type == "route") && (airport.Type == "airport")
                 select new { airport.AirportName, route.Airline };
 
-            var results = routes.Take(1).ToList();
+            var results = await routes.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count);
 
             foreach (var b in results)
@@ -734,19 +695,12 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(_travelSample);
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.AnsiJoin)
-            {
-                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
-            }
-
             var routes = from route in context.Query<Route>().Where(p => p.Type == "route")
                 join airport in context.Query<Airport>().Where(p => p.Type == "airport")
                     on route.DestinationAirport equals airport.Faa
                 select new { airport.AirportName, route.Airline };
 
-            var results = routes.Take(1).ToList();
+            var results = await routes.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count);
 
             foreach (var b in results)
@@ -826,15 +780,6 @@ namespace Couchbase.Linq.IntegrationTests
 
             await EnsureIndexExists(context.Bucket, "brewery_id", "brewery_id");
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.IndexJoin)
-            {
-                Assert.Ignore("Cluster does not support index joins, test skipped.");
-            }
-
-
-
             var beers = from brewery in context.Query<Brewery>()
                         join beer in context.Query<Beer>()
                             on N1QlFunctions.Key(brewery) equals beer.BreweryId into bg
@@ -856,13 +801,6 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(_travelSample);
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.AnsiJoin)
-            {
-                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
-            }
-
             var routes = from route in context.Query<Route>()
                 join airport in context.Query<Airport>()
                     on route.DestinationAirport equals airport.Faa into ra
@@ -870,7 +808,7 @@ namespace Couchbase.Linq.IntegrationTests
                 where (route.Type == "route") && (airport.Type == "airport")
                 select new { airport.AirportName, route.Airline };
 
-            var results = routes.Take(1).ToList();
+            var results = await routes.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count);
 
             foreach (var b in results)
@@ -884,20 +822,13 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(_travelSample);
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.AnsiJoin)
-            {
-                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
-            }
-
             var routes = from route in context.Query<Route>().Where(p => p.Type == "route")
                 join airport in context.Query<Airport>().Where(p => p.Type == "airport")
                     on route.DestinationAirport equals airport.Faa into ra
                 from airport in ra.DefaultIfEmpty()
                 select new { airport.AirportName, route.Airline };
 
-            var results = routes.Take(1).ToList();
+            var results = await routes.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count);
 
             foreach (var b in results)
@@ -971,19 +902,12 @@ namespace Couchbase.Linq.IntegrationTests
 
             await EnsureIndexExists(context.Bucket, "brewery_id", "brewery_id");
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.IndexJoin)
-            {
-                Assert.Ignore("Cluster does not support index joins, test skipped.");
-            }
-
             var breweries = from brewery in context.Query<Brewery>()
                 join beer in context.Query<Beer>() on N1QlFunctions.Key(brewery) equals beer.BreweryId into beers
                 where brewery.Type == "brewery"
                 select new {name = brewery.Name, beers};
 
-            var results = breweries.Take(1).ToList();
+            var results = await breweries.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count());
 
             foreach (var brewery in results)
@@ -1001,13 +925,6 @@ namespace Couchbase.Linq.IntegrationTests
             var context = new BucketContext(TestSetup.Bucket);
 
             await EnsureIndexExists(context.Bucket, "brewery_id", "brewery_id");
-
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.IndexJoin)
-            {
-                Assert.Ignore("Cluster does not support index joins, test skipped.");
-            }
 
             var breweries = from brewery in context.Query<Brewery>()
                             join beer in context.Query<BeerFiltered>() on N1QlFunctions.Key(brewery) equals beer.BreweryId into beers
@@ -1031,13 +948,6 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(_travelSample);
 
-            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
-            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
-            if (clusterVersion < FeatureVersions.AnsiJoin)
-            {
-                Assert.Ignore("Cluster does not support ANSI joins, test skipped.");
-            }
-
             var query = from airline in context.Query<Airline>()
                 join route in context.Query<Route>()
                         .Where(route => route.Type == "route" && route.SourceAirport == "SFO")
@@ -1045,7 +955,7 @@ namespace Couchbase.Linq.IntegrationTests
                 where airline.Type == "airline" && airline.Country == "United States"
                 select new { name = airline.Name, routes };
 
-            var results = query.Take(1).ToList();
+            var results = await query.Take(1).ToListAsync();
             Assert.AreEqual(1, results.Count());
 
             foreach (var airline in results)

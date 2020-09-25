@@ -109,26 +109,9 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Select(e => e);
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1`";
-
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
-
-            Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
-        public void Test_Select_All_Properties_Raw()
-        {
-            var mockBucket = new Mock<IBucket>();
-            mockBucket.SetupGet(e => e.Name).Returns("default");
-
-            var query =
-                QueryFactory.Queryable<Contact>(mockBucket.Object)
-                    .Select(e => e);
-
             const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1`";
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.SelectRaw);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -143,26 +126,9 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Contact>(mockBucket.Object)
                     .Select(e => e.FirstName);
 
-            const string expected = "SELECT `Extent1`.`fname` as `result` FROM `default` as `Extent1`";
-
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
-
-            Assert.AreEqual(expected, n1QlQuery);
-        }
-
-        [Test]
-        public void Test_Select_Single_Property_Raw()
-        {
-            var mockBucket = new Mock<IBucket>();
-            mockBucket.SetupGet(e => e.Name).Returns("default");
-
-            var query =
-                QueryFactory.Queryable<Contact>(mockBucket.Object)
-                    .Select(e => e.FirstName);
-
             const string expected = "SELECT RAW `Extent1`.`fname` FROM `default` as `Extent1`";
 
-            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression, FeatureVersions.SelectRaw);
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -178,7 +144,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .UseKeys(new[] { "abc", "def" })
                     .Select(e => e);
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` USE KEYS ['abc', 'def']";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` USE KEYS ['abc', 'def']";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

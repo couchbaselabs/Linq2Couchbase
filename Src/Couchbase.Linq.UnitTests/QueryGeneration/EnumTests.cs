@@ -27,7 +27,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == IntegerEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 0)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 0)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -44,7 +44,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => IntegerEnum.Value0 == p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 0)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 0)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -61,7 +61,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value != IntegerEnum.Value1);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 1)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 1)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -78,7 +78,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => IntegerEnum.Value1 != p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 1)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 1)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -99,7 +99,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == IntegerEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 0)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 0)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -116,7 +116,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == null);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NULL)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NULL)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -133,7 +133,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => IntegerEnum.Value0 == p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 0)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 0)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -150,7 +150,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value != IntegerEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 0)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 0)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -167,7 +167,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value != null);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NOT NULL)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NOT NULL)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -184,7 +184,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => IntegerEnum.Value0 != p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 0)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 0)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -205,7 +205,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == StringEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -222,7 +222,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => StringEnum.Value0 == p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -239,7 +239,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value != StringEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -256,7 +256,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == StringEnum.Value1);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value 1')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value 1')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -273,7 +273,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => StringEnum.Value0 != p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -294,7 +294,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == StringEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -311,7 +311,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == null);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NULL)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NULL)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -328,7 +328,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => StringEnum.Value0 == p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -345,7 +345,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value != StringEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -362,7 +362,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value != null);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NOT NULL)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NOT NULL)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -379,7 +379,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => StringEnum.Value0 != p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -400,7 +400,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == IntegerEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -417,7 +417,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => IntegerEnum.Value0 == p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -434,7 +434,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value != IntegerEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -451,7 +451,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == IntegerEnum.Value2);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value 2')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value 2')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -468,7 +468,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => IntegerEnum.Value0 != p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -489,7 +489,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == IntegerEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -506,7 +506,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value == null);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NULL)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NULL)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -523,7 +523,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => IntegerEnum.Value0 == p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` = 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -540,7 +540,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value != IntegerEnum.Value0);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -557,7 +557,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => p.Value != null);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NOT NULL)";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` IS NOT NULL)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -574,7 +574,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 .Where(p => IntegerEnum.Value0 != p.Value);
 
             const string expected =
-                "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`Value` != 'Value0')";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

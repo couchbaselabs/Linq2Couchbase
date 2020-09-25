@@ -25,7 +25,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<DocumentWithArray>(mockBucket.Object)
                     .Where(e => e.Array.Contains("abc"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE 'abc' IN (`Extent1`.`Array`)";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE 'abc' IN (`Extent1`.`Array`)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -44,7 +44,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<DocumentWithArray>(mockBucket.Object)
                     .Where(e => e.Array.AsQueryable("ExtentName").Any(p => p == "abc"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` " +
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` " +
                 "WHERE ANY `ExtentName` IN `Extent1`.`Array` SATISFIES (`ExtentName` = 'abc') END";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
@@ -64,7 +64,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<DocumentWithIList>(mockBucket.Object)
                     .Where(e => e.List.Contains("abc"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE 'abc' IN (`Extent1`.`List`)";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE 'abc' IN (`Extent1`.`List`)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -83,7 +83,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<DocumentWithIList>(mockBucket.Object)
                     .Where(e => e.List.AsQueryable("ExtentName").Any(p => p == "abc"));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` " +
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` " +
                 "WHERE ANY `ExtentName` IN `Extent1`.`List` SATISFIES (`ExtentName` = 'abc') END";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
@@ -104,7 +104,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Beer>(mockBucket.Object)
                     .Where(e => staticArray.Contains(e.Name));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (['abc', 'def'])";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (['abc', 'def'])";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -124,7 +124,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Beer>(mockBucket.Object)
                     .Where(e => staticArray.Select(p => "a" + p).Contains(e.Name));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (ARRAY ('a' || `Extent2`) FOR `Extent2` IN ['abc', 'def'] END)";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (ARRAY ('a' || `Extent2`) FOR `Extent2` IN ['abc', 'def'] END)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -144,7 +144,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Beer>(mockBucket.Object)
                     .Where(e => staticArray.Contains(e.Name));
 
-            const string expected = "SELECT `Extent1`.* FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (['abc', 'def'])";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (['abc', 'def'])";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
