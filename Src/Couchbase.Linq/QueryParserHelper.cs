@@ -36,7 +36,6 @@ namespace Couchbase.Linq
             nodeTypeRegistry.Register(UseKeysExpressionNode.SupportedMethods, typeof(UseKeysExpressionNode));
             nodeTypeRegistry.Register(UseIndexExpressionNode.SupportedMethods, typeof(UseIndexExpressionNode));
             nodeTypeRegistry.Register(UseHashExpressionNode.SupportedMethods, typeof(UseHashExpressionNode));
-            nodeTypeRegistry.Register(ExtentNameExpressionNode.SupportedMethods, typeof(ExtentNameExpressionNode));
             nodeTypeRegistry.Register(ScanConsistencyExpressionNode.GetSupportedMethods(), typeof(ScanConsistencyExpressionNode));
             nodeTypeRegistry.Register(ConsistentWithExpressionNode.GetSupportedMethods(), typeof(ConsistentWithExpressionNode));
 

@@ -140,15 +140,6 @@ namespace Couchbase.Linq.QueryGeneration
         /// <exception cref="NotSupportedException">N1Ql Bucket Subqueries Require A UseKeys Call</exception>
         public override void VisitMainFromClause(MainFromClause fromClause, QueryModel queryModel)
         {
-            if (fromClause.ItemName.StartsWith(ExtentNameExpressionNode.ItemNamePrefix))
-            {
-                // There is a hardcoded value for the extent name to be used, so use this value instead
-                // of automatically generating a value.
-
-                _queryGenerationContext.ExtentNameProvider.SetExtentName(fromClause,
-                    fromClause.ItemName.Substring(ExtentNameExpressionNode.ItemNamePrefix.Length));
-            }
-
             var bucketConstantExpression = fromClause.FromExpression as ConstantExpression;
             if ((bucketConstantExpression != null) &&
                 typeof(ICollectionQueryable).GetTypeInfo().IsAssignableFrom(bucketConstantExpression.Type))
