@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Remotion.Linq.Clauses;
 
 namespace Couchbase.Linq.QueryGeneration
@@ -31,7 +28,7 @@ namespace Couchbase.Linq.QueryGeneration
         {
             if (querySource == null)
             {
-                throw new ArgumentNullException("querySource");
+                throw new ArgumentNullException(nameof(querySource));
             }
 
             if (Prefix != null)
@@ -51,8 +48,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// <returns>The escaped extent name for the N1QL query</returns>
         private string GetExtentNameUnprefixed(IQuerySource querySource)
         {
-            string extentName;
-            if (!_extentDictionary.TryGetValue(querySource, out extentName))
+            if (!_extentDictionary.TryGetValue(querySource, out var extentName))
             {
                 extentName = GetNextExtentName();
 
@@ -76,11 +72,11 @@ namespace Couchbase.Linq.QueryGeneration
         {
             if (primaryExtent == null)
             {
-                throw new ArgumentNullException("primaryExtent");
+                throw new ArgumentNullException(nameof(primaryExtent));
             }
             if (secondaryExtent == null)
             {
-                throw new ArgumentNullException("secondaryExtent");
+                throw new ArgumentNullException(nameof(secondaryExtent));
             }
 
             if (_extentDictionary.ContainsKey(secondaryExtent))
@@ -105,25 +101,6 @@ namespace Couchbase.Linq.QueryGeneration
             _extentDictionary[querySource] = "";
         }
 
-        public void SetExtentName(IQuerySource querySource, string extentName)
-        {
-            if (querySource == null)
-            {
-                throw new ArgumentNullException("extentName");
-            }
-            if (string.IsNullOrEmpty(extentName))
-            {
-                return;
-            }
-
-            if (_extentDictionary.ContainsKey(querySource))
-            {
-                throw new InvalidOperationException("Cannot set the extent name on a query source which already has a name.");
-            }
-
-            _extentDictionary[querySource] = N1QlHelpers.EscapeIdentifier(extentName);
-        }
-
         /// <summary>
         /// Change the extent name of a query source to a newly generated name, replacing any previously generated name.
         /// </summary>
@@ -133,7 +110,7 @@ namespace Couchbase.Linq.QueryGeneration
         {
             if (querySource == null)
             {
-                throw new ArgumentNullException("querySource");
+                throw new ArgumentNullException(nameof(querySource));
             }
 
             // Remove the extent name, if already generated

@@ -41,7 +41,7 @@ namespace Couchbase.Linq.IntegrationTests
 
 
             var explanation = await (from b in context.Query<Brewery>()
-                               where b.Type == "brewery" && b.Address.AsQueryable("x").Any(p => p == "563 Second Street")
+                               where b.Type == "brewery" && b.Address.Any(p => p == "563 Second Street")
                                select new { name = b.Name, address = b.Address }).
                 ExplainAsync();
 
