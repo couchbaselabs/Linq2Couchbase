@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
@@ -14,11 +12,11 @@ namespace Couchbase.Linq.Serialization
     /// <summary>
     /// Implementation of <see cref="ISerializationConverterProvider"/> used if the Couchbase serializer
     /// doesn't implement the interface.  Checks for <see cref="JsonConverter"/> on the property
-    /// and uses a globally defined <see cref="Registry"/> to acquire an appropriate <see cref="ISerializationConverter"/>.
-    /// Only works Json.Net serialization, if using a custom serializer please implement
-    /// <see cref="ISerializationConverterProvider"/> directly on the serializer.
+    /// and uses the globally configured <see cref="CouchbaseLinqConfiguration.JsonNetSerializationConverterRegistry"/> to acquire an
+    /// appropriate <see cref="ISerializationConverter"/>. Only works for Newtonsoft.Json serialization, if using a custom serializer
+    /// please implement a custom <see cref="ISerializationConverterProvider"/>.
     /// </summary>
-    public class DefaultSerializationConverterProvider : ISerializationConverterProvider
+    internal class DefaultSerializationConverterProvider : ISerializationConverterProvider
     {
         // Uses a weak table to track a cache for each ITypeSerializer/ISerializationConverterRegistry pair
         // Because it's a weak table, this won't cause memory leaks and will cleanup as GC collects the serializers
@@ -26,25 +24,14 @@ namespace Couchbase.Linq.Serialization
             ConditionalWeakTable<ITypeSerializer, ConcurrentDictionary<MemberInfo, ISerializationConverter>> CacheSet =
                 new ConditionalWeakTable<ITypeSerializer, ConcurrentDictionary<MemberInfo, ISerializationConverter>>();
 
-        private static IJsonNetSerializationConverterRegistry _registry =
-            TypeBasedSerializationConverterRegistry.Global;
-
-        /// <summary>
-        /// Registry of <see cref="ISerializationConverter"/> to use for a given <see cref="JsonConverter"/>.
-        /// By default, uses <see cref="TypeBasedSerializationConverterRegistry.Global"/>.
-        /// </summary>
-        public static IJsonNetSerializationConverterRegistry Registry
-        {
-            get => _registry;
-            set => _registry = value ?? throw new ArgumentNullException(nameof(value));
-        }
-
+        private readonly IJsonNetSerializationConverterRegistry _converterRegistry;
         private readonly ITypeSerializer _serializer;
         private readonly ConcurrentDictionary<MemberInfo, ISerializationConverter> _cache;
 
-        public DefaultSerializationConverterProvider(ITypeSerializer serializer)
+        public DefaultSerializationConverterProvider(ITypeSerializer serializer, IJsonNetSerializationConverterRegistry converterRegistry)
         {
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _converterRegistry = converterRegistry ?? throw new ArgumentNullException(nameof(converterRegistry));
 
             _cache = CacheSet.GetOrCreateValue(serializer);
         }
@@ -74,7 +61,7 @@ namespace Couchbase.Linq.Serialization
                         var jsonConverter = GetJsonConverter(property, defaultSerializer);
                         if (jsonConverter != null)
                         {
-                            return Registry.CreateSerializationConverter(jsonConverter, p);
+                            return _converterRegistry.CreateSerializationConverter(jsonConverter, p);
                         }
                     }
                 }

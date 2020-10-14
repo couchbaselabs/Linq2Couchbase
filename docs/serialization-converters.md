@@ -11,6 +11,7 @@ As an example, by default Linq2Couchbase assumes that DateTime properties are se
 There is built-in support for the following Newtonsoft.Json converters:
 
 - UnixMillisecondsConverter
+- StringEnumConverter
 
 ## Adding Support for Custom Converters
 
@@ -112,14 +113,28 @@ private static DateTime GetDateTime(ConstantExpression constantExpression)
 
 ### Registering Custom Serialization Converters
 
-For consumers using Json.Net, you can easily register a custom converter globally, using `TypeBasedSerializationConverterRegistry.Global`.  This registry is used by default by `DefaultSerializationConverterProvider`, unless overridden.  It is preloaded with the built-in converters.
+For consumers using Json.Net, you can easily register a custom converter for a cluster using `CouchbaseLinqConfiguration.JsonNetSerializationConverterRegistry`. This registry is used by the default `ISerializerConverterProvider`, unless overridden.
 
 ```cs
-TypeBasedSerializationConverterRegistry.Global.Add(typeof(MyJsonConverter), typeof(MyConverterSerializer));
+services.AddCouchbase(options => {
+    options.AddLinq(linqOptions => {
+        var registry = TypeBasedSerializationConverterRegistry.CreateDefaultRegistry();
+        registry.Add(typeof(MyJsonConverter), typeof(MyConverterSerializer));
+        linqOptions.JsonNetSerializationConverterRegistry = registry;
+    });
+})
 ```
 
-To provide a more advanced registry, you can replace `DefaultSerializationConverterProvider.Registry` with a completely different `IJsonNetSerializationConverterRegistry`.
+To provide a more advanced registry, you can replace `CouchbaseLinqConfiguration.JsonNetSerializationConverterRegistry` with a completely different `IJsonNetSerializationConverterRegistry`.
 
 ## Custom Serialization Libraries
 
-`ISerializationConverter<T>` implementations can also be used with custom serialization libraries.  See [Custom Serializers](./custom-serializers.md) for more information.
+`ISerializationConverter<T>` implementations can also be used with custom serialization libraries. To support this, you should implement a customer `ISerializationConverterProvider`. This interface can return a custom `ISerializationConverter` for a particular member, altering query generation behavior when this member is used in a N1QL query.
+
+```cs
+services.AddCouchbase(options => {
+    options.AddLinq(linqOptions => linqOptions.WithSerializationConverterProvider(new MyCustomSerializationConverterProvider()));
+})
+```
+
+For performance reasons, be sure to use a cache in your internal implementation.  The method is called each time a candidate property is encountered.  In a system under load this could be many times per second for the same property.

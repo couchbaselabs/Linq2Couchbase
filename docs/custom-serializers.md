@@ -10,8 +10,12 @@ Here is [an example of how this method was implemented for Newtonsoft's Json.Net
 
 ## Non-standard conversions
 
-Some attributes may have additional decorators applied that change how they are serialized.  To support this, your serializer should implement `ISerializationConverterProvider` (in addition to `IExtendedTypeSerializer`).  This interface can return a custom `ISerializationConverter` for a particular member, altering query generation behavior when this member is used in a N1QL query.
+Some attributes may have additional decorators applied that change how they are serialized. To support this, you should also implement a customer `ISerializationConverterProvider`. This interface can return a custom `ISerializationConverter` for a particular member, altering query generation behavior when this member is used in a N1QL query.
+
+```cs
+services.AddCouchbase(options => {
+    options.AddLinq(linqOptions => linqOptions.WithSerializationConverterProvider(new MyCustomSerializationConverterProvider()));
+})
+```
 
 For more details, see [Serialization Converters](./serialization-converters.md).
-
-For performance reasons, be sure to use a cache in your internal implementation.  The method is called each time a candidate property is encountered.  In a system under load this could be many times per second for the same property.

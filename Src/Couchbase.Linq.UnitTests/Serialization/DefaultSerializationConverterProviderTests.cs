@@ -14,28 +14,16 @@ namespace Couchbase.Linq.UnitTests.Serialization
     [TestFixture]
     public class DefaultSerializationConverterProviderTests
     {
-        [OneTimeSetUp]
-        public void OneTimeSetUp()
-        {
-            DefaultSerializationConverterProvider.Registry = new TypeBasedSerializationConverterRegistry
-            {
-                { typeof(TestConverter), typeof(TestSerializationConverter)}
-            };
-        }
-
-        [OneTimeTearDown]
-        public void OneTimeTearDown()
-        {
-            DefaultSerializationConverterProvider.Registry =
-                TypeBasedSerializationConverterRegistry.CreateDefaultRegistry();
-        }
-
         [Test]
         public void GetSerializationConverter_AppliedToClass_ReturnsConverter()
         {
             // Arrange
 
-            var provider = new DefaultSerializationConverterProvider(new DefaultSerializer());
+            var provider = new DefaultSerializationConverterProvider(new DefaultSerializer(),
+                new TypeBasedSerializationConverterRegistry
+                {
+                    {typeof(TestConverter), typeof(TestSerializationConverter)}
+                });
 
             var member = typeof(ConverterOnSecondaryClass).GetProperty(nameof(ConverterOnSecondaryClass.Secondary));
 
@@ -53,7 +41,11 @@ namespace Couchbase.Linq.UnitTests.Serialization
         {
             // Arrange
 
-            var provider = new DefaultSerializationConverterProvider(new DefaultSerializer());
+            var provider = new DefaultSerializationConverterProvider(new DefaultSerializer(),
+                new TypeBasedSerializationConverterRegistry
+                {
+                    {typeof(TestConverter), typeof(TestSerializationConverter)}
+                });
 
             var member = typeof(ConverterOnProperty).GetProperty(nameof(ConverterOnSecondaryClass.Secondary));
 
@@ -79,7 +71,11 @@ namespace Couchbase.Linq.UnitTests.Serialization
                 }
             };
 
-            var provider = new DefaultSerializationConverterProvider(new DefaultSerializer(settings, settings));
+            var provider = new DefaultSerializationConverterProvider(new DefaultSerializer(settings, settings),
+                new TypeBasedSerializationConverterRegistry
+                {
+                    { typeof(TestConverter), typeof(TestSerializationConverter)}
+                });
 
             var member = typeof(NoConverter).GetProperty(nameof(ConverterOnSecondaryClass.Secondary));
 

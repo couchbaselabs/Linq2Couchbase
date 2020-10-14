@@ -1,4 +1,7 @@
 ﻿using System;
+using Couchbase.Core.IO.Serializers;
+using Couchbase.Linq.Serialization;
+using Couchbase.Linq.Utils;
 
 #nullable enable
 
@@ -31,7 +34,8 @@ namespace Couchbase.Linq
             setupAction?.Invoke(configuration);
 
             return options
-                .AddClusterService(configuration.DocumentFilterManager);
+                .AddClusterService(configuration.DocumentFilterManager)
+                .AddClusterService<ISerializationConverterProvider, ISerializationConverterProvider>(configuration.SerializationConverterProviderFactory);
         }
     }
 }

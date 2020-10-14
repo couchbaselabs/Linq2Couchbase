@@ -8,6 +8,7 @@ using Couchbase.Linq.Execution;
 using Couchbase.Linq.Filters;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
+using Couchbase.Linq.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
@@ -53,6 +54,9 @@ namespace Couchbase.Linq.UnitTests
             services.AddSingleton<ITypeSerializer>(serializer);
             services.AddLogging();
             services.AddSingleton(Mock.Of<IClusterVersionProvider>());
+            services.AddSingleton<ISerializationConverterProvider>(
+                new DefaultSerializationConverterProvider(serializer,
+                    TypeBasedSerializationConverterRegistry.CreateDefaultRegistry()));
 
             ServiceProvider = services.BuildServiceProvider();
         }

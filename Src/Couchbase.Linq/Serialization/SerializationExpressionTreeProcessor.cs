@@ -26,15 +26,9 @@ namespace Couchbase.Linq.Serialization
         /// </summary>
         /// <param name="cluster">The <see cref="ICluster"/>.</param>
         /// <returns>The <see cref="SerializationExpressionTreeProcessor"/>.</returns>
-        public static SerializationExpressionTreeProcessor FromCluster(ICluster cluster)
-        {
-            var serializer = cluster.ClusterServices.GetRequiredService<ITypeSerializer>();
-
-            // ReSharper disable once SuspiciousTypeConversion.Global
-            return new SerializationExpressionTreeProcessor(
-                serializer as ISerializationConverterProvider ??
-                new DefaultSerializationConverterProvider(serializer));
-        }
+        public static SerializationExpressionTreeProcessor FromCluster(ICluster cluster) =>
+            new SerializationExpressionTreeProcessor(
+                cluster.ClusterServices.GetRequiredService<ISerializationConverterProvider>());
 
         /// <inheritdoc/>
         public Expression Process(Expression expressionTree)

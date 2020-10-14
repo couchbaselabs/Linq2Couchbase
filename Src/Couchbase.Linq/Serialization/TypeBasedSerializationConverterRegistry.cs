@@ -15,13 +15,6 @@ namespace Couchbase.Linq.Serialization
     public class TypeBasedSerializationConverterRegistry : IJsonNetSerializationConverterRegistry,
         IEnumerable<KeyValuePair<Type, Type>>
     {
-        /// <summary>
-        /// Global instance of <see cref="TypeBasedSerializationConverterRegistry"/> which is used
-        /// by default by <see cref="DefaultSerializationConverterProvider"/>.
-        /// Built-in converters are registered by default.
-        /// </summary>
-        public static TypeBasedSerializationConverterRegistry Global { get; } = CreateDefaultRegistry();
-
         private readonly Dictionary<Type, Type> _registry = new Dictionary<Type, Type>();
 
         /// <summary>
