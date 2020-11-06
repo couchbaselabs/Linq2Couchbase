@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel.DataAnnotations;
+using Couchbase.Core.IO.Serializers;
 using Newtonsoft.Json;
 
 namespace Couchbase.Linq.UnitTests.Documents
@@ -42,5 +43,9 @@ namespace Couchbase.Linq.UnitTests.Documents
 
         [JsonProperty("updatedOffset")]
         public virtual DateTimeOffset UpdatedOffset { get; set; }
+
+        [JsonProperty("updatedUnixMillis")]
+        [JsonConverter(typeof(UnixMillisecondsConverter))]
+        public virtual DateTime? UpdatedUnixMillis { get; set; }
     }
 }
