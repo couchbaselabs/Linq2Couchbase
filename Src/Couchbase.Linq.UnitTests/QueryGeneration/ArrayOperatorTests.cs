@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using Couchbase.Core;
 using Couchbase.Linq.UnitTests.Documents;
 using Moq;
 using Newtonsoft.Json.Serialization;
 using NUnit.Framework;
-using Couchbase.Linq.Extensions;
 
 namespace Couchbase.Linq.UnitTests.QueryGeneration
 {
@@ -105,6 +102,63 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Where(e => staticArray.Contains(e.Name));
 
             const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (['abc', 'def'])";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ArrayAny()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Brewery>(mockBucket.Object)
+                    .Where(e => e.Beers.Any(p => p == "test"));
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE ANY `Extent2` IN `Extent1`.`beers` SATISFIES (`Extent2` = 'test') END";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringSplitAny()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .Where(e => e.Name.Split().Any(p => p == "test"));
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE ANY `Extent2` IN SPLIT(`Extent1`.`name`) SATISFIES (`Extent2` = 'test') END";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_StringSplitTwoParamAny()
+        {
+            SetContractResolver(new DefaultContractResolver());
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .Where(e => e.Name.Split(new[] {' '}).Any(p => p == "test"));
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE ANY `Extent2` IN SPLIT(`Extent1`.`name`, ' ') SATISFIES (`Extent2` = 'test') END";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
