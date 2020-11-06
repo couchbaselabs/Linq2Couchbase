@@ -10,7 +10,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 {
     internal class StringSplitMethodCallTranslator : IMethodCallTranslator
     {
-        private static readonly MethodInfo[] SupportedMethodsStatic =
+        public static readonly MethodInfo[] SupportedMethodsStatic =
         {
             typeof (string).GetMethod("Split", new[] { typeof (char[]) })
         };

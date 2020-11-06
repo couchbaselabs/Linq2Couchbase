@@ -171,9 +171,9 @@ namespace Couchbase.Linq.QueryGeneration
                 // This is an Array type subquery, since we're querying against a member not a bucket
                 _queryPartsAggregator.QueryType = N1QlQueryType.Array;
             }
-            else if (fromClause.FromExpression is SubQueryExpression)
+            else if (fromClause.FromExpression is SubQueryExpression subQueryExpression)
             {
-                VisitSubQueryFromClause(fromClause, (SubQueryExpression) fromClause.FromExpression);
+                VisitSubQueryFromClause(fromClause, subQueryExpression);
             }
             else if (fromClause.FromExpression is QuerySourceReferenceExpression querySourceReferenceExpression)
             {
@@ -196,9 +196,9 @@ namespace Couchbase.Linq.QueryGeneration
                     throw new NotSupportedException("From Clause Is Referencing An Invalid Query Source");
                 }
             }
-            else if (fromClause.FromExpression is ConstantExpression)
+            else if (fromClause.FromExpression is ConstantExpression || fromClause.FromExpression is MethodCallExpression)
             {
-                // From clause for this subquery is a constant array
+                // From clause for this subquery is a constant array or a function returning an array
 
                 VisitArrayFromClause(fromClause);
             }

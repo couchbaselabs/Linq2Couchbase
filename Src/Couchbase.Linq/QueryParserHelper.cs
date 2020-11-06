@@ -1,7 +1,10 @@
-﻿using Couchbase.Linq.Clauses;
+﻿using System.Linq;
+using Couchbase.Linq.Clauses;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Operators;
+using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.ExpressionTransformers;
+using Couchbase.Linq.QueryGeneration.MethodCallTranslators;
 using Couchbase.Linq.Serialization;
 using Couchbase.Linq.Utils;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
@@ -50,6 +53,9 @@ namespace Couchbase.Linq
             nodeTypeRegistry.Register(AverageAsyncExpressionNode.GetSupportedMethods(), typeof(AverageAsyncExpressionNode));
             nodeTypeRegistry.Register(MinAsyncExpressionNode.GetSupportedMethods(), typeof(MinAsyncExpressionNode));
             nodeTypeRegistry.Register(MaxAsyncExpressionNode.GetSupportedMethods(), typeof(MaxAsyncExpressionNode));
+
+            // register ArrayGeneratingFunctionExpressionNode
+            nodeTypeRegistry.Register(StringSplitMethodCallTranslator.SupportedMethodsStatic, typeof(ArrayGeneratingFunctionExpressionNode));
 
             //This creates all the default node types
             var nodeTypeProvider = ExpressionTreeParser.CreateDefaultNodeTypeProvider();
