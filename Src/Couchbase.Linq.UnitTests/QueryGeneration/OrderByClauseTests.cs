@@ -69,5 +69,149 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             Assert.AreEqual(expected, n1QlQuery);
         }
+
+        #region date/time
+
+        [Test]
+        public void Test_OrderBy_DateTime_Ascending()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .OrderBy(e => e.Updated);
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` ORDER BY STR_TO_MILLIS(`Extent1`.`updated`) ASC";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_OrderBy_DateTime_Descending()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .OrderByDescending(e => e.Updated);
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` ORDER BY STR_TO_MILLIS(`Extent1`.`updated`) DESC";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ThenBy_DateTime_Ascending()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .OrderBy(e => e.Name)
+                    .ThenBy(e => e.Updated);
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` ORDER BY `Extent1`.`name` ASC, STR_TO_MILLIS(`Extent1`.`updated`) ASC";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ThenBy_DateTime_Descending()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .OrderBy(e => e.Name)
+                    .ThenByDescending(e => e.Updated);
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` ORDER BY `Extent1`.`name` ASC, STR_TO_MILLIS(`Extent1`.`updated`) DESC";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_OrderBy_DateTimeUnixMillis_Ascending()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .OrderBy(e => e.UpdatedUnixMillis);
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` ORDER BY `Extent1`.`updatedUnixMillis` ASC";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_OrderBy_DateTimeUnixMillis_Descending()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .OrderByDescending(e => e.UpdatedUnixMillis);
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` ORDER BY `Extent1`.`updatedUnixMillis` DESC";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ThenBy_DateTimeUnixMillis_Ascending()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .OrderBy(e => e.Name)
+                    .ThenBy(e => e.UpdatedUnixMillis);
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` ORDER BY `Extent1`.`name` ASC, `Extent1`.`updatedUnixMillis` ASC";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_ThenBy_DateTimeUnixMillis_Descending()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Beer>(mockBucket.Object)
+                    .OrderBy(e => e.Name)
+                    .ThenByDescending(e => e.UpdatedUnixMillis);
+
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` ORDER BY `Extent1`.`name` ASC, `Extent1`.`updatedUnixMillis` DESC";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        #endregion
     }
 }

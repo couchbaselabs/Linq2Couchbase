@@ -69,6 +69,7 @@ namespace Couchbase.Linq
 
             //Register transformer to handle DateTime comparisons
             transformerRegistry.Register(new DateTimeComparisonExpressionTransformer());
+            transformerRegistry.Register(new DateTimeSortExpressionTransformer());
 
             return transformerRegistry;
         }
