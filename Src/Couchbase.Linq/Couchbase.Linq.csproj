@@ -22,6 +22,7 @@
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
 
     <LangVersion>8</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

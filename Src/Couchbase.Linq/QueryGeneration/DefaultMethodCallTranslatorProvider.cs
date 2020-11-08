@@ -43,27 +43,26 @@ namespace Couchbase.Linq.QueryGeneration
 
         #endregion
 
-        public IMethodCallTranslator GetTranslator(MethodCallExpression methodCallExpression)
+        public IMethodCallTranslator? GetTranslator(MethodCallExpression methodCallExpression)
         {
             if (methodCallExpression == null)
             {
-                throw new ArgumentNullException("methodCallExpression");
+                throw new ArgumentNullException(nameof(methodCallExpression));
             }
 
             return GetItem(methodCallExpression.Method);
         }
 
-        protected virtual IMethodCallTranslator GetItem(MethodInfo key)
+        protected virtual IMethodCallTranslator? GetItem(MethodInfo key)
         {
             lock (Registry)
             {
                 if (key == null)
                 {
-                    throw new ArgumentNullException("key");
+                    throw new ArgumentNullException(nameof(key));
                 }
 
-                IMethodCallTranslator translator;
-                if (Registry.TryGetValue(key, out translator))
+                if (Registry.TryGetValue(key, out var translator))
                 {
                     return translator;
                 }
@@ -117,11 +116,11 @@ namespace Couchbase.Linq.QueryGeneration
         /// </summary>
         /// <param name="key">MethodInfo to test</param>
         /// <returns>Null if no IMethodCallTranslator is found</returns>
-        protected virtual IMethodCallTranslator GetItemFromGenericType(MethodInfo key)
+        protected virtual IMethodCallTranslator? GetItemFromGenericType(MethodInfo key)
         {
             if (key == null)
             {
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
             }
 
             if ((key.DeclaringType == null) ||
@@ -146,11 +145,9 @@ namespace Couchbase.Linq.QueryGeneration
 
             if (genericTypeKey != null)
             {
-                IMethodCallTranslator translator;
-
                 lock (Registry)
                 {
-                    if (Registry.TryGetValue(genericTypeKey, out translator))
+                    if (Registry.TryGetValue(genericTypeKey, out var translator))
                     {
                         return translator;
                     }
@@ -173,11 +170,11 @@ namespace Couchbase.Linq.QueryGeneration
         /// </summary>
         /// <param name="key">MethodInfo to test.  Must be an instance method on a class.</param>
         /// <returns>Null if no IMethodCallTranslator is found</returns>
-        protected virtual IMethodCallTranslator GetItemFromInterfaces(MethodInfo key)
+        protected virtual IMethodCallTranslator? GetItemFromInterfaces(MethodInfo key)
         {
             if (key == null)
             {
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
             }
 
             if (key.IsStatic || (key.DeclaringType == null) || (!key.DeclaringType.GetTypeInfo().IsClass))
@@ -206,7 +203,7 @@ namespace Couchbase.Linq.QueryGeneration
             return null;
         }
 
-        private static bool ArgsMatch(ParameterInfo[] args, MethodInfo method, Type[] classTypeArgs, Type[] methodTypeArgs)
+        private static bool ArgsMatch(ParameterInfo[] args, MethodInfo method, Type[] classTypeArgs, Type[]? methodTypeArgs)
         {
             if (!method.IsGenericMethodDefinition && (methodTypeArgs != null))
             {
@@ -260,11 +257,11 @@ namespace Couchbase.Linq.QueryGeneration
         /// Checks for <see cref="N1QlFunctionAttribute" /> and creates a new <see cref="N1QlFunctionMethodCallTranslator" />
         /// if it is found.  If not found, returns null.
         /// </summary>
-        protected virtual IMethodCallTranslator CreateFromN1QlFunctionAttribute(MethodInfo key)
+        protected virtual IMethodCallTranslator? CreateFromN1QlFunctionAttribute(MethodInfo key)
         {
             if (key == null)
             {
-                throw new ArgumentNullException("key");
+                throw new ArgumentNullException(nameof(key));
             }
 
             var attribute = key.GetCustomAttribute<N1QlFunctionAttribute>(true);

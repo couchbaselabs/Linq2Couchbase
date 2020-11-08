@@ -18,6 +18,6 @@ namespace Couchbase.Linq.Serialization
         /// Should implement an internal cache for performance, as this method will be
         /// called repeatedly for the same member.
         /// </remarks>
-        ISerializationConverter GetSerializationConverter(MemberInfo member);
+        ISerializationConverter? GetSerializationConverter(MemberInfo member);
     }
 }

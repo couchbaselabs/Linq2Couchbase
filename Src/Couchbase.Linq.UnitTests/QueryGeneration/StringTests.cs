@@ -583,10 +583,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                         where string.Compare(contact.FirstName, "M", StringComparison.CurrentCultureIgnoreCase) == 0
                         select new { contact.FirstName };
 
-            const string expected =
-                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (LOWER(`Extent1`.`fname`) = LOWER('M'))";
-
             Assert.Throws<NotSupportedException>(() => CreateN1QlQuery(mockBucket.Object, query.Expression));
         }
 
@@ -600,10 +596,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                         where string.Compare(contact.FirstName, "M", StringComparison.CurrentCulture) == 0
                         select new { contact.FirstName };
 
-            const string expected =
-                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (LOWER(`Extent1`.`fname`) = LOWER('M'))";
-
             Assert.Throws<NotSupportedException>(() => CreateN1QlQuery(mockBucket.Object, query.Expression));
         }
 
@@ -616,10 +608,6 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
                         where string.Compare(contact.FirstName, "M", StringComparison.CurrentCultureIgnoreCase) == 0
                         select new { contact.FirstName };
-
-            const string expected =
-                "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (LOWER(`Extent1`.`fname`) = LOWER('M'))";
 
             Assert.Throws<NotSupportedException>(() => CreateN1QlQuery(mockBucket.Object, query.Expression));
         }

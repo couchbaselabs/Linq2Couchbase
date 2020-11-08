@@ -32,7 +32,7 @@ namespace Couchbase.Linq.Clauses
         /// <param name="mutationState">Mutation state for the query.</param>
         /// <param name="scanWait">Time to wait for index scan.</param>
         public ConsistentWithExpressionNode(MethodCallExpressionParseInfo parseInfo, ConstantExpression mutationState,
-            ConstantExpression scanWait)
+            ConstantExpression? scanWait)
             : base(parseInfo)
         {
             if (mutationState == null)
@@ -60,7 +60,7 @@ namespace Couchbase.Linq.Clauses
         /// <summary>
         /// Time to wait for index scan.
         /// </summary>
-        public ConstantExpression ScanWait { get; }
+        public ConstantExpression? ScanWait { get; }
 
         /// <inheritdoc />
         public override Expression Resolve(ParameterExpression inputParameter, Expression expressionToBeResolved,

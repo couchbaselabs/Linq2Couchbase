@@ -16,7 +16,7 @@ namespace Couchbase.Linq.Clauses
         public Type QuerySourceType { get; }
         public Expression ParsedExpression { get; }
         public string AssociatedIdentifier { get; }
-        public IExpressionNode Source => null;
+        public IExpressionNode? Source => null;
 
         public ArrayGeneratingFunctionExpressionNode(MethodCallExpressionParseInfo parseInfo, Expression argument1)
         {

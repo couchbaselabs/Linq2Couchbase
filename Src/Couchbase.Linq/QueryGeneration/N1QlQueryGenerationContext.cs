@@ -4,6 +4,8 @@ using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Microsoft.Extensions.Logging;
 using Remotion.Linq.Clauses.Expressions;
 
+#nullable disable
+
 namespace Couchbase.Linq.QueryGeneration
 {
     /// <summary>

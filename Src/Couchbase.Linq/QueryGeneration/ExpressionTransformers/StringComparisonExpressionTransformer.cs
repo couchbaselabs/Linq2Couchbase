@@ -43,7 +43,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
 
             var leftExpression = expression.Left as MethodCallExpression;
             var rightExpression = expression.Right as MethodCallExpression;
-            ConstantExpression comparisonExpression = null;
+            ConstantExpression? comparisonExpression = null;
 
             if ((leftExpression != null) && !StringCompareMethods.Contains(leftExpression.Method))
             {
@@ -93,7 +93,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             }
             else
             {
-                leftString = methodCallExpression.Object;
+                leftString = methodCallExpression.Object!;
                 rightString = methodCallExpression.Arguments[0];
             }
 
@@ -118,7 +118,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
         /// <param name="number">Number that String.Compare was being compared to, typically 0, 1, or -1.</param>
         /// <param name="comparisonExpression">Indicated the comparison type. Most commonly used with case insensitive comparisons</param>
         private Expression ConvertStringCompareExpression(Expression leftString, Expression rightString,
-            ExpressionType operation, int number, ConstantExpression comparisonExpression)
+            ExpressionType operation, int number, ConstantExpression? comparisonExpression)
         {
             if (number == 1)
             {
@@ -175,7 +175,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
                 comparison = (StringComparison)comparisonExpression.Value;
                 if (comparison != StringComparison.Ordinal && comparison != StringComparison.OrdinalIgnoreCase)
                 {
-                    var msg = string.Format("String comparison option {0} is not supported", comparison);
+                    var msg = $"String comparison option {comparison} is not supported";
                     throw new NotSupportedException(msg);
                 }
             }

@@ -17,7 +17,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// <summary>
         /// If non-null, prefixes all extent names.  I.e. If set to "`p`." then `Extent1` becomes `p`.`Extent1`
         /// </summary>
-        public string Prefix { get; set; }
+        public string? Prefix { get; set; }
 
         /// <summary>
         /// Provides the extent name for a given query source

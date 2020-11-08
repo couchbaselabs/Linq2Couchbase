@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-namespace Couchbase.Linq.Filters
+﻿namespace Couchbase.Linq.Filters
 {
     /// <summary>
     /// Generates a <see cref="DocumentFilterSet{T}" /> for a particular type.

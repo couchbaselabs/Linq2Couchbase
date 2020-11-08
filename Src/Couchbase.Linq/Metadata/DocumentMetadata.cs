@@ -25,13 +25,13 @@ namespace Couchbase.Linq.Metadata
         /// Document's unique ID.  Also referred to as the document key.
         /// </summary>
         [JsonProperty("id")]
-        public string Id { get; set; }
+        public string Id { get; set; } = null!;
 
         /// <summary>
         /// Information about the type of the document.
         /// </summary>
         [JsonProperty("type")]
-        public string Type { get; set; }
+        public string Type { get; set; } = null!;
 
         /// <summary>
         /// Returns the JSON string representation of this object.

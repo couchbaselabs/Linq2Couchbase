@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using Couchbase.Linq.QueryGeneration.FromParts;
@@ -17,7 +18,7 @@ namespace Couchbase.Linq.QueryGeneration
     /// </summary>
     internal class InnerNestDetectingExpressionVisitor : RelinqExpressionVisitor
     {
-        private readonly QueryPartsAggregator _queyPartsAggregator;
+        private readonly QueryPartsAggregator _queryPartsAggregator;
 
         /// <summary>
         /// Creates a new InnerNestDetectingExpressionVisitor.
@@ -25,10 +26,10 @@ namespace Couchbase.Linq.QueryGeneration
         /// <param name="queyPartsAggregator"><see cref="QueryPartsAggregator"/> for the current query.</param>
         public InnerNestDetectingExpressionVisitor(QueryPartsAggregator queyPartsAggregator)
         {
-            _queyPartsAggregator = queyPartsAggregator ?? throw new ArgumentNullException(nameof(queyPartsAggregator));
+            _queryPartsAggregator = queyPartsAggregator ?? throw new ArgumentNullException(nameof(queyPartsAggregator));
         }
 
-        protected override Expression VisitBinary(BinaryExpression node)
+        protected override Expression? VisitBinary(BinaryExpression node)
         {
             if (node.NodeType == ExpressionType.AndAlso)
             {
@@ -67,7 +68,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
         }
 
-        protected override Expression VisitSubQuery(SubQueryExpression expression)
+        protected override Expression? VisitSubQuery(SubQueryExpression expression)
         {
             var queryModel = expression.QueryModel;
 
@@ -78,7 +79,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             // See if this group join is a LEFT OUTER NEST
-            var ansiJoinPart = _queyPartsAggregator.Extents.OfType<JoinPart>()
+            var ansiJoinPart = _queryPartsAggregator.Extents.OfType<JoinPart>()
                 .FirstOrDefault(p => p.QuerySource == groupJoinClause);
 
             if (ansiJoinPart != null && ansiJoinPart.JoinType == JoinTypes.LeftNest)
@@ -95,7 +96,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
         }
 
-        private static bool IsSimpleAnySubqueryAgainstGroupJoin(QueryModel queryModel, out GroupJoinClause groupJoinClause)
+        private static bool IsSimpleAnySubqueryAgainstGroupJoin(QueryModel queryModel, [MaybeNullWhen(false)] out GroupJoinClause groupJoinClause)
         {
             groupJoinClause = null;
 

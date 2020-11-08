@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json.Serialization;
@@ -10,8 +11,8 @@ namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
     /// <see cref="IContractResolver"/> to resolve member names.
     /// </summary>
     /// <remarks>
-    /// Used for backwards compatibility with older implementations of <see cref="Couchbase.Core.Serialization.ITypeSerializer"/>
-    /// which don't have a GetMemberName implementation like <see cref="Couchbase.Core.Serialization.IExtendedTypeSerializer"/>.
+    /// Used for backwards compatibility with older implementations of <see cref="Couchbase.Core.IO.Serializers.ITypeSerializer"/>
+    /// which don't have a GetMemberName implementation like <see cref="Couchbase.Core.IO.Serializers.ITypeSerializer"/>.
     /// </remarks>
     internal class JsonNetMemberNameResolver : IMemberNameResolver
     {
@@ -19,15 +20,10 @@ namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
 
         public JsonNetMemberNameResolver(IContractResolver contractResolver)
         {
-            if (contractResolver == null)
-            {
-                throw new ArgumentNullException("contractResolver");
-            }
-
-            _contractResolver = contractResolver;
+            _contractResolver = contractResolver ?? throw new ArgumentNullException(nameof(contractResolver));
         }
 
-        public bool TryResolveMemberName(MemberInfo member, out string memberName)
+        public bool TryResolveMemberName(MemberInfo member, [MaybeNullWhen(false)] out string memberName)
         {
             memberName = null;
 

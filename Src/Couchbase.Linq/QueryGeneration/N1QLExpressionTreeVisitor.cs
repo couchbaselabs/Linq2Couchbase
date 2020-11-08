@@ -249,7 +249,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitBinary(BinaryExpression expression)
         {
-            ConstantExpression constantExpression;
+            ConstantExpression? constantExpression;
 
             _expression.Append("(");
 
@@ -461,7 +461,7 @@ namespace Couchbase.Linq.QueryGeneration
         /// <returns></returns>
         protected override Expression VisitMethodCall(MethodCallExpression expression)
         {
-            IMethodCallTranslator methodCallTranslator = QueryGenerationContext.MethodCallTranslatorProvider.GetTranslator(expression);
+            IMethodCallTranslator? methodCallTranslator = QueryGenerationContext.MethodCallTranslatorProvider.GetTranslator(expression);
 
             if (methodCallTranslator != null)
             {

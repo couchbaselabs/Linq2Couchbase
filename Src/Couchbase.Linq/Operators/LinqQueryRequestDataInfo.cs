@@ -70,12 +70,12 @@ namespace Couchbase.Linq.Operators
             return new LinqQueryRequestDataInfo(ReturnDefaultWhenEmpty);
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return Equals(obj as IStreamedDataInfo);
         }
 
-        public virtual bool Equals(IStreamedDataInfo obj)
+        public virtual bool Equals(IStreamedDataInfo? obj)
         {
             var objAsLinqQueryRequestDataInfo = obj as LinqQueryRequestDataInfo;
             if (objAsLinqQueryRequestDataInfo == null)

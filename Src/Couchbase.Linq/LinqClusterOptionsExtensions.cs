@@ -1,9 +1,5 @@
 ﻿using System;
-using Couchbase.Core.IO.Serializers;
 using Couchbase.Linq.Serialization;
-using Couchbase.Linq.Utils;
-
-#nullable enable
 
 namespace Couchbase.Linq
 {

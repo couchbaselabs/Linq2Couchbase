@@ -5,6 +5,8 @@ using System.Text;
 using Couchbase.Linq.QueryGeneration.FromParts;
 using Microsoft.Extensions.Logging;
 
+#nullable disable
+
 namespace Couchbase.Linq.QueryGeneration
 {
     internal class QueryPartsAggregator

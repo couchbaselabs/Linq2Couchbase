@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Couchbase.Linq.Metadata;
+﻿using Couchbase.Linq.Metadata;
 
 namespace Couchbase.Linq
 {
@@ -15,14 +10,13 @@ namespace Couchbase.Linq
         /// <param name="document">Document to get metadata from</param>
         /// <returns>Metadata about the document</returns>
         /// <remarks>Should only be called against a top-level document in Couchbase</remarks>
-        public static DocumentMetadata Meta(object document)
+        public static DocumentMetadata? Meta(object? document)
         {
             // Implementation will only be called when unit testing
             // using LINQ-to-Objects and faking a Couchbase database
             // Any faked document object should implement IDocumentMetadataProvider
 
-            var provider = document as IDocumentMetadataProvider;
-            if (provider != null)
+            if (document is IDocumentMetadataProvider provider)
             {
                 return provider.GetMetadata();
             }
@@ -38,18 +32,17 @@ namespace Couchbase.Linq
         /// <param name="document">Document to get key from</param>
         /// <returns>Key of the document</returns>
         /// <remarks>Should only be called against a top-level document in Couchbase</remarks>
-        public static string Key(object document)
+        public static string? Key(object? document)
         {
             // Implementation will only be called when unit testing
             // using LINQ-to-Objects and faking a Couchbase database
             // Any faked document object should implement IDocumentMetadataProvider
 
-            var provider = document as IDocumentMetadataProvider;
-            if (provider != null)
+            if (document is IDocumentMetadataProvider provider)
             {
                 var metadata = provider.GetMetadata();
 
-                return metadata != null ? metadata.Id : null;
+                return metadata?.Id;
             }
             else
             {

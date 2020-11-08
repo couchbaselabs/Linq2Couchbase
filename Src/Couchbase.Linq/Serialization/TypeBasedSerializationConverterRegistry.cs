@@ -61,7 +61,7 @@ namespace Couchbase.Linq.Serialization
         }
 
         /// <inheritdoc/>
-        public ISerializationConverter CreateSerializationConverter(JsonConverter jsonConverter, MemberInfo member)
+        public ISerializationConverter? CreateSerializationConverter(JsonConverter jsonConverter, MemberInfo member)
         {
             if (jsonConverter == null)
             {
@@ -117,7 +117,7 @@ namespace Couchbase.Linq.Serialization
             return GetEnumerator();
         }
 
-        private static Type GetMemberType(MemberInfo member)
+        private static Type? GetMemberType(MemberInfo member)
         {
             switch (member)
             {

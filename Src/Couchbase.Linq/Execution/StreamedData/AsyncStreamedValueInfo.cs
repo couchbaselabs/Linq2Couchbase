@@ -93,12 +93,12 @@ namespace Couchbase.Linq.Execution.StreamedData
             return CloneWithNewDataType(dataType);
         }
 
-        public sealed override bool Equals(object obj)
+        public sealed override bool Equals(object? obj)
         {
             return Equals(obj as IStreamedDataInfo);
         }
 
-        public virtual bool Equals(IStreamedDataInfo obj)
+        public virtual bool Equals(IStreamedDataInfo? obj)
         {
             if (obj == null)
                 return false;

@@ -7,6 +7,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Couchbase.Linq.Metadata;
 
+#nullable disable
+
 namespace Couchbase.Linq.Extensions
 {
     /// <summary>

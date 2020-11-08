@@ -15,7 +15,7 @@ namespace Couchbase.Linq
         None = 0,
 
         /// <summary>
-        /// Supress all registered filters in the <see cref="DocumentFilterManager"/>.
+        /// Suppress all registered filters in the <see cref="DocumentFilterManager"/>.
         /// </summary>
         SuppressFilters = 1
     }

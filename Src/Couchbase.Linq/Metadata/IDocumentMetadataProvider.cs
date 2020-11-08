@@ -14,7 +14,7 @@
         /// Get metadata about this document
         /// </summary>
         /// <returns>Metadata about this document</returns>
-        DocumentMetadata GetMetadata();
+        DocumentMetadata? GetMetadata();
 
     }
 }

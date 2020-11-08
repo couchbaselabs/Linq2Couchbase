@@ -25,7 +25,7 @@ namespace Couchbase.Linq.Execution
         private readonly ILogger<ClusterQueryExecutor> _logger;
         private readonly IClusterVersionProvider _clusterVersionProvider;
 
-        private ITypeSerializer _serializer;
+        private ITypeSerializer? _serializer;
 
         private ITypeSerializer Serializer =>
             _serializer ??= _cluster.ClusterServices.GetRequiredService<ITypeSerializer>();
@@ -50,7 +50,7 @@ namespace Couchbase.Linq.Execution
         {
             var queryOptions = new LinqQueryOptions(scalarResultBehavior);
 
-            MutationState combinedMutationState = null;
+            MutationState? combinedMutationState = null;
 
             foreach (var bodyClause in queryModel.BodyClauses)
             {

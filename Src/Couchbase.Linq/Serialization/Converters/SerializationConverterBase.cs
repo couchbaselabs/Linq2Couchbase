@@ -144,7 +144,7 @@ namespace Couchbase.Linq.Serialization.Converters
         /// <see cref="RenderConvertTo(Expression, IN1QlExpressionTreeVisitor)"/> and <see cref="RenderConvertFrom(Expression, IN1QlExpressionTreeVisitor)"/>
         /// should use this method to avoid rendering unnecessary conversions.
         /// </remarks>
-        protected virtual Expression UnwrapInverseMethod(Expression expression, ICollection<MethodInfo> inverseMethods)
+        protected virtual Expression? UnwrapInverseMethod(Expression expression, ICollection<MethodInfo> inverseMethods)
         {
             if (expression == null)
             {

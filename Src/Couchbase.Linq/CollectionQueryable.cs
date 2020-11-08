@@ -15,18 +15,18 @@ namespace Couchbase.Linq
     /// <typeparam name="T"></typeparam>
     internal class CollectionQueryable<T> : QueryableBase<T>, ICollectionQueryable<T>
     {
-        private readonly ICouchbaseCollection _collection;
+        private readonly ICouchbaseCollection? _collection;
 
         /// <inheritdoc />
-        public string CollectionName => _collection.Name;
-
-
-        /// <inheritdoc />
-        public string ScopeName => _collection.Scope.Name;
+        public string CollectionName => _collection?.Name ?? "";
 
 
         /// <inheritdoc />
-        public string BucketName => _collection.Scope.Bucket.Name;
+        public string ScopeName => _collection?.Scope.Name ?? "";
+
+
+        /// <inheritdoc />
+        public string BucketName => _collection?.Scope.Bucket.Name ?? "";
 
         /// <summary>
         /// Initializes a new instance of the <see cref="CollectionQueryable{T}"/> class.

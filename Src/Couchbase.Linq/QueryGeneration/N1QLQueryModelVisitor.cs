@@ -45,8 +45,6 @@ namespace Couchbase.Linq.QueryGeneration
 
         private readonly N1QlQueryGenerationContext _queryGenerationContext;
         private readonly QueryPartsAggregator _queryPartsAggregator;
-        private readonly List<UnclaimedGroupJoin> _unclaimedGroupJoins = new List<UnclaimedGroupJoin>();
-        private readonly ScalarResultBehavior _scalarResultBehavior = new ScalarResultBehavior();
 
         private readonly bool _isSubQuery = false;
 
@@ -65,15 +63,12 @@ namespace Couchbase.Linq.QueryGeneration
         /// <summary>
         /// Stores the mappings between expressions outside the group query to the extents inside
         /// </summary>
-        private ExpressionTransformerRegistry _groupingExpressionTransformerRegistry;
+        private ExpressionTransformerRegistry? _groupingExpressionTransformerRegistry;
 
         /// <summary>
         /// Provides information about how scalar results should be extracted from the N1QL query result after execution.
         /// </summary>
-        public ScalarResultBehavior ScalarResultBehavior
-        {
-            get { return _scalarResultBehavior; }
-        }
+        public ScalarResultBehavior ScalarResultBehavior { get; } = new ScalarResultBehavior();
 
         public N1QlQueryModelVisitor(N1QlQueryGenerationContext queryGenerationContext) : this(queryGenerationContext, false)
         {
@@ -103,18 +98,6 @@ namespace Couchbase.Linq.QueryGeneration
         {
             queryModel.MainFromClause.Accept(this, queryModel);
             VisitBodyClauses(queryModel.BodyClauses, queryModel);
-
-            if (_unclaimedGroupJoins.Any())
-            {
-                // See if any of the unclaimed group joins are really NEST operations
-
-                foreach (var join in _unclaimedGroupJoins)
-                {
-                    var fromQueryPart = ParseNestJoinClause(join.JoinClause, join.GroupJoinClause);
-                    _queryPartsAggregator.AddExtent(fromQueryPart);
-                }
-            }
-
             VisitResultOperators(queryModel.ResultOperators, queryModel);
 
             if ((_visitStatus != VisitStatus.InGroupSubquery) && (_visitStatus != VisitStatus.AfterUnionSortSubquery))
@@ -567,7 +550,7 @@ namespace Couchbase.Linq.QueryGeneration
                         AllAsyncResultOperator allAsyncResultOperator => allAsyncResultOperator.Predicate,
                         _ => null
                     };
-                    _queryPartsAggregator.WhereAllPart = GetN1QlExpression(predicate);
+                    _queryPartsAggregator.WhereAllPart = GetN1QlExpression(predicate!);
 
                     if (prefixedExtents)
                     {
@@ -820,19 +803,19 @@ namespace Couchbase.Linq.QueryGeneration
 
             var handled = false;
 
-            if (fromClause.FromExpression.NodeType == ExpressionType.MemberAccess)
+            if (fromClause.FromExpression is MemberExpression memberExpression)
             {
                 // Unnest operation
 
-                var fromPart = VisitMemberFromExpression(fromClause, fromClause.FromExpression as MemberExpression);
+                var fromPart = VisitMemberFromExpression(fromClause, memberExpression);
                 _queryPartsAggregator.AddExtent(fromPart);
                 handled = true;
             }
-            else if (fromClause.FromExpression is SubQueryExpression)
+            else if (fromClause.FromExpression is SubQueryExpression subQueryExpression)
             {
                 // Might be an unnest or a join to another bucket
 
-                handled = VisitSubQueryFromExpression(fromClause, (SubQueryExpression) fromClause.FromExpression);
+                handled = VisitSubQueryFromExpression(fromClause, subQueryExpression);
             }
 
             if (!handled)
@@ -853,18 +836,17 @@ namespace Couchbase.Linq.QueryGeneration
         {
             var mainFromExpression = subQuery.QueryModel.MainFromClause.FromExpression;
 
-            if (mainFromExpression is QuerySourceReferenceExpression)
+            if (mainFromExpression is QuerySourceReferenceExpression querySourceReferenceExpression)
             {
                 // Joining to another bucket using a previous group join operation
 
-                return VisitSubQuerySourceReferenceExpression(fromClause, subQuery,
-                    (QuerySourceReferenceExpression) mainFromExpression);
+                return VisitSubQuerySourceReferenceExpression(fromClause, subQuery, querySourceReferenceExpression);
             }
-            else if (mainFromExpression.NodeType == ExpressionType.MemberAccess)
+            else if (mainFromExpression is MemberExpression memberExpression)
             {
                 // Unnest operation
 
-                var fromPart = VisitMemberFromExpression(fromClause, mainFromExpression as MemberExpression);
+                var fromPart = VisitMemberFromExpression(fromClause, memberExpression);
 
                 if (subQuery.QueryModel.ResultOperators.OfType<DefaultIfEmptyResultOperator>().Any())
                 {
@@ -895,30 +877,6 @@ namespace Couchbase.Linq.QueryGeneration
         private bool VisitSubQuerySourceReferenceExpression(AdditionalFromClause fromClause, SubQueryExpression subQuery,
             QuerySourceReferenceExpression querySourceReference)
         {
-            var unclaimedJoin =
-                    _unclaimedGroupJoins.FirstOrDefault(
-                        p => p.GroupJoinClause == querySourceReference.ReferencedQuerySource);
-            if (unclaimedJoin != null)
-            {
-                // this additional from clause is for a previous group join
-                // that was unclaimed as part of the pre-ANSI join style of query generation
-
-                var fromPart = ParseJoinClause(unclaimedJoin.JoinClause);
-
-                if (subQuery.QueryModel.ResultOperators.OfType<DefaultIfEmptyResultOperator>().Any())
-                {
-                    fromPart.JoinType = JoinTypes.LeftJoin;
-                }
-
-                // Be sure that any reference to the subquery gets the join clause extent name
-                _queryGenerationContext.ExtentNameProvider.LinkExtents(unclaimedJoin.JoinClause, fromClause);
-
-                _unclaimedGroupJoins.Remove(unclaimedJoin);
-                _queryPartsAggregator.AddExtent(fromPart);
-
-                return true;
-            }
-
             var ansiNest = _queryPartsAggregator.Extents.OfType<JoinPart>()
                 .FirstOrDefault(p => p.QuerySource == querySourceReference.ReferencedQuerySource);
             if (ansiNest != null)
@@ -993,13 +951,12 @@ namespace Couchbase.Linq.QueryGeneration
         /// <remarks>The InnerKeySelector must be selecting the N1QlFunctions.Key of the InnerSequence</remarks>
         private JoinPart ParseJoinClause(JoinClause joinClause)
         {
-            if (joinClause.InnerSequence.NodeType == ExpressionType.Constant)
+            if (joinClause.InnerSequence is ConstantExpression constantExpression)
             {
-                return VisitConstantExpressionJoinClause(joinClause, joinClause.InnerSequence as ConstantExpression);
+                return VisitConstantExpressionJoinClause(joinClause, constantExpression);
             }
-            else if (joinClause.InnerSequence is SubQueryExpression)
+            else if (joinClause.InnerSequence is SubQueryExpression subQuery)
             {
-                var subQuery = (SubQueryExpression) joinClause.InnerSequence;
                 if (subQuery.QueryModel.ResultOperators.Any() ||
                     subQuery.QueryModel.MainFromClause.FromExpression.NodeType != ExpressionType.Constant)
                 {
@@ -1041,9 +998,9 @@ namespace Couchbase.Linq.QueryGeneration
         /// <param name="constantExpression">Constant expression that is the InnerSequence of the JoinClause</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator.  JoinType is defaulted to INNER JOIN.</returns>
         /// <remarks>The InnerKeySelector must be selecting the N1QlFunctions.Key of the InnerSequence</remarks>
-        private AnsiJoinPart VisitConstantExpressionJoinClause(JoinClause joinClause, ConstantExpression constantExpression)
+        private AnsiJoinPart VisitConstantExpressionJoinClause(JoinClause joinClause, ConstantExpression? constantExpression)
         {
-            string bucketName = null;
+            string? bucketName = null;
 
             if (constantExpression != null)
             {
@@ -1124,17 +1081,12 @@ namespace Couchbase.Linq.QueryGeneration
         /// <param name="constantExpression">Constant expression that is the InnerSequence of the NestClause</param>
         /// <param name="isSubQuery">Indicates if this nest clause is a subquery which may require the use of a LET clause after the NEST</param>
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator</returns>
-        private AnsiJoinPart VisitConstantExpressionNestClause(NestClause nestClause, ConstantExpression constantExpression, bool isSubQuery)
+        private AnsiJoinPart VisitConstantExpressionNestClause(NestClause nestClause, ConstantExpression? constantExpression, bool isSubQuery)
         {
-            string bucketName = null;
-
-            if (constantExpression != null)
+            string? bucketName = null;
+            if (constantExpression?.Value is ICollectionQueryable bucketQueryable)
             {
-                var bucketQueryable = constantExpression.Value as ICollectionQueryable;
-                if (bucketQueryable != null)
-                {
-                    bucketName = bucketQueryable.BucketName;
-                }
+                bucketName = bucketQueryable.BucketName;
             }
 
             if (bucketName == null)

@@ -21,12 +21,12 @@ namespace Couchbase.Linq.Serialization
         // Uses a weak table to track a cache for each ITypeSerializer/ISerializationConverterRegistry pair
         // Because it's a weak table, this won't cause memory leaks and will cleanup as GC collects the serializers
         private static readonly
-            ConditionalWeakTable<ITypeSerializer, ConcurrentDictionary<MemberInfo, ISerializationConverter>> CacheSet =
-                new ConditionalWeakTable<ITypeSerializer, ConcurrentDictionary<MemberInfo, ISerializationConverter>>();
+            ConditionalWeakTable<ITypeSerializer, ConcurrentDictionary<MemberInfo, ISerializationConverter?>> CacheSet =
+                new ConditionalWeakTable<ITypeSerializer, ConcurrentDictionary<MemberInfo, ISerializationConverter?>>();
 
         private readonly IJsonNetSerializationConverterRegistry _converterRegistry;
         private readonly ITypeSerializer _serializer;
-        private readonly ConcurrentDictionary<MemberInfo, ISerializationConverter> _cache;
+        private readonly ConcurrentDictionary<MemberInfo, ISerializationConverter?> _cache;
 
         public DefaultSerializationConverterProvider(ITypeSerializer serializer, IJsonNetSerializationConverterRegistry converterRegistry)
         {
@@ -37,7 +37,7 @@ namespace Couchbase.Linq.Serialization
         }
 
         /// <inheritdoc/>
-        public ISerializationConverter GetSerializationConverter(MemberInfo member)
+        public ISerializationConverter? GetSerializationConverter(MemberInfo member)
         {
             if (member == null)
             {
@@ -71,7 +71,7 @@ namespace Couchbase.Linq.Serialization
             });
         }
 
-        private static JsonConverter GetJsonConverter(JsonProperty property, DefaultSerializer defaultSerializer)
+        private static JsonConverter? GetJsonConverter(JsonProperty property, DefaultSerializer defaultSerializer)
         {
             if (property.Converter != null)
             {

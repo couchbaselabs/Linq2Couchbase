@@ -1,8 +1,6 @@
 ﻿using System.Linq;
 using System.Reflection;
 
-#nullable enable
-
 namespace Couchbase.Linq.Filters
 {
     /// <summary>
