@@ -7,6 +7,9 @@ using Couchbase.Linq.QueryGeneration;
 
 namespace Couchbase.Linq.Serialization.Converters
 {
+    /// <summary>
+    /// Abstract base class for implementing <see cref="ISerializationConverter"/>.
+    /// </summary>
     public abstract class SerializationConverterBase : ISerializationConverter
     {
         /// <summary>

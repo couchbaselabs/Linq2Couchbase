@@ -12,7 +12,7 @@ namespace Couchbase.Linq.Serialization
     /// <summary>
     /// Implementation of <see cref="ISerializationConverterProvider"/> used if the Couchbase serializer
     /// doesn't implement the interface.  Checks for <see cref="JsonConverter"/> on the property
-    /// and uses the globally configured <see cref="CouchbaseLinqConfiguration.JsonNetSerializationConverterRegistry"/> to acquire an
+    /// and uses the globally configured <see cref="CouchbaseLinqConfiguration.WithSerializationConverterProvider"/> to acquire an
     /// appropriate <see cref="ISerializationConverter"/>. Only works for Newtonsoft.Json serialization, if using a custom serializer
     /// please implement a custom <see cref="ISerializationConverterProvider"/>.
     /// </summary>

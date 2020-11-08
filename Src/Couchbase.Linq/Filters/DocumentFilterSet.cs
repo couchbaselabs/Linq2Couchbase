@@ -60,6 +60,7 @@ namespace Couchbase.Linq.Filters
             return source;
         }
 
+        /// <inheritdoc />
         public IEnumerator<IDocumentFilter<T>> GetEnumerator() => _sortedSet.GetEnumerator();
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
