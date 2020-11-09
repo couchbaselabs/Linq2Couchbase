@@ -12,6 +12,9 @@ namespace Couchbase.Linq
     /// </remarks>
     public class CouchbaseLinqConfiguration
     {
+        /// <summary>
+        /// Create a new CouchbaseLinqConfiguration with defaults.
+        /// </summary>
         public CouchbaseLinqConfiguration()
         {
             this.WithJsonNetConverterProvider();

@@ -8,6 +8,11 @@ using Newtonsoft.Json.Linq;
 
 namespace Couchbase.Linq.Serialization.Converters
 {
+    /// <summary>
+    /// Implementation of <see cref="ISerializationConverter{T}"/> for handling date/time properties
+    /// flagged with the <see cref="Newtonsoft.Json.Converters.StringEnumConverter"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of the enumeration.</typeparam>
     public class StringEnumSerializationConverter<T> : SerializationConverterBase,
         ISerializationConverter<T>, ISerializationConverter<T?>
         where T: struct
@@ -29,6 +34,11 @@ namespace Couchbase.Linq.Serialization.Converters
         private readonly JsonConverter _jsonConverter;
         private readonly MemberInfo _member;
 
+        /// <summary>
+        /// Creates a new StringEnumSerializationConverter.
+        /// </summary>
+        /// <param name="jsonConverter">The <see cref="JsonConverter{T}"/> applied to the member.</param>
+        /// <param name="member">The member being converted.</param>
         public StringEnumSerializationConverter(JsonConverter jsonConverter, MemberInfo member)
         {
             _jsonConverter = jsonConverter ?? throw new ArgumentNullException(nameof(jsonConverter));

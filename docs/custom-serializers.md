@@ -15,7 +15,7 @@ Some attributes may have additional decorators applied that change how they are 
 ```cs
 services.AddCouchbase(options => {
     options.AddLinq(linqOptions => linqOptions.WithSerializationConverterProvider(new MyCustomSerializationConverterProvider()));
-})
+});
 ```
 
 For more details, see [Serialization Converters](./serialization-converters.md).
