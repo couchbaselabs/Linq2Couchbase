@@ -6,6 +6,10 @@ using Couchbase.Linq.QueryGeneration;
 
 namespace Couchbase.Linq.Serialization.Converters
 {
+    /// <summary>
+    /// Implementation of <see cref="ISerializationConverter{T}"/> for handling date/time properties
+    /// flagged with the <see cref="Couchbase.Core.IO.Serializers.UnixMillisecondsConverter"/>.
+    /// </summary>
     public class UnixMillisecondsSerializationConverter : SerializationConverterBase,
         ISerializationConverter<DateTime>, ISerializationConverter<DateTime?>,
         ISerializationConverter<DateTimeOffset>, ISerializationConverter<DateTimeOffset?>

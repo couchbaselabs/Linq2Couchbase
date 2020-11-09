@@ -17,6 +17,7 @@
     <RootNamespace>Couchbase.Linq</RootNamespace>
     <AssemblyName>Couchbase.Linq</AssemblyName>
 
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>

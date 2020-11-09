@@ -10,8 +10,8 @@ namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
     /// <see cref="IContractResolver"/> to resolve member names.
     /// </summary>
     /// <remarks>
-    /// Used for backwards compatibility with older implementations of <see cref="Couchbase.Core.Serialization.ITypeSerializer"/>
-    /// which don't have a GetMemberName implementation like <see cref="Couchbase.Core.Serialization.IExtendedTypeSerializer"/>.
+    /// Used for backwards compatibility with older implementations of <see cref="Couchbase.Core.IO.Serializers.ITypeSerializer"/>
+    /// which don't have a GetMemberName implementation like <see cref="Couchbase.Core.IO.Serializers.IExtendedTypeSerializer"/>.
     /// </remarks>
     internal class JsonNetMemberNameResolver : IMemberNameResolver
     {

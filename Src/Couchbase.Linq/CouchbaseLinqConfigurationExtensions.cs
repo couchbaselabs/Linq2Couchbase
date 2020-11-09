@@ -7,6 +7,9 @@ using Couchbase.Linq.Utils;
 
 namespace Couchbase.Linq
 {
+    /// <summary>
+    /// Configuration extensions for <see cref="CouchbaseLinqConfiguration"/>.
+    /// </summary>
     public static class CouchbaseLinqConfigurationExtensions
     {
         /// <summary>
