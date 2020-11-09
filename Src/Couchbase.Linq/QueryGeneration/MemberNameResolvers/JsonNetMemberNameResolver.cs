@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json.Serialization;
@@ -19,15 +20,10 @@ namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
 
         public JsonNetMemberNameResolver(IContractResolver contractResolver)
         {
-            if (contractResolver == null)
-            {
-                throw new ArgumentNullException("contractResolver");
-            }
-
-            _contractResolver = contractResolver;
+            _contractResolver = contractResolver ?? throw new ArgumentNullException(nameof(contractResolver));
         }
 
-        public bool TryResolveMemberName(MemberInfo member, out string memberName)
+        public bool TryResolveMemberName(MemberInfo member, [MaybeNullWhen(false)] out string memberName)
         {
             memberName = null;
 

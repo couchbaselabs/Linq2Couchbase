@@ -19,7 +19,7 @@ namespace Couchbase.Linq
         /// <param name="bucket">Bucket referenced by the new BucketContext.</param>
         public BucketContext(IBucket bucket)
         {
-            Bucket = bucket;
+            Bucket = bucket ?? throw new ArgumentNullException(nameof(bucket));
 
             try
             {

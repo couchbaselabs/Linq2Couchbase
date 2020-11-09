@@ -40,7 +40,7 @@ namespace Couchbase.Linq.Execution.StreamedData
         }
 
         // ReSharper disable PossibleNullReferenceException
-        public override bool Equals(IStreamedDataInfo obj) =>
+        public override bool Equals(IStreamedDataInfo? obj) =>
             base.Equals(obj) &&
             ((AsyncStreamedSingleValueInfo) obj).ReturnDefaultWhenEmpty == ReturnDefaultWhenEmpty;
         // ReSharper restore PossibleNullReferenceException

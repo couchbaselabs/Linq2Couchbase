@@ -2,8 +2,6 @@
 using System.Linq;
 using System.Linq.Expressions;
 
-#nullable enable
-
 namespace Couchbase.Linq.Filters
 {
     /// <summary>

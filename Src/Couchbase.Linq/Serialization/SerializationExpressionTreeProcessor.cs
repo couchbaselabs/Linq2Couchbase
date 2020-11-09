@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq.Expressions;
-using Couchbase.Core.IO.Serializers;
 using Couchbase.Linq.Utils;
 using Remotion.Linq.Parsing.Structure;
 
@@ -38,7 +37,7 @@ namespace Couchbase.Linq.Serialization
                 throw new ArgumentNullException(nameof(expressionTree));
             }
 
-            return new SerializationExpressionTreeVisitor(_serializationConverterProvider).Visit(expressionTree);
+            return new SerializationExpressionTreeVisitor(_serializationConverterProvider).Visit(expressionTree)!;
         }
     }
 }

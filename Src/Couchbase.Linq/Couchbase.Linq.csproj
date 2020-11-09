@@ -24,6 +24,7 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
 
     <LangVersion>8</LangVersion>
+    <Nullable>enable</Nullable>
   </PropertyGroup>
 
   <ItemGroup>

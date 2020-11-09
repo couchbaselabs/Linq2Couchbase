@@ -13,8 +13,9 @@ namespace Couchbase.Linq.Execution
     internal class ClusterQueryProvider : QueryProviderBase, IAsyncQueryProvider
     {
         public static readonly MethodInfo ExecuteAsyncMethod =
-            typeof(IAsyncQueryExecutor).GetMethod("ExecuteCollectionAsync",
-                new[] {typeof(QueryModel), typeof(CancellationToken)});
+            typeof(IAsyncQueryExecutor).GetMethod(nameof(IAsyncQueryExecutor.ExecuteCollectionAsync),
+                new[] {typeof(QueryModel), typeof(CancellationToken)})
+            ?? throw new MissingMemberException();
 
         public ClusterQueryProvider(IQueryParser queryParser, IAsyncQueryExecutor executor)
             : base(queryParser, executor)

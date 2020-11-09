@@ -1,10 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 using Couchbase.Linq.Utils;
 using Remotion.Linq.Parsing.ExpressionVisitors.Transformation;
 
@@ -34,9 +30,9 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
 
         public Expression Transform(BinaryExpression expression)
         {
-            Expression newExpression = null;
+            Expression? newExpression = null;
 
-            ConstantExpression constant;
+            ConstantExpression? constant;
             if (IsEnumConversion(expression.Left) &&
                 (constant = ReflectionUtils.UnwrapNullableConversion<ConstantExpression>(expression.Right, out _)) != null)
             {
@@ -76,7 +72,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             return type.GetTypeInfo().IsEnum;
         }
 
-        private BinaryExpression MakeEnumComparisonExpression(Expression operand, object enumValue,
+        private BinaryExpression? MakeEnumComparisonExpression(Expression operand, object? enumValue,
             ExpressionType comparisonType)
         {
             var isNullable = false;
@@ -89,7 +85,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
                 isNullable = true;
             }
 
-            string name = null;
+            string? name = null;
             if (enumValue != null)
             {
                 // enumValue == null if this is a Nullable type and it doesn't have a value

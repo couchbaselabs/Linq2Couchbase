@@ -1,7 +1,5 @@
 ﻿using System.Linq;
 
-#nullable enable
-
 namespace Couchbase.Linq.Filters
 {
     /// <summary>

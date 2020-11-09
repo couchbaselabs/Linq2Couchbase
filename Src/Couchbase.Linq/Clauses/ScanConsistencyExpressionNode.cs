@@ -27,7 +27,7 @@ namespace Couchbase.Linq.Clauses
         /// <param name="scanConsistency">Scan consistency for the query.</param>
         /// <param name="scanWait">Time to wait for index scan.</param>
         public ScanConsistencyExpressionNode(MethodCallExpressionParseInfo parseInfo, ConstantExpression scanConsistency,
-            ConstantExpression scanWait)
+            ConstantExpression? scanWait)
             : base(parseInfo)
         {
             if (scanConsistency == null)
@@ -55,7 +55,7 @@ namespace Couchbase.Linq.Clauses
         /// <summary>
         /// Time to wait for index scan.
         /// </summary>
-        public ConstantExpression ScanWait { get; }
+        public ConstantExpression? ScanWait { get; }
 
         /// <inheritdoc />
         public override Expression Resolve(ParameterExpression inputParameter, Expression expressionToBeResolved,

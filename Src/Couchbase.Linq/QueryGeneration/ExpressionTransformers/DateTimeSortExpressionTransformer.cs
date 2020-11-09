@@ -74,7 +74,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
 
         private static Expression TransformLambda(Expression expression)
         {
-            UnaryExpression unaryExpression = expression as UnaryExpression;
+            UnaryExpression? unaryExpression = expression as UnaryExpression;
 
             var lambdaExpression = unaryExpression != null
                 ? unaryExpression.Operand as LambdaExpression

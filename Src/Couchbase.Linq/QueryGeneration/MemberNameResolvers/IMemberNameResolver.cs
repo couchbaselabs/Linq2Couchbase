@@ -1,9 +1,10 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 
 namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
 {
     internal interface IMemberNameResolver
     {
-        bool TryResolveMemberName(MemberInfo member, out string memberName);
+        bool TryResolveMemberName(MemberInfo member, [MaybeNullWhen(false)] out string memberName);
     }
 }

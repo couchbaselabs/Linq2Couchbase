@@ -1,11 +1,6 @@
 ﻿using System;
-using Couchbase.Core.IO.Serializers;
 using Couchbase.Linq.Filters;
 using Couchbase.Linq.Serialization;
-using Couchbase.Linq.Utils;
-using Newtonsoft.Json;
-
-#nullable enable
 
 namespace Couchbase.Linq
 {

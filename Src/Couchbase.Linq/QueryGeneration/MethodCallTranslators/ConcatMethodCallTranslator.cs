@@ -69,14 +69,11 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                 && (typeof(IEnumerable).IsAssignableFrom(methodCallExpression.Arguments[0].Type)
                     && methodCallExpression.Arguments[0].Type != typeof(string)))
             {
-                ConstantExpression argumentAsConstantExpression;
-                NewArrayExpression argumentAsNewArrayExpression;
-
-                if ((argumentAsNewArrayExpression = methodCallExpression.Arguments[0] as NewArrayExpression) != null)
+                if (methodCallExpression.Arguments[0] is NewArrayExpression argumentAsNewArrayExpression)
                 {
                     return argumentAsNewArrayExpression.Expressions;
                 }
-                else if ((argumentAsConstantExpression = methodCallExpression.Arguments[0] as ConstantExpression) != null)
+                else if (methodCallExpression.Arguments[0] is ConstantExpression argumentAsConstantExpression)
                 {
                     return ((object[])argumentAsConstantExpression.Value).Select(element => (Expression)Expression.Constant(element));
                 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using Couchbase.Core.IO.Serializers;
 
@@ -17,7 +18,7 @@ namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
-        public bool TryResolveMemberName(MemberInfo member, out string memberName)
+        public bool TryResolveMemberName(MemberInfo member, [MaybeNullWhen(false)] out string memberName)
         {
             memberName = null;
 

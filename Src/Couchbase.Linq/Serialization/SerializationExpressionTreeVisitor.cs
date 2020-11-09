@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Reflection;
-using Couchbase.Linq.Utils;
 using Remotion.Linq.Parsing;
 
 namespace Couchbase.Linq.Serialization
@@ -38,7 +36,7 @@ namespace Couchbase.Linq.Serialization
         /// </summary>
         protected override Expression VisitMember(MemberExpression node)
         {
-            node = node.Update(Visit(node.Expression));
+            node = node.Update(Visit(node.Expression)!);
 
             var converter = _converterProvider.GetSerializationConverter(node.Member);
             if (converter != null)
@@ -61,7 +59,7 @@ namespace Couchbase.Linq.Serialization
             {
                 return node.Update(
                     converter.GenerateConvertToExpression(
-                        Visit(node.Expression)));
+                        Visit(node.Expression)!));
             }
 
             return base.VisitMemberAssignment(node);
@@ -79,8 +77,8 @@ namespace Couchbase.Linq.Serialization
                 return base.VisitBinary(node);
             }
 
-            var left = Visit(node.Left);
-            var right = Visit(node.Right);
+            var left = Visit(node.Left)!;
+            var right = Visit(node.Right)!;
 
             var leftConvertMethod = ExtractConvertFromMethod(left);
             if (leftConvertMethod != null && !IsNull(right))
@@ -122,10 +120,10 @@ namespace Couchbase.Linq.Serialization
                 right);
         }
 
-        private static MethodCallExpression ExtractConvertFromMethod(Expression expression)
+        private static MethodCallExpression? ExtractConvertFromMethod(Expression expression)
         {
             if (expression is MethodCallExpression methodCallExpression &&
-                     methodCallExpression.Method.DeclaringType != null)
+                methodCallExpression.Method.DeclaringType != null)
             {
                 if (methodCallExpression.Method.DeclaringType.GetTypeInfo().IsInterface &&
                     methodCallExpression.Method.DeclaringType.GetTypeInfo().IsGenericType &&

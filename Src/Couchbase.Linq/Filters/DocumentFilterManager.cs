@@ -2,8 +2,6 @@
 using System.Collections.Concurrent;
 using System.Linq;
 
-#nullable enable
-
 namespace Couchbase.Linq.Filters
 {
     /// <summary>

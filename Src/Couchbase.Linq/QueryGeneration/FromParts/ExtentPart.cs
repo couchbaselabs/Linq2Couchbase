@@ -5,6 +5,8 @@ using System.Text;
 using Couchbase.Linq.Clauses;
 using Remotion.Linq.Clauses;
 
+#nullable disable
+
 namespace Couchbase.Linq.QueryGeneration.FromParts
 {
     /// <summary>

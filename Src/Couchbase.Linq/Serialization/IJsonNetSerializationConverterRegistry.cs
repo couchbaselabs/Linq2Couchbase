@@ -16,6 +16,6 @@ namespace Couchbase.Linq.Serialization
         /// <param name="jsonConverter"><see cref="JsonConverter"/> to acquire.</param>
         /// <param name="member">Member the converter is applied to.</param>
         /// <returns>A new <see cref="ISerializationConverter"/>, or null if no converter is found.</returns>
-        ISerializationConverter CreateSerializationConverter(JsonConverter jsonConverter, MemberInfo member);
+        ISerializationConverter? CreateSerializationConverter(JsonConverter jsonConverter, MemberInfo member);
     }
 }

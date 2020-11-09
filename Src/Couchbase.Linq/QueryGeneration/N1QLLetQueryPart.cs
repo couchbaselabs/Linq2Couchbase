@@ -1,4 +1,6 @@
-﻿namespace Couchbase.Linq.QueryGeneration
+﻿#nullable disable
+
+namespace Couchbase.Linq.QueryGeneration
 {
     /// <summary>
     /// Represents an item in the LET part of a N1QL query

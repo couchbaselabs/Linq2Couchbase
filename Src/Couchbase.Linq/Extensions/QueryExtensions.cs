@@ -44,7 +44,7 @@ namespace Couchbase.Linq.Extensions
         private static TResult ExecuteAsync<TSource, TResult>(
             MethodInfo operatorMethodInfo,
             IQueryable<TSource> source,
-            Expression expression,
+            Expression? expression,
             CancellationToken cancellationToken = default)
         {
             if (source.Provider is IAsyncQueryProvider provider)

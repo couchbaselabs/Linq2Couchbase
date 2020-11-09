@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -19,6 +20,7 @@ namespace Couchbase.Linq.Utils
         /// Otherwise, returns the original expression or null if the original expression is not of type <typeparamref name="T"/>.
         /// </returns>
         /// <exception cref="ArgumentNullException"></exception>
+        [return: MaybeNull]
         public static T UnwrapNullableConversion<T>(Expression expression, out bool wasUnwrapped)
             where T: Expression
         {

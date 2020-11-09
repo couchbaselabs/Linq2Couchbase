@@ -22,7 +22,7 @@ namespace Couchbase.Linq.Execution
         /// This is used to return the expected results for <see cref="Queryable.Any{T}(IQueryable{T})"/> and
         /// <see cref="Queryable.All{T}"/> operations.
         /// </summary>
-        public object NoRowsResult { get; set; }
+        public object? NoRowsResult { get; set; }
 
         /// <summary>
         /// Applies result extraction to a collection of <see cref="ScalarResult{T}"/>.
