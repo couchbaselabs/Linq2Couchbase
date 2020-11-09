@@ -1,8 +1,8 @@
 # Date Handling
 
-LINQ works with dates under the assumption that they are stored in the JSON documents as [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted strings.  For more information about N1QL functions and date handling, see [Date functions](http://developer.couchbase.com/documentation/server/4.0/n1ql/n1ql-language-reference/datefun.html) in the N1QL language reference.
+LINQ works with dates under the assumption that they are stored in the JSON documents as [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted strings. For more information about N1QL functions and date handling, see [Date functions](http://developer.couchbase.com/documentation/server/4.0/n1ql/n1ql-language-reference/datefun.html) in the N1QL language reference.
 
-Date/times stored as milliseconds since the Unix epoch are also supported.  Simply add the `[JsonConverter(typeof(UnixMillisecondsConverter)]` attribute to the property if you are using the default Newtonsoft.Json serializer.  For custom serializers, see [Custom JSON Serializers](./custom-serializers.md).
+Date/times stored as milliseconds since the Unix epoch are also supported. If you are using the default Newtonsoft.Json serializer, simply add the `[JsonConverter(typeof(UnixMillisecondsConverter)]` attribute to the property. For custom serializers, see [Custom JSON Serializers](./custom-serializers.md).
 
 ## Date Comparisons
 

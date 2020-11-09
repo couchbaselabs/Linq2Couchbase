@@ -14,7 +14,7 @@ While not an officially supported Couchbase project, this repo is actively maint
 
 The Linq2Couchbase project has the following dependencies:
 
-- Couchbase Server 4.0 or greater with the query service enabled on at least one node
+- Couchbase Server 5.5 or greater with the query service enabled on at least one node
 - Couchbase .NET SDK 3.0.3 or greater
 
 ### Installing Couchbase Server
@@ -25,7 +25,9 @@ For a single instance of Couchbase Server running on localhost, you can [downloa
 
 Once you have a Couchbase Server instance or cluster setup, open Visual Studio 2019 or greater or [MonoDevelop](http://www.monodevelop.com/) and create a .NET or .NET Core application. Open the NuGet Package Manager and search for "Couchbase Linq" or type the following into the Package Manager console:
 
-    Install-Package Linq2Couchbase
+```powershell
+Install-Package Linq2Couchbase
+```
 
 ## Quick Start
 
@@ -67,7 +69,45 @@ Upon running this query, you should expect console output similar to:
 {"Id":"16881","Type":"airline","Name":"Air Cudlua","Iata":null,"Icao":"CUD","Callsign":"Cudlua","Country":"United Kingdom"}
 ```
 
-[Full code example](https://gist.github.com/jeffrymorris/c3bf85d73a1e7dfcc5f25f4e581d689a "Linq2Couchbase quick start!"), including `AirLine` class definition.
+## ASP.NET Core Quick Start
+
+For use with ASP.NET Core, it is recommended to use the [Couchbase.Extensions.DependencyInjection](https://www.nuget.org/packages/Couchbase.Extensions.DependencyInjection/) NuGet package to register Couchbase with DI. Documentation can be [found here](https://docs.couchbase.com/dotnet-sdk/current/howtos/managing-connections.html). In that case, the bootstrap code in `Startup.cs` may look like this:
+
+```cs
+public void ConfigureServices(IServiceCollection services)
+{
+    // Other configuration here
+
+    services
+        .AddCouchbase(options => {
+            Configuration.GetSection("Couchbase").Bind(options);
+            options.AddLinq();
+        })
+        .AddCouchbaseBucket<INamedBucketProvider>("bucket-name");
+}
+
+```
+
+A `BucketContext` may then be created in a controller:
+
+```cs
+public class MyController : ControllerBase
+{
+    private readonly INamedBucketProvider _bucketProvider;
+
+    public MyController(INamedBucketProvider bucketProvider)
+    {
+        _bucketProvider = bucketProvider;
+    }
+
+    public async Task<IActionResult> Get()
+    {
+        var bucketContext = new BucketContext(await _bucketProvider.GetBucketAsync());
+
+        // Use bucket context here
+    }
+}
+```
 
 ## Developer Guide
 
@@ -84,19 +124,17 @@ Upon running this query, you should expect console output similar to:
 - [Grouping and Aggregation](docs/grouping-aggregation.md)
 - [The UseKeys Method](docs/use-keys.md)
 - [Query Hints](docs/query-hints.md)
-- [JOINing Documents](docs/joins.md)
-- [NESTing Documents](docs/nest.md)
-- [UNNESTing Documents](docs/unnest.md)
+- [Joining Documents](docs/joins.md)
+- [Nesting Documents](docs/nest.md)
+- [Unnesting Documents](docs/unnest.md)
 - [Any and All](docs/any-all.md)
 - [Testing For NULL And MISSING Attributes](docs/null-missing-valued.md)
 - [The META Keyword](docs/meta-keyword.md)
 - [Working With Enumerations](docs/enum.md)
 - [Asynchronous Queries](docs/async-queries.md)
-- [Result Streaming](docs/result-streaming.md)
 - [Serialization Converters](docs/serialization-converters.md)
 - [Custom JSON Serializers](docs/custom-serializers.md)
 - [Using Read Your Own Write (RYOW) Consistency](docs/ryow.md)
-- [Change Tracking (Experimental Developer Preview)](docs/change-tracking.md)
 
 ## Building From Source
 

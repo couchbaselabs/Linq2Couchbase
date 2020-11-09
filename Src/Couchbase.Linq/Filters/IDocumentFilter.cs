@@ -12,7 +12,7 @@ namespace Couchbase.Linq.Filters
         /// <summary>
         /// Priority of this filter compared to other filters against the same type.  Lower priorities execute first.
         /// </summary>
-        int Priority { get; set; }
+        int Priority { get; }
 
         /// <summary>
         /// Apply the filter to a LINQ query

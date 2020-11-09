@@ -4,13 +4,11 @@
 
 The UseIndex method is used to provide an index hint to the query engine.  This can help improve query performance in cases where Explain shows that the index being used by default is inefficient.
 
-**Note:** You must import the `Couchbase.Linq.Extensions` namespace to use the UseIndex method.
-
-**Note:** You may only call UseIndex on the first, primary keyspace being queried.  It cannot be used after join clauses.
+> :info: **Note:** You must import the `Couchbase.Linq.Extensions` namespace to use the UseIndex method. Also, you may only call UseIndex on the first, primary keyspace being queried. It cannot be used after join clauses.
 
 ## Basic Usage
 
-The call to UseIndex should be immediately after the call to Query<T>.
+The call to `UseIndex` should be immediately after the call to `Query<T>`.
 
 ```cs
 var context = new BucketContext(bucket);

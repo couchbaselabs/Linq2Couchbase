@@ -1,41 +1,44 @@
-Asynchronous Queries
-====================
-For performance in high load web environments, Linq2Couchbase supports executing queries asynchronously.  This helps optimize thread utilization by avoiding thread blocking during long running query operations.
+# Asynchronous Queries
 
-## Executing Basic Queries
-To execute basic queries asynchronously, simply add .ExecuteAsync() to the end of the query building lambda chain.
+For performance in high load web environments, Linq2Couchbase supports executing queries asynchronously. This helps optimize thread utilization by avoiding thread blocking during long running query operations.
 
-```
-var result = await context.Query<Beer>().Where(p => p.Abv >= 6).ExecuteAsync();
+> :info: **Note:** The methods below will only work for Linq2Couchbase queries. Code completion will show them as an option for other types of LINQ queries, but they will fail when executed. Other libraries, such as Entity Framework Core, have their own versions of these methods designed for use with their queries.
+
+## Asynchronous Enumeration
+
+To execute basic queries asynchronously, simply add .AsAsyncEnumerable() to the end of the query building lambda chain. This approach has the advantage that the individual query results are processed as they arrive from the query node. In some cases this may increase throughput and reduce memory utilization.
+
+```cs
+var query = await context.Query<Beer>().Where(p => p.Abv >= 6).AsAsyncEnumerable();
 
 // or
 
-var result = await (from p in context.Query<Beer>()
+var query = await (from p in context.Query<Beer>()
                     where p.Abv >= 6
-                    select p).ExecuteAsync();
+                    select p).AsAsyncEnumerable();
 ```
 
-**Note:** ExecuteAsync will be your query execution immediately.  It does not wait for you to enumerate the collection before executing.
+The query may then been executed and the results processed using an `await foreach` loop.
 
-**Note:** You also cannot apply any more expressions to the query after calling ExecuteAsync.  If you apply additional expressions after the ExecuteAsync call, they will be applied in-memory rather than in the N1QL query, resulting in reduced performance.
+```cs
+await foreach (var item in query.WithCancellation(cancellationToken))
+{
+    // Do work
+}
+```
 
-**Note:** ExecuteAsync will only work for Linq2Couchbase queries.  Code completion will show it as an option for other types of LINQ queries, but it will fail when executed.
+## Simple Asynchronous Query To A List
+
+Using IAsyncEnumerable can be more cumbersome when used with C# versions less than 8. Also, sometimes you know you need a list of all results. In that case, `ToListAsync()` may be used to execute the query asynchronously but return a list of all results.
+
+```cs
+var results = await context.Query<Beer>().Where(p => p.Abv >= 6).ToListAsync(cancellationToken);
+```
 
 ## Executing Scalar Queries
-Scalar queries are queries that return a single result, instead of a list of results.  Queries ending in First, Single, and Sum are examples of scalar queries.
 
-The last command in a scalar query typically executes the query, therefore once called it's already too late to call ExecuteAsync to make the query run asynchronously.  To avoid this, pass the final expression to ExecuteAsync as a lambda expression.
+Scalar queries are queries that return a single result, instead of a list of results. Linq2Couchbase offers asynchronous overloads of First, Single, Sum, Average, Min, Max, Count, LongCount, Any, All, and Explain.
 
-```
-// Example synchronous query
-var result = context.Query<Beer>().Where(p => p.Abv == 6).First();
-
-// Example asynchronous equivalent
-var result = await context.Query<Beer>().Where(p => p.Abv == 6).ExecuteAsync(query => query.First());
-
-// Example synchronous query
-var result = context.Query<Beer>().Average(p => p.Abv);
-
-// Example asynchronous equivalent
-var result = await context.Query<Beer>().ExecuteAsync(query => query.Average(p => p.Abv));
+```cs
+var result = context.Query<Beer>().Where(p => p.Abv == 6).FirstAsync(cancellationToken);
 ```
