@@ -7,7 +7,7 @@ The public API for Linq2Couchbase is the BucketContext; this object is similar t
 The BucketContext has a dependency on ICluster and IBucket objects; in your application you will need to have instantiated and initialized a Cluster object before you can create a BucketContext.
 
 ```cs
-IBucket bucker = await bucketProvider.GetBucketAsync();
+IBucket bucket = await bucketProvider.GetBucketAsync();
 
 var context = new BucketContext(bucket);
 ```
