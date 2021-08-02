@@ -22,7 +22,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<DocumentWithArray>(mockBucket.Object)
                     .Where(e => e.Array.Contains("abc"));
 
-            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE 'abc' IN (`Extent1`.`Array`)";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE \"abc\" IN (`Extent1`.`Array`)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -41,7 +41,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<DocumentWithIList>(mockBucket.Object)
                     .Where(e => e.List.Contains("abc"));
 
-            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE 'abc' IN (`Extent1`.`List`)";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE \"abc\" IN (`Extent1`.`List`)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -61,7 +61,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Beer>(mockBucket.Object)
                     .Where(e => staticArray.Contains(e.Name));
 
-            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (['abc', 'def'])";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`name` IN ([\"abc\", \"def\"])";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -81,7 +81,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Beer>(mockBucket.Object)
                     .Where(e => staticArray.Select(p => "a" + p).Contains(e.Name));
 
-            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (ARRAY ('a' || `Extent2`) FOR `Extent2` IN ['abc', 'def'] END)";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (ARRAY (\"a\" || `Extent2`) FOR `Extent2` IN [\"abc\", \"def\"] END)";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -101,7 +101,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Beer>(mockBucket.Object)
                     .Where(e => staticArray.Contains(e.Name));
 
-            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`name` IN (['abc', 'def'])";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE `Extent1`.`name` IN ([\"abc\", \"def\"])";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -120,7 +120,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Brewery>(mockBucket.Object)
                     .Where(e => e.Beers.Any(p => p == "test"));
 
-            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE ANY `Extent2` IN `Extent1`.`beers` SATISFIES (`Extent2` = 'test') END";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE ANY `Extent2` IN `Extent1`.`beers` SATISFIES (`Extent2` = \"test\") END";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -139,7 +139,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Beer>(mockBucket.Object)
                     .Where(e => e.Name.Split().Any(p => p == "test"));
 
-            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE ANY `Extent2` IN SPLIT(`Extent1`.`name`) SATISFIES (`Extent2` = 'test') END";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE ANY `Extent2` IN SPLIT(`Extent1`.`name`) SATISFIES (`Extent2` = \"test\") END";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -158,7 +158,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 QueryFactory.Queryable<Beer>(mockBucket.Object)
                     .Where(e => e.Name.Split(new[] {' '}).Any(p => p == "test"));
 
-            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE ANY `Extent2` IN SPLIT(`Extent1`.`name`, ' ') SATISFIES (`Extent2` = 'test') END";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE ANY `Extent2` IN SPLIT(`Extent1`.`name`, \" \") SATISFIES (`Extent2` = \"test\") END";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

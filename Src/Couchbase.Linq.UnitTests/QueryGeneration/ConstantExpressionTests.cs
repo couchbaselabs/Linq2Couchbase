@@ -26,7 +26,25 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Where(e => e.FirstName != "Test");
 
             const string expected =
-                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`fname` != 'Test')";
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`fname` != \"Test\")";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
+        public void Test_EscapedString()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query =
+                QueryFactory.Queryable<Contact>(mockBucket.Object)
+                    .Where(e => e.FirstName != "Test\\\"This");
+
+            const string expected =
+                "SELECT RAW `Extent1` FROM `default` as `Extent1` WHERE (`Extent1`.`fname` != \"Test\\\\\\\"This\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

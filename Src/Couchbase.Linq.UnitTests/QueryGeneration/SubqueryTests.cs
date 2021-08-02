@@ -143,7 +143,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 "SELECT `Extent1`.`name` as `name` " +
                 "FROM `default` as `Extent1` " +
                 "WHERE ANY `Extent3` IN (SELECT * FROM `default` as `Extent2` USE KEYS `Extent1`.`beers` " +
-                "WHERE (`Extent2`.`name` LIKE '%IPA%')) SATISFIES true END";
+                "WHERE (`Extent2`.`name` LIKE \"%IPA%\")) SATISFIES true END";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -256,7 +256,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`name` as `name`, " +
-                "ARRAY ('Address ' || `Extent2`) FOR `Extent2` IN `Extent1`.`address` END as `addresses` " +
+                "ARRAY (\"Address \" || `Extent2`) FOR `Extent2` IN `Extent1`.`address` END as `addresses` " +
                 "FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
@@ -325,8 +325,8 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 "SELECT `Extent1`.`name` as `name`, `Extent1`.`address` as `addresses` " +
                 "FROM `default` as `Extent1` " +
                 "WHERE EVERY `Extent3` IN " +
-                "(ARRAY `Extent2` FOR `Extent2` IN `Extent1`.`address` WHEN (`Extent2` = '563 Second Street') END) " +
-                "SATISFIES (`Extent3` = '101 Fake Street') END";
+                "(ARRAY `Extent2` FOR `Extent2` IN `Extent1`.`address` WHEN (`Extent2` = \"563 Second Street\") END) " +
+                "SATISFIES (`Extent3` = \"101 Fake Street\") END";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

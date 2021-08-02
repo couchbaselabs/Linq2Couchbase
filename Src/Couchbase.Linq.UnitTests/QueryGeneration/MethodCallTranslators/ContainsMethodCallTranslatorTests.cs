@@ -74,7 +74,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
 
             // Assert
 
-            Assert.AreEqual("('test' LIKE '%t%')", result);
+            Assert.AreEqual("(\"test\" LIKE \"%t%\")", result);
         }
 
         [Test]
@@ -105,7 +105,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
 
             // Assert
 
-            Assert.AreEqual("('test' LIKE '%' || FAKE || '%')", result);
+            Assert.AreEqual("(\"test\" LIKE \"%\" || FAKE || \"%\")", result);
         }
 
         [Test]
@@ -130,7 +130,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
 
             // Assert
 
-            Assert.AreEqual("('test' LIKE 't%')", result);
+            Assert.AreEqual("(\"test\" LIKE \"t%\")", result);
         }
 
         [Test]
@@ -161,7 +161,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
 
             // Assert
 
-            Assert.AreEqual("('test' LIKE FAKE || '%')", result);
+            Assert.AreEqual("(\"test\" LIKE FAKE || \"%\")", result);
         }
 
         [Test]
@@ -186,7 +186,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
 
             // Assert
 
-            Assert.AreEqual("('test' LIKE '%t')", result);
+            Assert.AreEqual("(\"test\" LIKE \"%t\")", result);
         }
 
         [Test]
@@ -217,7 +217,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
 
             // Assert
 
-            Assert.AreEqual("('test' LIKE '%' || FAKE)", result);
+            Assert.AreEqual("(\"test\" LIKE \"%\" || FAKE)", result);
         }
 
         #endregion

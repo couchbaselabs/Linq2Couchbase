@@ -492,7 +492,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                 "FROM `default` as `Extent1` " +
                 "INNER JOIN `default` as `Extent2` ON (`Extent1`.`brewery_id` = META(`Extent2`).id) " +
                 "GROUP BY `Extent2`.`name` " +
-                "HAVING (`Extent2`.`name` >= 'N')";
+                "HAVING (`Extent2`.`name` >= \"N\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

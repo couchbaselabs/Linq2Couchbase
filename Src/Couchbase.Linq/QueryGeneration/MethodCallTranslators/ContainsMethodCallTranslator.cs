@@ -65,14 +65,14 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
                 if (methodCallExpression.Method.Name != StartsWith)
                 {
-                    expression.Append("'%' || ");
+                    expression.Append("\"%\" || ");
                 }
 
                 expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
 
                 if (methodCallExpression.Method.Name != EndsWith)
                 {
-                    expression.Append(" || '%'");
+                    expression.Append(" || \"%\"");
                 }
             }
 
