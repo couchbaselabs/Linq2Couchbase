@@ -23,7 +23,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) ORDER BY `Extent1`.`age` ASC";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = \"Sam\")) ORDER BY `Extent1`.`age` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

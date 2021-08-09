@@ -25,7 +25,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                         e => new {age = e.Age, firstName = e.FirstName, lastName = e.LastName, children = e.Children});
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `firstName`, `Extent1`.`lname` as `lastName`, `Extent1`.`children` as `children` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` < 40) AND (`Extent1`.`fname` LIKE '%a%'))";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `firstName`, `Extent1`.`lname` as `lastName`, `Extent1`.`children` as `children` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` < 40) AND (`Extent1`.`fname` LIKE \"%a%\"))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -46,7 +46,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new {brewName = e.Name, brewCity = e.City});
 
             const string expected =
-                "SELECT `Extent1`.`name` as `brewName`, `Extent1`.`city` as `brewCity` FROM `default` as `Extent1` WHERE (`Extent1`.`country` LIKE '%a%')";
+                "SELECT `Extent1`.`name` as `brewName`, `Extent1`.`city` as `brewCity` FROM `default` as `Extent1` WHERE (`Extent1`.`country` LIKE \"%a%\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -67,7 +67,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new {brewName = e.Name, brewCity = e.City});
 
             const string expected =
-                "SELECT `Extent1`.`name` as `brewName`, `Extent1`.`city` as `brewCity` FROM `default` as `Extent1` WHERE (`Extent1`.`country` LIKE '%a%')";
+                "SELECT `Extent1`.`name` as `brewName`, `Extent1`.`city` as `brewCity` FROM `default` as `Extent1` WHERE (`Extent1`.`country` LIKE \"%a%\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

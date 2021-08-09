@@ -35,7 +35,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` = 'M')";
+                "WHERE (`Extent1`.`fname` = \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -49,12 +49,12 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
-                        where contact.FirstName == "M'"
+                        where contact.FirstName == "M\""
                         select new { contact.FirstName };
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` = 'M''')";
+                "WHERE (`Extent1`.`fname` = \"M\\\"\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -71,7 +71,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                         select new { contact.FirstName, ch = 'M' };
 
             const string expected =
-                "SELECT `Extent1`.`fname` as `FirstName`, 'M' as `ch` FROM `default` as `Extent1`";
+                "SELECT `Extent1`.`fname` as `FirstName`, \"M\" as `ch` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -85,10 +85,10 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
-                        select new { contact.FirstName, ch = '\'' };
+                        select new { contact.FirstName, ch = '\"' };
 
             const string expected =
-                "SELECT `Extent1`.`fname` as `FirstName`, '''' as `ch` FROM `default` as `Extent1`";
+                "SELECT `Extent1`.`fname` as `FirstName`, \"\\\"\" as `ch` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -130,7 +130,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`lname` as `LastName` FROM `default` as `Extent1` " +
-                "WHERE (UPPER(`Extent1`.`fname`) = 'BOB')";
+                "WHERE (UPPER(`Extent1`.`fname`) = \"BOB\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -149,7 +149,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`lname` as `LastName` FROM `default` as `Extent1` " +
-                "WHERE (LOWER(`Extent1`.`fname`) = 'bob')";
+                "WHERE (LOWER(`Extent1`.`fname`) = \"bob\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -251,7 +251,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                         select new { name = contact.FirstName.Split(new[] {' '}) };
 
             const string expected =
-                "SELECT SPLIT(`Extent1`.`fname`, ' ') as `name` FROM `default` as `Extent1`";
+                "SELECT SPLIT(`Extent1`.`fname`, \" \") as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -280,7 +280,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                         select new { index = contact.FirstName.IndexOf(' ') };
 
             const string expected =
-                "SELECT POSITION(`Extent1`.`fname`, ' ') as `index` FROM `default` as `Extent1`";
+                "SELECT POSITION(`Extent1`.`fname`, \" \") as `index` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -297,7 +297,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                         select new { index = contact.FirstName.IndexOf(" ") };
 
             const string expected =
-                "SELECT POSITION(`Extent1`.`fname`, ' ') as `index` FROM `default` as `Extent1`";
+                "SELECT POSITION(`Extent1`.`fname`, \" \") as `index` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -314,7 +314,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                         select new { name = contact.FirstName.Replace(" ", "") };
 
             const string expected =
-                "SELECT REPLACE(`Extent1`.`fname`, ' ', '') as `name` FROM `default` as `Extent1`";
+                "SELECT REPLACE(`Extent1`.`fname`, \" \", \"\") as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -362,10 +362,10 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
-                        select new { name = contact.FirstName.Trim(' ', '\t', '\'') };
+                        select new { name = contact.FirstName.Trim(' ', '\t', '\"') };
 
             const string expected =
-                "SELECT TRIM(`Extent1`.`fname`, ' \t''') as `name` FROM `default` as `Extent1`";
+                "SELECT TRIM(`Extent1`.`fname`, \" \\t\\\"\") as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -413,10 +413,10 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
-                        select new { name = contact.FirstName.TrimEnd(' ', '\t', '\'') };
+                        select new { name = contact.FirstName.TrimEnd(' ', '\t', '\"') };
 
             const string expected =
-                "SELECT RTRIM(`Extent1`.`fname`, ' \t''') as `name` FROM `default` as `Extent1`";
+                "SELECT RTRIM(`Extent1`.`fname`, \" \\t\\\"\") as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -464,10 +464,10 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             mockBucket.SetupGet(e => e.Name).Returns("default");
 
             var query = from contact in QueryFactory.Queryable<Contact>(mockBucket.Object)
-                        select new { name = contact.FirstName.TrimStart(' ', '\t', '\'') };
+                        select new { name = contact.FirstName.TrimStart(' ', '\t', '\"') };
 
             const string expected =
-                "SELECT LTRIM(`Extent1`.`fname`, ' \t''') as `name` FROM `default` as `Extent1`";
+                "SELECT LTRIM(`Extent1`.`fname`, \" \\t\\\"\") as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -528,7 +528,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` = 'M')";
+                "WHERE (`Extent1`.`fname` = \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -547,7 +547,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` = 'M')";
+                "WHERE (`Extent1`.`fname` = \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -566,7 +566,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (LOWER(`Extent1`.`fname`) = LOWER('M'))";
+                "WHERE (LOWER(`Extent1`.`fname`) = LOWER(\"M\"))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -624,7 +624,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` != 'M')";
+                "WHERE (`Extent1`.`fname` != \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -643,7 +643,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` < 'M')";
+                "WHERE (`Extent1`.`fname` < \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -662,7 +662,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` <= 'M')";
+                "WHERE (`Extent1`.`fname` <= \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -681,7 +681,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` > 'M')";
+                "WHERE (`Extent1`.`fname` > \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -700,7 +700,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` >= 'M')";
+                "WHERE (`Extent1`.`fname` >= \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -719,7 +719,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` = 'M')";
+                "WHERE (`Extent1`.`fname` = \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -738,7 +738,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` != 'M')";
+                "WHERE (`Extent1`.`fname` != \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -757,7 +757,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` < 'M')";
+                "WHERE (`Extent1`.`fname` < \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -776,7 +776,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` <= 'M')";
+                "WHERE (`Extent1`.`fname` <= \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -795,7 +795,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` > 'M')";
+                "WHERE (`Extent1`.`fname` > \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -814,7 +814,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected =
                 "SELECT `Extent1`.`fname` as `FirstName` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`fname` >= 'M')";
+                "WHERE (`Extent1`.`fname` >= \"M\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

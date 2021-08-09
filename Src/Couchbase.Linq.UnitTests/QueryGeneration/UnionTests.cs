@@ -30,9 +30,9 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                             .Select(e => new { e.Name }));
 
             const string expected =
-                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = 'beer')" +
+                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = \"beer\")" +
                 " UNION " +
-                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = 'brewery')";
+                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = \"brewery\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -58,9 +58,9 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .OrderBy(e => e.Name);
 
             const string expected =
-                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = 'beer')" +
+                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = \"beer\")" +
                 " UNION " +
-                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = 'brewery')" +
+                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = \"brewery\")" +
                 " ORDER BY `Name` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
@@ -90,11 +90,11 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                                     .Select(e => new { Name = e.FirstName})));
 
             const string expected =
-                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = 'beer')" +
+                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = \"beer\")" +
                 " UNION " +
-                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = 'brewery')" +
+                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = \"brewery\")" +
                 " UNION " +
-                "SELECT `Extent3`.`fname` as `Name` FROM `default` as `Extent3` WHERE (`Extent3`.`type` = 'contact')";
+                "SELECT `Extent3`.`fname` as `Name` FROM `default` as `Extent3` WHERE (`Extent3`.`type` = \"contact\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -123,11 +123,11 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                             .Select(e => new { Name = e.FirstName }));
 
             const string expected =
-                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = 'beer')" +
+                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = \"beer\")" +
                 " UNION " +
-                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = 'brewery')" +
+                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = \"brewery\")" +
                 " UNION " +
-                "SELECT `Extent3`.`fname` as `Name` FROM `default` as `Extent3` WHERE (`Extent3`.`type` = 'contact')";
+                "SELECT `Extent3`.`fname` as `Name` FROM `default` as `Extent3` WHERE (`Extent3`.`type` = \"contact\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -152,9 +152,9 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                             .Select(e => new { e.Name }));
 
             const string expected =
-                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = 'beer')" +
+                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = \"beer\")" +
                 " UNION ALL " +
-                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = 'brewery')";
+                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = \"brewery\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -180,9 +180,9 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .OrderBy(e => e.Name);
 
             const string expected =
-                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = 'beer')" +
+                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = \"beer\")" +
                 " UNION ALL " +
-                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = 'brewery')" +
+                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = \"brewery\")" +
                 " ORDER BY `Name` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
@@ -212,11 +212,11 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                                     .Select(e => new { Name = e.FirstName })));
 
             const string expected =
-                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = 'beer')" +
+                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = \"beer\")" +
                 " UNION ALL " +
-                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = 'brewery')" +
+                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = \"brewery\")" +
                 " UNION ALL " +
-                "SELECT `Extent3`.`fname` as `Name` FROM `default` as `Extent3` WHERE (`Extent3`.`type` = 'contact')";
+                "SELECT `Extent3`.`fname` as `Name` FROM `default` as `Extent3` WHERE (`Extent3`.`type` = \"contact\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -245,11 +245,11 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                             .Select(e => new { Name = e.FirstName }));
 
             const string expected =
-                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = 'beer')" +
+                "SELECT `Extent1`.`name` as `Name` FROM `default` as `Extent1` WHERE (`Extent1`.`type` = \"beer\")" +
                 " UNION ALL " +
-                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = 'brewery')" +
+                "SELECT `Extent2`.`name` as `Name` FROM `default` as `Extent2` WHERE (`Extent2`.`type` = \"brewery\")" +
                 " UNION ALL " +
-                "SELECT `Extent3`.`fname` as `Name` FROM `default` as `Extent3` WHERE (`Extent3`.`type` = 'contact')";
+                "SELECT `Extent3`.`fname` as `Name` FROM `default` as `Extent3` WHERE (`Extent3`.`type` = \"contact\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

@@ -1,14 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using Couchbase.Core.IO.Serializers;
 using Couchbase.Linq.QueryGeneration.Expressions;
+using Newtonsoft.Json;
 using Remotion.Linq.Clauses.Expressions;
 using Remotion.Linq.Parsing;
-using Remotion.Linq.Parsing.ExpressionVisitors;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -17,7 +19,15 @@ namespace Couchbase.Linq.QueryGeneration
         private static readonly Assembly Mscorlib = typeof(string).GetTypeInfo().Assembly;
 
         private readonly StringBuilder _expression = new StringBuilder();
+        private JsonTextWriter? _jsonConstantWriter;
+
         public StringBuilder Expression => _expression;
+
+        /// <summary>
+        /// <see cref="JsonTextWriter"/> which can serialize a constant as JSON directly to the <see cref="Expression"/>.
+        /// </summary>
+        private JsonTextWriter JsonConstantWriter =>
+            _jsonConstantWriter ??= new JsonTextWriter(new StringWriter(_expression, CultureInfo.InvariantCulture));
 
         public N1QlQueryGenerationContext QueryGenerationContext { get; }
 
@@ -479,13 +489,17 @@ namespace Couchbase.Linq.QueryGeneration
             {
                 _expression.Append("NULL");
             }
-            else if (namedParameter.Value is string)
+            else if (namedParameter.Value is string stringValue)
             {
-                _expression.AppendFormat("'{0}'", namedParameter.Value.ToString().Replace("'", "''"));
+                var writer = JsonConstantWriter;
+                writer.WriteValue(stringValue);
+                writer.Flush();
             }
-            else if (namedParameter.Value is char)
+            else if (namedParameter.Value is char charValue)
             {
-                _expression.AppendFormat("'{0}'", (char)namedParameter.Value != '\'' ? namedParameter.Value : "''");
+                var writer = JsonConstantWriter;
+                writer.WriteValue(charValue);
+                writer.Flush();
             }
             else if (namedParameter.Value is bool)
             {
@@ -533,7 +547,7 @@ namespace Couchbase.Linq.QueryGeneration
             }
             else if (namedParameter.Value is Guid)
             {
-                _expression.AppendFormat("'{0}'", namedParameter.Value.ToString());
+                _expression.AppendFormat("\"{0}\"", namedParameter.Value);
             }
             else
             {

@@ -144,7 +144,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .UseKeys(new[] { "abc", "def" })
                     .Select(e => e);
 
-            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` USE KEYS ['abc', 'def']";
+            const string expected = "SELECT RAW `Extent1` FROM `default` as `Extent1` USE KEYS [\"abc\", \"def\"]";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

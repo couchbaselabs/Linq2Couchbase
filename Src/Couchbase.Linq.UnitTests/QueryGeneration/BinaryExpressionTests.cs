@@ -319,7 +319,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { name = e.FirstName + " " + e.LastName });
 
             const string expected =
-                "SELECT ((`Extent1`.`fname` || ' ') || `Extent1`.`lname`) as `name` FROM `default` as `Extent1`";
+                "SELECT ((`Extent1`.`fname` || \" \") || `Extent1`.`lname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -337,7 +337,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { key = "constant-" + e.Age });
 
             const string expected =
-                "SELECT ('constant-' || `Extent1`.`age`) as `key` FROM `default` as `Extent1`";
+                "SELECT (\"constant-\" || `Extent1`.`age`) as `key` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -355,7 +355,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { name = String.Concat(e.FirstName, " ", e.LastName) });
 
             const string expected =
-                "SELECT (`Extent1`.`fname` || ' ' || `Extent1`.`lname`) as `name` FROM `default` as `Extent1`";
+                "SELECT (`Extent1`.`fname` || \" \" || `Extent1`.`lname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -373,7 +373,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { name = String.Concat(new[] {e.FirstName, " ", e.LastName}) });
 
             const string expected =
-                "SELECT (`Extent1`.`fname` || ' ' || `Extent1`.`lname`) as `name` FROM `default` as `Extent1`";
+                "SELECT (`Extent1`.`fname` || \" \" || `Extent1`.`lname`) as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -391,7 +391,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { name = String.Concat(e.FirstName, " ", e.LastName, " ", "suffix") });
 
             const string expected =
-                "SELECT (`Extent1`.`fname` || ' ' || `Extent1`.`lname` || ' ' || 'suffix') as `name` FROM `default` as `Extent1`";
+                "SELECT (`Extent1`.`fname` || \" \" || `Extent1`.`lname` || \" \" || \"suffix\") as `name` FROM `default` as `Extent1`";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

@@ -72,8 +72,8 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
                                     "FROM `default` as `Extent1` " +
                                     "INNER JOIN `default` as `Extent2` " +
-                                    "ON (`Extent1`.`brewery_id` = META(`Extent2`).id) AND (`Extent2`.`type` = 'brewery') " +
-                                    "WHERE (`Extent1`.`type` = 'beer')";
+                                    "ON (`Extent1`.`brewery_id` = META(`Extent2`).id) AND (`Extent2`.`type` = \"brewery\") " +
+                                    "WHERE (`Extent1`.`type` = \"beer\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -143,8 +143,8 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
                                     "FROM `default` as `Extent1` " +
                                     "LEFT JOIN `default` as `Extent2` " +
-                                    "ON (`Extent1`.`brewery_id` = META(`Extent2`).id) AND (`Extent2`.`type` = 'brewery') " +
-                                    "WHERE (`Extent1`.`type` = 'beer')";
+                                    "ON (`Extent1`.`brewery_id` = META(`Extent2`).id) AND (`Extent2`.`type` = \"brewery\") " +
+                                    "WHERE (`Extent1`.`type` = \"beer\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -235,8 +235,8 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected = "SELECT `Extent2`.`airportname` as `AirportName`, `Extent1`.`airline` as `Airline` " +
                                     "FROM `default` as `Extent1` "+
                                     "INNER JOIN `default` as `Extent2` " +
-                                    "ON (`Extent1`.`destinationairport` = `Extent2`.`faa`) AND (`Extent2`.`type` = 'airport') " +
-                                    "WHERE (`Extent1`.`type` = 'route')";
+                                    "ON (`Extent1`.`destinationairport` = `Extent2`.`faa`) AND (`Extent2`.`type` = \"airport\") " +
+                                    "WHERE (`Extent1`.`type` = \"route\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -280,8 +280,8 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
             const string expected = "SELECT `Extent2`.`airportname` as `AirportName`, `Extent1`.`airline` as `Airline` " +
                                     "FROM `default` as `Extent1` "+
                                     "LEFT JOIN `default` as `Extent2` " +
-                                    "ON (`Extent1`.`destinationairport` = `Extent2`.`faa`) AND (`Extent2`.`type` = 'airport') " +
-                                    "WHERE (`Extent1`.`type` = 'route')";
+                                    "ON (`Extent1`.`destinationairport` = `Extent2`.`faa`) AND (`Extent2`.`type` = \"airport\") " +
+                                    "WHERE (`Extent1`.`type` = \"route\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 

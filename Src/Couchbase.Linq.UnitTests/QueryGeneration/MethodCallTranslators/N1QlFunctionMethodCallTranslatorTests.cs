@@ -192,7 +192,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
 
             // Assert
 
-            Assert.AreEqual("FUNC('arg1')", result);
+            Assert.AreEqual("FUNC(\"arg1\")", result);
         }
 
         [Test]
@@ -219,7 +219,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
 
             // Assert
 
-            Assert.AreEqual("FUNC('arg1', 'arg2')", result);
+            Assert.AreEqual("FUNC(\"arg1\", \"arg2\")", result);
         }
 
         #endregion

@@ -24,7 +24,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected = "SELECT RAW `Extent1` " +
                 "FROM `default` as `Extent1` USE INDEX (`IndexName` USING GSI) " +
-                "WHERE (`Extent1`.`type` = 'contact')";
+                "WHERE (`Extent1`.`type` = \"contact\")";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -55,7 +55,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected = "SELECT RAW `Extent1` " +
                 "FROM `default` as `Extent1` USE INDEX (`IndexName` USING VIEW) " +
-                "WHERE (`Extent1`.`type` = 'contact')";
+                "WHERE (`Extent1`.`type` = \"contact\")";
 
             Assert.AreEqual(expected, n1QlQuery);
         }
@@ -71,7 +71,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected = "SELECT true as result " +
                 "FROM `default` as `Extent1` USE INDEX (`IndexName` USING GSI) " +
-                "WHERE (`Extent1`.`type` = 'contact') " +
+                "WHERE (`Extent1`.`type` = \"contact\") " +
                 "LIMIT 1";
 
             Assert.AreEqual(expected, n1QlQuery);
@@ -88,7 +88,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             const string expected = "SELECT true as result " +
                 "FROM `default` as `Extent1` USE INDEX (`IndexName` USING VIEW) " +
-                "WHERE (`Extent1`.`type` = 'contact') " +
+                "WHERE (`Extent1`.`type` = \"contact\") " +
                 "LIMIT 1";
 
             Assert.AreEqual(expected, n1QlQuery);

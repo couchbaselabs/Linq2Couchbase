@@ -76,7 +76,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration.MethodCallTranslators
 
             // Assert
 
-            Assert.AreEqual("META('arg1').id", result);
+            Assert.AreEqual("META(\"arg1\").id", result);
         }
 
         #endregion

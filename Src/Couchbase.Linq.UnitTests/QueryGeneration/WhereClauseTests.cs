@@ -24,7 +24,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) ORDER BY `Extent1`.`age` ASC";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = \"Sam\")) ORDER BY `Extent1`.`age` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -45,7 +45,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (`Extent1`.`email` = 'something@gmail.com') AND `Extent1`.`age` IS MISSING ORDER BY `Extent1`.`age` ASC";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (`Extent1`.`email` = \"something@gmail.com\") AND `Extent1`.`age` IS MISSING ORDER BY `Extent1`.`age` ASC";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -64,7 +64,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) AND (`Extent1`.`lname` LIKE '%a%'))";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = \"Sam\")) AND (`Extent1`.`lname` LIKE \"%a%\"))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -83,7 +83,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) AND (`Extent1`.`lname` LIKE 'a%'))";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = \"Sam\")) AND (`Extent1`.`lname` LIKE \"a%\"))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -102,7 +102,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) AND (`Extent1`.`lname` LIKE '%a'))";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE (((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = \"Sam\")) AND (`Extent1`.`lname` LIKE \"%a\"))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -122,7 +122,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam'))";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = \"Sam\"))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -145,7 +145,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam'))";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = \"Sam\"))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -165,7 +165,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = 'Sam')) AND (`Extent1`.`email` = 'myemail@test.com')";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) AND (`Extent1`.`fname` = \"Sam\")) AND (`Extent1`.`email` = \"myemail@test.com\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -184,7 +184,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
                     .Select(e => new { age = e.Age, name = e.FirstName });
 
             const string expected =
-                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) OR (`Extent1`.`fname` = 'Sam'))";
+                "SELECT `Extent1`.`age` as `age`, `Extent1`.`fname` as `name` FROM `default` as `Extent1` WHERE ((`Extent1`.`age` > 10) OR (`Extent1`.`fname` = \"Sam\"))";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
@@ -325,7 +325,7 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
 
             string expected =
                 "SELECT `Extent1`.`Id` as `id`, `Extent1`.`Name` as `name` FROM `default` as `Extent1` " +
-                "WHERE (`Extent1`.`Id` = '" + guid.ToString() + "')";
+                "WHERE (`Extent1`.`Id` = \"" + guid.ToString() + "\")";
 
             var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
 
