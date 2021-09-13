@@ -40,12 +40,16 @@ namespace Couchbase.Linq.UnitTests
             mockBucket.SetupGet(e => e.Name).Returns("default");
             mockBucket.SetupGet(e => e.Cluster).Returns(mockCluster.Object);
 
-            var mockCollection = new Mock<ICouchbaseCollection>();
-            mockCollection
-                .SetupGet(p => p.Scope.Bucket)
-                .Returns(() => mockBucket.Object);
+            var mockScope = new Mock<IScope>();
+            mockScope.SetupGet(e => e.Bucket).Returns(mockBucket.Object);
 
+            var mockCollection = new Mock<ICouchbaseCollection>();
+            mockCollection.SetupGet(e => e.Scope).Returns(() => mockScope.Object);
+
+            mockBucket.Setup(e => e.Scope("_default")).Returns(mockScope.Object);
+            mockBucket.Setup(e => e.DefaultScope()).Returns(mockScope.Object);
             mockBucket.Setup(e => e.DefaultCollection()).Returns(mockCollection.Object);
+            mockScope.Setup(e => e.Collection("_default")).Returns(mockCollection.Object);
 
             var ctx = new BucketContext(mockBucket.Object);
 
@@ -74,12 +78,16 @@ namespace Couchbase.Linq.UnitTests
             mockBucket.SetupGet(e => e.Name).Returns("default");
             mockBucket.SetupGet(e => e.Cluster).Returns(mockCluster.Object);
 
-            var mockCollection = new Mock<ICouchbaseCollection>();
-            mockCollection
-                .SetupGet(p => p.Scope.Bucket)
-                .Returns(() => mockBucket.Object);
+            var mockScope = new Mock<IScope>();
+            mockScope.SetupGet(e => e.Bucket).Returns(mockBucket.Object);
 
+            var mockCollection = new Mock<ICouchbaseCollection>();
+            mockCollection.SetupGet(e => e.Scope).Returns(() => mockScope.Object);
+
+            mockBucket.Setup(e => e.Scope("_default")).Returns(mockScope.Object);
+            mockBucket.Setup(e => e.DefaultScope()).Returns(mockScope.Object);
             mockBucket.Setup(e => e.DefaultCollection()).Returns(mockCollection.Object);
+            mockScope.Setup(e => e.Collection("_default")).Returns(mockCollection.Object);
 
             var ctx = new BucketContext(mockBucket.Object);
 
@@ -108,12 +116,16 @@ namespace Couchbase.Linq.UnitTests
             mockBucket.SetupGet(e => e.Name).Returns("default");
             mockBucket.SetupGet(e => e.Cluster).Returns(mockCluster.Object);
 
-            var mockCollection = new Mock<ICouchbaseCollection>();
-            mockCollection
-                .SetupGet(p => p.Scope.Bucket)
-                .Returns(() => mockBucket.Object);
+            var mockScope = new Mock<IScope>();
+            mockScope.SetupGet(e => e.Bucket).Returns(mockBucket.Object);
 
+            var mockCollection = new Mock<ICouchbaseCollection>();
+            mockCollection.SetupGet(e => e.Scope).Returns(() => mockScope.Object);
+
+            mockBucket.Setup(e => e.Scope("_default")).Returns(mockScope.Object);
+            mockBucket.Setup(e => e.DefaultScope()).Returns(mockScope.Object);
             mockBucket.Setup(e => e.DefaultCollection()).Returns(mockCollection.Object);
+            mockScope.Setup(e => e.Collection("_default")).Returns(mockCollection.Object);
 
             var ctx = new BucketContext(mockBucket.Object);
 

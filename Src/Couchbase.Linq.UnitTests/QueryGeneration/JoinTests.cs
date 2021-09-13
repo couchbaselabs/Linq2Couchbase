@@ -34,6 +34,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_InnerJoin_Collection()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = from beer in QueryFactory.Queryable<Beer>(mockBucket.Object)
+                join brewery in QueryFactory.Queryable<Brewery>(mockBucket.Object, "_default", "breweries")
+                    on beer.BreweryId equals N1QlFunctions.Key(brewery)
+                select new {beer.Name, beer.Abv, BreweryName = brewery.Name};
+
+            const string expected = "SELECT `Extent1`.`name` as `Name`, `Extent1`.`abv` as `Abv`, `Extent2`.`name` as `BreweryName` " +
+                                    "FROM `default` as `Extent1` "+
+                                    "INNER JOIN `default`.`_default`.`breweries` as `Extent2` " +
+                                    "ON (`Extent1`.`brewery_id` = META(`Extent2`).id)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_InnerJoin_SortAndFilter()
         {
             var mockBucket = new Mock<IBucket>();

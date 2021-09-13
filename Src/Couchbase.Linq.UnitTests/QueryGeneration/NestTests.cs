@@ -182,6 +182,27 @@ namespace Couchbase.Linq.UnitTests.QueryGeneration
         }
 
         [Test]
+        public void Test_Nest_Collection()
+        {
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+
+            var query = QueryFactory.Queryable<NestLevel1>(mockBucket.Object)
+                .Nest(
+                    QueryFactory.Queryable<NestLevel2>(mockBucket.Object, "scope", "collection"),
+                    level1 => level1.NestLevel2Keys,
+                    (level1, level2) => new {level1.Value, level2});
+
+            const string expected = "SELECT `Extent1`.`Value` as `Value`, `Extent2` as `level2` " +
+                                    "FROM `default` as `Extent1` " +
+                                    "INNER NEST `default`.`scope`.`collection` as `Extent2` ON (META(`Extent2`).id IN `Extent1`.`NestLevel2Keys`)";
+
+            var n1QlQuery = CreateN1QlQuery(mockBucket.Object, query.Expression);
+
+            Assert.AreEqual(expected, n1QlQuery);
+        }
+
+        [Test]
         public void Test_Nest_Prefiltered()
         {
             var mockBucket = new Mock<IBucket>();
