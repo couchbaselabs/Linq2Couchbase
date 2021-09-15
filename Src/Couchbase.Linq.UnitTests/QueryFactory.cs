@@ -10,9 +10,16 @@ namespace Couchbase.Linq.UnitTests
 {
     internal class QueryFactory
     {
-        public static IQueryable<T> Queryable<T>(IBucket bucket) => Queryable<T>(bucket.Name);
+        public static IQueryable<T> Queryable<T>(IBucket bucket) =>
+            Queryable<T>(bucket.Name, "_default", "_default");
 
-        public static IQueryable<T> Queryable<T>(string bucketName)
+        public static IQueryable<T> Queryable<T>(IBucket bucket, string scopeName, string collectionName) =>
+            Queryable<T>(bucket.Name, scopeName, collectionName);
+
+        public static IQueryable<T> Queryable<T>(string bucketName) =>
+            Queryable<T>(bucketName, "_default", "_default");
+
+        public static IQueryable<T> Queryable<T>(string bucketName, string scopeName, string collectionName)
         {
             var serializer = new DefaultSerializer();
 
@@ -38,6 +45,12 @@ namespace Couchbase.Linq.UnitTests
             mockCollection
                 .SetupGet(p => p.Scope.Bucket)
                 .Returns(mockBucket.Object);
+            mockCollection
+                .SetupGet(p => p.Scope.Name)
+                .Returns(scopeName);
+            mockCollection
+                .SetupGet(p => p.Name)
+                .Returns(collectionName);
 
             return new CollectionQueryable<T>(mockCollection.Object, default);
         }

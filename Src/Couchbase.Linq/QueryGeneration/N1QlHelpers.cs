@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Couchbase.Linq.Utils;
 
 namespace Couchbase.Linq.QueryGeneration
 {
@@ -11,6 +8,8 @@ namespace Couchbase.Linq.QueryGeneration
     /// </summary>
     internal static class N1QlHelpers
     {
+        public const string DefaultScopeName = "_default";
+        public const string DefaultCollectionName = "_default";
 
         /// <summary>
         ///     Escapes a N1QL identifier using tick (`) characters
@@ -60,6 +59,29 @@ namespace Couchbase.Linq.QueryGeneration
             }
 
             return true;
+        }
+
+        /// <summary>
+        /// Formats the bucket name and optionally the scope and collection names into an expression
+        /// for inclusion in a N1QL query. This includes all required escaping.
+        /// </summary>
+        /// <param name="queryable">Collection being queried.</param>
+        /// <returns>The expression string.</returns>
+        public static string GetCollectionExpression(ICollectionQueryable queryable)
+        {
+            // ReSharper disable once ConditionIsAlwaysTrueOrFalse
+            if (queryable == null)
+            {
+                ThrowHelpers.ThrowArgumentNullException(nameof(queryable));
+            }
+
+            var bucketName = queryable.BucketName;
+            var scopeName = queryable.ScopeName;
+            var collectionName = queryable.CollectionName;
+
+            return scopeName == DefaultScopeName && collectionName == DefaultCollectionName
+                ? EscapeIdentifier(bucketName)
+                : $"{EscapeIdentifier(queryable.BucketName)}.{EscapeIdentifier(scopeName)}.{EscapeIdentifier(collectionName)}";
         }
     }
 }

@@ -134,7 +134,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 _queryPartsAggregator.AddExtent(new FromPart(fromClause)
                 {
-                    Source = N1QlHelpers.EscapeIdentifier(((ICollectionQueryable) bucketConstantExpression.Value).BucketName),
+                    Source = N1QlHelpers.GetCollectionExpression((ICollectionQueryable) bucketConstantExpression.Value),
                     ItemName = GetExtentName(fromClause)
                 });
             }
@@ -1000,24 +1000,24 @@ namespace Couchbase.Linq.QueryGeneration
         /// <remarks>The InnerKeySelector must be selecting the N1QlFunctions.Key of the InnerSequence</remarks>
         private AnsiJoinPart VisitConstantExpressionJoinClause(JoinClause joinClause, ConstantExpression? constantExpression)
         {
-            string? bucketName = null;
+            string? collectionExpression = null;
 
             if (constantExpression != null)
             {
-                if (constantExpression.Value is ICollectionQueryable bucketQueryable)
+                if (constantExpression.Value is ICollectionQueryable collectionQueryable)
                 {
-                    bucketName = bucketQueryable.BucketName;
+                    collectionExpression = N1QlHelpers.GetCollectionExpression(collectionQueryable);
                 }
             }
 
-            if (bucketName == null)
+            if (collectionExpression == null)
             {
-                throw new NotSupportedException("N1QL Joins Must Be Against IBucketQueryable");
+                throw new NotSupportedException("N1QL Joins Must Be Against ICollectionQueryable");
             }
 
             return new AnsiJoinPart(joinClause)
             {
-                Source = N1QlHelpers.EscapeIdentifier(bucketName),
+                Source = collectionExpression,
                 ItemName = GetExtentName(joinClause),
                 OuterKey = GetN1QlExpression(joinClause.OuterKeySelector),
                 InnerKey = GetN1QlExpression(joinClause.InnerKeySelector),
@@ -1083,22 +1083,22 @@ namespace Couchbase.Linq.QueryGeneration
         /// <returns>N1QlFromQueryPart to be added to the QueryPartsAggregator</returns>
         private AnsiJoinPart VisitConstantExpressionNestClause(NestClause nestClause, ConstantExpression? constantExpression, bool isSubQuery)
         {
-            string? bucketName = null;
-            if (constantExpression?.Value is ICollectionQueryable bucketQueryable)
+            string? collectionExpression = null;
+            if (constantExpression?.Value is ICollectionQueryable collectionQueryable)
             {
-                bucketName = bucketQueryable.BucketName;
+                collectionExpression = N1QlHelpers.GetCollectionExpression(collectionQueryable);
             }
 
-            if (bucketName == null)
+            if (collectionExpression == null)
             {
-                throw new NotSupportedException("N1QL Nests Must Be Against IBucketQueryable");
+                throw new NotSupportedException("N1QL Nests Must Be Against ICollectionQueryable");
             }
 
             var itemName = _queryGenerationContext.ExtentNameProvider.GetExtentName(nestClause);
 
             return new AnsiJoinPart(nestClause)
             {
-                Source = N1QlHelpers.EscapeIdentifier(bucketName),
+                Source = collectionExpression,
                 ItemName = itemName,
                 JoinType = nestClause.IsLeftOuterNest ? JoinTypes.LeftNest : JoinTypes.InnerNest,
                 InnerKey = GetN1QlExpression(nestClause.KeySelector),

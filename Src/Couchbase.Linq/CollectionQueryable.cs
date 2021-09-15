@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using System.Threading;
 using Couchbase.KeyValue;
 using Couchbase.Linq.Execution;
+using Couchbase.Linq.QueryGeneration;
 using Remotion.Linq;
 using Remotion.Linq.Parsing.Structure;
 
@@ -18,11 +19,11 @@ namespace Couchbase.Linq
         private readonly ICouchbaseCollection? _collection;
 
         /// <inheritdoc />
-        public string CollectionName => _collection?.Name ?? "";
+        public string CollectionName => _collection?.Name ?? N1QlHelpers.DefaultCollectionName;
 
 
         /// <inheritdoc />
-        public string ScopeName => _collection?.Scope.Name ?? "";
+        public string ScopeName => _collection?.Scope.Name ?? N1QlHelpers.DefaultScopeName;
 
 
         /// <inheritdoc />
