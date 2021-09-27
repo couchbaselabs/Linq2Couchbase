@@ -112,6 +112,7 @@ public class MyController : ControllerBase
 ## Developer Guide
 
 - [The BucketContext: how to use with ASP.NET and Owin/Katana applications](docs/bucket-context.md)
+- [Scopes and Collections](docs/scopes-collections.md)
 - [Mapping JSON fields to POCO properties](docs/poco-mapping.md)
 - [Mapping JSON documents to POCOs with DocumentFilters](docs/document-filters.md)
 - [Controlling output with Select](docs/simple-select.md)

@@ -432,7 +432,7 @@ namespace Couchbase.Linq.IntegrationTests
             var context = new BucketContext(_travelSample);
 
             var query =
-                from route in context.Query<Route>()
+                from route in await CollectionSwitch<Route, RouteInCollection>(context)
                 join airport in context.Query<Airport>()
                         .UseIndex("def_faa")
                         .Where(p => p.Type == "airport")
@@ -478,7 +478,7 @@ namespace Couchbase.Linq.IntegrationTests
             var context = new BucketContext(_travelSample);
 
             var query =
-                from route in context.Query<Route>()
+                from route in await CollectionSwitch<Route, RouteInCollection>(context)
                 join airport in context.Query<Airport>()
                         .UseHash(HashHintType.Build)
                         .UseIndex("def_faa")
@@ -675,7 +675,7 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(_travelSample);
 
-            var routes = from route in context.Query<Route>()
+            var routes = from route in await CollectionSwitch<Route, RouteInCollection>(context)
                 join airport in context.Query<Airport>()
                     on route.DestinationAirport equals airport.Faa
                 where (route.Type == "route") && (airport.Type == "airport")
@@ -695,7 +695,7 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(_travelSample);
 
-            var routes = from route in context.Query<Route>().Where(p => p.Type == "route")
+            var routes = from route in (await CollectionSwitch<Route, RouteInCollection>(context)).Where(p => p.Type == "route")
                 join airport in context.Query<Airport>().Where(p => p.Type == "airport")
                     on route.DestinationAirport equals airport.Faa
                 select new { airport.AirportName, route.Airline };
@@ -801,7 +801,7 @@ namespace Couchbase.Linq.IntegrationTests
         {
             var context = new BucketContext(_travelSample);
 
-            var routes = from route in context.Query<Route>()
+            var routes = from route in await CollectionSwitch<Route, RouteInCollection>(context)
                 join airport in context.Query<Airport>()
                     on route.DestinationAirport equals airport.Faa into ra
                 from airport in ra.DefaultIfEmpty()

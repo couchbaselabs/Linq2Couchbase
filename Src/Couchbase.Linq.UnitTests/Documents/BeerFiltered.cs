@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace Couchbase.Linq.UnitTests.Documents
 {
-    [Filters.DocumentTypeFilter("beer")]
+    [Couchbase.Linq.Filters.DocumentTypeFilter("beer")]
     public class BeerFiltered
     {
         [JsonProperty("name")]
