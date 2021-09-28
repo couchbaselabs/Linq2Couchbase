@@ -40,17 +40,19 @@ namespace Couchbase.Linq.IntegrationTests
         /// <summary>
         /// Switches between two different queries depending on support for collections on the current version of Couchbase.
         /// </summary>
-        protected async Task<IQueryable<T>> CollectionSwitch<T, TCollection>(IBucketContext bucketContext)
-            where TCollection : T
+        /// <typeparam name="TBase">Base type to query if collections are not supported.</typeparam>
+        /// <typeparam name="TCollection">Type to query if collections are supported. Should be annotated with <see cref="CouchbaseCollectionAttribute"/>.</typeparam>
+        protected async Task<IQueryable<TBase>> SwitchIfCollectionsSupportedAsync<TBase, TCollection>(IBucketContext bucketContext)
+            where TCollection : TBase
         {
             var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
             var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
             if (clusterVersion.Version < new Version(7, 0, 0))
             {
-                return bucketContext.Query<T>();
+                return bucketContext.Query<TBase>();
             }
 
-            return (IQueryable<T>) bucketContext.Query<TCollection>();
+            return (IQueryable<TBase>) bucketContext.Query<TCollection>();
         }
     }
 }
