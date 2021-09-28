@@ -137,6 +137,46 @@ namespace Couchbase.Linq.UnitTests
 
             Assert.IsAssignableFrom<ConstantExpression>(query.Expression);
         }
+
+        [Test]
+        public void Query_Collection_GetsCollection()
+        {
+            // Arrange
+
+            var mockCluster = new Mock<ICluster>();
+            mockCluster
+                .Setup(p => p.ClusterServices)
+                .Returns(ServiceProvider);
+
+            var mockBucket = new Mock<IBucket>();
+            mockBucket.SetupGet(e => e.Name).Returns("default");
+            mockBucket.SetupGet(e => e.Cluster).Returns(mockCluster.Object);
+
+            var mockScope = new Mock<IScope>();
+            mockScope.SetupGet(e => e.Name).Returns("inventory");
+            mockScope.SetupGet(e => e.Bucket).Returns(mockBucket.Object);
+
+            var mockCollection = new Mock<ICouchbaseCollection>();
+            mockCollection.SetupGet(e => e.Name).Returns("route");
+            mockCollection.SetupGet(e => e.Scope).Returns(() => mockScope.Object);
+
+            mockBucket.Setup(e => e.Scope("inventory")).Returns(mockScope.Object);
+            mockScope.Setup(e => e.Collection("route")).Returns(mockCollection.Object);
+
+            var ctx = new BucketContext(mockBucket.Object);
+
+            // Act
+
+            var query = ctx.Query<RouteInCollection>(BucketQueryOptions.SuppressFilters);
+
+            // Assert
+
+            Assert.IsInstanceOf<ICollectionQueryable>(query);
+            var collectionQueryable = (ICollectionQueryable)query;
+
+            Assert.AreEqual("inventory", collectionQueryable.ScopeName);
+            Assert.AreEqual("route", collectionQueryable.CollectionName);
+        }
     }
 }
 

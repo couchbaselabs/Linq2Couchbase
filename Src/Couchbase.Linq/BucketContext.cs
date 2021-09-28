@@ -46,7 +46,9 @@ namespace Couchbase.Linq
         /// <inheritdoc />
         public IQueryable<T> Query<T>(BucketQueryOptions options)
         {
-            IQueryable<T> query = new CollectionQueryable<T>(Bucket.DefaultCollection(), QueryTimeout);
+            var (scope, collection) = CollectionMetadataCache.Instance.GetCollection<T>();
+
+            IQueryable<T> query = new CollectionQueryable<T>(Bucket.Scope(scope).Collection(collection), QueryTimeout);
 
             if ((options & BucketQueryOptions.SuppressFilters) == BucketQueryOptions.None)
             {
