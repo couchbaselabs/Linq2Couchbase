@@ -6,7 +6,7 @@ namespace Couchbase.Linq
     /// <summary>
     /// IQueryable sourced from a Couchbase collection.  Used to provide the collection name to the query generator.
     /// </summary>
-    public interface ICollectionQueryable
+    internal interface ICollectionQueryable
     {
         /// <summary>
         /// Collection query is run against
@@ -27,7 +27,7 @@ namespace Couchbase.Linq
     /// <summary>
     /// IQueryable sourced from a Couchbase collection.  Used to provide the collection name to the query generator.
     /// </summary>
-    public interface ICollectionQueryable<out T> : IQueryable<T>, ICollectionQueryable, IAsyncEnumerable<T>
+    internal interface ICollectionQueryable<out T> : IQueryable<T>, ICollectionQueryable, IAsyncEnumerable<T>
     {
     }
 }

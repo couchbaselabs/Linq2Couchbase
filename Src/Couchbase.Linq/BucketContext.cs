@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Couchbase.Linq.Filters;
+using Couchbase.Linq.Metadata;
 using Couchbase.Linq.Utils;
 
 namespace Couchbase.Linq
@@ -12,6 +13,15 @@ namespace Couchbase.Linq
     public class BucketContext : IBucketContext
     {
         private readonly DocumentFilterManager _documentFilterManager;
+
+        /// <summary>
+        /// Unit testing seam only, do not use!
+        /// </summary>
+#pragma warning disable 8618
+        internal BucketContext()
+#pragma warning restore 8618
+        {
+        }
 
         /// <summary>
         /// Creates a new BucketContext for a given Couchbase bucket.
@@ -31,6 +41,13 @@ namespace Couchbase.Linq
                 throw new CouchbaseException(
                     $"{nameof(DocumentFilterManager)} has not been registered with the Couchbase Cluster. Be sure {nameof(LinqClusterOptionsExtensions.AddLinq)} is called on ${nameof(ClusterOptions)} during bootstrap.");
             }
+
+            var myType = GetType();
+            if (myType != typeof(BucketContext))
+            {
+                // If this isn't a base BucketContext, fill any properties added by the inherited class
+                ContextMetadataCache.Instance.Get(myType).Fill(this);
+            }
         }
 
         /// <inheritdoc />
@@ -48,6 +65,11 @@ namespace Couchbase.Linq
         {
             var (scope, collection) = CollectionMetadataCache.Instance.GetCollection<T>();
 
+            return Query<T>(scope, collection, options);
+        }
+
+        internal IQueryable<T> Query<T>(string scope, string collection, BucketQueryOptions options = BucketQueryOptions.None)
+        {
             IQueryable<T> query = new CollectionQueryable<T>(Bucket.Scope(scope).Collection(collection), QueryTimeout);
 
             if ((options & BucketQueryOptions.SuppressFilters) == BucketQueryOptions.None)

@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
+using Couchbase.Core.Version;
 using Couchbase.Linq.Extensions;
 using Couchbase.Linq.Filters;
 using Couchbase.Linq.IntegrationTests.Documents;
+using Couchbase.Linq.Utils;
 using Couchbase.Linq.Versioning;
 using NUnit.Framework;
 
@@ -47,6 +50,68 @@ namespace Couchbase.Linq.IntegrationTests
             foreach (var beer in query.Take(1))
             {
                 Console.WriteLine(beer.Name);
+            }
+        }
+
+        [Test]
+        public async Task InheritedContext_Basic()
+        {
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
+            if (clusterVersion.Version < new Version(7, 0, 0))
+            {
+                Assert.Ignore("Skipping due to lack of collection support.");
+            }
+
+            var db = new TravelSample(await TestSetup.Cluster.BucketAsync("travel-sample"));
+            var query = from route in db.Routes
+                select route;
+
+            foreach (var route in query.Take(1))
+            {
+                Console.WriteLine(route.Airline);
+            }
+        }
+
+        [Test]
+        public async Task InheritedContext_CanQueryMultipleTimes()
+        {
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
+            if (clusterVersion.Version < new Version(7, 0, 0))
+            {
+                Assert.Ignore("Skipping due to lack of collection support.");
+            }
+
+            var db = new TravelSample(await TestSetup.Cluster.BucketAsync("travel-sample"));
+            var query = from route in db.Routes
+                select route;
+
+            foreach (var route in query.Take(1))
+            {
+                Console.WriteLine(route.Airline);
+            }
+
+            query = from route in db.Routes
+                select route;
+
+            foreach (var route in query.Skip(1).Take(1))
+            {
+                Console.WriteLine(route.Airline);
+            }
+        }
+
+        [Test]
+        public void InheritedContext_AppliesDocumentFilters()
+        {
+            var db = new BeerSample();
+            var query = from beer in db.Beers
+                select beer;
+
+            foreach (var beer in query.Skip(5).Take(1))
+            {
+                Assert.Greater(beer.Abv, 0);
+                Console.WriteLine(beer.Abv);
             }
         }
 

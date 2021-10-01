@@ -8,7 +8,11 @@ namespace Couchbase.Linq
     /// <summary>
     /// Annotates a document as belonging to a specific scope/collection. If not present, the default collection is assumed.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = true)]
+    /// <remarks>
+    /// This may be applied to a document class or to a property implementing <see cref="IDocumentSet{T}"/> on a class
+    /// inherited from <see cref="BucketContext"/>.
+    /// </remarks>
+    [AttributeUsage(AttributeTargets.Class | AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CouchbaseCollectionAttribute : Attribute
     {
         internal static CouchbaseCollectionAttribute Default { get; } =

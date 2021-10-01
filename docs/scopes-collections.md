@@ -28,6 +28,26 @@ public class MyDocument
 Queries for this document will automatically account for the scope and collection,
 including in joins, nests, and subqueries.
 
+## Specifying a Collection in BucketContext
+
+In some cases adding the CouchbaseCollection attribute to a POCO may not be an option.
+In this case, the collection may also be added to `IDocumentSet<T>` properties on a class
+inherited from `BucketContext`. This will take precedence over any settings on the POCO.
+
+```cs
+public class MyContext : BucketContext
+{
+    [CouchbaseCollection("inventory", "route")]
+    public IDocumentSet<Route> Routes { get; set; }
+
+    public MyContext(IBucket bucket) : base(bucket)
+    {
+    }
+}
+```
+
+See [Bucket Context](./bucket-context.md) for more details.
+
 ## DocumentTypeFilter
 
 For previous versions of Linq2Couchbase, a very common pattern was to apply the
