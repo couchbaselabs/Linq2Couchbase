@@ -26,13 +26,7 @@ namespace Couchbase.Linq.IntegrationTests
             bucket.Cluster.ClusterServices.GetRequiredService<DocumentFilterManager>().SetFilter(new BreweryFilter());
         }
 
-        public IQueryable<BeerFiltered> Beers
-        {
-            //This is an example of adding a filter declaratively by using an atribute
-            //to your document. If you check out BeerFiltered clas you will see the DocumentTypeFilter
-            //has been added to the class definition.
-            get { return Query<BeerFiltered>(); }
-        }
+        public IDocumentSet<BeerFiltered> Beers { get; set; } = null!;
 
         public IQueryable<Brewery> Breweries
         {

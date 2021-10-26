@@ -13,3 +13,21 @@ var context = new BucketContext(bucket);
 ```
 
 It's important to note that the ICluster and IBucket objects are a long-lived objects, so you will usually want to create a singleton per application and reuse it over the lifespan of the application. A BucketContext is slightly different; it contains no Dispose method and is more ephemeral compared to the Cluster.
+
+## Extending BucketContext
+
+To extend BucketContext into a more powerful tool exposing strongly-typed document sets, inherit from `BucketContext` and add properties that return `IDocumentSet<T>`. These properties will be automatically initialized with an appropriate object for running queries.
+
+```cs
+public class MyContext : BucketContext
+{
+    // Adding "= null!" is only necessary if nullable reference types is enabled
+    public IDocumentSet<Airline> Airlines { get; set; } = null!;
+    public IDocumentSet<Airport> Airports { get; set; } = null!;
+    public IDocumentSet<Route> Routes { get; set; } = null!;
+
+    public MyContext(IBucket bucket) : base(bucket)
+    {
+    }
+}
+```
