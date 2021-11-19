@@ -39,6 +39,9 @@ namespace Couchbase.Linq.IntegrationTests.Documents
         [JsonProperty("updated")]
         public virtual DateTime Updated { get; set; }
 
+        [JsonProperty("updated_offset")]
+        public virtual DateTimeOffset UpdatedOffset { get; set; }
+
         // This property isn't normally on beers in the beer-sample bucket
         // But we need it for some integration tests so we'll add it
         [JsonProperty("updatedUnixMillis")]

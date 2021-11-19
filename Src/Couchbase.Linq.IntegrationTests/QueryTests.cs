@@ -1241,6 +1241,24 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void DateTimeOffset_DateAdd()
+        {
+            var context = new BucketContext(TestSetup.Bucket);
+
+            var beers = from beer in context.Query<Beer>()
+                where beer.Type == "beer"
+                select new {beer.Name, Updated = N1QlFunctions.DateAdd(beer.UpdatedOffset, -10, N1QlDatePart.Day)};
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} was updated 10 days after {1:g}", b.Name, b.Updated);
+            }
+        }
+
+        [Test]
         public void DateTime_DateAdd_UnixMillis()
         {
             var context = new BucketContext(TestSetup.Bucket);
@@ -1295,6 +1313,24 @@ namespace Couchbase.Linq.IntegrationTests
         }
 
         [Test]
+        public void DateOffset_DateDiff()
+        {
+            var context = new BucketContext(TestSetup.Bucket);
+
+            var beers = from beer in context.Query<Beer>()
+                where beer.Type == "beer"
+                select new {beer.Name, DaysOld = N1QlFunctions.DateDiff(DateTimeOffset.Now, beer.UpdatedOffset, N1QlDatePart.Day)};
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} is {1} days old", b.Name, b.DaysOld);
+            }
+        }
+
+        [Test]
         public void DateTime_DatePart()
         {
             var context = new BucketContext(TestSetup.Bucket);
@@ -1320,6 +1356,24 @@ namespace Couchbase.Linq.IntegrationTests
             var beers = from beer in context.Query<Beer>()
                         where beer.Type == "beer"
                         select new { beer.Name, Year = N1QlFunctions.DatePart(beer.UpdatedUnixMillis.Value, N1QlDatePart.Year) };
+
+            var results = beers.Take(1).ToList();
+            Assert.AreEqual(1, results.Count());
+
+            foreach (var b in results)
+            {
+                Console.WriteLine("Beer {0} was updated in {1:0000}", b.Name, b.Year);
+            }
+        }
+
+        [Test]
+        public void DateTimeOffset_DatePart()
+        {
+            var context = new BucketContext(TestSetup.Bucket);
+
+            var beers = from beer in context.Query<Beer>()
+                where beer.Type == "beer"
+                select new {beer.Name, Year = N1QlFunctions.DatePart(beer.UpdatedOffset, N1QlDatePart.Year)};
 
             var results = beers.Take(1).ToList();
             Assert.AreEqual(1, results.Count());
@@ -1360,6 +1414,21 @@ namespace Couchbase.Linq.IntegrationTests
             var beers = from beer in context.Query<Beer>()
                         where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
                         select new { beer.Name, Updated = N1QlFunctions.DateTrunc(beer.UpdatedUnixMillis.Value, N1QlDatePart.Month) };
+
+            foreach (var b in beers.Take(1))
+            {
+                Console.WriteLine("Beer {0} is in {1:MMMM yyyy}", b.Name, b.Updated);
+            }
+        }
+
+        [Test]
+        public void DateTimeOffset_DateTrunc()
+        {
+            var context = new BucketContext(TestSetup.Bucket);
+
+            var beers = from beer in context.Query<Beer>()
+                where beer.Type == "beer"
+                select new {beer.Name, Updated = N1QlFunctions.DateTrunc(beer.UpdatedOffset, N1QlDatePart.Month)};
 
             foreach (var b in beers.Take(1))
             {
