@@ -62,7 +62,7 @@ namespace Couchbase.Linq.Metadata
 #endif
         private Action<BucketContext> CreateInitializeAction()
         {
-            var dynMethod = new DynamicMethod("Initialize", null, new[] { typeof(BucketContext) })
+            var dynMethod = new DynamicMethod("Initialize", null, new[] { typeof(BucketContext) }, typeof(BucketContext))
             {
                 InitLocals = false // Don't need this, very minor perf improvement
             };
