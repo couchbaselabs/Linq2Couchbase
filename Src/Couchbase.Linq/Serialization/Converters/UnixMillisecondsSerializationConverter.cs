@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq.Expressions;
 using System.Reflection;
 using Couchbase.Core.Utils;
@@ -113,7 +114,17 @@ namespace Couchbase.Linq.Serialization.Converters
                 }
                 else
                 {
-                    expressionTreeVisitor.Expression.Append(unixMilliseconds.ToStringInvariant());
+#if NET6_0_OR_GREATER
+                    Span<char> buffer = stackalloc char[32];
+                    var chars =
+                        unixMilliseconds.TryFormat(buffer, out var charsWritten, provider: CultureInfo.InvariantCulture)
+                            ? buffer[..charsWritten]
+                            : unixMilliseconds.ToStringInvariant().AsSpan();
+#else
+                    var chars = unixMilliseconds.ToStringInvariant();
+#endif
+
+                    expressionTreeVisitor.Expression.Append(chars);
                 }
             }
         }
