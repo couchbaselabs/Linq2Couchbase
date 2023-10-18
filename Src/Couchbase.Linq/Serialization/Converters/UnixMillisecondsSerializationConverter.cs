@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
+using Couchbase.Core.Utils;
 using Couchbase.Linq.QueryGeneration;
 
 namespace Couchbase.Linq.Serialization.Converters
@@ -112,7 +113,7 @@ namespace Couchbase.Linq.Serialization.Converters
                 }
                 else
                 {
-                    expressionTreeVisitor.Expression.Append(unixMilliseconds);
+                    expressionTreeVisitor.Expression.Append(unixMilliseconds.ToStringInvariant());
                 }
             }
         }
