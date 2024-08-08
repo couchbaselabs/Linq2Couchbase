@@ -32,9 +32,7 @@ internal class DateMethodCallTranslator : IMethodCallTranslator
 
         expression.Append("DATE_TRUNC_STR(");
         expressionTreeVisitor.Visit(methodCallExpression.Object);
-        expression.Append(",");
-        expression.Append(@"""day""");
-        expression.Append(")");
+        expression.Append(@",""day"")");
 
         return methodCallExpression;
     }
