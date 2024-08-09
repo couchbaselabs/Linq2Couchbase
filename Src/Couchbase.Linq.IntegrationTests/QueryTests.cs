@@ -1436,6 +1436,58 @@ namespace Couchbase.Linq.IntegrationTests
             }
         }
 
+        [Test]
+        public void DateTime_Date()
+        {
+            var context = new BucketContext(TestSetup.Bucket);
+
+            var beers = from beer in context.Query<Beer>()
+                where beer.Type == "beer"
+                select new {beer.Name, Updated = beer.Updated.Date};
+
+            foreach (var b in beers.Take(1))
+            {
+                Console.WriteLine("Beer {0} is in {1:d}", b.Name, b.Updated);
+            }
+        }
+
+        [Test]
+        public async Task DateTime_Date_UnixMillis()
+        {
+            var context = new BucketContext(TestSetup.Bucket);
+
+            var versionProvider = TestSetup.Cluster.ClusterServices.GetRequiredService<IClusterVersionProvider>();
+            var clusterVersion = await versionProvider.GetVersionAsync() ?? FeatureVersions.DefaultVersion;
+            if (clusterVersion.Version == new Version(5, 5, 0))
+            {
+                Assert.Ignore("Skipping temporarily due to bug in 5.5 Beta https://issues.couchbase.com/browse/MB-29357");
+            }
+
+            var beers = from beer in context.Query<Beer>()
+                        where beer.Type == "beer" && N1QlFunctions.IsValued(beer.UpdatedUnixMillis)
+                        select new { beer.Name, Updated = beer.UpdatedUnixMillis.Value.Date };
+
+            foreach (var b in beers.Take(1))
+            {
+                Console.WriteLine("Beer {0} is in {1:d}", b.Name, b.Updated);
+            }
+        }
+
+        [Test]
+        public void DateTimeOffset_Date()
+        {
+            var context = new BucketContext(TestSetup.Bucket);
+
+            var beers = from beer in context.Query<Beer>()
+                where beer.Type == "beer"
+                select new {beer.Name, Updated = beer.UpdatedOffset.Date};
+
+            foreach (var b in beers.Take(1))
+            {
+                Console.WriteLine("Beer {0} is in {1:d}", b.Name, b.Updated);
+            }
+        }
+
         private async Task PrepareBeerDocuments()
         {
             var query = @"UPDATE `beer-sample` SET updatedUnixMillis = STR_TO_MILLIS(updated)
