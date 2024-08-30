@@ -43,5 +43,7 @@ namespace Couchbase.Linq.Utils
             wasUnwrapped = false;
             return expression as T;
         }
+
+        public static Type? UnwrapNullableType(this Type type) => Nullable.GetUnderlyingType(type);
     }
 }

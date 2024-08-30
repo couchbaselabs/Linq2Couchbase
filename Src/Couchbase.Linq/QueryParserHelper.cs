@@ -98,7 +98,7 @@ namespace Couchbase.Linq
                     {
                         new TransformingExpressionTreeProcessor(_prePartialEvaluationTransformerRegistry),
                         SerializationExpressionTreeProcessor.FromCluster(cluster),
-                        new PartialEvaluatingExpressionTreeProcessor(new ExcludeSerializationConversionEvaluatableExpressionFilter()),
+                        new EnhancedPartialEvaluatingExpressionTreeProcessor(new ExcludeSerializationConversionEvaluatableExpressionFilter()),
                         new TransformingExpressionTreeProcessor(_transformerRegistry)
                     })));
     }
