@@ -50,9 +50,6 @@ namespace Couchbase.Linq
             _bucketContext = bucketContext;
             ScopeName = scopeName;
             CollectionName = collectionName;
-
-            // Note: For this to work, we must implement ICollectionQueryable
-            Expression = Expression.Constant(this);
         }
 
         /// <summary>
@@ -68,7 +65,7 @@ namespace Couchbase.Linq
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public Type ElementType => typeof(T);
-        public Expression Expression { get; }
+        public Expression Expression => MakeQueryable().Expression;
         public IQueryProvider Provider => MakeQueryable().Provider;
 
         #endregion
