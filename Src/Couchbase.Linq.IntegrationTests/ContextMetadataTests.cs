@@ -1,12 +1,11 @@
-﻿using System;
+﻿using Couchbase.Linq.IntegrationTests.Documents;
 using Couchbase.Linq.Metadata;
-using Couchbase.Linq.UnitTests.Documents;
-using Moq;
 using NUnit.Framework;
 
-namespace Couchbase.Linq.UnitTests.Metadata
+namespace Couchbase.Linq.IntegrationTests
 {
-    public class ContextMetadataTests
+    [TestFixture]
+    public class ContextMetadataTests : N1QlTestBase
     {
         #region ctor
 
@@ -27,7 +26,7 @@ namespace Couchbase.Linq.UnitTests.Metadata
         {
             // Arrange
 
-            var context = new TestContext();
+            var context = new TestContext(TestSetup.Bucket);
             var metadata = new ContextMetadata(typeof(TestContext));
 
             // Act
@@ -47,6 +46,8 @@ namespace Couchbase.Linq.UnitTests.Metadata
 
         private class TestContext : BucketContext
         {
+            public TestContext (IBucket bucket) : base(bucket) { }
+
             public IDocumentSet<Beer> Beers { get; set; }
 
             public IDocumentSet<RouteInCollection> Routes { get; set; }
