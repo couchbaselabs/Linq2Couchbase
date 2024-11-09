@@ -174,7 +174,7 @@ namespace Couchbase.Linq.IntegrationTests
             var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from b in context.Query<Beer>()
-                        where b.Type == "beer" && b.Name.StartsWith("563")
+                        where b.Type == "beer" && b.Name.StartsWith("Amendment")
                         select new { name = b.Name, abv = b.Abv };
 
             var results = beers.Take(1).ToList();
@@ -1000,7 +1000,7 @@ namespace Couchbase.Linq.IntegrationTests
             var context = new BucketContext(TestSetup.Bucket);
 
             var breweries = from brewery in context.Query<Brewery>()
-                where brewery.Type == "brewery" && brewery.Address.Contains("563 Second Street")
+                where brewery.Type == "brewery" && brewery.Address.Contains("210 Aberdeen Dr.")
                 orderby brewery.Name
                 select new {name = brewery.Name, addresses = brewery.Address};
 

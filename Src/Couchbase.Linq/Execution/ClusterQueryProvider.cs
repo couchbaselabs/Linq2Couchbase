@@ -22,12 +22,8 @@ namespace Couchbase.Linq.Execution
         {
         }
 
-        public override IQueryable<T> CreateQuery<T>(Expression expression)
-        {
-            return (IQueryable<T>) Activator.CreateInstance(
-                typeof(CollectionQueryable<>).MakeGenericType(typeof(T)),
-                this, expression);
-        }
+        public override IQueryable<T> CreateQuery<T>(Expression expression) =>
+            new CouchbaseQueryable<T>(this, expression);
 
         public T ExecuteAsync<T>(Expression expression, CancellationToken cancellationToken = default)
         {
@@ -39,7 +35,7 @@ namespace Couchbase.Linq.Execution
             {
                 var executeAsyncMethod = ExecuteAsyncMethod.MakeGenericMethod(sequence.ResultItemType);
 
-                return (T) executeAsyncMethod.Invoke(Executor, new object[] {queryModel, cancellationToken});
+                return (T) executeAsyncMethod.Invoke(Executor, new object[] {queryModel, cancellationToken})!;
             }
             else if (streamedDataInfo is AsyncStreamedValueInfo streamedValue)
             {

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Couchbase.KeyValue;
 
 namespace Couchbase.Linq
@@ -9,7 +8,7 @@ namespace Couchbase.Linq
     /// </summary>
     /// <typeparam name="T">Type of the document.</typeparam>
     // ReSharper disable once TypeParameterCanBeVariant
-    public interface IDocumentSet<T> : IQueryable<T>
+    public interface IDocumentSet<T> : IDocumentSet, IQueryable<T>
     {
         /// <summary>
         /// The couchbase collection for these documents.

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Security.Cryptography.X509Certificates;
 using Couchbase.Core.IO.Serializers;
 using Couchbase.Core.Version;
 using Couchbase.KeyValue;
@@ -13,6 +14,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Newtonsoft.Json.Serialization;
+using Remotion.Linq;
 
 namespace Couchbase.Linq.UnitTests
 {
@@ -109,30 +111,8 @@ namespace Couchbase.Linq.UnitTests
             return visitor.GetQuery();
         }
 
-        protected virtual IQueryable<T> CreateQueryable<T>(string bucketName)
-        {
-            return CreateQueryable<T>(bucketName, QueryExecutor);
-        }
-
-        internal virtual IQueryable<T> CreateQueryable<T>(string bucketName, IAsyncQueryExecutor queryExecutor)
-        {
-            var mockCluster = new Mock<ICluster>();
-            mockCluster
-                .Setup(p => p.ClusterServices)
-                .Returns(ServiceProvider);
-
-            var mockBucket = new Mock<IBucket>();
-            mockBucket.SetupGet(e => e.Name).Returns(bucketName);
-            mockBucket.SetupGet(e => e.Cluster).Returns(mockCluster.Object);
-
-            var mockCollection = new Mock<ICouchbaseCollection>();
-            mockCollection
-                .SetupGet(p => p.Scope.Bucket)
-                .Returns(mockBucket.Object);
-
-            return new CollectionQueryable<T>(mockCollection.Object,
-                QueryParserHelper.CreateQueryParser(mockCluster.Object), queryExecutor);
-        }
+        protected virtual IQueryable<T> CreateQueryable<T>(string bucketName) =>
+            QueryFactory.Queryable<T>(bucketName, N1QlHelpers.DefaultScopeName, N1QlHelpers.DefaultCollectionName, QueryExecutor);
 
         protected void SetContractResolver(IContractResolver contractResolver)
         {

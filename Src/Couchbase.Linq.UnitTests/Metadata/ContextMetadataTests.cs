@@ -1,7 +1,5 @@
-﻿using System;
-using Couchbase.Linq.Metadata;
+﻿using Couchbase.Linq.Metadata;
 using Couchbase.Linq.UnitTests.Documents;
-using Moq;
 using NUnit.Framework;
 
 namespace Couchbase.Linq.UnitTests.Metadata
@@ -47,6 +45,10 @@ namespace Couchbase.Linq.UnitTests.Metadata
 
         private class TestContext : BucketContext
         {
+            public TestContext() : base(QueryFactory.CreateMockBucket("default"))
+            {
+            }
+
             public IDocumentSet<Beer> Beers { get; set; }
 
             public IDocumentSet<RouteInCollection> Routes { get; set; }
