@@ -46,7 +46,7 @@ namespace Couchbase.Linq.IntegrationTests
             var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
-                where beer.Name == "21A IPA"
+                where beer.Name == "Amendment Pale Ale"
                 select new {beer.Name};
 
             Console.WriteLine(beers.Single().Name);
@@ -58,8 +58,8 @@ namespace Couchbase.Linq.IntegrationTests
             var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
-                where beer.Name == "21A IPA"
-                select new {beer.Name};
+                where beer.Name == "Amendment Pale Ale"
+                select new { beer.Name };
 
             Console.WriteLine((await beers.SingleAsync()).Name);
         }
@@ -72,7 +72,7 @@ namespace Couchbase.Linq.IntegrationTests
             var beers = from beer in context.Query<Beer>()
                 select new {beer.Name};
 
-            var result = await beers.SingleAsync(p => p.Name == "21A IPA");
+            var result = await beers.SingleAsync(p => p.Name == "Amendment Pale Ale");
 
             Console.WriteLine(result.Name);
         }
@@ -137,7 +137,7 @@ namespace Couchbase.Linq.IntegrationTests
             var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
-                where beer.Name == "21A IPA"
+                where beer.Name == "Amendment Pale Ale"
                 select new {beer.Name};
 
             var aBeer = beers.SingleOrDefault();
@@ -151,7 +151,7 @@ namespace Couchbase.Linq.IntegrationTests
             var context = new BucketContext(TestSetup.Bucket);
 
             var beers = from beer in context.Query<Beer>()
-                where beer.Name == "21A IPA"
+                where beer.Name == "Amendment Pale Ale"
                 select new {beer.Name};
 
             var aBeer = await beers.SingleOrDefaultAsync();
@@ -167,7 +167,7 @@ namespace Couchbase.Linq.IntegrationTests
             var beers = from beer in context.Query<Beer>()
                 select new {beer.Name};
 
-            var aBeer = await beers.SingleOrDefaultAsync(p => p.Name == "21A IPA");
+            var aBeer = await beers.SingleOrDefaultAsync(p => p.Name == "Amendment Pale Ale");
             Assert.IsNotNull(aBeer);
             Console.WriteLine(aBeer.Name);
         }

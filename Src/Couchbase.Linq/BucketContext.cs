@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using Couchbase.Linq.Execution;
 using Couchbase.Linq.Filters;
 using Couchbase.Linq.Metadata;
 using Couchbase.Linq.Utils;
@@ -13,15 +14,7 @@ namespace Couchbase.Linq
     public class BucketContext : IBucketContext
     {
         private readonly DocumentFilterManager _documentFilterManager;
-
-        /// <summary>
-        /// Unit testing seam only, do not use!
-        /// </summary>
-#pragma warning disable 8618
-        internal BucketContext()
-#pragma warning restore 8618
-        {
-        }
+        internal IAsyncQueryProvider QueryProvider { get; }
 
         /// <summary>
         /// Creates a new BucketContext for a given Couchbase bucket.
@@ -29,7 +22,9 @@ namespace Couchbase.Linq
         /// <param name="bucket">Bucket referenced by the new BucketContext.</param>
         public BucketContext(IBucket bucket)
         {
-            Bucket = bucket ?? throw new ArgumentNullException(nameof(bucket));
+            ThrowHelpers.ThrowIfNull(bucket);
+
+            Bucket = bucket;
 
             try
             {
@@ -41,6 +36,16 @@ namespace Couchbase.Linq
                 throw new CouchbaseException(
                     $"{nameof(DocumentFilterManager)} has not been registered with the Couchbase Cluster. Be sure {nameof(LinqClusterOptionsExtensions.AddLinq)} is called on ${nameof(ClusterOptions)} during bootstrap.");
             }
+
+            var cluster = bucket.Cluster;
+            var innerQueryProvider = new ClusterQueryProvider(
+                QueryParserHelper.CreateQueryParser(cluster),
+                new ClusterQueryExecutor(cluster)
+                {
+                    QueryTimeoutProvider = () => QueryTimeout
+                });
+
+            QueryProvider = new DelayedFilterQueryProvider(innerQueryProvider, _documentFilterManager);
 
             var myType = GetType();
             if (myType != typeof(BucketContext))
@@ -70,9 +75,9 @@ namespace Couchbase.Linq
 
         internal IQueryable<T> Query<T>(string scope, string collection, BucketQueryOptions options = BucketQueryOptions.None)
         {
-            IQueryable<T> query = new CollectionQueryable<T>(Bucket.Scope(scope).Collection(collection), QueryTimeout);
+            IQueryable<T> query = new CollectionQueryable<T>(Bucket.Scope(scope).Collection(collection), QueryProvider);
 
-            if ((options & BucketQueryOptions.SuppressFilters) == BucketQueryOptions.None)
+            if (!options.HasFlag(BucketQueryOptions.SuppressFilters))
             {
                 query = _documentFilterManager.ApplyFilters(query);
             }

@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Couchbase.Core.IO.Serializers;
 using Couchbase.Core.Version;
 using Couchbase.Linq.Clauses;
-using Couchbase.Linq.Operators;
 using Couchbase.Linq.QueryGeneration;
 using Couchbase.Linq.QueryGeneration.MemberNameResolvers;
 using Couchbase.Linq.Utils;
@@ -31,9 +30,9 @@ namespace Couchbase.Linq.Execution
             _serializer ??= _cluster.ClusterServices.GetRequiredService<ITypeSerializer>();
 
         /// <summary>
-        /// Query timeout, if null uses cluster default.
+        /// Query timeout callback, if null uses the cluster default.
         /// </summary>
-        public TimeSpan? QueryTimeout { get; set; }
+        public Func<TimeSpan?>? QueryTimeoutProvider { get; set; }
 
         /// <summary>
         /// Creates a new BucketQueryExecutor.
@@ -82,9 +81,10 @@ namespace Couchbase.Linq.Execution
                 queryOptions.ConsistentWith(combinedMutationState);
             }
 
-            if (QueryTimeout != null)
+            var queryTimeout = QueryTimeoutProvider?.Invoke();
+            if (queryTimeout is not null)
             {
-                queryOptions.Timeout(QueryTimeout.Value);
+                queryOptions.Timeout(queryTimeout.GetValueOrDefault());
             }
 
             return queryOptions;
@@ -151,9 +151,9 @@ namespace Couchbase.Linq.Execution
         }
 
         public T ExecuteScalar<T>(QueryModel queryModel)=>
-            ExecuteSingle<T>(queryModel, false);
+            ExecuteSingle<T>(queryModel, false)!;
 
-        public T ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty) =>
+        public T? ExecuteSingle<T>(QueryModel queryModel, bool returnDefaultWhenEmpty) =>
             returnDefaultWhenEmpty
                 ? ExecuteCollection<T>(queryModel).SingleOrDefault()
                 : ExecuteCollection<T>(queryModel).Single();
@@ -180,21 +180,24 @@ namespace Couchbase.Linq.Execution
 
             var serializer = Serializer as IExtendedTypeSerializer;
 
-#pragma warning disable CS0618 // Type or member is obsolete
             var memberNameResolver = serializer != null ?
                 (IMemberNameResolver)new ExtendedTypeSerializerMemberNameResolver(serializer) :
-                (IMemberNameResolver)new JsonNetMemberNameResolver(JsonConvert.DefaultSettings().ContractResolver);
-#pragma warning restore CS0618 // Type or member is obsolete
+                (IMemberNameResolver)new JsonNetMemberNameResolver(JsonConvert.DefaultSettings!().ContractResolver!);
 
             var methodCallTranslatorProvider = new DefaultMethodCallTranslatorProvider();
+
+            var clusterVersionTask = _clusterVersionProvider.GetVersionAsync();
+            var clusterVersion = clusterVersionTask.IsCompleted
+                ? clusterVersionTask.Result
+                // TODO: Don't use .Result to block
+                : clusterVersionTask.AsTask().Result; // Must convert ValueTask to Task to safely await the result if it is not completed
 
             var queryGenerationContext = new N1QlQueryGenerationContext
             {
                 MemberNameResolver = memberNameResolver,
                 MethodCallTranslatorProvider = methodCallTranslatorProvider,
                 Serializer = serializer,
-                // TODO: Don't use .Result
-                ClusterVersion = _clusterVersionProvider.GetVersionAsync().Result ?? FeatureVersions.DefaultVersion,
+                ClusterVersion = clusterVersion ?? FeatureVersions.DefaultVersion,
                 LoggerFactory = _cluster.ClusterServices.GetRequiredService<ILoggerFactory>()
             };
 
@@ -202,7 +205,7 @@ namespace Couchbase.Linq.Execution
             visitor.VisitQueryModel(queryModel);
 
             var query = visitor.GetQuery();
-            _logger.LogDebug("Generated query: {0}", query);
+            _logger.LogDebug("Generated query: {query}", query);
 
             scalarResultBehavior = visitor.ScalarResultBehavior;
             return query;
