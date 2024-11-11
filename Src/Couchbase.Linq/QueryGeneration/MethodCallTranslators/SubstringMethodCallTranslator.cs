@@ -12,9 +12,9 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
         {
-            typeof (string).GetMethod("Substring", new[] { typeof (int) }),
-            typeof (string).GetMethod("Substring", new[] { typeof (int), typeof(int) }),
-            typeof (string).GetMethod("get_Chars", new[] { typeof (int) })
+            typeof (string).GetMethod("Substring", new[] { typeof (int) })!,
+            typeof (string).GetMethod("Substring", new[] { typeof (int), typeof(int) })!,
+            typeof (string).GetMethod("get_Chars", new[] { typeof (int) })!
         };
 
         public IEnumerable<MethodInfo> SupportMethods
@@ -35,7 +35,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("SUBSTR(");
-            expressionTreeVisitor.Visit(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object!);
             expression.Append(", ");
             expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
 

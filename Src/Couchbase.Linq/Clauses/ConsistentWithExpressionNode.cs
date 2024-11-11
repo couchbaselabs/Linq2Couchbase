@@ -74,7 +74,7 @@ namespace Couchbase.Linq.Clauses
             ClauseGenerationContext clauseGenerationContext)
         {
             queryModel.BodyClauses.Add(new ConsistentWithClause(
-                (MutationState) MutationState.Value,
+                (MutationState) MutationState.Value!,
                 (TimeSpan?) ScanWait?.Value));
         }
     }

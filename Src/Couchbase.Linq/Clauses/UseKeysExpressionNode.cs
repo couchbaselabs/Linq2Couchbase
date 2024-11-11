@@ -11,7 +11,7 @@ namespace Couchbase.Linq.Clauses
     {
         public static readonly MethodInfo[] SupportedMethods =
         {
-            typeof (QueryExtensions).GetMethod("UseKeys")
+            typeof (QueryExtensions).GetMethod("UseKeys")!
         };
 
         public UseKeysExpressionNode(MethodCallExpressionParseInfo parseInfo, Expression keys)

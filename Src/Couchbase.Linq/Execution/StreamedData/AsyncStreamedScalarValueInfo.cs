@@ -27,8 +27,11 @@ namespace Couchbase.Linq.Execution.StreamedData
             new AsyncStreamedScalarValueInfo(dataType);
 
         /// <inheritdoc />
+#pragma warning disable CS8609 // Nullability of reference types in return type doesn't match overridden member.
         public override Task<T> ExecuteQueryModelAsync<T>(QueryModel queryModel, IAsyncQueryExecutor executor,
+#pragma warning restore CS8609 // Nullability of reference types in return type doesn't match overridden member.
             CancellationToken cancellationToken = default)
+            where T : default
         {
             if (queryModel == null)
             {

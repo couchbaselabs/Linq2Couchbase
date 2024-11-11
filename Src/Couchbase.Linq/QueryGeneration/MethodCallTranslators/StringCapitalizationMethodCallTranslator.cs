@@ -12,8 +12,8 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
         {
-            typeof (string).GetMethod("ToUpper", Type.EmptyTypes),
-            typeof (string).GetMethod("ToLower", Type.EmptyTypes)
+            typeof (string).GetMethod("ToUpper", Type.EmptyTypes)!,
+            typeof (string).GetMethod("ToLower", Type.EmptyTypes)!
         };
 
         public IEnumerable<MethodInfo> SupportMethods
@@ -34,7 +34,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append(methodCallExpression.Method.Name == "ToLower" ? "LOWER(" : "UPPER(");
-            expressionTreeVisitor.Visit(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object!);
             expression.Append(")");
 
             return methodCallExpression;

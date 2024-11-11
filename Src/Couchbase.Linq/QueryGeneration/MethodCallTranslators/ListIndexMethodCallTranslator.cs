@@ -12,8 +12,8 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     internal class ListIndexMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic = {
-            typeof (IList).GetMethod("get_Item"),
-            typeof (IList<>).GetMethod("get_Item")
+            typeof (IList).GetMethod("get_Item")!,
+            typeof (IList<>).GetMethod("get_Item")!
         };
 
         public IEnumerable<MethodInfo> SupportMethods
@@ -33,7 +33,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
             var expression = expressionTreeVisitor.Expression;
 
-            expressionTreeVisitor.Visit(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object!);
             expression.Append('[');
             expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
             expression.Append(']');

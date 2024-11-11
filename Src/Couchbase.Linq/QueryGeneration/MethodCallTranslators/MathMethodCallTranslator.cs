@@ -74,7 +74,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             if ((t == typeof (decimal)) || (t == typeof (double)))
             {
                 // Also need to pickup Math.Round with a single integer second parameter
-                yield return typeof (Math).GetMethod("Round", new Type[] {t, typeof (int)});
+                yield return typeof (Math).GetMethod("Round", new Type[] {t, typeof (int)})!;
             }
         } 
 
@@ -98,7 +98,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
             var expression = expressionTreeVisitor.Expression;
 
-            string functionName;
+            string? functionName;
             if (!SupportedMethodNames.TryGetValue(methodCallExpression.Method.Name, out functionName))
             {
                 throw new NotSupportedException("Unsupported Math Method");

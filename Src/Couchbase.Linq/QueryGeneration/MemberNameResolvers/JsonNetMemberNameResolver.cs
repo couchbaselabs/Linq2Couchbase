@@ -30,13 +30,13 @@ namespace Couchbase.Linq.QueryGeneration.MemberNameResolvers
             if (member == null)
                 return false;
 
-            var contract = _contractResolver.ResolveContract(member.DeclaringType);
+            var contract = _contractResolver.ResolveContract(member.DeclaringType!);
 
             if (contract.GetType() == typeof (JsonObjectContract) &&
                 ((JsonObjectContract) contract).Properties.Any(p => p.UnderlyingName == member.Name && !p.Ignored))
             {
                 memberName =
-                    ((JsonObjectContract) contract).Properties.First(p => p.UnderlyingName == member.Name).PropertyName;
+                    ((JsonObjectContract) contract).Properties.First(p => p.UnderlyingName == member.Name).PropertyName!;
                 return true;
             }
 

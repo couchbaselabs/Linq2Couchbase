@@ -208,8 +208,8 @@ namespace Couchbase.Linq.Serialization.Converters
                 .GetInterfaces()
                 .Where(p => p.GetTypeInfo().IsGenericType && p.GetGenericTypeDefinition() == typeof(ISerializationConverter<>))
                 .ToDictionary(
-                    p => p.GetGenericArguments()[0],
-                    p => p.GetMethod(methodName));
+                    p => p.GetGenericArguments()[0]!,
+                    p => p.GetMethod(methodName)!);
         }
     }
 }

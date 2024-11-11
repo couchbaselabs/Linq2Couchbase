@@ -49,13 +49,13 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             }
 
             _querySourceReference = querySourceReference;
-            _keyPropertyInfo = querySourceReference.ReferencedQuerySource.ItemType.GetProperty("Key");
+            _keyPropertyInfo = querySourceReference.ReferencedQuerySource.ItemType.GetProperty("Key")!;
             _replacementExpression = replacementExpression;
         }
 
         public Expression Transform(MemberExpression expression)
         {
-            if (expression.Expression.Equals(_querySourceReference) && (expression.Member == _keyPropertyInfo))
+            if (expression.Expression!.Equals(_querySourceReference) && (expression.Member == _keyPropertyInfo))
             {
                 return _replacementExpression;
             }

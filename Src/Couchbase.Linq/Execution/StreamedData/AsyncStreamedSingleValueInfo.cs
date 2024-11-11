@@ -23,8 +23,9 @@ namespace Couchbase.Linq.Execution.StreamedData
         protected override AsyncStreamedValueInfo CloneWithNewDataType(Type dataType) =>
             new AsyncStreamedSingleValueInfo (dataType, ReturnDefaultWhenEmpty);
 
-        public override Task<T> ExecuteQueryModelAsync<T>(QueryModel queryModel, IAsyncQueryExecutor executor,
+        public override Task<T?> ExecuteQueryModelAsync<T>(QueryModel queryModel, IAsyncQueryExecutor executor,
             CancellationToken cancellationToken = default)
+            where T : default
         {
             if (queryModel == null)
             {

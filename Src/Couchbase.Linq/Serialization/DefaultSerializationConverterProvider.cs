@@ -52,7 +52,7 @@ namespace Couchbase.Linq.Serialization
 
             return _cache.GetOrAdd(member, p =>
             {
-                if (defaultSerializer.SerializerSettings.ContractResolver.ResolveContract(member.DeclaringType) is JsonObjectContract contract)
+                if (defaultSerializer.SerializerSettings.ContractResolver!.ResolveContract(member.DeclaringType!) is JsonObjectContract contract)
                 {
                     var property = contract.Properties.FirstOrDefault(
                         q => q.UnderlyingName == member.Name && !q.Ignored);
@@ -78,15 +78,15 @@ namespace Couchbase.Linq.Serialization
                 return property.Converter;
             }
 
-            var valueContract = defaultSerializer.SerializerSettings.ContractResolver
-                .ResolveContract(property.PropertyType);
+            var valueContract = defaultSerializer.SerializerSettings.ContractResolver!
+                .ResolveContract(property.PropertyType!);
             if (valueContract?.Converter != null)
             {
                 return valueContract.Converter;
             }
 
             var converters = defaultSerializer.SerializerSettings.Converters;
-            return converters?.FirstOrDefault(p => p.CanConvert(property.PropertyType));
+            return converters?.FirstOrDefault(p => p.CanConvert(property.PropertyType!));
         }
     }
 }

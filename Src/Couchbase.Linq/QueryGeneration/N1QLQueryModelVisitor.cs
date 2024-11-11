@@ -134,7 +134,7 @@ namespace Couchbase.Linq.QueryGeneration
 
                 _queryPartsAggregator.AddExtent(new FromPart(fromClause)
                 {
-                    Source = N1QlHelpers.GetCollectionExpression((ICollectionQueryable) bucketConstantExpression.Value),
+                    Source = N1QlHelpers.GetCollectionExpression((ICollectionQueryable) bucketConstantExpression.Value!),
                     ItemName = GetExtentName(fromClause)
                 });
             }

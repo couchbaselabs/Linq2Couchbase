@@ -12,9 +12,9 @@ namespace Couchbase.Linq.Operators
     internal abstract class AsyncValueFromSequenceResultOperatorBase : ResultOperatorBase
     {
         private static readonly MethodInfo ExecuteMethod = typeof(AsyncValueFromSequenceResultOperatorBase)
-            .GetMethod(nameof(ExecuteInMemory), new[] {typeof(StreamedSequence)});
+            .GetMethod(nameof(ExecuteInMemory), new[] {typeof(StreamedSequence)})!;
 
-        public abstract AsyncStreamedValue ExecuteInMemory<T>(StreamedSequence sequence);
+        public abstract AsyncStreamedValue? ExecuteInMemory<T>(StreamedSequence sequence);
 
         /// <inheritdoc />
         public sealed override IStreamedData ExecuteInMemory(IStreamedData input)

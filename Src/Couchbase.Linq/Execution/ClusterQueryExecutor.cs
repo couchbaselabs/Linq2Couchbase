@@ -159,15 +159,17 @@ namespace Couchbase.Linq.Execution
                 : ExecuteCollection<T>(queryModel).Single();
 
         public Task<T> ExecuteScalarAsync<T>(QueryModel queryModel, CancellationToken cancellationToken = default) =>
-            ExecuteSingleAsync<T>(queryModel, false, cancellationToken);
+            ExecuteSingleAsync<T>(queryModel, false, cancellationToken)!;
 
-        public Task<T> ExecuteSingleAsync<T>(QueryModel queryModel, bool returnDefaultWhenEmpty, CancellationToken cancellationToken = default)
+        public Task<T?> ExecuteSingleAsync<T>(QueryModel queryModel, bool returnDefaultWhenEmpty, CancellationToken cancellationToken = default)
         {
             // ReSharper disable MethodSupportsCancellation
-            var result = returnDefaultWhenEmpty
+#pragma warning disable CS8619 // Nullability of reference types in value doesn't match target type.
+            ValueTask<T?> result = returnDefaultWhenEmpty
                 ? ExecuteCollectionAsync<T>(queryModel).SingleOrDefaultAsync(cancellationToken)
                 : ExecuteCollectionAsync<T>(queryModel).SingleAsync(cancellationToken);
-            // ReSharper restore MethodSupportsCancellation
+#pragma warning restore CS8619 // Nullability of reference types in value doesn't match target type.
+                              // ReSharper restore MethodSupportsCancellation
 
             return result.AsTask();
         }

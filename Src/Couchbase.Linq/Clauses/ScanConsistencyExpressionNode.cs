@@ -69,7 +69,7 @@ namespace Couchbase.Linq.Clauses
             ClauseGenerationContext clauseGenerationContext)
         {
             queryModel.BodyClauses.Add(new ScanConsistencyClause(
-                (QueryScanConsistency) ScanConsistency.Value,
+                (QueryScanConsistency) ScanConsistency.Value!,
                 (TimeSpan?) ScanWait?.Value));
         }
     }

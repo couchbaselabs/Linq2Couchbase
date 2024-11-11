@@ -12,9 +12,9 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
         {
-            typeof (Enumerable).GetMethod("ToArray"),
-            typeof (Enumerable).GetMethod("ToList"),
-            typeof (Enumerable).GetMethod("AsEnumerable")
+            typeof (Enumerable).GetMethod("ToArray")!,
+            typeof (Enumerable).GetMethod("ToList")!,
+            typeof (Enumerable).GetMethod("AsEnumerable")!
         };
 
         public IEnumerable<MethodInfo> SupportMethods

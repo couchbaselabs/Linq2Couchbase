@@ -50,7 +50,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             }
 
             _querySourceReference = querySourceReference;
-            _keyPropertyInfo = querySourceReference.ReferencedQuerySource.ItemType.GetProperty("Key");
+            _keyPropertyInfo = querySourceReference.ReferencedQuerySource.ItemType.GetProperty("Key")!;
             _newExpression = newExpression;
         }
 
@@ -58,10 +58,10 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
         {
             var keyExpression = expression.Expression as MemberExpression;
             
-            if ((keyExpression != null) && keyExpression.Expression.Equals(_querySourceReference)
+            if ((keyExpression != null) && keyExpression.Expression!.Equals(_querySourceReference)
                 && (keyExpression.Member == _keyPropertyInfo))
             {
-                for (var i = 0; i < _newExpression.Members.Count; i++)
+                for (var i = 0; i < _newExpression.Members!.Count; i++)
                 {
                     if (_newExpression.Members[i] == expression.Member)
                     {

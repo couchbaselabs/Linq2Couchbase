@@ -28,9 +28,9 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
         };
 
         private static readonly HashSet<MethodInfo> ConversionMethods = new HashSet<MethodInfo>(
-            Types.Select(type => typeof(ISerializationConverter<>).MakeGenericType(type).GetMethod("ConvertTo", new[] {type})));
+            Types.Select(type => typeof(ISerializationConverter<>).MakeGenericType(type).GetMethod("ConvertTo", new[] {type}))!);
         private static readonly HashSet<MethodInfo> InverseConversionMethods = new HashSet<MethodInfo>(
-            Types.Select(type => typeof(ISerializationConverter<>).MakeGenericType(type).GetMethod("ConvertFrom", new[] {type})));
+            Types.Select(type => typeof(ISerializationConverter<>).MakeGenericType(type).GetMethod("ConvertFrom", new[] {type}))!);
 
         private static readonly ExpressionType[] StaticSupportedExpressionTypes =
         {

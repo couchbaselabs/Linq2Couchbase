@@ -12,8 +12,8 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
         {
-            typeof (string).GetMethod("IndexOf", new[] { typeof (char) }),
-            typeof (string).GetMethod("IndexOf", new[] { typeof (string) })
+            typeof (string).GetMethod("IndexOf", new[] { typeof (char) })!,
+            typeof (string).GetMethod("IndexOf", new[] { typeof (string) })!
         };
 
         public IEnumerable<MethodInfo> SupportMethods
@@ -34,7 +34,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("POSITION(");
-            expressionTreeVisitor.Visit(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object!);
             expression.Append(", ");
             expressionTreeVisitor.Visit(methodCallExpression.Arguments[0]);
             expression.Append(")");

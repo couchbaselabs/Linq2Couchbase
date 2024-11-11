@@ -48,7 +48,7 @@ namespace Couchbase.Linq.Clauses
         protected override void ApplyNodeSpecificSemantics(QueryModel queryModel,
             ClauseGenerationContext clauseGenerationContext)
         {
-            queryModel.BodyClauses.Add(new UseIndexClause((string) IndexName.Value, (N1QlIndexType) IndexType.Value));
+            queryModel.BodyClauses.Add(new UseIndexClause((string) IndexName.Value!, (N1QlIndexType) IndexType.Value!));
         }
     }
 }

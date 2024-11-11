@@ -8,8 +8,8 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     internal class DictionaryContainsKeyMethodCallTranslator  : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic = {
-            typeof (IDictionary).GetMethod("Contains"),
-            typeof (IDictionary<,>).GetMethod("ContainsKey")
+            typeof (IDictionary).GetMethod("Contains")!,
+            typeof (IDictionary<,>).GetMethod("ContainsKey")!
         };
 
         public IEnumerable<MethodInfo> SupportMethods => SupportedMethodsStatic;
@@ -25,9 +25,9 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             {
                 var expression = expressionTreeVisitor.Expression;
 
-                expressionTreeVisitor.Visit(methodCallExpression.Object);
+                expressionTreeVisitor.Visit(methodCallExpression.Object!);
                 expression.Append('.');
-                expression.Append(N1QlHelpers.EscapeIdentifier(keyExpression.Value.ToString()));
+                expression.Append(N1QlHelpers.EscapeIdentifier(keyExpression.Value!.ToString()!));
                 expression.Append(" IS NOT MISSING");
             }
             else

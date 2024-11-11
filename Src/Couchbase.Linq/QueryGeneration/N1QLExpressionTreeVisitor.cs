@@ -103,7 +103,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitNew(NewExpression expression)
         {
-            VisitNewObject(expression.Members, expression.Arguments);
+            VisitNewObject(expression.Members!, expression.Arguments);
 
             return expression;
         }
@@ -197,7 +197,7 @@ namespace Couchbase.Linq.QueryGeneration
                 }
 
                 arguments = newExpression.Arguments;
-                members = newExpression.Members;
+                members = newExpression.Members!;
             }
 
             for (var i = 0; i < members.Count; i++)
@@ -483,7 +483,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitConstant(ConstantExpression expression)
         {
-            var namedParameter = QueryGenerationContext.ParameterAggregator.AddNamedParameter(expression.Value);
+            var namedParameter = QueryGenerationContext.ParameterAggregator.AddNamedParameter(expression.Value!);
 
             if (namedParameter.Value == null)
             {
@@ -580,7 +580,7 @@ namespace Couchbase.Linq.QueryGeneration
 
         protected override Expression VisitMember(MemberExpression expression)
         {
-            if (expression.Expression.Type.GetTypeInfo().Assembly.Equals(Mscorlib))
+            if (expression.Expression!.Type.GetTypeInfo().Assembly.Equals(Mscorlib))
             {
                 // For property getters on the core .Net classes, we don't want to just recurse through the .Net object model
                 // Instead, convert to a MethodCallExpression

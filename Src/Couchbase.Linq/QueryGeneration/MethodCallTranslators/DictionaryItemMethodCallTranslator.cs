@@ -8,8 +8,8 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     internal class DictionaryItemMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic = {
-            typeof (IDictionary).GetMethod("get_Item"),
-            typeof (IDictionary<,>).GetMethod("get_Item")
+            typeof (IDictionary).GetMethod("get_Item")!,
+            typeof (IDictionary<,>).GetMethod("get_Item")!
         };
 
         public IEnumerable<MethodInfo> SupportMethods => SupportedMethodsStatic;
@@ -25,9 +25,9 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             {
                 var expression = expressionTreeVisitor.Expression;
 
-                expressionTreeVisitor.Visit(methodCallExpression.Object);
+                expressionTreeVisitor.Visit(methodCallExpression.Object!);
                 expression.Append('.');
-                expression.Append(N1QlHelpers.EscapeIdentifier(keyExpression.Value.ToString()));
+                expression.Append(N1QlHelpers.EscapeIdentifier(keyExpression.Value!.ToString()!));
             }
             else
             {

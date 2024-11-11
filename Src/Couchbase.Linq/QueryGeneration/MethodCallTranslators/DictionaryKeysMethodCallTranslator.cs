@@ -8,9 +8,9 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     internal class DictionaryKeysMethodCallTranslator  : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic = {
-            typeof (IDictionary).GetMethod("get_Keys"),
-            typeof (IDictionary<,>).GetMethod("get_Keys"),
-            typeof (Dictionary<,>).GetMethod("get_Keys")
+            typeof (IDictionary).GetMethod("get_Keys")!,
+            typeof (IDictionary<,>).GetMethod("get_Keys")!,
+            typeof (Dictionary<,>).GetMethod("get_Keys")!
         };
 
         public IEnumerable<MethodInfo> SupportMethods => SupportedMethodsStatic;
@@ -25,7 +25,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("OBJECT_NAMES(");
-            expressionTreeVisitor.Visit(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object!);
             expression.Append(')');
 
             return methodCallExpression;
