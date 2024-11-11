@@ -98,7 +98,7 @@ namespace Couchbase.Linq.Serialization.Converters
                     _jsonConverter.WriteJson(writer, constantExpression.Value,
                         JsonSerializer.CreateDefault());
 
-                    expressionTreeVisitor.Visit(Expression.Constant(writer.Token.ToString()));
+                    expressionTreeVisitor.Visit(Expression.Constant(writer.Token!.ToString()));
                 }
             }
         }

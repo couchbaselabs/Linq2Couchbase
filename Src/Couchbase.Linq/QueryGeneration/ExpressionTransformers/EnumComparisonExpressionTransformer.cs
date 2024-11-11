@@ -104,7 +104,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
 
             if (name != null)
             {
-                comparisonValue = Expression.Constant(enumType.GetField(name).GetValue(null));
+                comparisonValue = Expression.Constant(enumType.GetField(name)!.GetValue(null));
 
                 if (isNullable)
                 {

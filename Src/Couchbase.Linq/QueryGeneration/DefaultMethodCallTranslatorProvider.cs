@@ -31,7 +31,7 @@ namespace Couchbase.Linq.QueryGeneration
                         type.GetConstructor(Type.EmptyTypes) != null)
                 .SelectMany(type =>
                 {
-                    var instance = (IMethodCallTranslator) Activator.CreateInstance(type);
+                    var instance = (IMethodCallTranslator) Activator.CreateInstance(type)!;
 
                     return instance.SupportMethods
                         .Where(method => method != null)
@@ -232,7 +232,7 @@ namespace Couchbase.Linq.QueryGeneration
                 if (parameterType.IsGenericParameter)
                 {
                     // This parameter is a generic from the class (not a method generic), so convert before comparing
-                    var genericArgs = method.DeclaringType.GetGenericArguments();
+                    var genericArgs = method.DeclaringType!.GetGenericArguments();
 
                     for (var genericIndex = 0; genericIndex < genericArgs.Length; genericIndex++)
                     {

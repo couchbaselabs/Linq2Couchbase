@@ -12,7 +12,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
         {
-            typeof (string).GetMethod("get_Length")
+            typeof (string).GetMethod("get_Length")!
         };
 
         public IEnumerable<MethodInfo> SupportMethods
@@ -33,7 +33,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("LENGTH(");
-            expressionTreeVisitor.Visit(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object!);
             expression.Append(")");
 
             return methodCallExpression;

@@ -9,8 +9,8 @@ internal class DateMethodCallTranslator : IMethodCallTranslator
 {
     private static readonly MethodInfo[] SupportedMethodsStatic =
     {
-        typeof (DateTime).GetMethod("get_Date"),
-        typeof (DateTimeOffset).GetMethod("get_Date")
+        typeof (DateTime).GetMethod("get_Date")!,
+        typeof (DateTimeOffset).GetMethod("get_Date")!
     };
 
     public IEnumerable<MethodInfo> SupportMethods
@@ -31,7 +31,7 @@ internal class DateMethodCallTranslator : IMethodCallTranslator
         var expression = expressionTreeVisitor.Expression;
 
         expression.Append("DATE_TRUNC_STR(");
-        expressionTreeVisitor.Visit(methodCallExpression.Object);
+        expressionTreeVisitor.Visit(methodCallExpression.Object!);
         expression.Append(@",""day"")");
 
         return methodCallExpression;

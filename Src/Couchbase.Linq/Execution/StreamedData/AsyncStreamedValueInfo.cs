@@ -15,7 +15,7 @@ namespace Couchbase.Linq.Execution.StreamedData
     {
         private static readonly MethodInfo ExecuteMethod =
             typeof(AsyncStreamedValueInfo).GetMethod(nameof(ExecuteQueryModelAsync),
-                new[] {typeof(QueryModel), typeof(IAsyncQueryExecutor), typeof(CancellationToken)});
+                new[] {typeof(QueryModel), typeof(IAsyncQueryExecutor), typeof(CancellationToken)})!;
 
         /// <inheritdoc />
         /// <remarks>
@@ -70,7 +70,7 @@ namespace Couchbase.Linq.Execution.StreamedData
             return new AsyncStreamedValue(result, this);
         }
 
-        public abstract Task<T> ExecuteQueryModelAsync<T>(QueryModel queryModel, IAsyncQueryExecutor executor,
+        public abstract Task<T?> ExecuteQueryModelAsync<T>(QueryModel queryModel, IAsyncQueryExecutor executor,
             CancellationToken cancellationToken = default);
 
         protected abstract AsyncStreamedValueInfo CloneWithNewDataType (Type dataType);

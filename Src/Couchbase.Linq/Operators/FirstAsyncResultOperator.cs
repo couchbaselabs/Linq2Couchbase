@@ -21,10 +21,10 @@ namespace Couchbase.Linq.Operators
         public override ResultOperatorBase Clone(CloneContext cloneContext) =>
             new FirstAsyncResultOperator(ReturnDefaultWhenEmpty);
 
-        public override AsyncStreamedValue ExecuteInMemory<T>(StreamedSequence input)
+        public override AsyncStreamedValue? ExecuteInMemory<T>(StreamedSequence input)
         {
             var sequence = input.GetTypedSequence<T>();
-            T result = ReturnDefaultWhenEmpty ? sequence.FirstOrDefault() : sequence.First();
+            T? result = ReturnDefaultWhenEmpty ? sequence.FirstOrDefault() : sequence.First();
             return new AsyncStreamedValue (Task.FromResult(result), GetOutputDataInfo (input.DataInfo));
         }
 

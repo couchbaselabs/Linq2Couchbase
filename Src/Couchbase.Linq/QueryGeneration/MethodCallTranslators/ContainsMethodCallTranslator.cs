@@ -16,9 +16,9 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
         private static readonly MethodInfo[] SupportedMethodsStatic =
         {
-            typeof(string).GetMethod(Contains, new[] {typeof(string)}),
-            typeof(string).GetMethod(StartsWith, new[] {typeof(string)}),
-            typeof(string).GetMethod(EndsWith, new[] {typeof(string)})
+            typeof(string).GetMethod(Contains, new[] {typeof(string)})!,
+            typeof(string).GetMethod(StartsWith, new[] {typeof(string)})!,
+            typeof(string).GetMethod(EndsWith, new[] {typeof(string)})!
         };
 
         public IEnumerable<MethodInfo> SupportMethods
@@ -43,7 +43,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("(");
-            expressionTreeVisitor.Visit(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object!);
             expression.Append(" LIKE ");
 
             var constantExpression = methodCallExpression.Arguments[0] as ConstantExpression;

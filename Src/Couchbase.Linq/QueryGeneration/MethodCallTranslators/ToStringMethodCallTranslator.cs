@@ -12,7 +12,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
         {
-            typeof (object).GetMethod("ToString")
+            typeof (object).GetMethod("ToString")!
         };
 
         public IEnumerable<MethodInfo> SupportMethods

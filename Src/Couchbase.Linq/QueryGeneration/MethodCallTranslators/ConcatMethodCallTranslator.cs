@@ -12,15 +12,15 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     internal class ConcatMethodCallTranslator : IMethodCallTranslator
     {
         private static readonly MethodInfo[] SupportedMethodsStatic = {
-            typeof (string).GetMethod("Concat", new[] { typeof (object) }),
-            typeof (string).GetMethod("Concat", new[] { typeof (object), typeof (object) }),
-            typeof (string).GetMethod("Concat", new[] { typeof (object), typeof (object), typeof (object) }),
-            typeof (string).GetMethod("Concat", new[] { typeof (string), typeof (string) }),
-            typeof (string).GetMethod("Concat", new[] { typeof (string), typeof (string), typeof (string) }),
-            typeof (string).GetMethod("Concat", new[] { typeof (string), typeof (string), typeof (string), typeof (string) }),
-            typeof (string).GetMethod("Concat", new[] { typeof (object[]) }),
-            typeof (string).GetMethod("Concat", new[] { typeof (string[]) }),
-            typeof (string).GetMethod("Concat", new[] { typeof (IEnumerable<string>) }),
+            typeof (string).GetMethod("Concat", new[] { typeof (object) })!,
+            typeof (string).GetMethod("Concat", new[] { typeof (object), typeof (object) })!,
+            typeof (string).GetMethod("Concat", new[] { typeof (object), typeof (object), typeof (object) })!,
+            typeof (string).GetMethod("Concat", new[] { typeof (string), typeof (string) })!,
+            typeof (string).GetMethod("Concat", new[] { typeof (string), typeof (string), typeof (string) })!,
+            typeof (string).GetMethod("Concat", new[] { typeof (string), typeof (string), typeof (string), typeof (string) })!,
+            typeof (string).GetMethod("Concat", new[] { typeof (object[]) })!,
+            typeof (string).GetMethod("Concat", new[] { typeof (string[]) })!,
+            typeof (string).GetMethod("Concat", new[] { typeof (IEnumerable<string>) })!,
             typeof (string).GetMethods().Single (mi => mi.Name == "Concat" && mi.IsGenericMethod && mi.GetGenericArguments().Length == 1)
         };
 
@@ -75,7 +75,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                 }
                 else if (methodCallExpression.Arguments[0] is ConstantExpression argumentAsConstantExpression)
                 {
-                    return ((object[])argumentAsConstantExpression.Value).Select(element => (Expression)Expression.Constant(element));
+                    return ((object[])argumentAsConstantExpression.Value!).Select(element => (Expression)Expression.Constant(element));
                 }
                 else
                 {

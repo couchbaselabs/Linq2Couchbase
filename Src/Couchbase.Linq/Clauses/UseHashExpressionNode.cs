@@ -37,7 +37,7 @@ namespace Couchbase.Linq.Clauses
         protected override void ApplyNodeSpecificSemantics(QueryModel queryModel,
             ClauseGenerationContext clauseGenerationContext)
         {
-            queryModel.BodyClauses.Add(new UseHashClause((HashHintType) HashHintType.Value));
+            queryModel.BodyClauses.Add(new UseHashClause((HashHintType) HashHintType.Value!));
         }
     }
 }

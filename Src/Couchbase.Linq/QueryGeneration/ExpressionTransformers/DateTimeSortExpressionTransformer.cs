@@ -37,7 +37,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
 
         private static readonly HashSet<MethodInfo> InverseConversionMethods = new HashSet<MethodInfo>(
             Types.Select(type => typeof(ISerializationConverter<>).MakeGenericType(type)
-                .GetMethod(nameof(ISerializationConverter<DateTime>.ConvertFrom), new[] {type})));
+                .GetMethod(nameof(ISerializationConverter<DateTime>.ConvertFrom), new[] {type}))!);
 
         private static readonly ExpressionType[] StaticSupportedExpressionTypes =
         {

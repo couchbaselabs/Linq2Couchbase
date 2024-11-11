@@ -29,7 +29,7 @@ namespace Couchbase.Linq.QueryGeneration
             _queryPartsAggregator = queyPartsAggregator ?? throw new ArgumentNullException(nameof(queyPartsAggregator));
         }
 
-        protected override Expression? VisitBinary(BinaryExpression node)
+        protected override Expression VisitBinary(BinaryExpression node)
         {
             if (node.NodeType == ExpressionType.AndAlso)
             {
@@ -58,7 +58,7 @@ namespace Couchbase.Linq.QueryGeneration
                 else
                 {
                     // Left side or both sides were dropped
-                    return right;
+                    return right!;
                 }
             }
             else

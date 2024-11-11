@@ -12,7 +12,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     {
         public static readonly MethodInfo[] SupportedMethodsStatic =
         {
-            typeof (string).GetMethod("Split", new[] { typeof (char[]) })
+            typeof (string).GetMethod("Split", new[] { typeof (char[]) })!
         };
 
         public IEnumerable<MethodInfo> SupportMethods
@@ -33,7 +33,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
             var expression = expressionTreeVisitor.Expression;
 
             expression.Append("SPLIT(");
-            expressionTreeVisitor.Visit(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object!);
 
             if (methodCallExpression.Arguments[0].Type != typeof(char[]))
             {

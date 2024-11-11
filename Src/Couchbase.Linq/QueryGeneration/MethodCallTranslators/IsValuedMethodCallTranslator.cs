@@ -41,7 +41,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
                 }
 
                 expression.AppendFormat(".{0}",
-                    N1QlHelpers.EscapeIdentifier(constantExpression.Value.ToString()));
+                    N1QlHelpers.EscapeIdentifier(constantExpression.Value!.ToString()!));
             }
 
             expression.Append(methodCallExpression.Method.Name == "IsValued" ? " IS VALUED" : " IS NOT VALUED");

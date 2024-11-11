@@ -17,9 +17,9 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
     internal class StringComparisonExpressionTransformer : IExpressionTransformer<BinaryExpression>
     {
         private static readonly MethodInfo[] StringCompareMethods = {
-           typeof(string).GetMethod("Compare", new[] { typeof(string), typeof(string) }),
-           typeof (string).GetMethod("Compare", new[] { typeof (string), typeof(string), typeof(StringComparison) }),
-           typeof(string).GetMethod("CompareTo", new[] { typeof(string) })
+           typeof(string).GetMethod("Compare", new[] { typeof(string), typeof(string) })!,
+           typeof (string).GetMethod("Compare", new[] { typeof (string), typeof(string), typeof(StringComparison) })!,
+           typeof(string).GetMethod("CompareTo", new[] { typeof(string) })!
         };
 
         public ExpressionType[] SupportedExpressionTypes
@@ -74,7 +74,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
                 return expression;
             }
 
-            var number = (int)numericExpression.Value;
+            var number = (int)numericExpression.Value!;
 
             // Get the strings from the method call parameters
 
@@ -172,7 +172,7 @@ namespace Couchbase.Linq.QueryGeneration.ExpressionTransformers
             StringComparison? comparison = null;
             if (comparisonExpression != null)
             {
-                comparison = (StringComparison)comparisonExpression.Value;
+                comparison = (StringComparison)comparisonExpression.Value!;
                 if (comparison != StringComparison.Ordinal && comparison != StringComparison.OrdinalIgnoreCase)
                 {
                     var msg = $"String comparison option {comparison} is not supported";

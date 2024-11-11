@@ -10,8 +10,8 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
         {
-            typeof (ISerializationConverter<>).GetMethod("ConvertTo"),
-            typeof (ISerializationConverter<>).GetMethod("ConvertFrom")
+            typeof (ISerializationConverter<>).GetMethod("ConvertTo")!,
+            typeof (ISerializationConverter<>).GetMethod("ConvertFrom")!
         };
 
         public IEnumerable<MethodInfo> SupportMethods => SupportedMethodsStatic;

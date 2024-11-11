@@ -12,12 +12,12 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
     {
         private static readonly MethodInfo[] SupportedMethodsStatic =
         {
-            typeof (string).GetMethod("Trim", Type.EmptyTypes),
-            typeof (string).GetMethod("Trim", new[] { typeof (char[]) }),
-            typeof (string).GetMethod("TrimStart", Type.EmptyTypes),
-            typeof (string).GetMethod("TrimEnd", Type.EmptyTypes),
-            typeof (string).GetMethod("TrimStart", new [] { typeof(char[])}),
-            typeof (string).GetMethod("TrimEnd", new [] { typeof(char[])}),
+            typeof (string).GetMethod("Trim", Type.EmptyTypes)!,
+            typeof (string).GetMethod("Trim", new[] { typeof (char[]) })!,
+            typeof (string).GetMethod("TrimStart", Type.EmptyTypes)!,
+            typeof (string).GetMethod("TrimEnd", Type.EmptyTypes)!,
+            typeof (string).GetMethod("TrimStart", new [] { typeof(char[])})!,
+            typeof (string).GetMethod("TrimEnd", new [] { typeof(char[])})!,
         };
 
         public IEnumerable<MethodInfo> SupportMethods
@@ -39,7 +39,7 @@ namespace Couchbase.Linq.QueryGeneration.MethodCallTranslators
 
             expression.Append(methodCallExpression.Method.Name == "TrimStart" ? "LTRIM(" :
                 methodCallExpression.Method.Name == "TrimEnd" ? "RTRIM(" : "TRIM(");
-            expressionTreeVisitor.Visit(methodCallExpression.Object);
+            expressionTreeVisitor.Visit(methodCallExpression.Object!);
 
             if (methodCallExpression.Arguments.Count > 0)
             {

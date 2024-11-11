@@ -103,7 +103,7 @@ namespace Couchbase.Linq.Serialization
                 return (ISerializationConverter) constructor.Invoke(new object[] {jsonConverter, member});
             }
 
-            return (ISerializationConverter) Activator.CreateInstance(converterType);
+            return (ISerializationConverter) Activator.CreateInstance(converterType)!;
         }
 
         /// <inheritdoc/>

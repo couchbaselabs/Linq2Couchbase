@@ -23,10 +23,10 @@ namespace Couchbase.Linq.Operators
             new SingleAsyncResultOperator(ReturnDefaultWhenEmpty);
 
         /// <inheritdoc />
-        public override AsyncStreamedValue ExecuteInMemory<T>(StreamedSequence input)
+        public override AsyncStreamedValue? ExecuteInMemory<T>(StreamedSequence input)
         {
             var sequence = input.GetTypedSequence<T>();
-            T result = ReturnDefaultWhenEmpty ? sequence.SingleOrDefault() : sequence.Single();
+            T? result = ReturnDefaultWhenEmpty ? sequence.SingleOrDefault() : sequence.Single();
             return new AsyncStreamedValue (Task.FromResult(result), GetOutputDataInfo (input.DataInfo));
         }
 
