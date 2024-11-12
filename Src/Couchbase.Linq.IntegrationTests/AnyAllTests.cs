@@ -33,7 +33,7 @@ namespace Couchbase.Linq.IntegrationTests
             var context = new BucketContext(TestSetup.Bucket);
 
             // This test requires the following index:
-            //   CREATE INDEX brewery_address ON `beer-sample` (DISTINCT ARRAY x FOR x IN address END) WHERE type = 'brewery'
+            //   CREATE INDEX brewery_address ON `beer-sample`.`_default`.`_default` (DISTINCT ARRAY x FOR x IN address END) WHERE type = 'brewery'
 
             // It can't be automatically created currently because the bucket manager
             // doesn't support creating array or function-based indexes, only plain attribute indexes
