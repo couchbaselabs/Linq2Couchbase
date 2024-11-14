@@ -1,11 +1,14 @@
 # The META() function
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 For every document Couchbase Server will also store another document containing the metadata describing that document. Metadata includes the following fields:
 
 - Id - the primary key for the document
 - CAS - Compare and Swap value
 - Flags - SDK specific type encoding (internal use only)
-- Type - the type of document stored in Couchbase (will always be JSON for N1QL)
+- Type - the type of document stored in Couchbase (will always be JSON for SQL++)
 
 There is additionally metadata stored within couchbase for each document (TTL and Sequence Number), but this is not available from the META function.
 

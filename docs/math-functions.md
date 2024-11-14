@@ -1,6 +1,9 @@
 # Math Functions
 
-Most math functions from the .Net Math class are supported by N1QL.  They may be used anywhere in the query, including where predicates, select projections, and sort ordering.
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
+Most math functions from the .Net Math class are supported by SQL++.  They may be used anywhere in the query, including where predicates, select projections, and sort ordering.
 
 ## Supported Math Functions
 

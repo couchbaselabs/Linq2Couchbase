@@ -1,5 +1,8 @@
 # Query Hints
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 ## UseIndex
 
 The UseIndex method is used to provide an index hint to the query engine.  This can help improve query performance in cases where Explain shows that the index being used by default is inefficient.
@@ -32,7 +35,7 @@ var query = from beer in context.Query<Beer>().UseIndex("beer_abv", N1QlIndexTyp
             select beer;
 ```
 
-Note that views must be defined using a `CREATE INDEX` statement in order to be usable via N1QL queries.
+Note that views must be defined using a `CREATE INDEX` statement in order to be usable via SQL++ queries.
 
 ## Hash Joins
 

@@ -1,5 +1,8 @@
 # Asynchronous Queries
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 For performance in high load web environments, Linq2Couchbase supports executing queries asynchronously. This helps optimize thread utilization by avoiding thread blocking during long running query operations.
 
 > :info: **Note:** The methods below will only work for Linq2Couchbase queries. Code completion will show them as an option for other types of LINQ queries, but they will fail when executed. Other libraries, such as Entity Framework Core, have their own versions of these methods designed for use with their queries.

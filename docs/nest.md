@@ -1,5 +1,8 @@
 # Nesting Documents
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 Nesting documents is somewhat similar to [Joining Documents](joins.md). It has some of the same behaviors and limitations.
 
 However, nesting returns the data in a different format. Nests expect the document on the left to have a list of document keys in an array. Each key on the document is then loaded from the bucket, and a array of documents is provided.  This array may then be manipulated and used elsewhere in the query, such as the select projection or where clause.
@@ -101,7 +104,7 @@ await foreach (var doc in query.AsAsyncEnumerable()) {
 
 ## ANSI Nests
 
-Beginning with Couchbase Server 5.5, N1QL supports full ANSI joins, including ANSI nests. It is now possible to nest against any properties on either side, the N1QlFunctions.Key limitation no longer applies.
+Beginning with Couchbase Server 5.5, SQL++ supports full ANSI joins, including ANSI nests. It is now possible to nest against any properties on either side, the N1QlFunctions.Key limitation no longer applies.
 
 To use this feature, simply perform a group join on the desired properties in LINQ. It is necessary, however, to ensure there is an index which can be used to lookup the properties on the right-hand side.
 

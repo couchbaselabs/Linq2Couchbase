@@ -1,5 +1,8 @@
 # Joining Documents
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 Joins are used to combine multiple documents with a common link into a single query result. They work much like traditional joins in SQL, though there are some differences.
 
 > :info: **Note:** Joins can be performed across multiple buckets, so long as the buckets are all on the same cluster.
@@ -86,7 +89,7 @@ await foreach (var doc in query.AsAsyncEnumerable()) {
 
 ## ANSI Joins
 
-Beginning with Couchbase Server 5.5, N1QL supports full ANSI joins. It is possible to join against any properties on either side, without using N1QlFunctions.Key. It is necessary, however, to ensure there is an index which can be used to lookup the properties on the right-hand side.
+Beginning with Couchbase Server 5.5, SQL++ supports full ANSI joins. It is possible to join against any properties on either side, without using N1QlFunctions.Key. It is necessary, however, to ensure there is an index which can be used to lookup the properties on the right-hand side.
 
 ```cs
 var context = new BucketContext(bucket);

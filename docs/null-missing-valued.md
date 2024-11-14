@@ -1,6 +1,9 @@
 # Testing For NULL And MISSING Attributes
 
-Like SQL, N1QL allows you to test for NULL values in your queries. Additionally, N1QL adds the concept of MISSING, which means that the attribute isn't present in the document. NULL means that the attribute is present in the document, but set specifically to null.
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
+Like SQL, SQL++ allows you to test for NULL values in your queries. Additionally, SQL++ adds the concept of MISSING, which means that the attribute isn't present in the document. NULL means that the attribute is present in the document, but set specifically to null.
 
 ## Testing For NULL
 
@@ -52,7 +55,7 @@ This query will return all beers where there is an "abv" attribute present on th
 
 ## Testing For Valued Attributes
 
-Testing for null and missing are very specific tests. If you test for null, it returns false if the value is missing. If you test for missing, it returns false if the value is null. N1QL also provides the concept of an attribute being valued. This combines the two concepts, considering both nulls and missing values to be not valued. This is implemented in LINQ using N1QlFunctions.IsValued and N1QlFunctions.IsNotValued.
+Testing for null and missing are very specific tests. If you test for null, it returns false if the value is missing. If you test for missing, it returns false if the value is null. SQL++ also provides the concept of an attribute being valued. This combines the two concepts, considering both nulls and missing values to be not valued. This is implemented in LINQ using N1QlFunctions.IsValued and N1QlFunctions.IsNotValued.
 
 ```cs
 var context = new BucketContext(bucket);

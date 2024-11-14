@@ -1,6 +1,9 @@
 # Filtering with Where
 
-The where clause is used to apply filter predicates to your query. It supports a very wide variety of operators and methods when translating to N1QL.
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
+The where clause is used to apply filter predicates to your query. It supports a very wide variety of operators and methods when translating to SQL++.
 
 ## Basic Usage
 

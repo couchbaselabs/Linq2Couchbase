@@ -1,5 +1,8 @@
 # The BucketContext
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 The public API for Linq2Couchbase is the BucketContext; this object is similar to the DbContext in Linq2SQL and the DataContext from the EntityFramework. It's primary purpose is to provide and interface for building and submitting queries to a Couchbase server Bucket. Internally, the BucketContext uses a Cluster object and CouchbaseBucket to handle communication and to send queries and updates to the server.
 
 ## Creating a BucketContext

@@ -1,6 +1,9 @@
 # Sorting and Paging Results
 
-Using LINQ and N1QL, it's easy to sort and page results.
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
+Using LINQ and SQL++, it's easy to sort and page results.
 
 ## Sorting
 

@@ -1,5 +1,8 @@
 # The UseKeys Method
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 The UseKeys method is used to select documents based on a list of zero or more keys.  In this way, it is similar to performing a multiple get using `IBucket.Get<T>(IList<string> keys)`.  The UseKeys method is also required when performing subqueries.
 
 **Note:** You must import the `Couchbase.Linq.Extensions` namespace to use the UseKeys method.

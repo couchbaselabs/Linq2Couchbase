@@ -1,5 +1,8 @@
 # Working With Enumerations
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 For the most part, enumeration properties are supported transparently.  LINQ queries can filter based on enumeration values just like other properties:
 
 ```cs

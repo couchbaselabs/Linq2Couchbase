@@ -1,6 +1,9 @@
 # String Handling
 
-Many .Net string operations are supported by N1QL, and can be used directly in your LINQ queries.
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
+Many .Net string operations are supported by SQL++, and can be used directly in your LINQ queries.
 
 ## Supported String Operations
 

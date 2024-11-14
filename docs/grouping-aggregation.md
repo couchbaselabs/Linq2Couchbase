@@ -1,5 +1,8 @@
 # Grouping and Aggregation
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 LINQ may also be used to group query results and perform aggregation of data on the groupings. This grouping and aggregation is performed on the query server for improved performance.
 
 > :info: **Note:** LINQ group joins are not currently supported.

@@ -1,6 +1,9 @@
 # Array Filtering, Projections, and Sorting
 
-Using array filtering and projections, you can alter the nature of an array located inside a document before it is returned by N1QL.
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
+Using array filtering and projections, you can alter the nature of an array located inside a document before it is returned by SQL++.
 
 ## Filtering
 

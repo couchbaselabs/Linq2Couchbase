@@ -1,6 +1,9 @@
 # Using Read Your Own Write (RYOW)
 
-When writing changes (mutating documents), Couchbase Server indexes are not updated immediately. This allows improved write performance, because it isn't necessary for mutations to wait for index updates to complete before returning. This index update delay doesn't affect CRUD operations via the SDK, but it does affect the results returned by N1QL queries.
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
+When writing changes (mutating documents), Couchbase Server indexes are not updated immediately. This allows improved write performance, because it isn't necessary for mutations to wait for index updates to complete before returning. This index update delay doesn't affect CRUD operations via the SDK, but it does affect the results returned by SQL++ queries.
 
 This delay is often unnoticed. However, there can be circumstances where you need to execute a query immediately following a mutation, and need the mutation to be included in the query result. For example, if you are posting a new sales order, and then query the total sales for that customer after posting the new order.
 
