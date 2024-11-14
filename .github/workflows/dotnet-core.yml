@@ -16,10 +16,10 @@ jobs:
     - name: Setup .NET
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x'
+        dotnet-version: '8.0.x'
     - name: Install dependencies
       run: dotnet restore Src/couchbase-net-linq.sln
     - name: Build
-      run: dotnet build --configuration Release --no-restore Src/couchbase-net-linq.sln
+      run: dotnet build --configuration Debug --no-restore Src/couchbase-net-linq.sln
     - name: Test
       run: dotnet test --no-restore --verbosity normal Src/Couchbase.Linq.UnitTests/Couchbase.Linq.UnitTests.csproj
