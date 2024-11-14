@@ -1,5 +1,8 @@
 # Mapping JSON fields to POCO properties
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 While not an actually responsibility of the LINQ provider, the default serialization library, Newtonsoft.Json, supports field the following serialization attributes:
 
 - [DataContractAttribute](https://msdn.microsoft.com/en-us/library/ms585243)

@@ -1,6 +1,9 @@
 # Mapping JSON documents to POCOs with DocumentFilters
 
-Couchbase allows you store heterogeneous documents within a Bucket or "keyspace". When you do a select without a predicate, you are querying across the entire keyspace. For example, imagine a bucket with various document "types" and you do a N1QL query like this:
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
+Couchbase allows you store heterogeneous documents within a Bucket or "keyspace". When you do a select without a predicate, you are querying across the entire keyspace. For example, imagine a bucket with various document "types" and you do a SQL++ query like this:
 
 ```sql
 SELECT name FROM `travel-sample`
@@ -74,7 +77,7 @@ public class Airline
 }
 ```
 
-Now when we generate a LINQ query, the `WHERE type="airline"` clause will be automatically added to the emitted N1QL query and only documents of type "airline" will be returned.
+Now when we generate a LINQ query, the `WHERE type="airline"` clause will be automatically added to the emitted SQL++ query and only documents of type "airline" will be returned.
 
 ## Custom Document Filters
 

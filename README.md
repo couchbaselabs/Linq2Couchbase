@@ -3,13 +3,15 @@
 [![Join the chat at https://gitter.im/couchbaselabs/Linq2Couchbase](https://badges.gitter.im/couchbaselabs/Linq2Couchbase.svg)](https://gitter.im/couchbaselabs/Linq2Couchbase?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ![.NET Core](https://github.com/couchbaselabs/Linq2Couchbase/workflows/.NET%20Core/badge.svg)
 
-The official Language Integrated Query (LINQ) provider for querying Couchbase Server with [N1QL](https://docs.couchbase.com/server/current/n1ql/n1ql-intro/queriesandresults.html) using the Couchbase .NET SDK. The goal of Linq2Couchbase is to create a lightweight ORM/ODM for querying Couchbase Buckets using LINQ as the lingua-franca between your application and Couchbase Server using N1QL, a SQL-like query language for JSON documents. It also provides a write API for performing CRUD operations on JSON documents.
+The official Language Integrated Query (LINQ) provider for querying Couchbase Server with [SQL++](https://docs.couchbase.com/server/current/n1ql/n1ql-intro/queriesandresults.html) using the Couchbase .NET SDK. The goal of Linq2Couchbase is to create a lightweight ORM/ODM for querying Couchbase Buckets using LINQ as the lingua-franca between your application and Couchbase Server using SQL++, a SQL-like query language for JSON documents. It also provides a write API for performing CRUD operations on JSON documents.
 
 While not an officially supported Couchbase project, this repo is actively maintained and monitored. If you happen to find a bug or have any questions, please either create an [issue](https://github.com/couchbaselabs/linq2couchbase/issues) or make a post on [forums.couchbase.com](https://forums.couchbase.com/c/net-sdk). Additionally, we actively accept contributions!
 
-> :info: This documentation is for Linq2Couchbase 2.x, compatible with Couchbase SDK 3.x. For documentation on
+> [INFO] This documentation is for Linq2Couchbase 2.x, compatible with Couchbase SDK 3.x. For documentation on
 > Linq2Couchbase 1.x compatible with Couchbase SDK 2.x, see [the release14 branch](https://github.com/couchbaselabs/Linq2Couchbase/blob/release14/README.md).
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
 ## Getting started
 
 The Linq2Couchbase project has the following dependencies:
@@ -143,7 +145,7 @@ Linq2Couchbase uses the NuGet package manager for handling dependencies.  To bui
 
 ## Project management
 
-In the [Jira project for Linq2Couchbase](http://issues.couchbase.com/browse/LINQ), you can file bugs, propose features or get an idea for the roadmap there. There is also a [list of supported and proposed N1QL features for Linq2Couchbase](https://docs.google.com/document/d/1hPNZ-qTKpVzQsFwg_1uUueltzNL1wA75L5F-hYF92Cw/edit?usp=sharing).
+In the [Issues for Linq2Couchbase](https://github.com/couchbaselabs/Linq2Couchbase/issues), you can file bugs, propose features or get an idea for the roadmap there. There is also a [list of supported and proposed SQL++ features for Linq2Couchbase](https://docs.google.com/document/d/1hPNZ-qTKpVzQsFwg_1uUueltzNL1wA75L5F-hYF92Cw/edit?usp=sharing).
 
 ## Contributors
 

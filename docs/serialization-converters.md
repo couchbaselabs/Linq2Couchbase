@@ -1,8 +1,11 @@
 # Serialization Converters
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 ## Overview
 
-Some attributes may have additional decorators applied that change how they are serialized, and this can alter the behavior required when accessing these properties in queries.  The rendered N1QL query needs to account for any differences in serialization for comparisons and more.
+Some attributes may have additional decorators applied that change how they are serialized, and this can alter the behavior required when accessing these properties in queries.  The rendered SQL++ query needs to account for any differences in serialization for comparisons and more.
 
 As an example, by default Linq2Couchbase assumes that DateTime properties are serialized as ISO 8601 strings.  When using the default serializer, `JsonConverter` attributes may be used to indicate that they are stored as milliseconds since the Unix epoch.  See [Date Handling](./date-handling.md) for more information.  In this case, conversion from string to Unix milliseconds before performing comparisons is no longer required.
 
@@ -46,7 +49,7 @@ protected override IDictionary<Type, MethodInfo> ConvertFromMethods => ConvertFr
 protected override IDictionary<Type, MethodInfo> ConvertToMethods => ConvertToMethodsStatic;
 ```
 
-`RenderConvertToMethod` and `RenderConvertFromMethod` render conversion logic onto the N1QL query.  `RenderConvertToMethod` should convert from the standard serialized format to the format used by the customer converter.  `RenderConvertFromMethod` should do the inverse, converting from the custom format back to the standard format.  Note that inverting calls (converting one way and then back) are automatically excluded, and these methods will be skipped.
+`RenderConvertToMethod` and `RenderConvertFromMethod` render conversion logic onto the SQL++ query.  `RenderConvertToMethod` should convert from the standard serialized format to the format used by the customer converter.  `RenderConvertFromMethod` should do the inverse, converting from the custom format back to the standard format.  Note that inverting calls (converting one way and then back) are automatically excluded, and these methods will be skipped.
 
 ```cs
 protected override void RenderConvertToMethod(Expression innerExpression, IN1QlExpressionTreeVisitor expressionTreeVisitor)
@@ -129,7 +132,7 @@ To provide a more advanced registry, you can replace `CouchbaseLinqConfiguration
 
 ## Custom Serialization Libraries
 
-`ISerializationConverter<T>` implementations can also be used with custom serialization libraries. To support this, you should implement a customer `ISerializationConverterProvider`. This interface can return a custom `ISerializationConverter` for a particular member, altering query generation behavior when this member is used in a N1QL query.
+`ISerializationConverter<T>` implementations can also be used with custom serialization libraries. To support this, you should implement a customer `ISerializationConverterProvider`. This interface can return a custom `ISerializationConverter` for a particular member, altering query generation behavior when this member is used in a SQL++ query.
 
 ```cs
 services.AddCouchbase(options => {

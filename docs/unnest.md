@@ -1,5 +1,8 @@
 # Unnesting Documents
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 Unnesting documents is somewhat similar to performing a join.  However, instead of operating against documents in a bucket, it joins the main body of the document to subdocuments on arrays inside the main body of the document.  The main body of the document is repeated in the result set for each subdocument.
 
 ## Inner Unnests

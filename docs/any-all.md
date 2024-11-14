@@ -1,5 +1,8 @@
 # Any and All
 
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
 The LINQ Any and All methods are a useful way to test for a condition across a series of documents.
 
 ## Any

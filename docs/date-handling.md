@@ -1,6 +1,9 @@
 # Date Handling
 
-LINQ works with dates under the assumption that they are stored in the JSON documents as [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted strings. For more information about N1QL functions and date handling, see [Date functions](http://developer.couchbase.com/documentation/server/4.0/n1ql/n1ql-language-reference/datefun.html) in the N1QL language reference.
+> [NOTE]
+> The documetation has been updated to reflect that the product name for N1QL has been changed to SQL++, however, the source itself may still use the name N1QL.
+
+LINQ works with dates under the assumption that they are stored in the JSON documents as [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601) formatted strings. For more information about SQL++ functions and date handling, see [Date functions](http://developer.couchbase.com/documentation/server/4.0/n1ql/n1ql-language-reference/datefun.html) in the SQL++ language reference.
 
 Date/times stored as milliseconds since the Unix epoch are also supported. If you are using the default Newtonsoft.Json serializer, simply add the `[JsonConverter(typeof(UnixMillisecondsConverter)]` attribute to the property. For custom serializers, see [Custom JSON Serializers](./custom-serializers.md).
 
@@ -27,7 +30,7 @@ using (var cluster = new Cluster()) {
 
 ## Date Functions
 
-A subset of N1QL date/time functions are supported for use in LINQ queries, and are provided as static methods of the N1QlFunctions class.
+A subset of SQL++ date/time functions are supported for use in LINQ queries, and are provided as static methods of the N1QlFunctions class.
 
 ```cs
 using (var cluster = new Cluster()) {
@@ -46,7 +49,7 @@ using (var cluster = new Cluster()) {
 }
 ```
 
-| Function Name               | N1QL Equivalent |
+| Function Name               | SQL++ Equivalent |
 | --------------------------- | --------------- |
 | N1QlFunctions.DateDiff      | DATE_DIFF_STR   |
 | N1QlFunctions.DateAdd       | DATE_ADD_STR    |
