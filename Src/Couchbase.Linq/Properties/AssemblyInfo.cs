@@ -11,9 +11,11 @@ using System.Runtime.InteropServices;
 
 [assembly: Guid("f9de7771-ec88-4eae-a039-2bdcfa8f7c3b")]
 
+#if DEBUG
 // For writing tests against internal classes
 [assembly: InternalsVisibleTo("Couchbase.Linq.UnitTests")]
 [assembly: InternalsVisibleTo("Couchbase.Linq.IntegrationTests")]
 
 // For using Moq against internal classes
 [assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+#endif

@@ -5,7 +5,7 @@
     <Title>The official Linq provider for Couchbase N1QL</Title>
     <Authors>Couchbase, Inc.</Authors>
     <Owners>Couchbase, Inc.</Owners>
-    <Copyright>Copyright 2023</Copyright>
+    <Copyright>Copyright 2024</Copyright>
     <Description>The official Language Integrated Query (LINQ) provider for querying Couchbase Server with N1QL using the Couchbase .NET SDK 3.4 and greater.</Description>
     <PackageTags>couchbase;linq;n1ql;nosql;database</PackageTags>
 
@@ -24,10 +24,12 @@
 
     <Nullable>enable</Nullable>
     <SignAssembly>false</SignAssembly>
-    <Version>2.0.1-beta.1</Version>
-    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <Version>2.1.0</Version>
     <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageIcon>couchbase.png</PackageIcon>
+    <RepositoryUrl>https://github.com/couchbaselabs/Linq2Couchbase</RepositoryUrl>
+    <AssemblyOriginatorKeyFile>Couchbase.snk</AssemblyOriginatorKeyFile>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
@@ -45,6 +47,7 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
+    <None Include="../../README.md" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
