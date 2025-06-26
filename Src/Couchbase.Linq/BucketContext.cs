@@ -66,7 +66,7 @@ namespace Couchbase.Linq
             Query<T>(BucketQueryOptions.None);
 
         /// <inheritdoc />
-        public IQueryable<T> Query<T>(BucketQueryOptions options)
+        public virtual IQueryable<T> Query<T>(BucketQueryOptions options)
         {
             var (scope, collection) = CollectionMetadataCache.Instance.GetCollection<T>();
 
