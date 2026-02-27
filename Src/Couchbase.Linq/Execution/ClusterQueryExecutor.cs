@@ -106,7 +106,46 @@ namespace Couchbase.Linq.Execution
         /// <returns>List of objects returned by the request.</returns>
         public IEnumerable<T> ExecuteCollection<T>(string statement, LinqQueryOptions queryOptions)
         {
-            return ExecuteCollectionAsync<T>(statement, queryOptions).ToEnumerable();
+            // This sync-over-async pattern is not ideal, but necessary for compatibility
+            var asyncEnumerable = ExecuteCollectionAsync<T>(statement, queryOptions);
+
+            var enumerator = asyncEnumerable.GetAsyncEnumerator();
+            try
+            {
+                while (BlockingWait(enumerator.MoveNextAsync()))
+                {
+                    yield return enumerator.Current;
+                }
+            }
+            finally
+            {
+                BlockingWait(enumerator.DisposeAsync());
+            }
+        }
+
+        private static void BlockingWait(ValueTask task)
+        {
+            if (task.IsCompleted)
+            {
+                // Avoid allocating a Task unnecessarily if the ValueTask is already completed
+                task.GetAwaiter().GetResult();
+                return;
+            }
+
+            // ValueTask must be converted to Task to safely await the result if it is not completed
+            task.AsTask().GetAwaiter().GetResult();
+        }
+
+        private static T BlockingWait<T>(ValueTask<T> task)
+        {
+            if (task.IsCompleted)
+            {
+                // Avoid allocating a Task unnecessarily if the ValueTask is already completed
+                return task.GetAwaiter().GetResult();
+            }
+
+            // ValueTask must be converted to Task to safely await the result if it is not completed
+            return task.AsTask().GetAwaiter().GetResult();
         }
 
         public IAsyncEnumerable<T> ExecuteCollectionAsync<T>(QueryModel queryModel, CancellationToken cancellationToken = default)

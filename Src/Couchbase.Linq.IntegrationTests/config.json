@@ -2,6 +2,7 @@
   "couchbase": {
     "connectionString":  "couchbase://localhost",
     "username": "Administrator",
-    "password": "password"
+    "password": "password",
+    "enableDnsSrvResolution": false
   }
 }
