@@ -16,16 +16,16 @@ While not an officially supported Couchbase project, this repo is actively maint
 
 The Linq2Couchbase project has the following dependencies:
 
-- Couchbase Server 5.5 or greater with the query service enabled on at least one node
-- Couchbase .NET SDK 3.0.3 or greater
+- Couchbase Server 7.2 or greater with the query service enabled on at least one node
+- Couchbase .NET SDK 3.9.0 or greater
 
 ### Installing Couchbase Server
 
-For a single instance of Couchbase Server running on localhost, you can [download Couchbase Server here](https://www.couchbase.com/downloads) (make sure it's 4.0 or later). If you would like to create a cluster, the easiest way is by using the [Vagrant scripts for provisioning clusters](https://github.com/couchbaselabs/vagrants). Additionally, you can use [Docker scripts](https://hub.docker.com/r/couchbase/server/). Follow the directions on each respective link for installation information.
+For a single instance of Couchbase Server running on localhost, you can [download Couchbase Server here](https://www.couchbase.com/downloads) (make sure it's 7.2 or later). If you would like to create a cluster, the easiest way is by using the [Vagrant scripts for provisioning clusters](https://github.com/couchbaselabs/vagrants). Additionally, you can use [Docker scripts](https://hub.docker.com/r/couchbase/server/). Follow the directions on each respective link for installation information.
 
 ### Installing the package using NuGet
 
-Once you have a Couchbase Server instance or cluster setup, open Visual Studio 2019 or greater or [MonoDevelop](http://www.monodevelop.com/) and create a .NET or .NET Core application. Open the NuGet Package Manager and search for "Couchbase Linq" or type the following into the Package Manager console:
+Once you have a Couchbase Server instance or cluster setup, open Visual Studio 2026 or greater or [MonoDevelop](http://www.monodevelop.com/) and create a .NET or .NET Core application. Open the NuGet Package Manager and search for "Couchbase Linq" or type the following into the Package Manager console:
 
 ```powershell
 Install-Package Linq2Couchbase
